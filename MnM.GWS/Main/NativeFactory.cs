@@ -8,6 +8,7 @@ namespace MnM.GWS.Standard
 {
     public partial class NativeFactory : _Factory
     {
+#if !(Standard || Advanced)
         static string goforStandard = @"
             Implement your own version of {0} interface and supply instance here!. Alteranatively, you can download fully implemented standard version from http://mnminfotech.co.uk.";
 
@@ -71,27 +72,7 @@ namespace MnM.GWS.Standard
         #region TO PEN
         public override IPen ToPen(IReadContext context, int? w = null, int? h = null)
         {
-            if (context is IBrush)
-            {
-                var brush = (IBrush)context;
-                if (!brush.Match || (w == null && h == null))
-                    return brush;
-                if (brush.Width != w || brush.Height != h)
-                    return newBrush(brush.Style, w ?? brush.Width, h ?? brush.Height);
-                return brush;
-            }
-            else if (context is IPen)
-                return context as IPen;
-            if (context is Rgba)
-                return newPen((context as IColor).Color);
-
-            if (context is IColor)
-                return newPen((context as IColor).Color);
-
-            if (context is BrushStyle)
-                return newBrush((BrushStyle)context, w ?? 100, h ?? 100);
-
-            return newPen(0);
+            throw new NotImplementedException();
         }
         #endregion
 
@@ -101,5 +82,6 @@ namespace MnM.GWS.Standard
             throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
         }
         #endregion
+#endif
     }
 }
