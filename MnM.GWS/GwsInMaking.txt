@@ -1,0 +1,153 @@
+﻿/* Licensed under the MIT/X11 license.
+* Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
+* This notice may not be removed from any source distribution.
+* See license.txt for detailed licensing details. */
+
+This Library could not be possible without the following online open-source code snippets, articles and blogs.
+We pulled almost impossible task to narrow down what exactly is needed rather than what is the best.
+The only purpose, at the very beginning was to provide cross platform integration to MnMVirtualControlFramework, which later,
+transformed into fully fledged 2D Graphics and Windowing System.
+
+Core project foundation (SDL is heart and brain of this library - zillion thanks to : Mr. Sam Lantinga and Loki Entertainment Software, Inc.)
+	01. https://wiki.libsdl.org
+
+Windowing System (Windowing classes structure is inspired heavily from OpenTK and SFML OOP approach - 
+	although we choose to go with SDL's ability to decide which backend to use for window creation so we ditched the factory pattern 
+	used  OpenTK which  turn made a completely different structure and code than OpenTK):
+	01. https://wiki.libsdl.org
+	02. Source Inspiration : https://github.com/opentk/opentk
+
+Design Inspiration (Our OOP is inspired by the following open- source code bases): 
+	01. https://www.sfml-dev.org/
+	02. https://github.com/mellinoe/veldrid
+	03. https://sourceforge.net/p/taoclassic/wiki/Home/
+	04. http://cs-sdl.sourceforge.net/
+
+Image Processing (Image reading and writing especially for formats other than bitmaps):
+	01. https://github.com/rds1983/StbSharp
+	02. https://github.com/nothings/stb
+	03. https://github.com/rds1983/Sichem
+
+Graphics operations
+	Main:
+		01. https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm
+        02. https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+	    03. https://wiki.libsdl.org
+
+	Fragments Used:
+		01. http://www.edepot.com/algorithm.html
+		02. http://www.simppa.fi/blog/?p=521
+		03. https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm
+		04. http://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Colour.aspx
+		05. https://rechneronline.de/pi/rounded-rectangle.php
+		06. http://www.vcskicks.com/color-uint.php
+		07. https://gist.github.com/JoshClose/1367327
+		08. https://rechneronline.de/
+		09. https://richnewman.wordpress.com/about/code-listings-and-diagrams/hslcolor-class/
+		10. http://www.antigrain.com/
+		11. https://www.codeproject.com/Articles/1010822/RoundedButton-Control-Demystifying-DrawArc
+		12. https://stackoverflow.com/questions/38334081/howto-draw-circles-arcs-and-vector-graphics-in-sdl
+		13. https://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm#C.23
+		14. https://sites.google.com/site/ruslancray/lab/projects/bresenhamscircleellipsedrawingalgorithm/bresenham-s-circle-ellipse-drawing-algorithm
+		15. https://stackoverflow.com/questions/11678693/all-cases-covered-bresenhams-line-algorithm
+		16. http://mapidev.blogspot.com/2008/10/xiaolin-wu-look-like-circle.html
+		17. http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+		18. https://www.codeproject.com/Articles/19045/Manipulating-colors-in-NET-Part-1
+		19. https://www.mathsisfun.com/quadrilaterals.html
+		20. http://members.chello.at/easyfilter/bresenham.html
+		21. https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+
+Text & Font Rasterization + Rendering
+	01. https://www.libsdl.org/projects/SDL_ttf/
+	02. https://www.freetype.org/
+
+Multimedia - Audio & Video Playback (Optional not included  standard version to keep it lightweight)
+	01. https://mpv.io/
+	02. https://github.com/stax76/mpvnet
+
+Potential Web Integration (Perhapes the most difficult part left to be dealt once evetything else is done):
+	01. https://github.com/praeclarum/Ooui
+	02. https://github.com/lrz/mono-wasm
+	03. https://blogs.msdn.microsoft.com/webdev/2018/05/30/asp-net-core-2-1-0-now-available/
+
+Mobile Platform Intergration
+	01. https://visualstudio.microsoft.com/xamarin/
+	02. https://flutter.io/ - we are  seriously considering flutter to be a default patcher instead of xamarin.
+
+Compiler services (Yet to be integrated - as a part of perhappes world's lightest Development studio - MnM Dev Studio):
+	01. https://github.com/dotnet/roslyn
+	02. https://github.com/sklose/NCalc2
+
+Projects/ articles closely studied (Mainly to get a better understanding of how to approach design creation):
+	01. https://www.thoughtco.com/programming-games-using-sdl-net-958608
+	02. https://github.com/bminor/SDL_ttf/blob/master/external/freetype-2.4.12/docs/raster.txt
+	03. http://josiahmanson.com/prose/font_scaling/
+	04. https://www.joelonsoftware.com/2007/06/12/font-smoothing-anti-aliasing-and-sub-pixel-rendering/
+	05. http://www.antigrain.com/research/font_rasterization/
+	06. https://www.smashingmagazine.com/2012/04/a-closer-look-at-font-rendering/
+	07. https://medium.com/@thiagoluiz.nunes/rasterization-algorithms-computer-graphics-b9c3600a7587
+	08. https://inkscape.org/en/about/
+	09. https://gist.github.com/peterk87/5453080
+	09. http://www.ridgesolutions.ie/index.php/2013/02/13/c-save-grayscale-bytearray-image-byte-as-bitmap-file-bmp-example/
+	10. https://github.com/KonajuGames/TrueTypeSharp/issues/2
+	11. http://eatenbyagrue.org/using_stb_truetype_with_sdl.html
+	12. https://web.archive.org/web/20160325100729/http://freespace.virgin.net/hugo.elias/graphics/x_main.htm
+	13. https://www.opengl.org/
+	14. https://www.khronos.org/vulkan/
+	15. https://github.com/dotnet/core
+	16. https://dotnetfoundation.org/
+	17. http://rosettacode.org/wiki/Rosetta_Code
+	18. https://github.com/LayoutFarm
+	19. https://tgui.net/
+	20. https://github.com/MrVallentin/glText
+	21. https://github.com/jtsiomb/libdrawtext
+	22. https://www.codeproject.com/Articles/13501/Platform-Independent-Coding-DLLs-and-SOs
+	23. https://docs.microsoft.com/en-us/typography/truetype/
+	24. https://en.wikipedia.org/wiki/Subpixel_rendering
+	25. https://sites.google.com/site/bitiopia/
+	26. https://github.com/aBothe/FTGL-sharp
+	27. https://github.com/mono/SkiaSharp
+	28. https://github.com/zwcloud/CairoSharp
+	29. https://github.com/Robmaister/SharpFont
+	30. https://github.com/mattkol/Chromely
+	31. https://en.wikipedia.org/wiki/Electron_(software_framework)
+	32. https://www.videolan.org/vlc/index.en-GB.html
+	33. https://github.com/praeclarum/NGraphics
+	34. http://www.angusj.com 
+	35. http://www.me.berkeley.edu/~mcmains/pubs/DAC05OffsetPolygon.pdf   
+	36. http://portal.acm.org/citation.cfm?id=129906     
+	37. https://github.com/SixLabors/ImageSharp
+	38. https://github.com/SixLabors/Fonts
+	39. https://github.com/Creta5164/Monogame-MSDF-example
+	40. http://www.oxyplot.org/
+	41. http://texturelib.com/
+	42. http://faculty.cs.tamu.edu/schaefer/research/wavelet_rasterization.pdf
+	43. https://github.com/teichgraf/WriteableBitmapEx/
+	44. https://liballeg.org/
+	45. http://www.glfw.org/
+	47. https://github.com/grimfang4/sdl-gpu
+	48. https://www.codeproject.com/Tips/668161/Rendering-AltNETType-equals-NET-FreeType-port-with
+	49. https://skia.org/
+	50. https://urho3d.github.io/
+	51. https://stackoverflow.com/questions/16713076/array-bounds-check-efficiency-in-net-4-and-above
+	52. https://www.imperial.ac.uk/pls/portallive/docs/1/18619746.PDF
+    53. http://therichardmarks.tumblr.com/post/77058642144/how-to-create-a-gradient-using-sdl
+    54. https://sdl.libsdl.narkive.com/j2EcOlZW/gradient-examples
+	55. http://portal.acm.org/citation.cfm?id=129906                                 
+
+
+Blogs/ Tutorials visited:
+	01. https://www.opengl.org/discussion_boards/showthread.php/176206-An-easy-and-portable-FreeType-font-library
+	02. https://hero.handmade.network/episode/code/day163/
+	03. https://www.reddit.com/r/gamedev/comments/44npzz/sdl20_vs_sfml2_in_2016/
+	04. http://www.cplusplus.com/forum/general/190688/
+	05. https://linustechtips.com/main/topic/372751-c-allegro-vs-sfml-vs-sdl/
+	06. https://gist.github.com/swarminglogic/5858646
+	07. https://wiki.libsdl.org/MigrationGuide
+	08. https://www.youtube.com/watch?v=XS3E7Q_5TMg&t=382s
+	09. https://www.youtube.com/watch?v=VL4Q-kToh2k
+	10. https://blogs.msdn.microsoft.com/dotnet/2017/01/19/net-core-image-processing/
+	11. http://lazyfoo.net/
+	12. https://docs.microsoft.com/en-us/xamarin/graphics-games/urhosharp/introduction
+	13. https://www.quora.com/What-are-the-different-types-of-polygons
+	14. http://www.crbond.com/graph_misc.htm#Contour%20Plots

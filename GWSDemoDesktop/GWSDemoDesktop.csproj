@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;AllHidden;Window;GWS;GWS2;</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <Import Project="..\MnM.GWS\MnM.GWS.projitems" Label="Shared" />
+
+  <Import Project="..\MnM.GWS.SDL\MnM.GWS.SDL.projitems" Label="Shared" />
+
+  <Import Project="..\MnM.GWS.Desktop\MnM.GWS.Desktop.projitems" Label="Shared" />
+
+  <Import Project="..\MnM.Common\MnM.Common.projitems" Label="Shared" />
+
+</Project>

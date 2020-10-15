@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a95bf55a-29d4-4c0f-82e9-48bde03bf07a</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MnM.Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Converter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Evaluator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_IteratorT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_LexiconT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ObjDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PairKV.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Pens.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Timer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\CollectionT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Area.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\DrawSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Genre.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Genres.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\ImageStyle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\SysTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Pointer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Range.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\ReadOnlyListT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\TextDrawStyle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Timer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Collections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Data.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\DateTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Functions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\GWS-Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Texts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\BenchMarks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Matrixs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Windows.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Timers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Buffers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Objects.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\DrawParams.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Factories.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Font.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Media.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ObjectAbilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Primitive.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\PolyFill.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Shapes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\IDGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\APoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\AxisLine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\BrushStyle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Cmyk.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Hsl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Hsv.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\LinePair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Matrix3x2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Pixel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rectangle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\RectangleF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Angles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Blocks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Rects.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Vectors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Texts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Entry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\EnumTag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Collections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Data.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Delegates\Delegates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Common.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Dates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Dbs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Enumerables.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Enums.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Numbers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Operations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Texts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Functions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Common.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Lot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Eval.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rgba.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rotation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Size.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\SizeF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Span.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Value.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Vector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Vector3.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\VectorF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Yuv.cs" />
+  </ItemGroup>
+</Project>

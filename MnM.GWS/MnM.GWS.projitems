@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>919b1bd8-b3e8-477b-93fe-fc314cbb8268</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MnM.GWS</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Surface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Empty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\ShapeParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\Converter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Pen.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\EventArgsT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\InvalidateEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\PaintEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\SizeEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Vectors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ObjCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Host.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PolyFill.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Font.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Glyph.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Factory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Box.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\BoxF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Texure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\Host.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\PolyFill.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Shape.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fonts\Font.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fonts\Font2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fonts\GlyphRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fonts\GlyphSlot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Factory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Sound.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ImageProcessing\StbImageProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Application.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\CancelEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\EventInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Glyphs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\KeyPressEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\LoopEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Bezier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Conic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Curve.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Glyph.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Line.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Polygon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\RoundedBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Text.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Traingle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Tetragon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ImageProcessing\STBImage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)GWS.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)GwsInMaking.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)UbuntuMono-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)UFL.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Fonts\" />
+    <Folder Include="$(MSBuildThisFileDirectory)ImageProcessing\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Windows\" />
+  </ItemGroup>
+</Project>
