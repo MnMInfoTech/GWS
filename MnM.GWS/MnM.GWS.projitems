@@ -14,7 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Surface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Main\Empty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\ShapeParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows\Converter.cs" />

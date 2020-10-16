@@ -4,8 +4,23 @@
 * See license.txt for detailed licensing details. */
 using System;
 
+//The following are just a namespaces allocation statements.
+namespace MnM.GWS.Standard { }
+namespace MnM.GWS.Advanced { }
+
+
+#if Standard
 namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
+namespace MnM.GWS
+#endif
 {
+    /*Please remove this file when you use either standard or advaced version of GWS implementation
+     * This is a dummy file just tells you to either obtain standrard or advanced version of GWS from M&M Info-Tech or
+     * to implement your own version.
+    */
     public partial class NativeFactory : _Factory
     {
 #if !(Standard || Advanced)
@@ -72,7 +87,7 @@ namespace MnM.GWS.Standard
         #region TO PEN
         public override IPen ToPen(IReadContext context, int? w = null, int? h = null)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(string.Format(goforStandard, "ISurface, ICanvas, IBrush, IObjCollection"));
         }
         #endregion
 
