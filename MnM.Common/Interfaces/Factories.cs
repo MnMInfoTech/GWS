@@ -6,7 +6,6 @@
 namespace MnM.GWS
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
     #region FACTORY
