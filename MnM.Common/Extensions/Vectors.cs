@@ -1332,7 +1332,7 @@ namespace MnM.GWS
             if (scaleX == null && scaleY == null)
             {
                 if (source is IEnumerable<VectorF>)
-                    return source as IEnumerable<VectorF>;
+                    return source;
                 return source.ToArray();
             }
             if (center == null)
@@ -1359,7 +1359,7 @@ namespace MnM.GWS
             if ((sx == 0 && sy == 0) || (sx == 1 && sy == 1))
             {
                 if (source is IEnumerable<VectorF>)
-                    return source as IEnumerable<VectorF>;
+                    return source;
                 return source.Select(x => new VectorF(x));
             }
             if (center == null)
