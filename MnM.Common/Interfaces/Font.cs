@@ -94,7 +94,7 @@ namespace MnM.GWS
     }
     #endregion
 
-    public interface IGlyphs : IDrawable, IEnumerable<IGlyph>
+    public interface IGlyphs : IDrawable, IEnumerable<IGlyph>, IRecognizable
     {
         /// <summary>
         /// Gets the child glyph at a given index

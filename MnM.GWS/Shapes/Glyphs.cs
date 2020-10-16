@@ -46,6 +46,7 @@ namespace MnM.GWS
         public string ID { get; private set; }
         public int Count => Data.Count;
         RectangleF IBoundsF.Bounds => Bounds;
+        public string Name => "Text";
         #endregion
 
         #region DRAW TO

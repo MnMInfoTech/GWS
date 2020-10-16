@@ -219,6 +219,7 @@ namespace MnM.GWS
             bufferID = null;
             shapeID = null;
             Clip = Size.Empty;
+            
             brushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
 
             if (FreezeSettings)
