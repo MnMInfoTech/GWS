@@ -180,7 +180,7 @@ namespace MnM.GWS.Desktop
                 MsDisplay.Screen.Refresh(cmbShape.Text + "", SetAngle());
                 MsMethod = null;
             }
-            //Window.Clear();
+            Window.Clear();
 
             if (GwsMethod != null)
             {

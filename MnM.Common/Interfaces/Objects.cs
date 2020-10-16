@@ -256,6 +256,15 @@ namespace MnM.GWS
         IFont Font { get; set; }
     }
     #endregion
+
+    #region ISIMPLE BUTTON
+    public interface ISimpleButton: ISimpleLabel
+    {
+        IBlock Image { get; set; }
+        ImagePosition ImageAlingn { get; set; }
+        IReadContext HoverStyle { get; set; }
+    }
+    #endregion
 #endif
 #endif
 }

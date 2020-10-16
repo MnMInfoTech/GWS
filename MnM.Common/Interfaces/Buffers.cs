@@ -133,8 +133,13 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IBLOCK
+    public interface IBlock : IWritable, ICopyable
+    { }
+    #endregion
+
     #region ISURFACE
-    public interface ISurface : IScalable, ICopyable, IWritable, IDisposed, IBackground, IClearable, IUpdatable
+    public interface ISurface : IBlock, IScalable, IBackground, IClearable, IUpdatable
 #if Advanced
         , IRenderTarget
 #endif
