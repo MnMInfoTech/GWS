@@ -176,7 +176,7 @@ namespace MnM.GWS
         #endregion
 
         #region WRITE PIXEL
-        public abstract void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha = null);
+        public abstract void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WritePixel(float val, int axis, bool horizontal, int color)
@@ -208,7 +208,7 @@ namespace MnM.GWS
         #endregion
 
         #region WRITE LINE
-        public abstract unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha = null);
+        public abstract unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void WriteLine(float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha)

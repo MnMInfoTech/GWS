@@ -134,13 +134,13 @@ namespace MnM.GWS
                 {
                     ReadLine(x, r, y, true, out int[] source, out srcIndex, out copylen);
                     fixed (int* src = source)
-                        destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++);
+                        destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
                     ++i;
                     ++y;
                 }
                 destRc = new Rectangle(destX, destY, copyW, i);
                 if (destRc)
-                    (destination as IUpdatable)?.Update(destRc.X, destRc.Y, destRc.Width, destRc.Height);
+                    destination.Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
                 return destRc;
             }
             #endregion

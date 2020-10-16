@@ -761,13 +761,13 @@ namespace MnM.GWS
             {
                 ReadLine(x, r, y, true, out int[] source, out srcIndex, out copylen);
                 fixed (int* src = source)
-                    destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++);
+                    destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
                 ++i;
                 ++y;
             }
             destRc = Rectangle.FromLTRB(x, y, r, dy);
             if (destRc)
-                (destination).Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height);
+                (destination).Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
 
             return destRc;
         }

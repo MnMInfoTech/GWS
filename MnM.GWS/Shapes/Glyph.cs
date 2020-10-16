@@ -109,9 +109,9 @@ namespace MnM.GWS
                     foreach (var item in Data)
                     {
                         if (item.Horizontal)
-                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen);
+                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, null);
                         else
-                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen);
+                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, null);
                     }
                 }
                 return true;

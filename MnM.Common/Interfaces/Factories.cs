@@ -156,6 +156,13 @@ namespace MnM.GWS
         #endregion
 
         #region TO PEN
+        /// <summary>
+        /// Creates a instance of Pen or Brush from the given context.
+        /// </summary>
+        /// <param name="context">Context to convert to IPen instance.</param>
+        /// <param name="w">Width of IPen instance. Will be default if not supplied.</param>
+        /// <param name="h">Height of IPen instance. Will be default if not supplied.</param>
+        /// <returns>IPen</returns>
         IPen ToPen(IReadContext context, int? w = null, int? h = null);
         #endregion
 

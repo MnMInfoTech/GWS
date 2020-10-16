@@ -63,8 +63,7 @@ namespace MnM.GWS
             IntPtr textureData;
             int lockedLength;
             Lock(dstRC, out textureData, out lockedLength);
-            source.CopyTo(srcX, srcY, dstRC.Width, dstRC.Height, textureData,
-                lockedLength, Width, 0, 0);
+            source.CopyTo(srcX, srcY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0);
             Unlock();
             CopyToRenderer(Handle, dstRC, dstRC);
         }
@@ -167,14 +166,14 @@ namespace MnM.GWS
                 CopyTo(x, y, r - x, b - y, (IntPtr)src, srcLen, copylen, 0, 0);
                 for (int j = y; j <= b; j++)
                 {
-                    destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++);
+                    destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
                     srcIndex += copylen;
                     if (srcIndex >= srcLen)
                         break;
                 }
             }
             destRc = new Rectangle(destX, destY, copyW, dy - destY);
-            (destination as IUpdatable)?.Update(destRc.X, destRc.Y, destRc.Width, destRc.Height);
+            destination.Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
             return destRc;
         }
         protected abstract void CopyToRenderer(IntPtr texture, Rectangle sourceRc, Rectangle destRc);

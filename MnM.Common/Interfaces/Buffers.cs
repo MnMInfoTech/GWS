@@ -92,7 +92,7 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha = null);
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
 
         /// <summary>
         /// Writes pixel to this block at given axial position using specified color.
@@ -117,7 +117,7 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the location where writing begins.</param>
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha = null);
+        unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
 
         /// <summary>
         /// Writes an axial line (either horizontal or vertical) to this object using specified parameters
@@ -128,7 +128,7 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical</param>
         /// <param name="pen">buffer pen which to read pixel from</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        void WriteLine(float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha = null);
+        void WriteLine(float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha);
         #endregion
     }
     #endregion
