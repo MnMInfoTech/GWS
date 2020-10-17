@@ -162,7 +162,7 @@ namespace MnM.GWS
         /// <summary>
         /// Prevents auto-sizing of brush according to the size of shape it is being used to render.
         /// </summary>
-        NoAutoSize = 0x20,
+        NoAutoSizing = 0x20,
 
         /// <summary>
         /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
