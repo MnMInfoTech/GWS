@@ -15,7 +15,7 @@ using System.Text;
 
 namespace MnM.GWS
 {
-    internal unsafe sealed class STBImage  : IImageProcessor
+    internal unsafe sealed class STBImage : IImageProcessor
     {
         #region variables 
         Stream receiver, sender;
@@ -202,7 +202,7 @@ namespace MnM.GWS
                         StbImageWrite.stbi_write_png_to_func(writeCallback, null, w, h, pitch, b, w * pitch);
                         break;
                     case ImageFormat.JPG:
-                        StbImageWrite.stbi_write_jpg_to_func(writeCallback, null,   w, h, pitch, b, quality);
+                        StbImageWrite.stbi_write_jpg_to_func(writeCallback, null, w, h, pitch, b, quality);
                         break;
                     case ImageFormat.HDR:
                         var f = new float[len];
@@ -211,7 +211,7 @@ namespace MnM.GWS
                             for (var i = 0; i < len; ++i)
                                 fptr[i] = b[i] / 255.0f;
 
-                            StbImageWrite.stbi_write_hdr_to_func(writeCallback, null,  w, h, pitch, fptr);
+                            StbImageWrite.stbi_write_hdr_to_func(writeCallback, null, w, h, pitch, fptr);
                         }
                         break;
                     case ImageFormat.TGA:
@@ -5509,7 +5509,7 @@ namespace MnM.GWS
                 if ((((tga_color_type) == (1)) && (sz != 8)) && (sz != 16)) goto errorEnd;
                 if (((((sz != 8) && (sz != 15)) && (sz != 16)) && (sz != 24)) && (sz != 32)) goto errorEnd;
                 res = (int)(1);
-                errorEnd:
+            errorEnd:
                 ;
                 stbi__rewind(s);
                 return (int)(res);
@@ -11219,7 +11219,7 @@ namespace MnM.GWS
                         ++class_set;
                     }
                 }
-                done:
+            done:
                 ;
 
                 CRuntime.free(part_classdata);
@@ -11718,7 +11718,7 @@ namespace MnM.GWS
                 int next;
                 int window_center;
                 f.channel_buffer_start = (int)(f.channel_buffer_end = (int)(0));
-                retry:
+            retry:
                 ;
                 if ((f.eof) != 0) return (int)(0);
                 if (maybe_start_packet(f) == 0) return (int)(0);
@@ -11894,7 +11894,7 @@ namespace MnM.GWS
                         {
                             zero_channel[i] = (int)(1);
                         }
-                        error:
+                    error:
                         ;
                     }
                 }
@@ -12435,7 +12435,7 @@ namespace MnM.GWS
                                 if ((c->sequence_p) != 0) last = (float)(val);
                             }
                         }
-                        skip:
+                    skip:
                         ;
                         setup_temp_free(f, mults, (int)(sizeof(ushort) * c->lookup_values));
                     }
@@ -13078,7 +13078,7 @@ namespace MnM.GWS
                                 return (uint)(1);
                             }
                         }
-                        invalid:
+                    invalid:
                         ;
                         set_file_offset(f, (uint)(retry_loc));
                     }
@@ -13232,7 +13232,7 @@ namespace MnM.GWS
                 if (vorbis_pump_first_frame(f) == 0) return (int)(0);
                 if ((f.current_loc) > (sample_number)) return (int)(error(f, (int)(VORBIS_seek_failed)));
                 return (int)(1);
-                error:
+            error:
                 ;
                 stb_vorbis_seek_start(f);
                 return (int)(error(f, (int)(VORBIS_seek_failed)));
@@ -13371,7 +13371,7 @@ namespace MnM.GWS
                     f.p_last.page_start = (uint)(last_page_loc);
                     f.p_last.page_end = (uint)(end);
                     f.p_last.last_decoded_sample = (uint)(lo);
-                    done:
+                done:
                     ;
                     set_file_offset(f, (uint)(restore_offset));
                 }

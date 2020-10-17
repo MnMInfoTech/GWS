@@ -3,12 +3,10 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MnM.GWS
 {
-    public class KeyPressEventArgs: EventArgs, IKeyPressEventArgs
+    public class KeyPressEventArgs : EventArgs, IKeyPressEventArgs
     {
         public KeyPressEventArgs()
         {

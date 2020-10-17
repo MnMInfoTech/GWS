@@ -11,7 +11,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which facilitates audio broadcasting.
     /// </summary>
-    public interface IAudio: ISound, IDisposable
+    public interface IAudio : ISound, IDisposable
     {
         /// <summary>
         /// Sample Rate to be used for processing.
@@ -50,7 +50,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represnts a base object to offer sound generation capabilities of the current operating system.
     /// </summary>
-    public interface ISound: IDisposable
+    public interface ISound : IDisposable
     {
         /// <summary>
         /// Specifies whether the sound should get repeated again and again after broadcasting is completed once.

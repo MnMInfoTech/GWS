@@ -63,7 +63,7 @@ namespace MnM.GWS
                 ATAN2_TABLE_NNX[i] = (-Angles.PI * 0.5f - ATAN2_TABLE_PPY[i]);
             }
         }
-        protected _Brush() 
+        protected _Brush()
         {
             MatchSize = true;
         }

@@ -1203,7 +1203,7 @@ namespace MnM.GWS
         #region INSTANCE OF
         public static Genre Of<T>()
         {
-           return new Genre(typeof(T), true, true);
+            return new Genre(typeof(T), true, true);
         }
         public static Genre Of<T>(T source)
         {

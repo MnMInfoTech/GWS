@@ -4,11 +4,10 @@
 * See license.txt for detailed licensing details. */
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MnM.GWS
 {
-    public abstract class _Lexicon<K, V, T> : Collection<T>, ILexicon<K, V, T> where T: IPair<K, V>
+    public abstract class _Lexicon<K, V, T> : Collection<T>, ILexicon<K, V, T> where T : IPair<K, V>
     {
         #region VARIABLES
         KeyCollection keys;
@@ -19,7 +18,7 @@ namespace MnM.GWS
         /// <summary>
         /// Initializes a new instance of the <see cref="Genres"/> class.
         /// </summary>
-        public _Lexicon() 
+        public _Lexicon()
         {
         }
 

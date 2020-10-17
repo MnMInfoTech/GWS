@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace MnM.GWS
 {
-    public struct Glyphs: IGlyphs
+    public struct Glyphs : IGlyphs
     {
         #region VARIABLES
         readonly IList<IGlyph> Data;
@@ -70,9 +70,9 @@ namespace MnM.GWS
         #region IENUMERABLE<VectorF>
         public IEnumerator<IGlyph> GetEnumerator()
         {
-           return Data.GetEnumerator();
+            return Data.GetEnumerator();
         }
-           
+
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();
         #endregion

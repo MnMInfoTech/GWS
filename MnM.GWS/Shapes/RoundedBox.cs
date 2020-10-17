@@ -59,7 +59,7 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to match bounds from.</param>
-        public RoundBox(Rectangle area, float cornerRadius) : 
+        public RoundBox(Rectangle area, float cornerRadius) :
             this(area.X, area.Y, area.Width, area.Height, cornerRadius)
         { }
 
@@ -67,7 +67,7 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to copy bounds from.</param>
-        public RoundBox(RectangleF area, float cornerRadius) : 
+        public RoundBox(RectangleF area, float cornerRadius) :
             this(area.X, area.Y, area.Width, area.Height, cornerRadius)
         { }
 
@@ -130,7 +130,7 @@ namespace MnM.GWS
         #region IEnumerable<VectorF>
         public IEnumerator<VectorF> GetEnumerator()
         {
-          return  points.GetEnumerator();
+            return points.GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();

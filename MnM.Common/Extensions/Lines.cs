@@ -167,7 +167,7 @@ namespace MnM.GWS
         #endregion
 
         #region MAKE DRAWABLE
-        public static void MakeDrawable(bool Scanning, ref float x1, ref float y1, ref float x2, ref float y2, float? slope, 
+        public static void MakeDrawable(bool Scanning, ref float x1, ref float y1, ref float x2, ref float y2, float? slope,
             out float calculatedSlope, out float c, Size clip = default(Size))
         {
             if (slope != null)
@@ -637,8 +637,8 @@ namespace MnM.GWS
         #endregion
 
         #region LINE TYPE
-                public static LineType Type(this ILine line) =>
-            Type(line.X1, line.Y1, line.X2, line.Y2, out _);
+        public static LineType Type(this ILine line) =>
+    Type(line.X1, line.Y1, line.X2, line.Y2, out _);
         #endregion
     }
 #endif

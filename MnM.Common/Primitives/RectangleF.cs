@@ -129,7 +129,7 @@ namespace MnM.GWS
         {
             if (other == null)
                 return false;
-            if( valid == 0 && !other)
+            if (valid == 0 && !other)
                 return true;
             return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
         }

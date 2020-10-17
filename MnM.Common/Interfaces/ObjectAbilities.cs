@@ -8,7 +8,6 @@ namespace MnM.GWS
 #if (GWS || Window) 
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.Design.Serialization;
 
     #region IRENDERABLE
     /// <summary>
@@ -45,7 +44,7 @@ namespace MnM.GWS
     #endregion
 
     #region IRENDERABLE2
-    public interface IRenderable2: IRenderable
+    public interface IRenderable2 : IRenderable
     {
         /// <summary>
         /// Draws itself to the parent window.
@@ -58,7 +57,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable: IRenderable2, IBounds, ILocation, ISize
+    public interface IHostable : IRenderable2, IBounds, ILocation, ISize
     {
         /// <summary>
         /// Gets bounds of this object.
@@ -217,7 +216,7 @@ namespace MnM.GWS
     #endregion
 
     #region IPOPUPABLE
-    public interface IPopupable: IHostable, IShowable2, IHideable
+    public interface IPopupable : IHostable, IShowable2, IHideable
     {
         /// <summary>
         /// True if this popup is visible.
@@ -237,7 +236,7 @@ namespace MnM.GWS
     /// exactly the same before it was drawn.
     /// Use this interface only for object for which you know drawn area before hand.
     /// </summary>
-    public interface IWipeable : IPopupable 
+    public interface IWipeable : IPopupable
     { }
     #endregion
 
@@ -260,7 +259,7 @@ namespace MnM.GWS
         /// <summary>
         /// Indicates if this object has a clip rect assigned now or not.
         /// </summary>
-        bool Clipped { get ; }
+        bool Clipped { get; }
 
         /// <summary>
         /// Gets or sets an area to restrict write operations.
@@ -291,14 +290,14 @@ namespace MnM.GWS
         Rectangle Clear(int x, int y, int width, int height, bool updateImmediate = false);
     }
     #endregion
-     
+
     #region IUPDATABLE
     /// <summary>
     /// Represents an object which has a capability to update the screen display.For example render window.
     /// It also supports selective update of certain area.
     /// </summary>
-    public interface IUpdatable:  ISize
-    {        
+    public interface IUpdatable : ISize
+    {
         /// <summary>
         /// Updates invalidated area on screen.
         /// </summary>
@@ -354,12 +353,12 @@ namespace MnM.GWS
         unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY);
     }
     #endregion
-    
+
     #region IROTATABLE
     /// <summary>
     /// Represents an object which has an angle of rotation. It must have bounds.
     /// </summary>
-    public interface IRotatable 
+    public interface IRotatable
     {
         /// <summary>
         /// Angle of rotation by which it has to rotate.
@@ -431,7 +430,7 @@ namespace MnM.GWS
     public interface IMinMaxSizable : IMinSizable, IMaxSizable
     { }
     #endregion
-     
+
     #region IOVERLAP
     /// <summary>
     /// Represents an object which can be drawn either on top or behind the other objects it overlaps with.
@@ -494,7 +493,7 @@ namespace MnM.GWS
     #endregion
 
     #region ICLONEABLE2
-    public interface ICloneable2: ICloneable
+    public interface ICloneable2 : ICloneable
     {
         object Clone(int width, int height);
     }

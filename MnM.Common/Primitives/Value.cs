@@ -2,9 +2,6 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MnM.GWS
 {
@@ -55,7 +52,7 @@ namespace MnM.GWS
         public T Current { get; private set; }
         public T Old { get; private set; }
 
-        public static implicit operator T (ValueClass<T> value) => value.Current;
+        public static implicit operator T(ValueClass<T> value) => value.Current;
         public static implicit operator ValueClass<T>(T value) => new ValueClass<T>(value);
 
         public void SetValue(T newValue, bool temporary)

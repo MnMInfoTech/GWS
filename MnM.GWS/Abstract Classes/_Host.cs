@@ -92,7 +92,7 @@ namespace MnM.GWS
         {
             return Buffer.Clear(updateImmediate);
         }
-        public virtual Rectangle Clear(int x , int y , int width , int height , bool updateImmediate = false)
+        public virtual Rectangle Clear(int x, int y, int width, int height, bool updateImmediate = false)
         {
             return Buffer.Clear(x, y, width, height, updateImmediate);
         }
@@ -154,7 +154,7 @@ namespace MnM.GWS
             Buffer.Render(renderable, context, drawX, drawY);
         void IWritable.WritePixel(float val, int axis, bool horizontal, int color) =>
             Buffer.WritePixel(val, axis, horizontal, color);
-      
+
         void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
             Buffer.WritePixel(val, axis, horizontal, color, Alpha);
 
@@ -176,7 +176,7 @@ namespace MnM.GWS
             var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
             return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY);
         }
-         
+
         public virtual Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY,
             int copyW, int copyH)
         {
@@ -190,6 +190,6 @@ namespace MnM.GWS
 
 #endif
         object ICloneable.Clone() => Buffer.Clone();
-#endregion
+        #endregion
     }
 }

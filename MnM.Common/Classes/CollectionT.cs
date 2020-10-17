@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-    public class Collection<T>: _Iterator<T>, IGwsCollection<T>, IArray<T>
+    public class Collection<T> : _Iterator<T>, IGwsCollection<T>, IArray<T>
     {
         #region VARIABLES
         T[] TData;
@@ -16,12 +16,12 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        public Collection() 
+        public Collection()
         {
             Length = 0;
             TData = new T[4];
         }
-        public Collection(int capacity): this()
+        public Collection(int capacity) : this()
         {
             Capacity = capacity;
         }
@@ -32,7 +32,7 @@ namespace MnM.GWS
             else
                 Capacity = capacity;
         }
-        public Collection(IEnumerable<T> collection):this()
+        public Collection(IEnumerable<T> collection) : this()
         {
             AddRange(collection);
         }
@@ -47,7 +47,7 @@ namespace MnM.GWS
                 if (value < Count)
                     return;
                 else if (value > Count)
-                   Resize(Math.Max(value, Count * 2));
+                    Resize(Math.Max(value, Count * 2));
             }
         }
         public override int Count => Length;
@@ -58,7 +58,7 @@ namespace MnM.GWS
             {
                 if (index < 0 || index >= Count)
                     throw new IndexOutOfRangeException();
-                return  TData[index];
+                return TData[index];
             }
             set
             {
@@ -98,7 +98,7 @@ namespace MnM.GWS
             int j = index;
             foreach (var item in items)
                 _data[j++] = item;
-            
+
             Array.Copy(TData, index, _data, index + sCount, Length - index);
             TData = _data;
             Length += sCount;
@@ -116,7 +116,7 @@ namespace MnM.GWS
         }
         public void RemoveAt(int index)
         {
-            if(index == Count - 1)
+            if (index == Count - 1)
             {
                 TData[index] = default(T);
                 --Length;
@@ -136,7 +136,7 @@ namespace MnM.GWS
         #region ADD
         public void Add(T item)
         {
-            if (TData.Length <= Count) 
+            if (TData.Length <= Count)
                 Resize(Count * 2);
             TData[Count] = item;
             Length++;
@@ -238,5 +238,5 @@ namespace MnM.GWS
             }
         }
         #endregion
-    } 
+    }
 }

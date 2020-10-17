@@ -4,14 +4,13 @@
 * See license.txt for detailed licensing details. */
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MnM.GWS
 {
     public struct EnumTag<T> where T : Enum
     {
-         public string Name { get; private set; }
-         public T Value { get; private set; }
+        public string Name { get; private set; }
+        public T Value { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumTag{T}"/> struct.

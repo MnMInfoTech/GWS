@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace MnM.GWS
 {
-    public abstract class _Evaluator: IEvaluator
+    public abstract class _Evaluator : IEvaluator
     {
         #region variables
         readonly Collection<string> usings = new Collection<string>(100);

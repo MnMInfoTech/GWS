@@ -179,7 +179,7 @@ namespace MnM.GWS
     /// <summary>
     /// This is a marker interface which represents an object which can be converted to a buffer pen.
     /// </summary>
-    public interface IReadContext 
+    public interface IReadContext
     {
     }
     #endregion

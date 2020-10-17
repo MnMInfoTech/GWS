@@ -16,7 +16,7 @@ namespace MnM.GWS
 
         #region PROPERTIES
         public int MinY { get; protected set; }
-        public int MaxY { get;  protected set; }
+        public int MaxY { get; protected set; }
         public int MinX { get; set; }
         public int MaxX { get; set; }
         public FillCommand FillCommand

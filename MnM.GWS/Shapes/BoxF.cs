@@ -58,8 +58,8 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to copy bounds from.</param>
-        public BoxF(RectangleF r):
-            this (r.X, r.Y, r.Width, r.Height)
+        public BoxF(RectangleF r) :
+            this(r.X, r.Y, r.Width, r.Height)
         { }
         /// <summary>
         /// Creates a box matching the specifiedlocation and size.
@@ -142,11 +142,11 @@ namespace MnM.GWS
         #endregion
 
         #region CONTAINS
-        public bool Contains( float x,  float y)
+        public bool Contains(float x, float y)
         {
             return x >= X && y >= Y && x <= Right && y <= Bottom;
         }
-        public bool Contains(float x, float y,  int offsetX,  int offsetY)
+        public bool Contains(float x, float y, int offsetX, int offsetY)
         {
             x -= offsetX;
             y -= offsetY;
@@ -159,13 +159,13 @@ namespace MnM.GWS
         {
             if (valid == 0 && other.valid == 0)
                 return true;
-           return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
+            return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
         }
         public override bool Equals(object obj)
         {
             if (obj is BoxF)
                 return Equals((BoxF)obj);
-            else if(obj is Rectangle)
+            else if (obj is Rectangle)
                 return Equals((BoxF)obj);
             return false;
         }
@@ -176,7 +176,7 @@ namespace MnM.GWS
         #endregion
 
         #region OPERATORS
-        public static implicit operator bool(BoxF r)=>
+        public static implicit operator bool(BoxF r) =>
             r.valid != 0;
         public static bool operator ==(BoxF a, BoxF b)
         {

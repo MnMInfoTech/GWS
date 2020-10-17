@@ -10,7 +10,7 @@ namespace MnM.GWS
     public static class IDGenerator
     {
         static readonly Dictionary<string, int> newIDs = new Dictionary<string, int>(100);
-      
+
         #region NEW ID
         /// <summary>
         /// Gets a new ID for a given object type.

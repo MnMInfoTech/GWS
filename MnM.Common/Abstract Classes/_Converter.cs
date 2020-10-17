@@ -6,10 +6,10 @@ using System;
 
 namespace MnM.GWS
 {
-    public abstract class _Converter: IConverter
+    public abstract class _Converter : IConverter
     {
         public bool ConvertTo<T>(string expression, out T result)
-        { 
+        {
             Type t = typeof(T);
 
             #region SIZE
@@ -101,7 +101,7 @@ namespace MnM.GWS
             #endregion
 
             #region POINTF
-            else if ( t== (typeof(VectorF)))
+            else if (t == (typeof(VectorF)))
             {
                 string h = "", w = "";
                 bool separate = false;

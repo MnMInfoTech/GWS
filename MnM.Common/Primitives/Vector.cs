@@ -32,7 +32,7 @@ namespace MnM.GWS
             Quadratic = 0;
         }
 
-        public Vector(int x, int y, byte quadratic = 0) 
+        public Vector(int x, int y, byte quadratic = 0)
         {
             X = x;
             Y = y;
@@ -42,7 +42,7 @@ namespace MnM.GWS
                 Valid = 0;
             Quadratic = quadratic;
         }
-        public Vector(int val, int axis, bool horizontal, byte quadratic) 
+        public Vector(int val, int axis, bool horizontal, byte quadratic)
         {
             Vectors.ToXY(ref val, ref axis, ref horizontal, out X, out Y);
             this = new Vector(X, Y, quadratic);
@@ -109,10 +109,10 @@ namespace MnM.GWS
         #endregion
 
         #region OPERATOR OVERLOADING
-        public static implicit operator bool (Vector p)=>
+        public static implicit operator bool(Vector p) =>
             p.Valid == 1;
 
-        public static implicit operator Size(Vector p)=>
+        public static implicit operator Size(Vector p) =>
             new Size(p.X, p.Y);
 
         public static Vector operator +(Vector p1, Vector p2) =>

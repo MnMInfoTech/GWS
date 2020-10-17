@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-using static MnM.GWS.Application;
-
 namespace MnM.GWS
 {
     public struct Bezier : IBezier

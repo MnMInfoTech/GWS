@@ -3,9 +3,9 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
-using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
@@ -728,7 +728,7 @@ namespace MnM.GWS
 
         #region ROTATE VECTORS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IList<VectorF> Rotate(this IEnumerable<VectorF> Source, Rotation angle, bool? antiClock = null, SkewType? skewType = null) 
+        public static IList<VectorF> Rotate(this IEnumerable<VectorF> Source, Rotation angle, bool? antiClock = null, SkewType? skewType = null)
         {
             if (angle)
                 return Source.Select(x => angle.Rotate(x, antiClock, skewType)).ToArray();

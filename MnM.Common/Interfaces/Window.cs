@@ -9,7 +9,7 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
     #region IRENDER-WINDOW
-    public interface IRenderWindow: IRenderTarget, IHandle, IResizable
+    public interface IRenderWindow : IRenderTarget, IHandle, IResizable
     {
         RendererFlags RendererFlags { get; }
     }
@@ -17,13 +17,13 @@ namespace MnM.GWS
 
     #region IHOST
     public interface IHost : IRenderWindow, IWritable, IContainer, IUpdatable,
-        IRecognizable, IResizable, IEventPusher, IShowable, IHideable, IRefreshable, 
+        IRecognizable, IResizable, IEventPusher, IShowable, IHideable, IRefreshable,
         IClearable, IFocusable, IBackground, IForeground, IDisposed,
         IDisposable, IMinimalEvents
 #if Advanced
        , IEvents , ISurface
 #endif
-    {   
+    {
         /// <summary>
         /// Gets or sets the text of this control.
         /// </summary>
@@ -172,7 +172,7 @@ namespace MnM.GWS
         /// <param name="index">Display number</param>
         /// <returns></returns>
         IResolution this[int index] { get; }
-       
+
         /// <summary>
         /// Returns the number of Displays.
         /// </summary>
@@ -245,27 +245,27 @@ namespace MnM.GWS
         /// Defines the visible rectangle that forms the Screen.
         /// </summary>
         Rectangle Bounds { get; }
-       
+
         /// <summary>
         /// X offset of visible screen.
         /// </summary>
-      
+
         int X { get; }
         /// <summary>
         /// Y offset of visible screen
         /// </summary>
-        
+
         int Y { get; }
         /// <summary>
         /// Gets the Colour resolution of the Screen.
         /// </summary>
-       
+
         int BitsPerPixel { get; }
         /// <summary>
         /// Gets the refresh rate of the Display (if relevant)
         /// </summary>
         float RefreshRate { get; }
-        
+
         /// <summary>
         /// Returns the coulor format used by the display.
         /// </summary>

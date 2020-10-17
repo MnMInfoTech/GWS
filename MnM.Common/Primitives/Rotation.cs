@@ -13,7 +13,7 @@ namespace MnM.GWS
     /// Represents rotation object which contains requisite information to rotate an object.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct Rotation: IScale
+    public struct Rotation : IScale
     {
         #region VARIABLES
         /// <summary>
@@ -105,7 +105,7 @@ namespace MnM.GWS
         /// <param name="cy">Y co-ordinate of center of rotation.</param>
         /// <param name="hasCenter">If true then HasCenter flag is set to true and center is deemed to be permanently assigned otherwise temporarily.</param>
         /// <param name="type">Type of rotation.</param>
-        public Rotation(float degree, int? cx = null, int? cy = null, bool? hasCenter = null, SkewType? skewType = null) 
+        public Rotation(float degree, int? cx = null, int? cy = null, bool? hasCenter = null, SkewType? skewType = null)
         {
             Degree = degree;
             Cx = cx ?? 0;
@@ -142,7 +142,7 @@ namespace MnM.GWS
             Cy = cy ?? angle.Cy;
             HasCenter = hasCenter ?? (cx != null || cy != null);
 
-            if(skewType !=null && skewType != angle.Skew)
+            if (skewType != null && skewType != angle.Skew)
                 Skew = Angles.GetScale(angle.Degree, skewType, out ScaleX, out ScaleY);
             else
             {
@@ -157,7 +157,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Angle object to be copied.</param>
         /// <param name="center">Center of this angle to be.
-        public Rotation(Rotation angle, VectorF center, bool? hasCenter = null,  SkewType? skewType = null) :
+        public Rotation(Rotation angle, VectorF center, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, center.X.Round(), center.Y.Round(), hasCenter, skewType)
         { }
 
@@ -166,7 +166,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="center">Center of this angle to be.
-        public Rotation(float angle, VectorF center, bool? hasCenter = null,  SkewType? skewType = null) :
+        public Rotation(float angle, VectorF center, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, center.X.Round(), center.Y.Round(), hasCenter, skewType)
         { }
 
@@ -175,7 +175,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="center">Center of this angle to be.
-        public Rotation(float angle, Vector center, bool? hasCenter = null,  SkewType? skewType = null) :
+        public Rotation(float angle, Vector center, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, center.X, center.Y, hasCenter, skewType)
         { }
 
@@ -184,7 +184,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="area">Rectangle of which center will be used as the center of this angle.</param>
-        public Rotation(float angle, RectangleF area, bool? hasCenter = null,  SkewType? skewType = null) :
+        public Rotation(float angle, RectangleF area, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, area.Center().Round(), hasCenter, skewType)
         { }
 
@@ -193,17 +193,17 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="area"></param>
-        public Rotation(float angle, Rectangle area, bool? hasCenter = null,  SkewType? skewType = null) :
+        public Rotation(float angle, Rectangle area, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, area.Center(), hasCenter, skewType)
         { }
         #endregion
 
         #region PROPERTIES
-        public bool Diagonal => 
+        public bool Diagonal =>
             Skew.HasFlag(SkewType.Diagonal);
         float IScale.X => ScaleX;
         float IScale.Y => ScaleY;
-        public  bool HasScale => (ScaleX != 0 || ScaleY != 0);
+        public bool HasScale => (ScaleX != 0 || ScaleY != 0);
         #endregion
 
         #region OPERATORS

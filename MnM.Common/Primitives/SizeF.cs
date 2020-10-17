@@ -12,7 +12,7 @@ namespace MnM.GWS
     /// Represents dimension in terms of width and height.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct SizeF 
+    public struct SizeF
     {
         /// <summary>
         /// Value of Width.

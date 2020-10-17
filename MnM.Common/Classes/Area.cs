@@ -24,7 +24,7 @@ namespace MnM.GWS
         /// </summary>
         public Rectangle Value
         {
-            get 
+            get
             {
                 var x = minX - LocationOffset;
                 var y = minY - LocationOffset;

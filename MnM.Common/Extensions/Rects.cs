@@ -565,7 +565,7 @@ namespace MnM.GWS
 
         #region MIN MAX 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MinMax(this IEnumerable<Rectangle> collection, ref int minX, ref int minY, ref int maxX, ref int maxY) 
+        public static void MinMax(this IEnumerable<Rectangle> collection, ref int minX, ref int minY, ref int maxX, ref int maxY)
         {
             ResetMinMax(out minX, out minY, out maxX, out maxY);
 
@@ -676,7 +676,7 @@ namespace MnM.GWS
             }
             SkewType skew = 0;
 
-            if(angle)
+            if (angle)
             {
                 skew = angle.Skew;
                 flatSkew = skew == SkewType.Horizontal || skew == SkewType.Vertical;

@@ -20,13 +20,13 @@ namespace MnM.GWS
         /// Number of positions.
         /// </summary>
         public readonly int PositionCount;
-       
+
         /// <summary>
         /// Kind of gradient that colors should generate.
         /// Usually one may pick on value from Gradient enum for native GWS gradients or define their own and handle it in spectrum and brush class on their own.
         /// </summary>
         public readonly int Gradient;
-        
+
         /// <summary>
         /// Key which represents the ID of this style.
         /// </summary>
@@ -180,7 +180,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets the last color in list.
         /// </summary>
-        public int EndColor => 
+        public int EndColor =>
             Colors[Colors.Length - 1];
 
         public bool Valid => valid != 0;
@@ -193,9 +193,9 @@ namespace MnM.GWS
         #endregion
 
         #region EQUALITY
-        public static bool operator == (BrushStyle fs1, BrushStyle fs2) =>
+        public static bool operator ==(BrushStyle fs1, BrushStyle fs2) =>
             fs1.Equals(fs2);
-        public static bool operator != (BrushStyle fs1, BrushStyle fs2) =>
+        public static bool operator !=(BrushStyle fs1, BrushStyle fs2) =>
             !fs1.Equals(fs2);
 
         public override int GetHashCode() =>
@@ -373,7 +373,7 @@ namespace MnM.GWS
         #endregion
 
         #region OPERATORS
-        public static implicit operator bool(BrushStyle b)=>
+        public static implicit operator bool(BrushStyle b) =>
             b.valid != 0;
         #endregion
 

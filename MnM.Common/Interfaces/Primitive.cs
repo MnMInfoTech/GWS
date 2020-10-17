@@ -6,8 +6,6 @@
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    using System;
-    using System.Collections.Generic;
 
     #region ISize
     /// <summary>

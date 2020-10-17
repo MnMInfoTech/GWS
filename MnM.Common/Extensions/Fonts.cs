@@ -10,12 +10,11 @@ namespace MnM.GWS
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
 
     public static partial class Fonts
     {
         #region MEASURE TEXT
-        public static void MeasureText(this IFont font, string text, float destX, float destY, 
+        public static void MeasureText(this IFont font, string text, float destX, float destY,
             out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, TextDrawStyle drawStyle = null)
         {
             Area = RectangleF.Empty;
@@ -30,11 +29,11 @@ namespace MnM.GWS
             for (int i = 0; i < Glyphs.Count; i++)
                 Glyphs[i] = font.GetGlyph(text[i]);
 
-            MeasureGlyphs(font, Glyphs, destX, destY, out Area,  out ResultGlyphs, out minHBY, drawStyle);
+            MeasureGlyphs(font, Glyphs, destX, destY, out Area, out ResultGlyphs, out minHBY, drawStyle);
         }
-    
-        public static void MeasureGlyphs(this IFont font, IList<IGlyph> Glyphs, float destX, float destY, 
-            out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY,  TextDrawStyle drawStyle = null)
+
+        public static void MeasureGlyphs(this IFont font, IList<IGlyph> Glyphs, float destX, float destY,
+            out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, TextDrawStyle drawStyle = null)
         {
             Area = RectangleF.Empty;
             minHBY = 0;

@@ -4,11 +4,20 @@
 * See license.txt for detailed licensing details. */
 
 #if Window
-using MnM.GWS;
-
 using System;
+
+/* Unmerged change from project 'GWSDemoDesktop'
+Before:
 using System.Runtime.InteropServices;
 using static MnM.GWS.Application;
+After:
+using System.Runtime.InteropServices;
+
+using MnM.GWS;
+
+using static MnM.GWS.Application;
+*/
+using System.Runtime.InteropServices;
 
 /*
  * We have used some part of the structs definitions below from the...
@@ -47,7 +56,7 @@ using static MnM.GWS.Application;
  *
  */
 namespace MnM
-{  
+{
     namespace GWS
     {
         [StructLayout(LayoutKind.Sequential)]

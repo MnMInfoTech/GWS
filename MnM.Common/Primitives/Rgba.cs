@@ -7,7 +7,7 @@ using System;
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    public struct Rgba: IReadContext, IColor
+    public struct Rgba : IReadContext, IColor
     {
         #region VARAIBLES
         /// <summary>
@@ -37,7 +37,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        public Rgba(byte r, byte g, byte b, byte a): this()
+        public Rgba(byte r, byte g, byte b, byte a) : this()
         {
             R = r;
             G = g;
@@ -62,7 +62,7 @@ namespace MnM.GWS
         public Rgba(int r, int g, int b, int a = 255) :
             this((byte)r, (byte)g, (byte)b, (byte)a)
         { }
-       
+
         public Rgba(int value, byte externalAlpha)
         {
             R = (byte)((value >> Colors.RShift) & 0xFF);

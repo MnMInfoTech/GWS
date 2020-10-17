@@ -5,9 +5,6 @@
 
 #if Window
 using System;
-using System.Runtime.CompilerServices;
-
-using static MnM.GWS.Application;
 
 namespace MnM.GWS
 {
@@ -27,10 +24,10 @@ namespace MnM.GWS
             #region CONSTRUCTORS
             public SdlTexture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, uint? pixelformat = null, TextureAccess? textureAccess = null) :
                 base(window, w, h, isPrimary, pixelformat, textureAccess)
-            {  }
+            { }
             public SdlTexture(IRenderWindow window, ICopyable source, bool isPrimary = false, uint? pixelformat = null, TextureAccess? textureAccess = null) :
                 base(window, source, isPrimary, pixelformat, textureAccess)
-            {  }
+            { }
             #endregion
 
             #region PROPERTIES
@@ -76,7 +73,7 @@ namespace MnM.GWS
             #endregion
 
             #region COPY TO RENDERER
-            protected override void CopyToRenderer(IntPtr texture, Rectangle sourceRc,  Rectangle destRc)
+            protected override void CopyToRenderer(IntPtr texture, Rectangle sourceRc, Rectangle destRc)
             {
                 SdlFactory.RenderCopyTexture(Renderer, texture, sourceRc, destRc);
                 SdlFactory.UpdateRenderer(Renderer);
@@ -92,7 +89,7 @@ namespace MnM.GWS
                 var acc = access ?? TextureAccess.Streaming;
                 var f = format ?? SdlFactory.pixelFormat;
                 var handle = SdlFactory.CreateTexture(Renderer, f, acc, w, h);
-                SdlFactory.QueryTexture(Handle, out f, out  acc , out w, out h);
+                SdlFactory.QueryTexture(Handle, out f, out acc, out w, out h);
                 size = new Size(w, h);
                 SdlFactory.SetTextureBlendMod(handle, BlendMode.None);
                 return handle;

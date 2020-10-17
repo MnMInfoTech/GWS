@@ -2,8 +2,6 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-using System;
-using System.Collections.Generic;
 
 namespace MnM.GWS
 {
@@ -34,7 +32,7 @@ namespace MnM.GWS
     #endregion
 
     #region IWINCONTROL
-    public interface IWindowControl : IDependentObject,  IHandle, IEventPusher, IClearable
+    public interface IWindowControl : IDependentObject, IHandle, IEventPusher, IClearable
     {
         /// <summary>
         /// Gets or sets the text of this control.
@@ -50,7 +48,7 @@ namespace MnM.GWS
 #if Advanced
         , IEventPusher
 #endif
-    { 
+    {
         Vector Location { get; set; }
         Size Size { get; set; }
     }
