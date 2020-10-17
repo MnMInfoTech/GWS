@@ -34,6 +34,12 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region PROPERTIES
+        public string ID => base.Name;
+        RectangleF IBoundsF.Bounds { get; }
+        Rectangle IHostable.Bounds { get; }
+        public int X => Bounds.X;
+        public int Y => Bounds.Y;
+
         public IReadContext Background
         {
             get => (Window as IBackground)?.Background;
@@ -74,7 +80,7 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region DRAW
-        public bool Draw(IReadContext readContext, out IPen pen)
+        public bool Draw(out IPen pen)
         {
             pen = null;
             return true;
@@ -219,8 +225,6 @@ namespace MnM.GWS.Desktop
         public event EventHandler<IMouseEventArgs> AppClicked;
         public event EventHandler<ISizeEventArgs> Resized;
         public new event EventHandler<IDrawEventArgs> Paint;
-        public string ID { get; }
-        RectangleF IBoundsF.Bounds { get; }
         #endregion
 
         #region DISPOSE
