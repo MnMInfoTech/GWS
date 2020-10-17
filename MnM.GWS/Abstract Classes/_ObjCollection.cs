@@ -67,8 +67,8 @@ namespace MnM.GWS
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
 
-                if (Shape is IDependent)
-                    ((IDependent)Shape).Assign(Parent);
+                if (Shape is IHostable)
+                    ((IHostable)Shape).Assign(Parent);
             }
             Parent.Render(Shape, context, drawX, drawY);
             AddMode = false;

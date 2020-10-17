@@ -7,7 +7,7 @@ namespace MnM.GWS
     public class EventInfo : IEventInfo
     {
         public static readonly EventInfo Empty = new EventInfo();
-        internal EventInfo()
+        public EventInfo()
         {
             Status = EventUseStatus.Unused;
         }

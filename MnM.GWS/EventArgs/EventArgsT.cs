@@ -10,12 +10,12 @@ namespace MnM.GWS
 {
     public class EventArgs<T>: EventArgs, IEventArgs<T>
     {
-        protected internal EventArgs() { }
+        public EventArgs() { }
         public EventArgs(T args)
         {
             Args = args;
         }
-        public T Args { get;  protected internal set; }
+        public T Args { get;   set; }
     }
     public class EventArgs<T1, T2> : EventArgs<T1>
     {

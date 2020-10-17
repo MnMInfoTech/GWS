@@ -72,8 +72,18 @@ namespace MnM.GWS
 
             if (renderable is IRenderable2)
             {
-                ((IRenderable2)renderable).Draw(readContext, out Pen);
+                var assignForeground = Context != null && renderable is IForeground;
+                IReadContext controlContext = null;
+                if (assignForeground)
+                {
+                    controlContext = ((IForeground)renderable).Foreground;
+                    ((IForeground)renderable).Foreground = Context;
+                }
+                
+                ((IRenderable2)renderable).Draw(out Pen);
                 End(Pen);
+                if(assignForeground)
+                    ((IForeground)renderable).Foreground = controlContext;
                 return;
             }
             else if (renderable is IDrawable)

@@ -48,7 +48,7 @@ namespace MnM.GWS.Desktop
         public IReadContext Foreground { get; set; }
         Rectangle IBounds.Bounds => 
             new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
-        ISurface IDependent.Window => Window;
+        ISurface IHostable.Window => Window;
         #endregion
 
         #region ASSIGN PARENT

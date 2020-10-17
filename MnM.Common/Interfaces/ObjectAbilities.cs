@@ -8,6 +8,7 @@ namespace MnM.GWS
 #if (GWS || Window) 
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.Design.Serialization;
 
     #region IRENDERABLE
     /// <summary>
@@ -43,25 +44,27 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IDRAWABLE-DIRECT
+    #region IRENDERABLE2
     public interface IRenderable2: IRenderable
     {
         /// <summary>
-        /// Draws itself to the parent window by creating readable pen from the given context.
-        /// If the context itself is pen and if it needs to be changed then this is possible by
-        /// Calling SetPen method in renderer and then using current pen in renderer through 
-        /// CurrentPen property.
+        /// Draws itself to the parent window.
         /// </summary>
-        /// <param name="readContext">Read context to create a valid pen to draw on buffer.</param>
-        bool Draw(IReadContext readContext, out IPen pen);
+        bool Draw(out IPen pen);
     }
     #endregion
-    #region IDEPENDENT
+
+    #region IHOSTABLE
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IDependent: IRenderable2
+    public interface IHostable: IRenderable2, IBounds, ILocation, ISize
     {
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
+        new Rectangle Bounds { get; }
+
         /// <summary>
         /// Parent window this object belongs to.
         /// </summary>
@@ -75,15 +78,62 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IVISIBLE2
-    public interface IVisible2
+    #region IVISIBLE
+    public interface IVisible
     {
         /// <summary>
-        /// Shows this window on screen.
+        /// Gets if an object is visble or not.
+        /// </summary>
+        bool Visible { get; }
+
+        /// <summary>
+        /// Gets if an object is enabled or not. However, only visible object can be treated enabled if it is enabled for the purpose of receiving inputs.
+        /// </summary>
+        bool Enabled { get; }
+    }
+
+    /// <summary>
+    /// Indicates if an object can be shown and hidden as wells as disabled and enabled.
+    /// </summary>
+    public interface IVisible2 : IVisible
+    {
+        /// <summary>
+        /// Gets or sets if an object is visble or not.
+        /// </summary>
+        new bool Visible { get; set; }
+
+        /// <summary>
+        /// Gets or sets if an object is enabled or not. However, only visible object can be treated enabled if it is enabled for the purpose of receiving inputs.
+        /// </summary>
+        new bool Enabled { get; set; }
+    }
+    #endregion
+
+    #region ISHOWABLE
+    public interface IShowable
+    {
+        /// <summary>
+        /// Shows this object on screen.
         /// </summary>
         void Show();
+    }
+    #endregion
+
+    #region ISHOWABLE2
+    public interface IShowable2
+    {
         /// <summary>
-        /// Hides this window from screen.
+        /// Shows this object on screen.
+        /// </summary>
+        void Show(int x, int y);
+    }
+    #endregion
+
+    #region IHIDABLE
+    public interface IHideable
+    {
+        /// <summary>
+        /// Hides this object from screen.
         /// </summary>
         void Hide();
     }
@@ -166,38 +216,41 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IPOPUPABLE
+    public interface IPopupable: IHostable, IShowable2, IHideable
+    {
+        /// <summary>
+        /// True if this popup is visible.
+        /// </summary>
+        bool Visible { get; }
+
+        /// <summary>
+        /// Gets the bounds of this object.
+        /// </summary>
+        new Rectangle Bounds { get; }
+    }
+    #endregion
+
     #region IWIPEABLE
     /// <summary>
     /// Represents an object which can be drawn and then wiped off completely restoring the state of screen
     /// exactly the same before it was drawn.
     /// Use this interface only for object for which you know drawn area before hand.
     /// </summary>
-    public interface IWipeable: IRenderable, ISize, IBounds, IDependent
+    public interface IWipeable : IPopupable 
+    { }
+    #endregion
+
+    #region IAUTOSIZABLE
+    /// <summary>
+    /// Represents an object which size can be set to be fitting its content.
+    /// </summary>
+    public interface IAutoSizable
     {
         /// <summary>
-        /// Gets X coordinate.
+        /// Gets or sets a flag indicating if this popup should resize automatically according to the size of its items.
         /// </summary>
-        int X { get; }
-
-        /// <summary>
-        /// Gets Y coordinate.
-        /// </summary>
-        int Y { get; }
-
-        new Rectangle Bounds { get; }
-
-        /// <summary>
-        /// Shows this popup at a location having x and y cordinates specified.
-        /// If not specified or null, it takes the coordinates from the current mouse position on screen.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        void Show(int? x = null, int? y = null);
-
-        /// <summary>
-        /// Hide this poup.
-        /// </summary>
-        void Hide();
+        bool AutoSize { get; set; }
     }
     #endregion
 
@@ -353,45 +406,32 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IMINMAXSIZEHOLDER
-    public interface IMinMaxSizeHolder
+    #region IMINMAXSIZABLE
+    /// <summary>
+    /// Represents an object of which minimum size can be changed.
+    /// </summary>
+    public interface IMinSizable
     {
+        /// <summary>
+        /// Gets or sets minimum size of this object.
+        /// </summary>
         Size MinSize { get; set; }
-        Size MaxSize { get; set; }
-    }
-    #endregion
-     
-    #region IVISIBLE
-    public interface IVisible0
-    {
-        /// <summary>
-        /// Gets if an object is visble or not.
-        /// </summary>
-        bool Visible { get; }
-
-        /// <summary>
-        /// Gets if an object is enabled or not. However, only visible object can be treated enabled if it is enabled for the purpose of receiving inputs.
-        /// </summary>
-        bool Enabled { get; }
     }
 
     /// <summary>
-    /// Indicates if an object can be shown and hidden as wells as disabled and enabled.
+    /// Represents an object of which maximum size can be changed.
     /// </summary>
-    public interface IVisible: IVisible0
+    public interface IMaxSizable
     {
         /// <summary>
-        /// Gets or sets if an object is visble or not.
+        /// Gets or sets maximum size of this object.
         /// </summary>
-        new bool Visible { get; set; }
-
-        /// <summary>
-        /// Gets or sets if an object is enabled or not. However, only visible object can be treated enabled if it is enabled for the purpose of receiving inputs.
-        /// </summary>
-        new bool Enabled { get; set; }
+        Size MaxSize { get; set; }
     }
+    public interface IMinMaxSizable : IMinSizable, IMaxSizable
+    { }
     #endregion
-
+     
     #region IOVERLAP
     /// <summary>
     /// Represents an object which can be drawn either on top or behind the other objects it overlaps with.
@@ -434,21 +474,12 @@ namespace MnM.GWS
     #endregion
 
     #region IWINDOWABLE
-    public interface IWindowable : IRefreshable, ISize, IFocusable, IMoveable,
-        IResizable, IOVerlap, IMinMaxSizeHolder, IVisible2, IVisible, IMinimalEvents, IDisposable
+    public interface IWindowable : IRefreshable, ISize, IFocusable, IMoveable, ILocation,
+        IResizable, IOVerlap, IMinMaxSizable, IShowable, IHideable, IVisible2, IMinimalEvents, IDisposable
 #if Advanced
         , IEvents
 #endif
     {
-        /// <summary>
-        /// Gets X coordinate.
-        /// </summary>
-        int X { get; }
-
-        /// <summary>
-        /// Gets Y coordinate.
-        /// </summary>
-        int Y { get; }
     }
     #endregion
 

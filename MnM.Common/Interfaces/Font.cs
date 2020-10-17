@@ -83,6 +83,16 @@ namespace MnM.GWS
     public interface IGlyph : IDrawable, ICloneable, ILocation
     {
         /// <summary>
+        /// Gets or sets X co-ordinate of position of this glyph.
+        /// </summary>
+        new int X { get; set; }
+
+        /// <summary>
+        /// Gets or sets Y co-ordinate of position of this glyph.
+        /// </summary>
+        new int Y { get; set; }
+
+        /// <summary>
         /// The character which the glyph represents.
         /// </summary>
         char Character { get; }

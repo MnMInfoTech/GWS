@@ -30,8 +30,8 @@ namespace MnM.GWS
             IPen Pen = null;
             var Settings = buffer.Settings;
 
-            if (shape is IVisible)
-                enabled = (shape as IVisible).Enabled;
+            if (shape is IVisible2)
+                enabled = (shape as IVisible2).Enabled;
 
             if (!enabled)
             {

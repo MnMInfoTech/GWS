@@ -10,7 +10,7 @@ namespace MnM.GWS
 {
     public class KeyPressEventArgs: EventArgs, IKeyPressEventArgs
     {
-        internal KeyPressEventArgs()
+        public KeyPressEventArgs()
         {
 
         }

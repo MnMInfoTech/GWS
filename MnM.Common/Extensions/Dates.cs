@@ -13,10 +13,8 @@ namespace MnM.GWS
     public static class Dates
     {
         #region variables/consts
-        [field: NonSerialized]
         const string dateformat = "{0}-{1}-{2}";
 
-        [field: NonSerialized]
         const string timeformat = "{0}:{1}:{2}.{3}";
 
         /// <summary>

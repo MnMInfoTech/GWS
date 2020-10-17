@@ -169,7 +169,10 @@ namespace MnM.GWS
     #endregion
 
     #region IOBJECTHANDLE
-    public interface IObjectHandle
+    /// <summary>
+    /// Represents an object which has capanility to create and expose and dispose its own handle.
+    /// </summary>
+    public interface IHandleCreateable
     {
         IIntPtr GetHandle();
     }

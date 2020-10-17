@@ -143,7 +143,7 @@ namespace MnM.GWS
 
         #region RUN - QUIT - HALT - RESUME
 #if Window
-        public static void Run(params IVisible2[] controls)
+        public static void Run(params IShowable[] controls)
         {
             if (EventsRunning)
                 return;

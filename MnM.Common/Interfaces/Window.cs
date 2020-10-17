@@ -17,7 +17,7 @@ namespace MnM.GWS
 
     #region IHOST
     public interface IHost : IRenderWindow, IWritable, IContainer, IUpdatable,
-        IRecognizable, IResizable, IEventPusher, IVisible2, IRefreshable, 
+        IRecognizable, IResizable, IEventPusher, IShowable, IHideable, IRefreshable, 
         IClearable, IFocusable, IBackground, IForeground, IDisposed,
         IDisposable, IMinimalEvents
 #if Advanced

@@ -111,27 +111,39 @@ namespace MnM.GWS
     public interface ILocation
     {
         /// <summary>
-        /// Gets or sets X co-ordinate of the location this object.
+        /// Gets X co-ordinate of the location this object.
         /// </summary>
-        int X { get; set; }
+        int X { get; }
 
         /// <summary>
-        /// Gets or sets Y co-ordinate of the location of this object.
+        /// Gets Y co-ordinate of the location of this object.
         /// </summary>
-        int Y { get; set; }
+        int Y { get; }
     }
     #endregion
 
     #region IBOUNDS
+    /// <summary>
+    /// Represents an object which has bounds.
+    /// </summary>
     public interface IBounds
     {
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
         Rectangle Bounds { get; }
     }
     #endregion
 
     #region IBOUNDS
+    /// <summary>
+    /// Represents an object which has bounds.
+    /// </summary>
     public interface IBoundsF
     {
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
         RectangleF Bounds { get; }
     }
     #endregion
@@ -145,7 +157,6 @@ namespace MnM.GWS
         Rectangle Bounds { get; }
     }
     #endregion
-
 #endif
 
 #endif

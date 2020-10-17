@@ -3,8 +3,6 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MnM.GWS
 {
@@ -12,6 +10,10 @@ namespace MnM.GWS
     {
         const string toStr = "width:{0}, height:{1}";
 
+        public SizeEventArgs()
+        {
+
+        }
         public SizeEventArgs(Size e)
         {
             Width = e.Width;
@@ -27,7 +29,7 @@ namespace MnM.GWS
             return string.Format(toStr, Width, Height);
         }
 
-        public int Width { get; protected set; }
-        public int Height { get; protected set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
     }
 }

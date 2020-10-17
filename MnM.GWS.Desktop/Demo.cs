@@ -24,7 +24,7 @@ using static MnM.GWS.Application;
 namespace MnM.GWS.Desktop
 {
 #if !OpenDemo
-    public partial class Demo : Form, IVisible2
+    public partial class Demo : Form, IShowable, IHideable
     {
         #region variables
         string manualFontPath;

@@ -15,21 +15,26 @@ namespace MnM.GWS
     /// A minimum required interface to inherit in order to make your control work in the GWS.
     /// It must have an ID, a name Name and area to work upon.
     /// </summary>
-    public interface IElement : IID, IRenderable, IRecognizable, IBounds
+    public interface IElement : IID, IRenderable, IRecognizable, IBounds, IMinSizable
 #if Advanced
         , IEventPusher
 #endif
+    {
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
+        new Rectangle Bounds { get; }
+    }
+    #endregion
+
+    #region IDEPENDENT-OBJECT
+    public interface IDependentObject : IHostable, IMinimalEvents,
+        IInvalidatable, IFocusable, IRefreshable, IShowable, IHideable, IBackground, IForeground
     { }
     #endregion
 
-    public interface IDependentObject : IDependent, ISize,
-        IBounds, IMinimalEvents, IInvalidatable, IFocusable, 
-        IRefreshable, IVisible2, IBackground, IForeground
-    { }
-
     #region IWINCONTROL
-    public interface IWindowControl : IDependentObject,
-        IHandle, IEventPusher, IClearable
+    public interface IWindowControl : IDependentObject,  IHandle, IEventPusher, IClearable
     {
         /// <summary>
         /// Gets or sets the text of this control.
@@ -41,7 +46,7 @@ namespace MnM.GWS
     #endregion
 
     #region IOBJECT
-    public interface IObject : IDependentObject, IElement, IObjectHandle, IRefreshable
+    public interface IObject : IDependentObject, IElement, IHandleCreateable, IRefreshable
 #if Advanced
         , IEventPusher
 #endif
@@ -69,6 +74,9 @@ namespace MnM.GWS
         /// </summary>
         int Page { get; set; }
 
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
         new Rectangle Bounds { get; }
 
         event EventHandler<IEventArgs> AbilityChanged;
@@ -84,14 +92,14 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an animator popup with built-in as well as userdefined animation capabilities.
     /// </summary>
-    public interface IAnimator : IPopupObject
+    public interface IAnimator : IWipeable
     {
         AnimationMode Mode { get; set; }
     }
     #endregion
 
     #region ITOOLTIP-CONTROL
-    public interface IToolTipControl : IPopupObject
+    public interface IToolTipControl : IWipeable
     {
         /// <summary>
         /// Gets the display.
@@ -153,27 +161,15 @@ namespace MnM.GWS
     /// Represents an object which has a capability to serve as temporary object on screen.
     /// This kind of objects gets preccesedence over other elements when it comes to receiving user inputs.
     /// </summary>
-    public interface IPopupObject : IElement, IWipeable, ISize, IDisposable
+    public interface IPopupObject : IElement, IWipeable, ISize, 
+        IDisposable, IBackground, IForeground
     {
-        /// <summary>
-        /// True if this popup is visible.
-        /// </summary>
-        bool Visible { get; }
-
-        /// <summary>
-        /// Gets or sets a default background pen to be used while showing this popup.
-        /// </summary>
-        IReadContext Background { get; set; }
-
-        /// <summary>
-        /// Gets or sets a default foreground pen to be used while drawing a bunch of popup items on screen.
-        /// </summary>
-        IReadContext Foreground { get; set; }
-
         /// <summary>
         /// Gets or sets a flag to determine if this popup shoud hide on any item selection.
         /// </summary>
         bool HideOnClick { get; set; }
+
+        new void Hide();
     }
 
     /// <summary>
@@ -225,22 +221,12 @@ namespace MnM.GWS
     /// <summary>
     /// Represents a single layered popup object. i.e popup without any sub popup.
     /// </summary>
-    public interface ISimplePopup : IPopupObject<ISimplePopupItem, ISimplePopupItemEventArgs>
+    public interface ISimplePopup : IPopupObject<ISimplePopupItem, ISimplePopupItemEventArgs>, IMinSizable, IAutoSizable
     {
-        /// <summary>
-        /// Gets or sets a flag indicating if this popup should resize automatically according to the size of its items.
-        /// </summary>
-        bool AutoSize { get; set; }
-
         /// <summary>
         /// Gets or set a left margin of its items from the left and top of this popup.
         /// </summary>
         Vector LTMargin { get; set; }
-
-        /// <summary>
-        /// Gets or sets a min size of this popup.
-        /// </summary>
-        Size MinSize { get; set; }
 
         /// <summary>
         /// Gets or sets a font object to draw text of the items.

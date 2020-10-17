@@ -128,7 +128,10 @@ namespace MnM.GWS
         #endregion
 
         #region IEnumerable<VectorF>
-        public IEnumerator<VectorF> GetEnumerator() => points.GetEnumerator();
+        public IEnumerator<VectorF> GetEnumerator()
+        {
+          return  points.GetEnumerator();
+        }
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();
         #endregion

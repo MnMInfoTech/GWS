@@ -219,7 +219,7 @@ namespace MnM.GWS
 
 #if Advanced
     #region DRAWINFO2
-    public interface IDrawInfo2 : IDrawInfo, IVisible0
+    public interface IDrawInfo2 : IDrawInfo, IVisible
     {
         /// <summary>
         /// Gets the tab index of the shape.
