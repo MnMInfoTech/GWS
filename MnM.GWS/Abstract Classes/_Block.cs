@@ -126,7 +126,7 @@ namespace MnM.GWS
         /// <param name="shape">Shape to render on the buffer.</param>
         /// <param name="readContext">A pen context which to create a buffer pen from.</param>
         /// <param name="Pen">Resultant pen created from conversion of read context.</param>
-        public abstract void DrawShape(IShape shape, IReadContext readContext, out IPen Pen);
+        protected abstract void DrawShape(IShape shape, IReadContext readContext, out IPen Pen);
         #endregion
 
         #region RENDER CUSTOM

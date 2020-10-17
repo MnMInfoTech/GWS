@@ -68,7 +68,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which 
     /// </summary>
-    public interface IDrawInfo : IRenderInfo, IOffset, IRotatable, IShapeDrawInfo
+    public interface IDrawInfo : IRenderInfo, IOffset, IRotatable, IShapeDrawInfo, IRecentlyDrawn
     {
         /// <summary>
         /// Gets fill mode settings for this object.
@@ -163,7 +163,7 @@ namespace MnM.GWS
         void Flush();
     }
 
-    public interface IDrawSettings2 : IDrawSettings, IClippable, IRecentlyDrawn
+    public interface IDrawSettings2 : IDrawSettings, IClippable
     { }
     #endregion
 

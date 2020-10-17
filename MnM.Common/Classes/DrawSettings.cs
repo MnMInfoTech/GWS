@@ -144,6 +144,7 @@ namespace MnM.GWS
             set => shapeID = value;
         }
         public Rectangle Bounds { get; set; }
+        public virtual Rectangle RecentlyDrawn { get; protected set; }
         int IID<int>.ID => 0;
         #endregion
 
@@ -190,6 +191,7 @@ namespace MnM.GWS
                 Bounds = info.Bounds;
                 Scale = info.Scale;
                 Rotation = info.Rotation;
+                RecentlyDrawn = info.RecentlyDrawn;
             }
             if(settings is IRenderInfo)
             {
