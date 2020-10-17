@@ -29,7 +29,7 @@ namespace MnM.GWS
         public int Length => length;
         public IReadContext Foreground
         {
-            get => FrgPen;
+            get => FrgPen?? Pens.Black;
             set
             {
                 if (value == null)
@@ -103,14 +103,14 @@ namespace MnM.GWS
                     else
                         Shape = new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
 
-                    this.RenderShape(Shape, Context, out Pen);
+                    this.DrawShape(Shape, Context, out Pen);
                     End(Pen);
                     return;
                 }
             }
             else if (renderable is IShape)
             {
-                this.RenderShape(renderable as IShape, Context, out Pen);
+                this.DrawShape(renderable as IShape, Context, out Pen);
                 End(Pen);
                 return;
             }
@@ -126,7 +126,7 @@ namespace MnM.GWS
         /// <param name="shape">Shape to render on the buffer.</param>
         /// <param name="readContext">A pen context which to create a buffer pen from.</param>
         /// <param name="Pen">Resultant pen created from conversion of read context.</param>
-        protected abstract void RenderShape(IShape shape, IReadContext readContext, out IPen Pen);
+        public abstract void DrawShape(IShape shape, IReadContext readContext, out IPen Pen);
         #endregion
 
         #region RENDER CUSTOM

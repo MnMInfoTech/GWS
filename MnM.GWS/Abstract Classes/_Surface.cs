@@ -24,7 +24,7 @@ namespace MnM.GWS
         #region PROPERTIES
         public virtual IReadContext Background
         {
-            get => BkgPen;
+            get => BkgPen?? Pens.White;
             set
             {
                 if (value == null)
@@ -36,7 +36,7 @@ namespace MnM.GWS
                 BkgPen = value.ToPen(Width, Height);
             }
         }
-        #endregion
+#endregion
 
 #if Advanced
         #region COPY FROM

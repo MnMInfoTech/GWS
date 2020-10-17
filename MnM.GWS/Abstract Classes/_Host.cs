@@ -81,7 +81,7 @@ namespace MnM.GWS
 
             DrawEventArgs.Surface = this;
             OnPaint(DrawEventArgs);
-            var r = Buffer.Settings.DrawnArea;
+            var r = Buffer.Settings.RecentlyDrawn;
             if (r)
                 Buffer.Invalidate(r.X, r.Y, r.Width, r.Height, true);
         }
@@ -152,7 +152,6 @@ namespace MnM.GWS
 
         void IWritable.Render(IRenderable renderable, IReadContext context, int? drawX, int? drawY) =>
             Buffer.Render(renderable, context, drawX, drawY);
-
         void IWritable.WritePixel(float val, int axis, bool horizontal, int color) =>
             Buffer.WritePixel(val, axis, horizontal, color);
       

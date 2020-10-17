@@ -10,6 +10,7 @@ namespace MnM.GWS
 {
 #if GWS || Window
     #region DRAW COMMAND
+    [Flags]
     public enum DrawCommand
     {
         /// <summary>
@@ -499,6 +500,7 @@ namespace MnM.GWS
     #endregion
 
     #region LINE TYPE
+    [Flags]
     public enum LineType
     {
         /// <summary>
@@ -532,6 +534,7 @@ namespace MnM.GWS
     #endregion
 
     #region BRUSH TYPE
+    [Flags]
     public enum BrushType
     {
         /// <summary>
@@ -627,30 +630,37 @@ namespace MnM.GWS
         /// No animation!
         /// </summary>
         None = 0x0,
+
         /// <summary>
         /// Animates an object by applying different fill mode that GWS provides on sequential manner -i.e. one by one and in cycle.
         /// </summary>
         ByFillMode = 0x1,
+
         /// <summary>
         /// Animates an object by increasing or descring the size of stroke by unit specified and once reached max level, reversing it with the same unit. 
         /// </summary>
         ByStrokeSize = 0x2,
+
         /// <summary>
         /// Animates an object by offsetting its location by unit specified and once reached max level, reversing it with the same unit. 
         /// </summary>
         ByLocation = 0x4,
+
         /// <summary>
         /// Animates an object by applying a rotation by increasing or decreasing a value of an angle specified and once reached 360 - or 0 level, reversing it with the same unit. 
         /// </summary>
         ByRotation = 0x8,
+
         /// <summary>
         /// Animates an object by applying gradient styles one by one that GWS provides and once it reaches the last option, reversing it one by one. 
         /// </summary>
         ByGradient = 0x10,
+
         /// <summary>
         /// Animates an object by showing and hiding it on regular interval. 
         /// </summary>
         ByBlinking = 0x20,
+
         /// <summary>
         /// Animates an object by any other animation that user has specified on regular interval.The user has to provide animation routine here.
         /// </summary>

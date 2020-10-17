@@ -28,7 +28,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets recently drawn area since last rendering operation.
         /// </summary>
-        Rectangle DrawnArea { get; }
+        Rectangle RecentlyDrawn { get; }
     }
 
     public interface IRecentlyDrawn2: IRecentlyDrawn
@@ -36,7 +36,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets recently drawn area since last rendering operation.
         /// </summary>
-        new Rectangle DrawnArea { get; set; }
+        new Rectangle RecentlyDrawn { get; set; }
     }
 
     public interface IShapeDrawInfo
@@ -68,7 +68,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which 
     /// </summary>
-    public interface IDrawInfo : IRenderInfo, IOffset, IRotatable, IRecentlyDrawn, IShapeDrawInfo
+    public interface IDrawInfo : IRenderInfo, IOffset, IRotatable, IShapeDrawInfo
     {
         /// <summary>
         /// Gets fill mode settings for this object.
@@ -105,7 +105,7 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public interface IDrawSettings : IDrawInfo, IRenderInfo2, IRecentlyDrawn2, IShapeDrawInfo2
+    public interface IDrawSettings : IDrawInfo, IRenderInfo2, IShapeDrawInfo2
     {
         /// <summary>
         /// Gets or sets fill mode settings for this object.
@@ -163,7 +163,7 @@ namespace MnM.GWS
         void Flush();
     }
 
-    public interface IDrawSettings2 : IDrawSettings, IClippable
+    public interface IDrawSettings2 : IDrawSettings, IClippable, IRecentlyDrawn
     { }
     #endregion
 
@@ -219,7 +219,7 @@ namespace MnM.GWS
 
 #if Advanced
     #region DRAWINFO2
-    public interface IDrawInfo2 : IDrawInfo, IVisible
+    public interface IDrawInfo2 : IDrawInfo, IVisible, IRecentlyDrawn
     {
         /// <summary>
         /// Gets the tab index of the shape.

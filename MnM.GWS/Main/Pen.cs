@@ -186,6 +186,7 @@ namespace MnM.GWS
                     B = bounds.Bottom;
                     Inversion = Settings.BrushCommand.HasFlag(BrushCommand.InvertColor);
                 }
+                return;
             Flush:
                 X = Y = R = B = w = h = 0;
                 Inversion = false;

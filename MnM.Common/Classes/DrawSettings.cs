@@ -144,7 +144,6 @@ namespace MnM.GWS
             set => shapeID = value;
         }
         public Rectangle Bounds { get; set; }
-        public Rectangle DrawnArea { get; set; }
         int IID<int>.ID => 0;
         #endregion
 
@@ -191,7 +190,6 @@ namespace MnM.GWS
                 Bounds = info.Bounds;
                 Scale = info.Scale;
                 Rotation = info.Rotation;
-                DrawnArea = info.DrawnArea;
             }
             if(settings is IRenderInfo)
             {
@@ -221,6 +219,9 @@ namespace MnM.GWS
             Clip = Size.Empty;
             
             brushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
+#if Advanced
+            brushCommand &= ~BrushCommand.NoAutoSizing;
+#endif
 
             if (FreezeSettings)
                 return;
@@ -230,7 +231,6 @@ namespace MnM.GWS
             brushCommand &= ~BrushCommand.InvertColor;
 
             X = Y = 0;
-            DrawnArea = Rectangle.Empty;
             Scale = Vector.Empty;
             StrokeMode = StrokeMode.StrokeMiddle;
             fillMode = FillMode.Original;
