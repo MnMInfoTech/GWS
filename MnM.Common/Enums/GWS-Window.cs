@@ -9,56 +9,6 @@ using System;
 namespace MnM.GWS
 {
 #if GWS || Window
-    #region BRUSH COMMAND
-    [Flags]
-    public enum BrushCommand
-    {
-        /// <summary>
-        /// Discard all changes made to the command and set it to previous value.
-        /// </summary>
-        None = 0x0,
-        
-        /// <summary>
-        /// Changes made with this flag will get permanent and 
-        /// any changes made afterwards will get discarded back to previous one
-        /// when command is set to None.
-        /// </summary>
-        Permanent = 0x1,
-
-        /// <summary>
-        /// Inverts displayed color on screen before reading it.
-        /// </summary>
-        InvertColor = 0x2,
-
-        /// <summary>
-        /// Inverts the rotation angle of the brush in opposite direction then that of shape rotation.
-        /// </summary>
-        InvertRotation = 0x4,
-
-        /// <summary>
-        /// Keeps current fill rule active to fill out-lines.
-        /// </summary>
-        KeepFillRuleForStroking = 0x8,
-
-        /// <summary>
-        /// Ignores auto calculated FillPattern based on other settings such as fill mode, stroke mode etc.
-        /// </summary>
-        IgnoreAutoCalculatedFillPatten = 0x10,
-
-        /// <summary>
-        /// Prevents auto-sizing of brush according to the size of shape it is being used to render.
-        /// </summary>
-        NoAutoSize = 0x20,
-
-#if Advanced
-        /// <summary>
-        /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
-        /// </summary>
-        NoQualityLoss = 0x40,
-#endif
-    }
-    #endregion
-
     #region DRAW COMMAND
     public enum DrawCommand
     {
@@ -168,6 +118,56 @@ namespace MnM.GWS
         /// Tells GWS that current shape is a child control - belongs to collection of controls.
         /// </summary>
         DrawingChild = 0x40000,
+#endif
+    }
+    #endregion
+
+    #region BRUSH COMMAND
+    [Flags]
+    public enum BrushCommand
+    {
+        /// <summary>
+        /// Discard all changes made to the command and set it to previous value.
+        /// </summary>
+        None = 0x0,
+
+        /// <summary>
+        /// Changes made with this flag will get permanent and 
+        /// any changes made afterwards will get discarded back to previous one
+        /// when command is set to None.
+        /// </summary>
+        Permanent = 0x1,
+
+        /// <summary>
+        /// Inverts displayed color on screen before reading it.
+        /// </summary>
+        InvertColor = 0x2,
+
+        /// <summary>
+        /// Inverts the rotation angle of the brush in opposite direction then that of shape rotation.
+        /// </summary>
+        InvertRotation = 0x4,
+
+        /// <summary>
+        /// Keeps current fill rule active to fill out-lines.
+        /// </summary>
+        KeepFillRuleForStroking = 0x8,
+
+        /// <summary>
+        /// Ignores auto calculated FillPattern based on other settings such as fill mode, stroke mode etc.
+        /// </summary>
+        IgnoreAutoCalculatedFillPatten = 0x10,
+
+#if Advanced
+        /// <summary>
+        /// Prevents auto-sizing of brush according to the size of shape it is being used to render.
+        /// </summary>
+        NoAutoSize = 0x20,
+
+        /// <summary>
+        /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
+        /// </summary>
+        NoQualityLoss = 0x40,
 #endif
     }
     #endregion
