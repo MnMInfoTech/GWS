@@ -3,6 +3,9 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
+using System;
+using System.Collections.Generic;
+
 namespace MnM.GWS
 {
 #if (GWS || Window)
