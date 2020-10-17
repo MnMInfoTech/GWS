@@ -53,7 +53,6 @@ namespace MnM.GWS
             public int Width => w;
             public int Height => h;
             public int Length => w * h;
-            public bool Match { get; set; }
             #endregion
 
             #region READ PIXEL

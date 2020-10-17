@@ -492,5 +492,12 @@ namespace MnM.GWS
         bool IsDisposed { get; }
     }
     #endregion
+
+    #region ICLONEABLE2
+    public interface ICloneable2: ICloneable
+    {
+        object Clone(int width, int height);
+    }
+    #endregion
 #endif
 }

@@ -94,11 +94,6 @@ namespace MnM.GWS
 
         #region IRGBA
         int IColor.Color => Color;
-        bool IReadContext.Match 
-        { 
-            get => false;
-            set { }
-        }
         #endregion
 
         #region CHANGE

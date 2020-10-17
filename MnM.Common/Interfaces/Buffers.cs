@@ -181,11 +181,6 @@ namespace MnM.GWS
     /// </summary>
     public interface IReadContext 
     {
-        /// <summary>
-        /// Gets or sets a flag determining whether the size and readability of this object has to change 
-        /// according to the size of shape it is used now to render.
-        /// </summary>
-        bool Match { get; set; }
     }
     #endregion
 
@@ -273,7 +268,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents a brush with certain fill style and gradient for drawin a shape on screen.
     /// </summary>
-    public interface IBrush : IPen, ICopyable, ISettings, IDisposable, ICloneable
+    public interface IBrush : IPen, ICopyable, ISettings, IDisposable, ICloneable2
 #if Advanced
         , IResizable
 #endif
@@ -283,7 +278,7 @@ namespace MnM.GWS
     #endregion
 
     #region ITEXTURE-BRUSH
-    public interface ITextureBrush : IPen, ICopyable, ISettings, IDisposable, ICloneable
+    public interface ITextureBrush : IPen, ICopyable, ISettings, IDisposable, ICloneable2
 #if Advanced
         , IResizable
 #endif

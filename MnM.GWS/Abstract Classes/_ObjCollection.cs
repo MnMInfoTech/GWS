@@ -85,7 +85,8 @@ namespace MnM.GWS
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
             }
-            Parent.Render(Shape);
+            if(!(Shape is IShowable2))
+                Parent.Render(Shape);
             AddMode = false;
             return Shape;
         }

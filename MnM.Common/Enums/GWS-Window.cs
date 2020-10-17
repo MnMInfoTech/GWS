@@ -38,18 +38,23 @@ namespace MnM.GWS
         /// <summary>
         /// Keeps current fill rule active to fill out-lines.
         /// </summary>
-        KeepFillRuleForStroking = 0x7,
+        KeepFillRuleForStroking = 0x8,
 
         /// <summary>
         /// Ignores auto calculated FillPattern based on other settings such as fill mode, stroke mode etc.
         /// </summary>
         IgnoreAutoCalculatedFillPatten = 0x10,
 
+        /// <summary>
+        /// Prevents auto-sizing of brush according to the size of shape it is being used to render.
+        /// </summary>
+        NoAutoSize = 0x20,
+
 #if Advanced
         /// <summary>
         /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
         /// </summary>
-        NoQualityLoss = 0x20,
+        NoQualityLoss = 0x40,
 #endif
     }
     #endregion

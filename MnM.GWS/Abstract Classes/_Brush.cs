@@ -84,11 +84,6 @@ namespace MnM.GWS
             protected set => type = value;
         }
         public bool IsDisposed { get; private set; }
-        public bool Match
-        {
-            get => MatchSize;
-            set => MatchSize = value;
-        }
         BrushStyle IBrush.Style => Style;
         #endregion
 
@@ -790,6 +785,7 @@ namespace MnM.GWS
             CopyTo(target);
             return target;
         }
+        public abstract object Clone(int w, int h);
         protected virtual void CopyTo(_Brush block)
         {
             block.type = type;
