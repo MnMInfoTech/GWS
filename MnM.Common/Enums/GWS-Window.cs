@@ -50,7 +50,7 @@ namespace MnM.GWS
         /// <summary>
         /// Skips begin and end routine before and after rendering.
         /// </summary>
-        SkipRenderSessioning = 0x20,
+        SkipRenderSession = 0x20,
 
 #if Advanced
         /// <summary>
