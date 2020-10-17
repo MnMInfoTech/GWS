@@ -50,15 +50,15 @@ namespace MnM.GWS
             var h = Settings.Bounds.Height + 1;
 
             IReadContext penContext = context ??
-                (buffer as IForeground)?.Foreground ?? BrushStyle.Black;
+                buffer.Foreground ?? BrushStyle.Black;
 
             Pen = penContext.ToPen(w, h);
 
             if (shape is IRotatable)
                 Settings.Rotation = (shape as IRotatable).Rotation;
+
             Settings.PenID = Pen.ID;
             (Pen as ISettings)?.CopySettings(Settings);
-            (buffer as ISettings)?.CopySettings(Settings);
             return Pen;
         }
         #endregion

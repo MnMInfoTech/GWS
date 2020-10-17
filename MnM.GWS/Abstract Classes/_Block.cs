@@ -60,64 +60,53 @@ namespace MnM.GWS
         #endregion
 
         #region RENDER
-        public virtual void Render(IRenderable renderable, IReadContext readContext = null, int? drawX = null, int? drawY = null)
+        public void Render(IRenderable renderable, IReadContext readContext = null, int? drawX = null, int? drawY = null)
         {
             IPen Pen;
             IReadContext Context = readContext;
 
             Begin(renderable, out Pen, drawX, drawY);
-
-            if (Pen != null)
-                Context = Pen;
+            if (Pen != null) Context = Pen;
 
             if (renderable is IRenderable2)
-            {
-                var assignForeground = Context != null && renderable is IForeground;
-                IReadContext controlContext = null;
-                if (assignForeground)
-                {
-                    controlContext = ((IForeground)renderable).Foreground;
-                    ((IForeground)renderable).Foreground = Context;
-                }
-                
-                ((IRenderable2)renderable).Draw(out Pen);
-                End(Pen);
-                if(assignForeground)
-                    ((IForeground)renderable).Foreground = controlContext;
-                return;
-            }
+                Render((IRenderable2)renderable, Context, out Pen);
+
             else if (renderable is IDrawable)
-            {
-                var drawable = renderable as IDrawable;
-                if (drawable.Draw(this, Context, out Pen))
-                {
-                    End(Pen);
-                    return;
-                }
-                var shape = drawable.ToShape();
-                IShape Shape;
-                if (shape != null)
-                {
-                    if (shape is IShape)
-                        Shape = shape as IShape;
-                    else
-                        Shape = new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
+                Render((IDrawable)renderable, Context, out Pen);
 
-                    this.DrawShape(Shape, Context, out Pen);
-                    End(Pen);
-                    return;
-                }
-            }
             else if (renderable is IShape)
+                Render((IShape)renderable, Context, out Pen);
+            else
+                RenderCustom(renderable, Context, out Pen);
+            
+            End(Pen);
+        }
+
+        bool Render(IRenderable2 renderable, IReadContext Context, out IPen Pen)
+        {
+            var assignForeground = Context != null && renderable is IForeground;
+            IReadContext controlContext = null;
+            if (assignForeground)
             {
-                this.DrawShape(renderable as IShape, Context, out Pen);
-                End(Pen);
-                return;
+                controlContext = ((IForeground)renderable).Foreground;
+                ((IForeground)renderable).Foreground = Context;
             }
 
-            RenderCustom(renderable, Context, out Pen);
-            End(Pen);
-            return;
+            bool ok = renderable.Draw(out Pen);
+            if (assignForeground)
+                ((IForeground)renderable).Foreground = controlContext;
+            return ok;
+        }
+        bool Render(IDrawable drawable, IReadContext Context, out IPen Pen)
+        {
+            if (drawable.Draw(this, Context, out Pen))
+                return true;
+            var shape = drawable.ToShape();
+            if (shape == null)
+                return false;
+            IShape Shape = (shape is IShape)? (IShape)shape: new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
+            Render(Shape, Context, out Pen);
+            return true;
         }
 
         /// <summary>
@@ -126,7 +115,7 @@ namespace MnM.GWS
         /// <param name="shape">Shape to render on the buffer.</param>
         /// <param name="readContext">A pen context which to create a buffer pen from.</param>
         /// <param name="Pen">Resultant pen created from conversion of read context.</param>
-        protected abstract void DrawShape(IShape shape, IReadContext readContext, out IPen Pen);
+        protected abstract void Render(IShape shape, IReadContext readContext, out IPen Pen);
         #endregion
 
         #region RENDER CUSTOM
@@ -134,7 +123,7 @@ namespace MnM.GWS
         /// Renders any custom element which  inherits neither IShape nor IDawable on a given buffer with specified reading context.
         /// </summary>
         /// <param name="shape">Shape object which is to be rendered</param>
-        /// <param name="context">A pen context which to create a buffer pen from</param>
+        /// <param name="readContext">A pen context which to create a buffer pen from</param>
         /// <returns></returns>
         protected virtual void RenderCustom(IRenderable shape, IReadContext readContext, out IPen Pen) { Pen = null; }
         #endregion
