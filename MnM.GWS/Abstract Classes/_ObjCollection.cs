@@ -86,7 +86,7 @@ namespace MnM.GWS
                 AddInternal(Shape, info);
             }
             if(!(Shape is IShowable2))
-                Parent.Render(Shape);
+                Parent.Render(Shape, null);
             AddMode = false;
             return Shape;
         }
@@ -110,7 +110,7 @@ namespace MnM.GWS
         {
             if (!Contains(renderable))
                 return;
-            Parent.Render(renderable);
+            Parent.Render(renderable, null);
         }
         #endregion
 

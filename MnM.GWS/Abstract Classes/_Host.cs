@@ -131,25 +131,26 @@ namespace MnM.GWS
         #endregion
 
         #region IBUFFER
-        int ISurface.Length => Buffer.Length;
-
-        int IWritable.Length => Buffer.Length;
-#if Advanced
-        IDrawSettings2 IWritable.Settings => Buffer.Settings;
-#else
-        IDrawSettings IWritable.Settings => Buffer.Settings;
-#endif
+        int ISurface.Length =>
+            Buffer.Length;
+        int IWritable.Length => 
+            Buffer.Length;
 
 #if Advanced
+
+        IObjectDrawInfo ISurface.ObjectDraw =>
+            Buffer.ObjectDraw;
+
         unsafe byte* IWritable.SourceAlphas
         {
-            set
-            {
-                Buffer.SourceAlphas = value;
-            }
+            set => Buffer.SourceAlphas = value;
         }
+        IDrawSettings2 IWritable.Settings => 
+            Buffer.Settings;
+#else
+        IDrawSettings IWritable.Settings => 
+        Buffer.Settings;
 #endif
-
         void IWritable.Render(IRenderable renderable, IReadContext context) =>
             Buffer.Render(renderable, context);
         void IWritable.WritePixel(float val, int axis, bool horizontal, int color) =>
@@ -189,7 +190,8 @@ namespace MnM.GWS
             Buffer.DrawFocusRect(rectangle);
 
 #endif
-        object ICloneable.Clone() => Buffer.Clone();
+        object ICloneable.Clone() =>
+            Buffer.Clone();
         #endregion
     }
 }

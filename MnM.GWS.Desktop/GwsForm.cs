@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
@@ -80,11 +81,12 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region DRAW
-        public bool Draw(out IPen pen)
+        public bool Draw(IWritable writable, IReadContext context, out IPen pen)
         {
             pen = null;
             return true;
         }
+        IEnumerable<VectorF> IDrawable.ToShape() => null;
         #endregion
 
         #region UPDATE

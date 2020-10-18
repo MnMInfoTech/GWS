@@ -43,21 +43,16 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IRENDERABLE2
-    public interface IRenderable2 : IRenderable
-    {
-        /// <summary>
-        /// Draws itself to the parent window.
-        /// </summary>
-        bool Draw(out IPen pen);
-    }
+    #region ICUSTOM
+    public interface ICustom : IRenderable 
+    { }
     #endregion
 
     #region IHOSTABLE
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable : IRenderable2, IBounds, ILocation, ISize
+    public interface IHostable : IDrawable, IBounds, ILocation, ISize
     {
         /// <summary>
         /// Gets bounds of this object.

@@ -221,12 +221,12 @@ namespace MnM.GWS
             Clip = Size.Empty;
             
             brushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
-#if Advanced
-            brushCommand &= ~BrushCommand.NoAutoSizing;
-#endif
 
             if (FreezeSettings)
                 return;
+#if Advanced
+            brushCommand &= ~BrushCommand.NoAutoSizing;
+#endif
 
             brushCommand &= ~BrushCommand.InvertRotation;
             brushCommand &= ~BrushCommand.KeepFillRuleForStroking;

@@ -36,7 +36,10 @@ namespace MnM.GWS
                 BkgPen = value.ToPen(Width, Height);
             }
         }
-#endregion
+#if Advanced
+        public abstract IObjectDrawInfo ObjectDraw { get; }
+#endif
+        #endregion
 
 #if Advanced
         #region COPY FROM
@@ -46,7 +49,6 @@ namespace MnM.GWS
         public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
         #endregion
 #endif
-
         #region CLONE
         public sealed override object Clone()
         {

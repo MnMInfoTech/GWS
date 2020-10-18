@@ -72,6 +72,8 @@ namespace MnM.GWS
         /// 5. ICurve
         /// 6. IGlyphs
         /// 7. IText
+        /// 8. IRenderable2
+        /// 9. IWipeable
         /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
         /// Once you have handled it return true otherwise false.
         /// </summary>
@@ -145,6 +147,8 @@ namespace MnM.GWS
         new int Length { get; }
 
 #if Advanced
+        IObjectDrawInfo ObjectDraw { get; }
+
         /// <summary>
         /// Finds an element from this collection if it exists on a given x and y coordinates.
         /// the test is applied on a last drawn area rather than an actual area of each element so if an element is not drawn yet, 
