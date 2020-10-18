@@ -339,8 +339,8 @@ namespace MnM.GWS
     #region IEVENT INFO
     public interface IEventInfo
     {
-        object Sender { get; }
-        IEventArgs Args { get; }
+        object Sender { get; set; }
+        IEventArgs Args { get; set; }
         GwsEvent Type { get; }
         EventUseStatus Status { get; set; }
     }
@@ -357,6 +357,8 @@ namespace MnM.GWS
         event EventHandler<IMouseEventArgs> MouseUp;
         event EventHandler<IMouseEventArgs> MouseClick;
         event EventHandler<IMouseEventArgs> MouseMove;
+        event EventHandler<IMouseEventArgs> Enter;
+        event EventHandler<IMouseEventArgs> Leave;
         event EventHandler<IMouseEventArgs> AppClicked;
         event EventHandler<ISizeEventArgs> Resized;
         event EventHandler<IDrawEventArgs> Paint;
@@ -371,8 +373,6 @@ namespace MnM.GWS
         event EventHandler<IEventArgs> GotFocus;
         event EventHandler<IKeyEventArgs> PreviewKeyDown;
         event EventHandler<IMouseEventArgs> MouseDoubleClick;
-        event EventHandler<IEventArgs> MouseEnter;
-        event EventHandler<IEventArgs> MouseLeave;
         event EventHandler<IEventArgs> VisibleChanged;
         event EventHandler<IEventArgs> FirstShown;
 

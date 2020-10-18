@@ -49,6 +49,18 @@ namespace MnM.GWS
         int ICopyable.Length => Buffer.Length;
         #endregion
 
+        #region PUSH EVENT
+        public override void PushEvent(IEventInfo e)
+        {
+#if Advanced
+            Controls?.PushEvent(e);
+            if (e.Status == EventUseStatus.Used)
+                return;
+#endif
+            base.PushEvent(e);
+        }
+        #endregion
+
         #region UPDATE - INVALIDATE
         public virtual void Update(int x, int y, int width, int height) =>
             Buffer.Update(x, y, width, height);
@@ -108,18 +120,6 @@ namespace MnM.GWS
             IsDisposed = true;
             Controls?.Dispose();
             (Buffer as IDisposable)?.Dispose();
-        }
-        #endregion
-
-        #region PUSH EVENT
-        public override void PushEvent(IEventInfo e)
-        {
-#if Advanced
-            Controls?.PushEvent(e);
-            if (e.Status == EventUseStatus.Used)
-                return;
-#endif
-            base.PushEvent(e);
         }
         #endregion
 

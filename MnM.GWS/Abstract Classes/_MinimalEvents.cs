@@ -38,6 +38,12 @@ namespace MnM.GWS
                 case GwsEvent.MOUSEMOTION:
                     OnMouseMove(e.Args as IMouseEventArgs);
                     break;
+                case GwsEvent.ENTER:
+                    OnMouseEnter(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.LEAVE:
+                    OnMouseLeave(e.Args as IMouseEventArgs);
+                    break;
                 case GwsEvent.MOUSEBUTTONDOWN:
                     OnMouseDown(e.Args as IMouseEventArgs);
                     break;
@@ -94,6 +100,12 @@ namespace MnM.GWS
             MouseClick?.Invoke(this, e);
         protected virtual void OnMouseMove(IMouseEventArgs e) =>
             MouseMove?.Invoke(this, e);
+
+        protected virtual void OnMouseEnter(IMouseEventArgs e) =>
+            MouseWheel?.Invoke(this, e);
+        protected virtual void OnMouseLeave(IMouseEventArgs e) =>
+            MouseWheel?.Invoke(this, e);
+
         protected virtual void OnAppClicked(IMouseEventArgs e) =>
             AppClicked?.Invoke(this, e);
 
@@ -113,6 +125,8 @@ namespace MnM.GWS
         public virtual event EventHandler<IMouseEventArgs> MouseUp;
         public virtual event EventHandler<IMouseEventArgs> MouseClick;
         public virtual event EventHandler<IMouseEventArgs> MouseMove;
+        public virtual event EventHandler<IMouseEventArgs> Enter;
+        public virtual event EventHandler<IMouseEventArgs> Leave;
         public virtual event EventHandler<IMouseEventArgs> AppClicked;
         public virtual event EventHandler<ISizeEventArgs> Resized;
         public virtual event EventHandler<IDrawEventArgs> Paint;

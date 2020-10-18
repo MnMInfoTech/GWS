@@ -23,7 +23,6 @@ using static MnM.GWS.Application;
 
 namespace MnM.GWS.Desktop
 {
-#if !OpenDemo
     public partial class Demo : Form, IShowable, IHideable
     {
         #region variables
@@ -2259,5 +2258,4 @@ namespace MnM.GWS.Desktop
 
         #endregion
     }
-#endif
 }

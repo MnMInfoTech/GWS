@@ -24,12 +24,6 @@ namespace MnM.GWS
                 case GwsEvent.MOVED:
                     OnMoved(e.Args as IEventArgs);
                     break;
-                case GwsEvent.ENTER:
-                    OnMouseEnter(e.Args as IMouseEventArgs);
-                    break;
-                case GwsEvent.LEAVE:
-                    OnMouseLeave(e.Args as IMouseEventArgs);
-                    break;
                 case GwsEvent.FOCUS_GAINED:
                     OnGotFocus(e.Args);
                     break;
@@ -87,8 +81,6 @@ namespace MnM.GWS
         public virtual event EventHandler<IEventArgs> Moved;
         public virtual event EventHandler<IKeyEventArgs> PreviewKeyDown;
         public virtual event EventHandler<IMouseEventArgs> MouseDoubleClick;
-        public virtual event EventHandler<IEventArgs> MouseEnter;
-        public virtual event EventHandler<IEventArgs> MouseLeave;
         public virtual event EventHandler<IEventArgs> VisibleChanged;
         public virtual event EventHandler<IEventArgs> FirstShown;
         public virtual event EventHandler<ITouchEventArgs> TouchBegan;
@@ -119,10 +111,6 @@ namespace MnM.GWS
             MouseDragEnd?.Invoke(this, e);
         protected virtual void OnMouseDrag(IMouseEventArgs e) =>
             MouseDrag?.Invoke(this, e);
-        protected virtual void OnMouseEnter(IMouseEventArgs e) =>
-            MouseEnter?.Invoke(this, e);
-        protected virtual void OnMouseLeave(IMouseEventArgs e) =>
-            MouseLeave?.Invoke(this, e);
         protected virtual void OnVisibleChanged(IEventArgs e) =>
             VisibleChanged?.Invoke(this, e);
         protected virtual void OnFirstShown(IEventArgs e) =>

@@ -114,6 +114,17 @@ namespace MnM.GWS
             add => Control.MouseMove += value;
             remove => Control.MouseMove -= value;
         }
+        public sealed override event EventHandler<IMouseEventArgs> Enter
+        {
+            add => Control.Enter += value;
+            remove => Control.Enter -= value;
+        }
+        public sealed override event EventHandler<IMouseEventArgs> Leave
+        {
+            add => Control.Leave += value;
+            remove => Control.Leave -= value;
+        }
+
         public sealed override event EventHandler<IMouseEventArgs> AppClicked
         {
             add => Control.AppClicked += value;
