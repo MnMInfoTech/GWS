@@ -37,7 +37,7 @@ namespace MnM.GWS
             }
         }
 #if Advanced
-        public abstract IObjectDrawInfo ObjectDraw { get; }
+        public abstract IObjectDraw ObjectDraw { get; }
 #endif
         #endregion
 

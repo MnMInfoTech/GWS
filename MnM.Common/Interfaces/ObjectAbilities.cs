@@ -52,7 +52,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable : IDrawable, IBounds, ILocation, ISize
+    public interface IHostable : IDrawable, IBounds, ILocation, ISize, IRecognizable
     {
         /// <summary>
         /// Gets bounds of this object.

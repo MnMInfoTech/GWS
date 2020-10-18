@@ -239,19 +239,16 @@ namespace MnM.GWS
     #endregion
 
     #region IOBJECT-DRAWINFO
-    public interface IObjectDrawInfo
+    public interface IObjectDraw
     {
+        bool DrawChildrenNow { set; }
+
+        /// <summary>
         /// <summary>
         /// Sets object draw information to take into account overriding current draw-settings.
         /// </summary>
-        /// <param name="Name">Sets a name of shape currently being rendered. If null and current shape is IRecognizable,
-        /// name will be read from its Name property and used while rendering.</param>
-        /// <param name="ID">Sets an ID of shape currently being rendered. If null 
-        /// ID will be read from its Name property and used while rendering.</param>
-        /// <param name="HasChildren">Sets an indication that if true, any rendering beyond primary draw, 
-        /// will be treated as if drawing a child object within main object.</param>
-        /// <param name="IsChild">Sets an indication to trat current shape as if it is a part of inner collection</param>
-        void SetInfo(string Name, string ID, bool HasChildren, bool IsChild);
+        /// <param name="control">Control which to set object draw info for.</param>
+        void Set(IHostable control);
 
         /// <summary>
         /// Clears all information at once.

@@ -147,7 +147,7 @@ namespace MnM.GWS
         new int Length { get; }
 
 #if Advanced
-        IObjectDrawInfo ObjectDraw { get; }
+        IObjectDraw ObjectDraw { get; }
 
         /// <summary>
         /// Finds an element from this collection if it exists on a given x and y coordinates.

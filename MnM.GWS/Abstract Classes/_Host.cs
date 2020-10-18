@@ -138,7 +138,7 @@ namespace MnM.GWS
 
 #if Advanced
 
-        IObjectDrawInfo ISurface.ObjectDraw =>
+        IObjectDraw ISurface.ObjectDraw =>
             Buffer.ObjectDraw;
 
         unsafe byte* IWritable.SourceAlphas
