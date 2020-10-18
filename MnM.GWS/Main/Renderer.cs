@@ -824,7 +824,7 @@ namespace MnM.GWS
         /// <param name="shape">Element which is to be rendered</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void Draw(this IWritable buffer, IRenderable shape, IReadContext context) =>
-            buffer.Render(shape, context, null, null);
+            buffer.Render(shape, context);
 
         /// <summary>
         /// Draws any element on the given path. This renderer has a built-in support for the following kind of elements:
@@ -838,40 +838,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer target which to render a shape on</param>
         /// <param name="shape">Element which is to be rendered</param>
         public static void Draw(this IWritable buffer, IRenderable shape) =>
-            buffer.Render(shape, null, null, null);
-
-        /// <summary>
-        /// Draws any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IShape
-        /// 2. IDrawable
-        /// 3. ICurve
-        /// 4. IText
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine
-        /// by overriding RenderCustom method. Once you have handled it return true otherwise an exception wiil be raised.
-        /// </summary>
-        /// <param name="buffer">buffer target which to render a shape on</param>
-        /// <param name="shape">Element which is to be rendered</param>
-        /// <param name="drawX">X coordinate of a location where draw should take place</param>
-        /// <param name="drawY">Y coordinate of a location where draw should take place</param>
-        public static void Draw(this IWritable buffer, IRenderable shape, int? drawX, int? drawY) =>
-            buffer.Render(shape, null, drawX, drawY);
-
-        /// <summary>
-        /// Draws any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IShape
-        /// 2. IDrawable
-        /// 3. ICurve
-        /// 4. IText
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine
-        /// by overriding RenderCustom method. Once you have handled it return true otherwise an exception wiil be raised.
-        /// </summary>
-        /// <param name="buffer">buffer target which to render a shape on</param>
-        /// <param name="shape">Element which is to be rendered</param>
-        /// <param name="context">A pen context which to create a buffer pen from</param>
-        /// <param name="drawX">X coordinate of a location where draw should take place</param>
-        /// <param name="drawY">Y coordinate of a location where draw should take place</param>
-        public static void Draw(this IWritable buffer, IRenderable shape, IReadContext context, int? drawX, int? drawY) =>
-            buffer.Render(shape, context, drawX, drawY);
+            buffer.Render(shape, null);
 
         /// <summary>
         /// Adds a shape object to this collection.
@@ -884,19 +851,7 @@ namespace MnM.GWS
         /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
         /// </returns>
         public static T Add<T>(this IObjCollection collection, T shape, IReadContext context) where T : IRenderable =>
-            collection.Add(shape, context, null, null);
-
-        /// <summary>
-        /// Adds a shape object to this collection.
-        /// </summary>
-        /// <typeparam name="T">Any object which implements IElement</typeparam>
-        /// <param name="shape">A shape object to be added of type specifie by TShape</param>
-        /// <returns>the same Shape object which is added to collection. 
-        /// this lets user to pass something like new shape(....) and then used it further more.
-        /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
-        /// </returns>
-        public static T Add<T>(this IObjCollection collection, T shape) where T : IRenderable =>
-            collection.Add(shape, null, null, null);
+            collection.Add(shape, context);
 
         /// <summary>
         /// Adds a shape object to this collection.
@@ -909,8 +864,8 @@ namespace MnM.GWS
         /// this lets user to pass something like new shape(....) and then used it further more.
         /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
         /// </returns>
-        public static T Add<T>(this IObjCollection collection, T shape, int? drawX, int? drawY) where T : IRenderable =>
-            collection.Add(shape, null, drawX, drawY);
+        public static T Add<T>(this IObjCollection collection, T shape) where T : IRenderable =>
+            collection.Add(shape, null);
         #endregion
 
         #region DRAW IMAGE
@@ -2407,9 +2362,22 @@ namespace MnM.GWS
         /// <param name="text">A text object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawText(this IWritable buffer, IGlyphs text, IReadContext context = null, int? drawX = null, int? drawY = null)
+        public static void DrawText(this IWritable buffer, IGlyphs text, IReadContext context = null)
         {
-            buffer.Render(text, context, drawX, drawY);
+            buffer.Render(text, context);
+        }
+        /// <summary>
+        /// Renders a text object which represents a text and a collection of glyphs providing drawing representation of the text. 
+        /// </summary>
+        /// <param name="buffer">Buffer which to render a rhombus on</param>
+        /// <param name="text">A text object to render</param>
+        /// <param name="context">A pen context which to create a buffer pen from</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DrawText(this IWritable buffer, IGlyphs text, int dstX, int dstY, IReadContext context = null)
+        {
+            buffer.Settings.X = dstX;
+            buffer.Settings.Y = dstY;
+            buffer.Render(text, context);
         }
         #endregion
 

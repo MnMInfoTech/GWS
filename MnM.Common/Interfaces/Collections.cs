@@ -1069,13 +1069,11 @@ namespace MnM.GWS
         /// </summary>
         /// <typeparam name="T">A shape object to be added of type specifie by TShape</typeparam>
         /// <param name="context">The drawing context for the shape i.e a pen or color or a brush or even an another graphics or buffer object from which a data can be read.</param>
-        /// <param name="drawX">Null or overrides the x co-ordinate of drawing location for the shape.</param>
-        /// <param name="drawY">Null or overrides the y co-ordinate of drawing location of the shape.</param>
         /// <returns>Returns the same Shape object which is added . 
         /// this lets user to pass something like new shape(....) and then used it further more.
         /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
         /// </returns>
-        U Add<U>(U shape, IReadContext context, int? drawX = null, int? drawY = null) where U : T;
+        U Add<U>(U shape, IReadContext context) where U : T;
 
         /// <summary>
         /// Add object to collection (if allowed).

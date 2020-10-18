@@ -158,6 +158,12 @@ namespace MnM.GWS.Desktop
                 case GwsEvent.MOUSEWHEEL:
                     OnMouseWheel(e.Args as IMouseEventArgs);
                     break;
+                case GwsEvent.ENTER:
+                    OnMouseEnter(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.LEAVE:
+                    OnMouseLeave(e.Args as IMouseEventArgs);
+                    break;
                 case GwsEvent.SIZE_CHANGED:
                     break;
                 case GwsEvent.RESIZED:
@@ -203,6 +209,12 @@ namespace MnM.GWS.Desktop
             MouseClick?.Invoke(this, e);
         protected virtual void OnMouseMove(IMouseEventArgs e) =>
             MouseMove?.Invoke(this, e);
+        protected virtual void OnMouseEnter(IMouseEventArgs e) =>
+            Enter?.Invoke(this, e);
+
+        protected virtual void OnMouseLeave(IMouseEventArgs e) =>
+            Leave?.Invoke(this, e);
+
         protected virtual void OnAppClicked(IMouseEventArgs e) =>
             AppClicked?.Invoke(this, e);
 
@@ -222,6 +234,10 @@ namespace MnM.GWS.Desktop
         public new event EventHandler<IMouseEventArgs> MouseUp;
         public new event EventHandler<IMouseEventArgs> MouseClick;
         public new event EventHandler<IMouseEventArgs> MouseMove;
+
+        public new event EventHandler<IMouseEventArgs> Enter;
+        public new event EventHandler<IMouseEventArgs> Leave;
+
         public event EventHandler<IMouseEventArgs> AppClicked;
         public event EventHandler<ISizeEventArgs> Resized;
         public new event EventHandler<IDrawEventArgs> Paint;

@@ -55,7 +55,7 @@ namespace MnM.GWS
         #endregion
 
         #region ADD SHAPE
-        public T Add<T>(T Shape, IReadContext context, int? drawX = null, int? drawY = null)
+        public T Add<T>(T Shape, IReadContext context)
             where T : IRenderable
         {
             if (Shape == null)
@@ -70,7 +70,7 @@ namespace MnM.GWS
                 if (Shape is IHostable)
                     ((IHostable)Shape).Assign(Parent);
             }
-            Parent.Render(Shape, context, drawX, drawY);
+            Parent.Render(Shape, context);
             AddMode = false;
             return Shape;
         }

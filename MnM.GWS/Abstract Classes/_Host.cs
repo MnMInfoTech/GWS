@@ -150,8 +150,8 @@ namespace MnM.GWS
         }
 #endif
 
-        void IWritable.Render(IRenderable renderable, IReadContext context, int? drawX, int? drawY) =>
-            Buffer.Render(renderable, context, drawX, drawY);
+        void IWritable.Render(IRenderable renderable, IReadContext context) =>
+            Buffer.Render(renderable, context);
         void IWritable.WritePixel(float val, int axis, bool horizontal, int color) =>
             Buffer.WritePixel(val, axis, horizontal, color);
 

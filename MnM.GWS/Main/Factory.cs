@@ -448,6 +448,11 @@ namespace MnM.GWS
         public static ISimpleLabel newSimpleLabel(string text = null, IFont font = null) =>
             Instance.newSimpleLabel(text, font);
         #endregion
+
+        #region SIMPLE BUTTON
+        public static ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock image = null) =>
+            Instance.newSimpleButton(text, font, image);
+        #endregion
 #endif
         public static void Dispose()
         {

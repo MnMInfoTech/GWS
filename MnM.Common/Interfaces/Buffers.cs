@@ -77,10 +77,8 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="renderable">Renderable object which is to be rendered</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        /// <param name="drawX">X coordinate of a location where draw should take place - implemented in Pro-version only.</param>
-        /// <param name="drawY">Y coordinate of a location where draw should take place- implemented in Pro-version only.</param>
         /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        void Render(IRenderable renderable, IReadContext context = null, int? drawX = null, int? drawY = null);
+        void Render(IRenderable renderable, IReadContext context = null);
         #endregion
 
         #region WRITE PIXEL

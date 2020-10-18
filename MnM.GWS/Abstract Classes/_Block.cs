@@ -60,12 +60,12 @@ namespace MnM.GWS
         #endregion
 
         #region RENDER
-        public void Render(IRenderable renderable, IReadContext readContext = null, int? drawX = null, int? drawY = null)
+        public void Render(IRenderable renderable, IReadContext readContext = null)
         {
             IPen Pen;
             IReadContext Context = readContext;
 
-            Begin(renderable, out Pen, drawX, drawY);
+            Begin(renderable, out Pen);
             if (Pen != null) Context = Pen;
 
             if (renderable is IRenderable2)
@@ -134,7 +134,7 @@ namespace MnM.GWS
         /// This method must be called before any individual shape rendering method is called Except main render method.
         /// </summary>
         /// <param name="Shape"></param>
-        protected abstract void Begin(IRenderable Shape, out IPen Pen, int? drawX = null, int? drawY = null);
+        protected abstract void Begin(IRenderable Shape, out IPen Pen);
         #endregion
 
         #region END

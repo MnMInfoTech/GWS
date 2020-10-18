@@ -249,7 +249,8 @@ namespace MnM.GWS
     {
         IBlock Image { get; set; }
         ImagePosition ImageAlingn { get; set; }
-        IReadContext HoverStyle { get; set; }
+        IReadContext HoverBackground { get; set; }
+        IReadContext HoverForeground { get; set; }
     }
     #endregion
 #endif
