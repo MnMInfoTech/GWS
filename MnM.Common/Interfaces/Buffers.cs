@@ -41,6 +41,11 @@ namespace MnM.GWS
         /// Length of this memory block.
         /// </summary>
         int Length { get; }
+
+        /// <summary>
+        /// Gets whether currently antialising is on or off.
+        /// </summary>
+        bool Antialiased { get; }
         #endregion
 
         #region WRITE PIXEL
@@ -53,15 +58,6 @@ namespace MnM.GWS
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
         void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
-
-        /// <summary>
-        /// Writes pixel to this block at given axial position using specified color.
-        /// </summary>
-        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
-        /// <param name="axis">Position on axis - X cordinate if horizontal otherwise Y.</param>
-        /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
-        /// <param name="color">colour of pixel.</param>
-        void WritePixel(float val, int axis, bool horizontal, int color);
         #endregion
 
         #region WRITE LINE
@@ -78,17 +74,6 @@ namespace MnM.GWS
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
         unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
-
-        /// <summary>
-        /// Writes an axial line (either horizontal or vertical) to this object using specified parameters
-        /// </summary>
-        /// <param name="start">Start position of reading from buffer pen on axis i.e X co-ordinate if horizontal otherwise Y</param>
-        /// <param name="end">>End position of reading from buffer pen on axis i.e X co-ordinate if horizontal otherwise Y</param>
-        /// <param name="axis">Position of reading from buffer pen on axis i.e Y co-ordinate if horizontal otherwise X</param>
-        /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical</param>
-        /// <param name="pen">buffer pen which to read pixel from</param>
-        ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        void WriteLine(float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha);
         #endregion
     }
     #endregion

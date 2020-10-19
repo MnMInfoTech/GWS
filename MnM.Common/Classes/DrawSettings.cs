@@ -168,6 +168,15 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region GET FILL PARAMS
+        public virtual void GetFillParameters(out bool CheckForCloseness, out bool LineOnly, out bool EndsOnly)
+        {
+            CheckForCloseness = fillCommand.HasFlag(FillCommand.CheckForCloseness);
+            LineOnly = fillCommand.HasFlag(FillCommand.DrawLineOnly);
+            EndsOnly = fillCommand.HasFlag(FillCommand.DrawEndsOnly);
+        }
+        #endregion
+
         #region COPY SETTINGS
         public virtual void CopySettings(ISettable settings, bool flushMode = false)
         {

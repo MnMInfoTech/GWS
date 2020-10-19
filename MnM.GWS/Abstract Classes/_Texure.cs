@@ -13,7 +13,6 @@ namespace MnM.GWS
         #region VARIABLES
         protected readonly IRenderWindow Window;
         bool locked;
-        IWritable Buffer;
         #endregion
 
         #region CONSTRUCTORS

@@ -192,7 +192,7 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IRENDERINFO
+    #region IRENDERINFO2
     public interface IRenderInfo2 : IRenderInfo
     {
         /// <summary>
@@ -214,6 +214,14 @@ namespace MnM.GWS
         /// Gets or sets line draw settings for this object.
         /// </summary>
         new LineCommand LineCommand { get; set; }
+
+        /// <summary>
+        /// Extract currently effective fill parameters from this object.
+        /// </summary>
+        /// <param name="CheckForCloseness"></param>
+        /// <param name="LineOnly"></param>
+        /// <param name="EndsOnly"></param>
+        void GetFillParameters(out bool CheckForCloseness, out bool LineOnly, out bool EndsOnly);
     }
     #endregion
 

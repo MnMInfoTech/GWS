@@ -134,6 +134,9 @@ namespace MnM.GWS
         int IWritable.Length => 
             Buffer.Length;
 
+        bool IWritable.Antialiased => 
+            Buffer.Antialiased;
+
 #if Advanced
 
         IObjectDraw ISurface.ObjectDraw =>
@@ -149,14 +152,8 @@ namespace MnM.GWS
         IDrawSettings IDrawController.Settings => 
             Buffer.Settings;
 #endif
-        void IWritable.WritePixel(float val, int axis, bool horizontal, int color) =>
-            Buffer.WritePixel(val, axis, horizontal, color);
-
         void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
             Buffer.WritePixel(val, axis, horizontal, color, Alpha);
-
-        void IWritable.WriteLine(float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha) =>
-            Buffer.WriteLine(start, end, axis, horizontal, pen, Alpha);
 
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha) =>
