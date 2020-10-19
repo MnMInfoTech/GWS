@@ -13,7 +13,7 @@ namespace MnM.GWS
         #region VARIABLES
         protected readonly IRenderWindow Window;
         bool locked;
-
+        IWritable Buffer;
         #endregion
 
         #region CONSTRUCTORS
@@ -23,7 +23,7 @@ namespace MnM.GWS
             IsPrimary = isPrimary;
             Width = w ?? Window.Width;
             Height = h ?? Window.Height;
-            Handle = CreateHandle(pixelFormat, textureAccess, this.Width, this.Height, out Size s);
+            Handle = CreateHandle(pixelFormat, textureAccess, Width, Height, out Size s);
             Width = s.Width;
             Height = s.Height;
             ID = this.NewID();
@@ -116,66 +116,66 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int destLen, int destW, int destX, int destY)
-        {
-            Rectangle copyRc = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            Lock(copyRc, out IntPtr textureData, out int lockedLength);
-            var src = (int*)textureData;
-            var dst = (int*)dest;
-            copyW = copyRc.Width;
-            copyH = copyRc.Height;
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int destLen, int destW, int destX, int destY)
+        //{
+        //    Rectangle copyRc = this.CompitibleRc(copyX, copyY, copyW, copyH);
+        //    Lock(copyRc, out IntPtr textureData, out int lockedLength);
+        //    var src = (int*)textureData;
+        //    var dst = (int*)dest;
+        //    copyW = copyRc.Width;
+        //    copyH = copyRc.Height;
 
-            var result = Blocks.CopyBlock(0,0,copyW, copyH, lockedLength, Width, Height,
-                destX, destY, destW, destLen, (srcIndex, dstIndex, w, x, y) =>
-            Blocks.Copy(src, srcIndex, dst, dstIndex, w));
+        //    var result = Blocks.CopyBlock(0,0,copyW, copyH, lockedLength, Width, Height,
+        //        destX, destY, destW, destLen, (srcIndex, dstIndex, w, x, y) =>
+        //    Blocks.Copy(src, srcIndex, dst, dstIndex, w));
 
-            Unlock();
-            return result;
-        }
+        //    Unlock();
+        //    return result;
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
-        {
-            Rectangle destRc = Rectangle.Empty;
-            Rectangle copy = Rects.CompitibleRc(Width, Height, copyX, copyY, copyW, copyH);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
+        //{
+        //    Rectangle destRc = Rectangle.Empty;
+        //    Rectangle copy = Rects.CompitibleRc(Width, Height, copyX, copyY, copyW, copyH);
 
-            int destLen = destination.Length;
-            int destW = destination.Width;
-            var dy = destY;
-            var x = copy.X;
-            var r = x + copy.Width;
-            var y = copy.Y;
-            var b = y + copy.Height;
-            copyW = copy.Width;
-            copyH = copy.Height;
+        //    int destLen = destination.Length;
+        //    int destW = destination.Width;
+        //    var dy = destY;
+        //    var x = copy.X;
+        //    var r = x + copy.Width;
+        //    var y = copy.Y;
+        //    var b = y + copy.Height;
+        //    copyW = copy.Width;
+        //    copyH = copy.Height;
 
-            if (y < 0)
-            {
-                b += y;
-                y = 0;
-            }
+        //    if (y < 0)
+        //    {
+        //        b += y;
+        //        y = 0;
+        //    }
 
-            int[] array = new int[copy.Width * copy.Height];
-            int srcLen = array.Length;
-            int srcIndex = 0;
-            int copylen = copy.Width;
+        //    int[] array = new int[copy.Width * copy.Height];
+        //    int srcLen = array.Length;
+        //    int srcIndex = 0;
+        //    int copylen = copy.Width;
 
-            fixed (int* src = array)
-            {
-                CopyTo(x, y, r - x, b - y, (IntPtr)src, srcLen, copylen, 0, 0);
-                for (int j = y; j <= b; j++)
-                {
-                    destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
-                    srcIndex += copylen;
-                    if (srcIndex >= srcLen)
-                        break;
-                }
-            }
-            destRc = new Rectangle(destX, destY, copyW, dy - destY);
-            destination.Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
-            return destRc;
-        }
+        //    fixed (int* src = array)
+        //    {
+        //        CopyTo(x, y, r - x, b - y, (IntPtr)src, srcLen, copylen, 0, 0);
+        //        for (int j = y; j <= b; j++)
+        //        {
+        //            destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
+        //            srcIndex += copylen;
+        //            if (srcIndex >= srcLen)
+        //                break;
+        //        }
+        //    }
+        //    destRc = new Rectangle(destX, destY, copyW, dy - destY);
+        //    destination.Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
+        //    return destRc;
+        //}
         protected abstract void CopyToRenderer(IntPtr texture, Rectangle sourceRc, Rectangle destRc);
         #endregion
 

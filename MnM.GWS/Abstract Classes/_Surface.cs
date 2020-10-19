@@ -41,6 +41,11 @@ namespace MnM.GWS
 #endif
         #endregion
 
+        #region BEGIN - END
+        public abstract void Begin(IRenderable renderable, out IPen pen);
+        public abstract void End(IPen pen);
+        #endregion
+
 #if Advanced
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -336,7 +341,6 @@ namespace MnM.GWS
 
         #region UPDATE
         public abstract void Update();
-        public abstract void Update(int x, int y, int width, int height);
         #endregion
 
 #if Advanced

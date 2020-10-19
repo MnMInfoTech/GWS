@@ -128,7 +128,7 @@ namespace MnM.GWS
             //}
         }
 
-        public virtual bool NoeedToSwapPerimeters(string Name)
+        public virtual bool NoNeedToSwapPerimeters(string Name)
         {
             switch (Name)
             {

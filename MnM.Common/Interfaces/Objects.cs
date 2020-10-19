@@ -247,7 +247,7 @@ namespace MnM.GWS
     #region ISIMPLE BUTTON
     public interface ISimpleButton: ISimpleLabel
     {
-        IBlock Image { get; set; }
+        IWritable Image { get; set; }
         ImagePosition ImageAlingn { get; set; }
         IReadContext HoverBackground { get; set; }
         IReadContext HoverForeground { get; set; }

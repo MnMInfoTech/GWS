@@ -297,15 +297,6 @@ namespace MnM.GWS
         /// Updates invalidated area on screen.
         /// </summary>
         void Update();
-
-        /// <summary> 
-        /// Updates data blocks covered by area specified by x, y, width and height for update.
-        /// </summary>
-        /// <param name="x">Left most corner of region which is to be updated.</param>
-        /// <param name="y">Top most corner of region which is to be updated.</param>
-        /// <param name="width">Width of region which is to be updated.</param>
-        /// <param name="height">Height of region which is to be updated.</param>
-        void Update(int x, int y, int width, int height);
     }
     #endregion
 
@@ -346,6 +337,23 @@ namespace MnM.GWS
         /// <param name="dstY">specifies the Y coordinate from where the paste operation should commence</param>
         /// <returns></returns>
         unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY);
+    }
+    #endregion
+
+    #region IDRAW-CONTROLLER
+    public interface IDrawController
+    {
+#if Advanced
+        /// <summary>
+        /// Gets settings object to set rendering parameters.
+        /// </summary>
+        IDrawSettings2 Settings { get; }
+#else
+        /// <summary>
+        /// Gets settings object to set rendering parameters.
+        /// </summary>
+        IDrawSettings Settings { get; }
+#endif
     }
     #endregion
 

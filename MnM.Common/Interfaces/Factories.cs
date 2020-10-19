@@ -291,7 +291,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock image = null);
+        ISimpleButton newSimpleButton(string text = null, IFont font = null, IWritable image = null);
         #endregion
 #endif
         #endregion

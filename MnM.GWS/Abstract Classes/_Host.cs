@@ -62,8 +62,6 @@ namespace MnM.GWS
         #endregion
 
         #region UPDATE - INVALIDATE
-        public virtual void Update(int x, int y, int width, int height) =>
-            Buffer.Update(x, y, width, height);
         public virtual void Update() =>
             Buffer.Update();
         public virtual void Invalidate(int x, int y, int width, int height, bool updateImmedaite = false) =>
@@ -141,18 +139,16 @@ namespace MnM.GWS
         IObjectDraw ISurface.ObjectDraw =>
             Buffer.ObjectDraw;
 
-        unsafe byte* IWritable.SourceAlphas
+        unsafe byte* ISurface.SourceAlphas
         {
             set => Buffer.SourceAlphas = value;
         }
-        IDrawSettings2 IWritable.Settings => 
+        IDrawSettings2 IDrawController.Settings => 
             Buffer.Settings;
 #else
-        IDrawSettings IWritable.Settings => 
-        Buffer.Settings;
+        IDrawSettings IDrawController.Settings => 
+            Buffer.Settings;
 #endif
-        void IWritable.Render(IRenderable renderable, IReadContext context) =>
-            Buffer.Render(renderable, context);
         void IWritable.WritePixel(float val, int axis, bool horizontal, int color) =>
             Buffer.WritePixel(val, axis, horizontal, color);
 
@@ -184,6 +180,11 @@ namespace MnM.GWS
             var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
             return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height);
         }
+
+        void ISurface.Begin(IRenderable renderable, out IPen pen) =>
+            Buffer.Begin(renderable, out pen);
+        void ISurface.End(IPen pen) => 
+            Buffer.End(pen);
 
 #if Advanced
         public void DrawFocusRect(Rectangle rectangle) =>

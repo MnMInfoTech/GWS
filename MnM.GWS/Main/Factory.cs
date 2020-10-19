@@ -450,7 +450,7 @@ namespace MnM.GWS
         #endregion
 
         #region SIMPLE BUTTON
-        public static ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock image = null) =>
+        public static ISimpleButton newSimpleButton(string text = null, IFont font = null, IWritable image = null) =>
             Instance.newSimpleButton(text, font, image);
         #endregion
 #endif

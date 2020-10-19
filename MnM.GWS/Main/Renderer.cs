@@ -17,6 +17,155 @@ namespace MnM.GWS
         internal const bool Initialize = true;
         #endregion
 
+        #region RENDER
+        /// <summary>
+        /// Renders any element on the given path. This renderer has a built-in support for the following kind of elements:
+        /// 1. IElement
+        /// 2. IShape
+        /// 3. IDrawable
+        /// 4. IConic
+        /// 5. ICurve
+        /// 6. IGlyphs
+        /// 7. IText
+        /// 8. IRenderable2
+        /// 9. IWipeable
+        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
+        /// Once you have handled it return true otherwise false.
+        /// </summary>
+        /// <param name="renderable">Renderable object which is to be rendered</param>
+        /// <param name="readContext">A pen context which to create a buffer pen from</param>
+        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
+        public static void Render(this IWritable buffer, IRenderable renderable, IReadContext readContext = null)
+        {
+            IPen Pen = null;
+            IReadContext Context = readContext;
+
+            if(buffer is ISurface)
+                ((ISurface)buffer).Begin(renderable, out Pen);
+
+            if (Pen != null) Context = Pen;
+
+            if (renderable is IDrawable)
+                buffer.Render((IDrawable)renderable, Context, out Pen);
+
+            else if (renderable is IShape)
+                buffer.Render((IShape)renderable, Context, out Pen);
+
+            if (buffer is ISurface)
+                ((ISurface)buffer).End(Pen);
+        }
+
+        static bool Render(this IWritable buffer, IDrawable drawable, IReadContext Context, out IPen Pen)
+        {
+            if (drawable.Draw(buffer, Context, out Pen))
+                return true;
+            var shape = drawable.ToShape();
+            if (shape == null)
+                return false;
+            IShape Shape = (shape is IShape) ? (IShape)shape : new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
+            buffer.Render(Shape, Context, out Pen);
+            return true;
+        }
+
+        /// <summary>
+        /// Renders specified shape on this buffer with specified reading context.
+        /// </summary>
+        /// <param name="shape">Shape to render on the buffer.</param>
+        /// <param name="readContext">A pen context which to create a buffer pen from.</param>
+        /// <param name="Pen">Resultant pen created from conversion of read context.</param>
+        static void Render(this IWritable buffer, IShape shape, IReadContext readContext, out IPen Pen)
+        {
+            Pen = null;
+            if (shape == null)
+                return;
+
+            string ShapeName = shape.Name;
+
+            float x, y;
+            x = y = 0;
+            IEnumerable<VectorF> Original = shape;
+            IList<VectorF> Outer, Inner;
+            RectangleF o, i;
+            var Settings = buffer.Settings;
+            var bounds = shape.Bounds;
+            float Cx, Cy;
+            float Sx = Settings.Scale.X + 1;
+            float Sy = Settings.Scale.Y + 1;
+
+            if (Settings.Scale.HasScale)
+            {
+                Original = Original.Scale(Sx, Sy, bounds.Center());
+                bounds = bounds.Scale(new VectorF(Sx, Sy));
+            }
+            bool isRotated = Settings.Rotation.EffectiveCenter(bounds, out Cx, out Cy);
+
+            if (Settings.Stroke == 0 || Settings.FillMode == FillMode.Original)
+            {
+                if (isRotated)
+                {
+                    Original = Original.Rotate(Settings.Rotation, Cx, Cy);
+                    if (Settings.Rotation.Skew != 0)
+                        bounds = bounds.Scale(Settings.Rotation, new VectorF(Cx, Cy));
+                }
+                if (shape is IBezier)
+                {
+                    Original = Curves.GetBezierPoints(8, (shape as IBezier).Option, Original.ToArray());
+                }
+
+                if (Original is IList<VectorF>)
+                    Outer = Inner = Original as IList<VectorF>;
+                else
+                    Outer = Inner = Original.ToList();
+            }
+            else
+            {
+                if (shape is IBezier)
+                    Original = Curves.GetBezierPoints(8, (shape as IBezier).Option, Original.ToArray());
+
+                Renderer.StrokePoints(Original, ShapeName, Settings.Stroke, Settings.StrokeMode, out Outer, out Inner);
+
+                bounds = Outer.HybridBounds(Inner).Clamp(Settings.Clip);
+                if (isRotated)
+                {
+                    Outer = Outer.Rotate(Settings.Rotation, Cx, Cy);
+                    Inner = Inner.Rotate(Settings.Rotation, Cx, Cy);
+                }
+                if (isRotated && Settings.Rotation.Skew != 0)
+                    bounds = bounds.Scale(Settings.Rotation, new VectorF(Cx, Cy));
+            }
+
+            Pen = buffer.GetPen(shape, readContext, bounds);
+
+            Settings.FillMode = Factory.ShapeParser.GetFillMode(Settings.FillMode, ShapeName, Settings.Stroke);
+            var draw = Settings.LineCommand;
+            Settings.LineCommand = Settings.LineCommand | Factory.ShapeParser.GetLineDraw(ShapeName);
+
+            buffer.CreateAction(Pen, out PixelAction<float> Action);
+            buffer.CreateAction(Pen, out FillAction<float> FillAction);
+
+            var Data = Renderer.GetDrawParams(Settings.FillMode, Settings.FillCommand, Settings.Stroke, ShapeName, Original, Outer, Inner);
+
+            Factory.ShapeParser.GetLineSkip(ShapeName, Settings.FillMode, out SlopeType skip0, out SlopeType skip2);
+            o = Outer.ToArea().Hybrid(Inner.ToArea()).Clamp(Settings.Clip);
+            int oy = (o.Y).Round();
+            int oBottom = (int)(o.Bottom) + 1;
+            int oRight = (int)(o.Right) + 1;
+
+            if (Data[1] != null || Data[3] != null)
+            {
+                if (Settings.FillCommand.HasFlag(FillCommand.Outlininig))
+                    Renderer.ProcessWith(Data[1], Data[3], Settings, FillAction);
+                else
+                    Renderer.Fill(Data[1].AppendItems(Data[3]), FillAction, oy, oBottom, Settings.FillCommand, Settings.LineCommand);
+            }
+
+            Renderer.Process(Data[0], Action, Settings.LineCommand, skip0);
+            Renderer.Process(Data[2], Action, Settings.LineCommand, skip2);
+
+            Settings.LineCommand = draw;
+        }
+        #endregion
+
         #region GET PEN
         /// <summary>
         /// Gets an existing pen or creates one matching the size of the shape which is to be rendered.
@@ -368,7 +517,7 @@ namespace MnM.GWS
                 innerLines.Add(close1);
                 outerLines.Add(close2);
             }
-            if (Factory.ShapeParser.NoeedToSwapPerimeters(ShapeName))
+            if (Factory.ShapeParser.NoNeedToSwapPerimeters(ShapeName))
                 Numbers.Swap(ref outerLines, ref innerLines);
         }
         #endregion

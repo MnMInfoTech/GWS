@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public abstract class _Block: IBlock
+    public abstract class _Block: IWritable, ICopyable
     {
         #region VARIABLES
         protected int width, height, length;
@@ -55,10 +55,6 @@ namespace MnM.GWS
         public unsafe abstract byte* SourceAlphas { set; }
         protected abstract unsafe byte* alphas { get; }
 #endif
-        #endregion
-
-        #region RENDER
-        public abstract void Render(IRenderable renderable, IReadContext readContext = null);
         #endregion
 
         #region BLEND
@@ -227,7 +223,8 @@ namespace MnM.GWS
             var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
 
 #if Advanced
-            block.SourceAlphas = alphas;
+            if(block is ISurface)
+                ((ISurface)block).SourceAlphas = alphas;
 #endif
             Rectangle dstRc;
             var x = copy.X;
@@ -256,7 +253,8 @@ namespace MnM.GWS
             dstRc = new Rectangle(destX, destY, copyW, dy - destY);
 
 #if Advanced
-            block.SourceAlphas = null;
+            if (block is ISurface)
+                ((ISurface)block).SourceAlphas = null;
 #endif
 
             if (dstRc)

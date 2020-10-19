@@ -34,53 +34,13 @@ namespace MnM.GWS
     #endregion
 
     #region IWRITEABLE
-    public interface IWritable : IID, ISize, IInvalidatable, IForeground, IDisposed, ICloneable
+    public interface IWritable : IID, ISize, IDrawController, IInvalidatable, IForeground, IDisposed, ICloneable
     {
         #region PROPERTIES
         /// <summary>
         /// Length of this memory block.
         /// </summary>
         int Length { get; }
-
-#if Advanced
-        /// <summary>
-        /// Gets settings object to set rendering parameters.
-        /// </summary>
-        IDrawSettings2 Settings { get; }
-#else
-        /// <summary>
-        /// Gets settings object to set rendering parameters.
-        /// </summary>
-        IDrawSettings Settings { get; }
-#endif
-
-#if Advanced
-        /// <summary>
-        /// Sets Source Alpha values to be read while copying image source.
-        /// </summary>
-        unsafe byte* SourceAlphas { set; }
-#endif
-        #endregion
-
-        #region RENDER
-        /// <summary>
-        /// Renders any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IElement
-        /// 2. IShape
-        /// 3. IDrawable
-        /// 4. IConic
-        /// 5. ICurve
-        /// 6. IGlyphs
-        /// 7. IText
-        /// 8. IRenderable2
-        /// 9. IWipeable
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
-        /// Once you have handled it return true otherwise false.
-        /// </summary>
-        /// <param name="renderable">Renderable object which is to be rendered</param>
-        /// <param name="context">A pen context which to create a buffer pen from</param>
-        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        void Render(IRenderable renderable, IReadContext context = null);
         #endregion
 
         #region WRITE PIXEL
@@ -133,13 +93,8 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IBLOCK
-    public interface IBlock : IWritable, ICopyable
-    { }
-    #endregion
-
     #region ISURFACE
-    public interface ISurface : IBlock, IScalable, IBackground, IClearable, IUpdatable
+    public interface ISurface : IWritable, ICopyable, IScalable, IBackground, IClearable, IUpdatable
 #if Advanced
         , IRenderTarget
 #endif
@@ -148,6 +103,11 @@ namespace MnM.GWS
 
 #if Advanced
         IObjectDraw ObjectDraw { get; }
+
+        /// <summary>
+        /// Sets Source Alpha values to be read while copying image source.
+        /// </summary>
+        unsafe byte* SourceAlphas { set; }
 
         /// <summary>
         /// Finds an element from this collection if it exists on a given x and y coordinates.
@@ -165,6 +125,22 @@ namespace MnM.GWS
         /// <param name="rectangle">Rectangle to draw focus rectangle around.</param>
         void DrawFocusRect(Rectangle rc);
 #endif
+
+        #region BEGIN - END
+        /// <summary>
+        /// Tells this object to create a rendering session accroding to existing settings before rendering.
+        /// </summary>
+        /// <param name="renderable">Shape to render on this object</param>
+        /// <param name="pen">Appropriate pen if exists to be returned.</param>
+        void Begin(IRenderable renderable, out IPen pen);
+
+        /// <summary>
+        /// Tells this object to end the rendering session and to finalize settings.
+        /// </summary>
+        /// <param name="pen">Pen used in rendering a shape.</param>
+        void End(IPen pen);
+        #endregion
+
     }
     #endregion
 
@@ -220,7 +196,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public interface IRenderTarget : ICopyable, IDisposed
+    public interface IRenderTarget : ISize, IDisposed
     {
         /// <summary>
         /// Uploads a data block specified by x, y, width and height parameters for update to IUpdateable object.
@@ -361,7 +337,7 @@ namespace MnM.GWS
     #endregion
 
     #region ITEXTURE
-    public interface ITexture : IRenderWindow, IDisposable, IResizable
+    public interface ITexture : IRenderTarget, IDisposable, IResizable
     {
         bool IsPrimary { get; }
     }

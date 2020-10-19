@@ -9,7 +9,7 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
     #region IRENDER-WINDOW
-    public interface IRenderWindow : IRenderTarget, IHandle, IResizable
+    public interface IRenderWindow : IRenderTarget, ICopyable, IHandle, IResizable, IDrawController
     {
         RendererFlags RendererFlags { get; }
     }

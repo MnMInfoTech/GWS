@@ -53,7 +53,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "BezierArc".</param>
         /// <returns>True if perimeters do not need to be swapped.</returns>
-        bool NoeedToSwapPerimeters(string Name);
+        bool NoNeedToSwapPerimeters(string Name);
 
         /// <summary>
         /// Gets the applicable fillmode for a given shape name depending on vakue of stroke
