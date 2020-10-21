@@ -44,9 +44,9 @@ namespace Test
             window.MouseUp += Window_MouseUp;
             window.MouseMove += Window_MouseMove;
             window.Background = moonfs;
-            window.Foreground = rg;
+            window.Settings.Foreground = rg;
             IReadContext brush = null;
-            var Path = window.Controls;
+            var Path = window.Objects;
             //Renderer.Settings.InvertBrushColor = true;
             //window.InvertColor = true;
             Path.Add(new Polygon(90, 215, 163, 29, 63, 202,
@@ -146,7 +146,7 @@ namespace Test
                 Rectangle rc;
                 int x = 0, y = 0;
                 var img = Factory.newSurface(300, 300);
-                img.Foreground = rg;
+                img.Settings.Foreground = rg;
                 surface.Settings.DrawCommand = DrawCommand.Back;
                 img.DrawEllipse(10, 10, 200, 200);
                 surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
@@ -255,7 +255,7 @@ namespace Test
             else
             {
                 var img = Factory.newSurface(300, 300);
-                img.Foreground = rg;
+                img.Settings.Foreground = rg;
                 img.DrawEllipse(10, 10, 200, 200);
 
                 //surface.DrawMode = DrawMode.Default;
