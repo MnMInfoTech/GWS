@@ -38,7 +38,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents smallest writable memory block object.
     /// </summary>
-    public interface IWritable
+    public interface IWritable: IInvalidatable
     {
         #region PROPERTIES
         /// <summary>
@@ -116,9 +116,13 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ICUSTOM
-    public interface ICustom : IRenderable 
-    { }
+    #region IOBJECTDRAWER
+#if Advanced
+    public interface IObjectDrawer  
+    {
+        IObjectDraw ObjectDraw { get; }
+    }
+#endif
     #endregion
 
     #region IHOSTABLE
@@ -135,13 +139,13 @@ namespace MnM.GWS
         /// <summary>
         /// Parent window this object belongs to.
         /// </summary>
-        ISurface Window { get; }
+        IBlock Window { get; }
 
         /// <summary>
         /// Assigns host window to this object. 
         /// </summary>
         /// <param name="window"></param>
-        void Assign(ISurface window);
+        void Assign(IBlock window);
     }
     #endregion
 
@@ -388,13 +392,13 @@ namespace MnM.GWS
         /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
         /// </summary>
         /// <param name="block">buffer which to render this memory block on</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        Rectangle CopyTo(IBlock block, int destX, int destY, int copyX, int copyY, int copyW, int copyH);
+        Rectangle CopyTo(IWritable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH);
 
         /// <summary>
         /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
@@ -433,6 +437,20 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IELMENTFINDER
+    public interface IElementFinder
+    {
+        /// <summary>
+        /// Finds an element from this collection if it exists on a given x and y coordinates.
+        /// the test is applied on a last drawn area rather than an actual area of each element so if an element is not drawn yet, 
+        /// it can not be found!
+        /// </summary>
+        /// <param name="x">X coordinate to search for</param>
+        /// <param name="y">Y coordinate to search for</param>
+        /// <returns></returns>
+        IRenderable FindElement(int x, int y);
+    }
+    #endregion
 
     #region IDRAW-CONTROLLER
     public interface IDrawController

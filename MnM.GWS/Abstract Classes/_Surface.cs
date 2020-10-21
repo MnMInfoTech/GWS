@@ -13,12 +13,6 @@ namespace MnM.GWS
         protected readonly bool IsContainer;
         #endregion
 
-        #region PROPERTIES
-#if Advanced
-        public abstract IObjectDraw ObjectDraw { get; }
-#endif
-        #endregion
-
         #region CONTRUCTORS
         protected _Surface()
         {
@@ -333,10 +327,5 @@ namespace MnM.GWS
             (BkgPen as IDisposable)?.Dispose();
         }
         #endregion
-
-#if Advanced
-        public abstract IRenderable FindElement(int x, int y);
-        public abstract void DrawFocusRect(Rectangle rc);
-#endif
     }
 }

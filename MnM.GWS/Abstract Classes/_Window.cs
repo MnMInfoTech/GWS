@@ -77,7 +77,7 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        protected sealed override ISurface Buffer
+        protected sealed override IBlock Buffer
         {
             get
             {
@@ -88,15 +88,15 @@ namespace MnM.GWS
                 return Primary;
             }
         }
-        public sealed override IObjCollection Controls
+        public sealed override IObjCollection Objects
         {
             get
             {
 #if Advanced
                 if (Buffers.BufferIndex != -1)
-                    return Buffers.Current.Controls;
+                    return Buffers.Current.Objects;
 #endif
-                return Primary.Controls;
+                return Primary.Objects;
             }
         }
 #if Advanced

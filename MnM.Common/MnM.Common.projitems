@@ -51,7 +51,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Media.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ObjectAbilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Primitive.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\PolyFill.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Render.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Shapes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Window.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\IDGenerator.cs" />

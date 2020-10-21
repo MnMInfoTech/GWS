@@ -139,5 +139,45 @@ namespace MnM.GWS
         #endregion
     }
     #endregion
+
+    #region IRENDERSESSION
+    public interface IRenderSession
+    {       
+        /// <summary>
+        /// Tells this object to create a rendering session accroding to existing settings before rendering.
+        /// </summary>
+        /// <param name="renderable">Shape to render on this object</param>
+        /// <param name="pen">Appropriate pen if exists to be returned.</param>
+        void Begin(IRenderable renderable, out IPen pen);
+
+        /// <summary>
+        /// Tells this object to end the rendering session and to finalize settings.
+        /// </summary>
+        /// <param name="pen">Pen used in rendering a shape.</param>
+        void End(IPen pen);
+    }
+#endregion
+
+#if Advanced
+        #region IOBJECT-DRAWINFO
+    public interface IObjectDraw
+    {
+        bool DrawChildrenNow { set; }
+
+        /// <summary>
+        /// <summary>
+        /// Sets object draw information to take into account overriding current draw-settings.
+        /// </summary>
+        /// <param name="control">Control which to set object draw info for.</param>
+        void Set(IHostable control);
+
+        /// <summary>
+        /// Clears all information at once.
+        /// </summary>
+        void Clear();
+    }
+        #endregion
 #endif
-}
+
+#endif
+    }

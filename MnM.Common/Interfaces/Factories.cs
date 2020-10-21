@@ -166,7 +166,7 @@ namespace MnM.GWS
         #endregion
 
         #region OBJECT COLLECTION
-        IObjCollection newObjectCollection(ISurface buffer);
+        IObjCollection newObjectCollection(IBlock buffer);
         #endregion
 
         #region BUFFER COLLECTION

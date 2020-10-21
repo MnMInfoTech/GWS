@@ -258,6 +258,20 @@ namespace MnM.GWS.Desktop
         public event EventHandler<IMouseEventArgs> AppClicked;
         public event EventHandler<ISizeEventArgs> Resized;
         public new event EventHandler<IDrawEventArgs> Paint;
+
+        public bool Antialiased { get; set; }
+        public int Length { get; }
+        bool IWritable.Antialiased { get; }
+
+        public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha)
+        {
+            throw new NotImplementedException();
+        }
+
+        public unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region DISPOSE

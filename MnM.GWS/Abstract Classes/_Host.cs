@@ -21,16 +21,15 @@ namespace MnM.GWS
         public RendererFlags RendererFlags { get; protected set; }
         public virtual bool FocusOnHover { get; set; }
         public virtual int TabIndex { get; set; }
-        public abstract IObjCollection Controls { get; }
+        public abstract IObjCollection Objects { get; }
         public int Width => Bounds.Width;
         public int Height => Bounds.Height;
         public virtual IReadContext Background
         {
-            get => (Buffer as IBackground)?.Background;
+            get => Buffer.Background;
             set
             {
-                if (Buffer is IBackground)
-                    (Buffer as IBackground).Background = value;
+                    Buffer.Background = value;
             }
         }
         public virtual IReadContext Foreground
@@ -45,15 +44,20 @@ namespace MnM.GWS
         public abstract IntPtr Handle { get; }
         public abstract Rectangle Bounds { get; }
         public abstract bool Focused { get; }
-        protected abstract ISurface Buffer { get; }
+        protected abstract IBlock Buffer { get; }
         int ICopyable.Length => Buffer.Length;
+        public bool Antialiased {
+
+            get => Buffer.Antialiased;
+            set { }
+        }
         #endregion
 
         #region PUSH EVENT
         public override void PushEvent(IEventInfo e)
         {
 #if Advanced
-            Controls?.PushEvent(e);
+            Objects?.PushEvent(e);
             if (e.Status == EventUseStatus.Used)
                 return;
 #endif
@@ -63,7 +67,7 @@ namespace MnM.GWS
 
         #region UPDATE - INVALIDATE
         public virtual void Update() =>
-            Buffer.Update();
+            (Buffer as IUpdatable)?.Update();
         public virtual void Invalidate(int x, int y, int width, int height, bool updateImmedaite = false) =>
             Buffer.Invalidate(x, y, width, height, updateImmedaite);
         #endregion
@@ -100,11 +104,11 @@ namespace MnM.GWS
         #region CLEAR
         public virtual Rectangle Clear(bool updateImmediate = false)
         {
-            return Buffer.Clear(updateImmediate);
+            return (Buffer as IClearable)?.Clear(updateImmediate) ?? Rectangle.Empty;
         }
         public virtual Rectangle Clear(int x, int y, int width, int height, bool updateImmediate = false)
         {
-            return Buffer.Clear(x, y, width, height, updateImmediate);
+            return (Buffer as IClearable)?.Clear(x, y, width, height, updateImmediate)?? Rectangle.Empty;
         }
         #endregion
 
@@ -116,7 +120,7 @@ namespace MnM.GWS
         public override void Dispose()
         {
             IsDisposed = true;
-            Controls?.Dispose();
+            Objects?.Dispose();
             (Buffer as IDisposable)?.Dispose();
         }
         #endregion
@@ -136,10 +140,9 @@ namespace MnM.GWS
 
         bool IWritable.Antialiased => 
             Buffer.Antialiased;
-
 #if Advanced
 
-        IObjectDraw ISurface.ObjectDraw =>
+        IObjectDraw IObjectDrawer.ObjectDraw =>
             Buffer.ObjectDraw;
 
         unsafe byte* IAlphaSource.SourceAlphas
@@ -152,17 +155,31 @@ namespace MnM.GWS
         IDrawSettings IDrawController.Settings => 
             Buffer.Settings;
 #endif
-        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
+         void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
             Buffer.WritePixel(val, axis, horizontal, color, Alpha);
 
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha) =>
             Buffer.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha);
 
-        public Size RotateAndScale(out int[] Data, Rotation angle, bool antiAliased = true, float scale = 1) =>
-            Buffer.RotateAndScale(out Data, angle, antiAliased, scale);
-        public Size Flip(out int[] Data, Flip flipMode) =>
-            Buffer.Flip(out Data, flipMode);
+        public Size RotateAndScale(out int[] Data, Rotation angle, bool antiAliased = true, float scale = 1)
+        {
+            if(Buffer is IScalable)
+            {
+                return ((IScalable)Buffer).RotateAndScale(out Data, angle, antiAliased, scale);
+            }
+            Data = new int[0];
+            return Size.Empty;
+        }
+        public Size Flip(out int[] Data, Flip flipMode) 
+        {
+            if (Buffer is IScalable)
+            {
+                return ((IScalable)Buffer).Flip(out Data, flipMode);
+            }
+            Data = new int[0];
+            return Size.Empty;
+        }
 
         public virtual Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH,
             IntPtr destination, int destLen, int destW, int destX, int destY)
@@ -171,23 +188,21 @@ namespace MnM.GWS
             return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY);
         }
 
-        public virtual Rectangle CopyTo(IBlock block, int destX, int destY, int copyX, int copyY,
+        public virtual Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY,
             int copyW, int copyH)
         {
             var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
             return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height);
         }
 
-        void ISurface.Begin(IRenderable renderable, out IPen pen) =>
-            Buffer.Begin(renderable, out pen);
-        void ISurface.End(IPen pen) => 
-            Buffer.End(pen);
+        void IRenderSession.Begin(IRenderable renderable, out IPen pen)
+        {
+            pen = null;
+            (Buffer as IRenderSession)?.Begin(renderable, out pen);
+        }
+        void IRenderSession.End(IPen pen) =>
+            (Buffer as IRenderSession)?.End(pen);
 
-#if Advanced
-        public void DrawFocusRect(Rectangle rectangle) =>
-            Buffer.DrawFocusRect(rectangle);
-
-#endif
         object ICloneable.Clone() =>
             Buffer.Clone();
         #endregion

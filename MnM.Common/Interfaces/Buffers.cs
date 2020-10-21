@@ -21,7 +21,10 @@ namespace MnM.GWS
     /// Represents smallest writable and copiable memory block object which can also render shapes.
     /// Settings property of this object controls the flow of writing and rendering data.
     /// </summary>
-    public interface IBlock : IBuffer, IID, ISize, IDrawController, IInvalidatable, IDisposed, ICloneable
+    public interface IBlock : IBuffer, IID, ISize, IDrawController, IDisposed, ICloneable
+#if Advanced
+        , IElementFinder, IObjectDrawer
+#endif
     {
         /// <summary>
         /// Length of this memory block.
@@ -41,55 +44,16 @@ namespace MnM.GWS
     #endregion
 
     #region ISURFACE
-    public interface ISurface : IBlock, IScalable, IClearable, IUpdatable, IDisposable
+    public interface ISurface : IBlock, IScalable, IClearable, IUpdatable, IDisposable, IRenderSession
 #if Advanced
         , ICopier
 #endif
-    {
-#if Advanced
-        IObjectDraw ObjectDraw { get; }
-
-        /// <summary>
-        /// Finds an element from this collection if it exists on a given x and y coordinates.
-        /// the test is applied on a last drawn area rather than an actual area of each element so if an element is not drawn yet, 
-        /// it can not be found!
-        /// </summary>
-        /// <param name="x">X coordinate to search for</param>
-        /// <param name="y">Y coordinate to search for</param>
-        /// <returns></returns>
-        IRenderable FindElement(int x, int y);
-
-        /// <summary>
-        /// Draws focus rectangle i.e. border around specified with dotted invert colors
-        /// </summary>
-        /// <param name="rectangle">Rectangle to draw focus rectangle around.</param>
-        void DrawFocusRect(Rectangle rc);
-#endif
-
-        #region BEGIN - END
-        /// <summary>
-        /// Tells this object to create a rendering session accroding to existing settings before rendering.
-        /// </summary>
-        /// <param name="renderable">Shape to render on this object</param>
-        /// <param name="pen">Appropriate pen if exists to be returned.</param>
-        void Begin(IRenderable renderable, out IPen pen);
-
-        /// <summary>
-        /// Tells this object to end the rendering session and to finalize settings.
-        /// </summary>
-        /// <param name="pen">Pen used in rendering a shape.</param>
-        void End(IPen pen);
-        #endregion
-    }
+    { }
     #endregion
 
     #region ICANVAS
     public interface ICanvas : ISurface, IContainer, IResizable, IRefreshable, IDisposable
-    {
-#if Advanced
-        IFocusRect FocusRect { get; }
-#endif
-    }
+    { }
     #endregion
 
     #region IREADCONTEXT

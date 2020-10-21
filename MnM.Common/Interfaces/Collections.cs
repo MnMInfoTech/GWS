@@ -1034,11 +1034,6 @@ namespace MnM.GWS
     public interface IObjCollection<T> : IEnumerable<T>, IDisposable where T : IID
     {
         /// <summary>
-        /// Gets parent container which this collection belongs to.
-        /// </summary>
-        ISurface Parent { get; }
-
-        /// <summary>
         /// Returns number of objects in collection.
         /// </summary>
         int Count { get; }
@@ -1413,12 +1408,12 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which holds a control collection to maintain its child controls.
     /// </summary>
-    public interface IContainer: ISurface
+    public interface IContainer
     {
         /// <summary>
         /// A collection that keeps all child controls to be maintained.
         /// </summary>
-        IObjCollection Controls { get; }
+        IObjCollection Objects { get; }
     }
     #endregion
 

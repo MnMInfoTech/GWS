@@ -105,7 +105,7 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public interface IDrawSettings : IDrawInfo, IRenderInfo2, IShapeDrawInfo2
+    public interface IDrawSettings : IDrawInfo, IRenderInfo2, IShapeDrawInfo2, IForeground
     {
         /// <summary>
         /// Gets or sets fill mode settings for this object.
@@ -156,7 +156,7 @@ namespace MnM.GWS
         /// Gets or sets a flag which determines if settings should be flushed or not after each element rendering.
         /// </summary>
         bool FreezeSettings { get; set; }
-
+       
         /// <summary>
         /// Flushes all settings and set them to default values.
         /// </summary>
@@ -243,25 +243,6 @@ namespace MnM.GWS
         /// Gets the page which the shape blelogs to.
         /// </summary>
         int Page { get; }
-    }
-    #endregion
-
-    #region IOBJECT-DRAWINFO
-    public interface IObjectDraw
-    {
-        bool DrawChildrenNow { set; }
-
-        /// <summary>
-        /// <summary>
-        /// Sets object draw information to take into account overriding current draw-settings.
-        /// </summary>
-        /// <param name="control">Control which to set object draw info for.</param>
-        void Set(IHostable control);
-
-        /// <summary>
-        /// Clears all information at once.
-        /// </summary>
-        void Clear();
     }
     #endregion
 #endif

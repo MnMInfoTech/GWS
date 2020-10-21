@@ -8,13 +8,14 @@ using System.Runtime.CompilerServices;
 namespace MnM.GWS
 {
 #if Window
-    public abstract class _Texture : _RenderTarget, ITexture
+    public abstract class _Texture : ITexture
     {
         #region VARIABLES
         protected readonly IRenderWindow Window;
         bool locked;
-        protected int width, height;
+        protected int width, height, length;
         protected bool isDisposed;
+        protected bool antialiased;
         #endregion
 
         #region CONSTRUCTORS
@@ -28,6 +29,7 @@ namespace MnM.GWS
             Handle = CreateHandle(pixelFormat, textureAccess, Width, Height, out Size s);
             width = s.Width;
             height = s.Height;
+            length = width * height;
             ID = this.NewID();
         }
         protected unsafe _Texture(IRenderWindow window, ICopyable source, bool isPrimary = false, 
@@ -45,18 +47,23 @@ namespace MnM.GWS
 
         #region PROPERTIES
         public string ID { get; private set; }
-        public override int Width => width;
-        public override int Height => height;
+        public int Width => width;
+        public int Height => height;
         public bool IsPrimary { get; private set; }
-        public int Length => width * height;
         public IntPtr Handle { get; private set; }
-        public override bool IsDisposed => Window.IsDisposed || isDisposed;
+        public bool IsDisposed => Window.IsDisposed || isDisposed;
         public RendererFlags RendererFlags => Window.RendererFlags;
+        public int Length => length;
+        public bool Antialiased
+        {
+            get => antialiased;
+            set => antialiased = value;
+        }
         #endregion
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
+        public void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
         {
             var dstRC = this.CompitibleRc(dstX, dstY, srcW, srcH);
             IntPtr textureData;
@@ -116,6 +123,27 @@ namespace MnM.GWS
 
         #region COPY TO RENDERER
         protected abstract void CopyToRenderer(IntPtr texture, Rectangle sourceRc, Rectangle destRc);
+        #endregion
+
+        #region WRITE PIXEL
+        public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region WRITE LINE
+        public unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region INVALIDATE
+        public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region DISPOSE

@@ -40,10 +40,10 @@ namespace MnM.GWS
             get => Control.Text;
             set => Control.Text = value;
         }
-        protected sealed override ISurface Buffer =>
+        protected sealed override IBlock Buffer =>
             Canvas;
-        public sealed override IObjCollection Controls => 
-            Canvas.Controls;
+        public sealed override IObjCollection Objects => 
+            Canvas.Objects;
         #endregion
 
         #region UPLOAD

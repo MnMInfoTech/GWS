@@ -100,6 +100,7 @@ namespace MnM.GWS
             }
         }
 
+        public IReadContext Foreground { get; set; }
         public StrokeMode StrokeMode { get; set; }
         public FillMode FillMode
         {
@@ -121,7 +122,6 @@ namespace MnM.GWS
         }
         public Rotation Rotation { get; set; }
         public VectorF Scale { get; set; }
-
         public virtual int X { get; set; }
         public virtual int Y { get; set; }
         public Size Clip { get; set; }

@@ -35,7 +35,7 @@ namespace MnM.GWS
         #endregion
 
         #region OBJECT COLLECTION
-        public abstract IObjCollection newObjectCollection(ISurface buffer);
+        public abstract IObjCollection newObjectCollection(IBlock buffer);
         #endregion
 
         #region BUFFER COLLECTION

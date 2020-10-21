@@ -105,7 +105,7 @@ namespace MnM.GWS
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe Rectangle CopyTo(IBlock destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
+            public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
             {
                 Rectangle destRc = Rectangle.Empty;
                 Rectangle copy = new Rectangle(copyX, copyY, copyW, copyH);
@@ -123,9 +123,7 @@ namespace MnM.GWS
                     y = 0;
                 }
                 int destLen = destination.Length;
-                int destW = destination.Width;
                 var dy = destY;
-                var buffer = destination as ISurface;
                 int srcIndex, copylen;
 
                 int i = 0;

@@ -11,12 +11,12 @@ namespace MnM.GWS
         _ObjDictionary<IRenderable, string>, IObjCollection
     {
         #region VARIABLES
-        public readonly ISurface Parent;
+        public readonly IBlock Parent;
         protected bool isDisposed;
         #endregion
 
         #region CONSTRUCTORS
-        public _ObjCollection(ISurface buffer)
+        public _ObjCollection(IBlock buffer)
         {
             Parent = buffer;
             ID = "ObjectCollection".NewID();
@@ -38,7 +38,6 @@ namespace MnM.GWS
         public bool AddMode { get; protected set; }
         public abstract int Count { get; }
         public IEnumerable<IRenderable> Items => objects;
-        ISurface IObjCollection<IRenderable>.Parent => Parent;
         public abstract
 #if Advanced
             IEnumerable<IDrawInfo2>

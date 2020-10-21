@@ -32,9 +32,9 @@ namespace MnM.GWS
         public override IntPtr Handle => Parent.Handle;
         public override Rectangle Bounds => Parent.Bounds;
         public override bool Focused => Parent.Focused;
-        protected override ISurface Buffer => Parent;
-        public override IObjCollection Controls => 
-            Parent.Controls;
+        protected override IBlock Buffer => Parent;
+        public override IObjCollection Objects => 
+            Parent.Objects;
         #endregion
 
         #region USE EVENT
@@ -43,7 +43,7 @@ namespace MnM.GWS
             if (Parent == null)
                 return;
 #if Advanced
-            Controls?.PushEvent(e);
+            Objects?.PushEvent(e);
             if (e.Status == EventUseStatus.Used)
                 return;
 #endif

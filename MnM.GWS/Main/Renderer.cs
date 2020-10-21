@@ -40,8 +40,8 @@ namespace MnM.GWS
             IPen Pen = null;
             IReadContext Context = readContext;
 
-            if(buffer is ISurface)
-                ((ISurface)buffer).Begin(renderable, out Pen);
+            if(buffer is IRenderSession)
+                ((IRenderSession)buffer).Begin(renderable, out Pen);
 
             if (Pen != null) Context = Pen;
 
@@ -51,8 +51,8 @@ namespace MnM.GWS
             else if (renderable is IShape)
                 buffer.Render((IShape)renderable, Context, out Pen);
 
-            if (buffer is ISurface)
-                ((ISurface)buffer).End(Pen);
+            if (buffer is IRenderSession)
+                ((IRenderSession)buffer).End(Pen);
         }
 
         static bool Render(this IBlock buffer, IDrawable drawable, IReadContext Context, out IPen Pen)
@@ -197,7 +197,7 @@ namespace MnM.GWS
             var w = Settings.Bounds.Width + 1;
             var h = Settings.Bounds.Height + 1;
 
-            IReadContext penContext = context ?? BrushStyle.Black;
+            IReadContext penContext = context ?? Settings.Foreground?? BrushStyle.Black;
 
             Pen = penContext.ToPen(w, h);
 
@@ -1183,7 +1183,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public static unsafe void DrawImage(this IBlock block, IntPtr source, int srcW, int srcH, int destX, int destY,
+        public static unsafe void DrawImage(this IWritable block, IntPtr source, int srcW, int srcH, int destX, int destY,
             int copyX, int copyY, int copyW, int copyH)
         {
             var src = Factory.newSurface(source, srcW, srcH);
@@ -1199,7 +1199,7 @@ namespace MnM.GWS
         /// <param name="srcW">Width of the entire source</param>
         /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
-        public static unsafe void DrawImage(this IBlock block, IntPtr source, int srcW, int srcH, int destX, int destY) =>
+        public static unsafe void DrawImage(this IWritable block, IntPtr source, int srcW, int srcH, int destX, int destY) =>
             DrawImage(block, source, srcW, srcH, destX, destY, 0, 0, srcW, srcH);
 
         /// <summary>
@@ -1214,7 +1214,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public unsafe static void DrawImage(this IBlock block, byte[] source, int srcW, int srcH, int destX, int destY,
+        public unsafe static void DrawImage(this IWritable block, byte[] source, int srcW, int srcH, int destX, int destY,
             int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
         {
             var srcLen = source.Length / 4;
@@ -1237,7 +1237,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public unsafe static void DrawImage(this IBlock block, int[] source, int srcW, int srcH, int destX, int destY,
+        public unsafe static void DrawImage(this IWritable block, int[] source, int srcW, int srcH, int destX, int destY,
             int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
         {
             var rc = Rects.CompitibleRc(srcW, source.Length / srcW, copyX, copyY, copyW, copyH);
@@ -1255,7 +1255,7 @@ namespace MnM.GWS
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
         /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
-        public static unsafe void DrawImage(this IBlock block, ICopyable source, int destX, int destY) =>
+        public static unsafe void DrawImage(this IWritable block, ICopyable source, int destX, int destY) =>
             source.CopyTo(block, destX, destY, 0, 0, source.Width, source.Height);
 
         /// <summary>
@@ -1269,7 +1269,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public static unsafe void DrawImage(this IBlock block, ICopyable source, int destX, int destY, int copyX, int copyY, int copyW, int copyH) =>
+        public static unsafe void DrawImage(this IWritable block, ICopyable source, int destX, int destY, int copyX, int copyY, int copyW, int copyH) =>
             source.CopyTo(block, destX, destY, copyX, copyY, copyW, copyH);
 
         /// <summary>
@@ -1280,7 +1280,7 @@ namespace MnM.GWS
         /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyRc">An Area from source to be copied</param>
-        public static void DrawImage(this IBlock block, ICopyable source, int destX, int destY, Rectangle copyRc)
+        public static void DrawImage(this IWritable block, ICopyable source, int destX, int destY, Rectangle copyRc)
         {
             source.CopyTo(block, destX, destY, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height);
         }
@@ -2680,6 +2680,30 @@ namespace MnM.GWS
             buffer.Settings.X = dstX;
             buffer.Settings.Y = dstY;
             buffer.Render(text, context);
+        }
+        #endregion
+
+        #region DRAW FOCUS RECT
+        /// <summary>
+        /// Draws focus rectangle i.e. border around specified with dotted invert colors
+        /// </summary>
+        /// <param name="rc">Rectangle to draw focus around.</param>
+        public static void DrawFocusRect(this IBlock block, Rectangle rc)
+        {
+            if (rc == null)
+                return;
+            int X = rc.X;
+            int Y = rc.Y;
+            int W = rc.Width;
+            int H = rc.Height;
+            var settings = new DrawSettings();
+            settings.CopySettings(block.Settings);
+            block.Settings.CopySettings(null, true);
+            block.Settings.FillMode = FillMode.DrawOutLine;
+            block.Settings.LineCommand = LineCommand.Dot;
+            block.Settings.BrushCommand |= BrushCommand.InvertColor | BrushCommand.NoAutoSizing;
+            block.DrawRectangle(X, Y, W, H, block.Background);
+            block.Settings.CopySettings(settings);
         }
         #endregion
 

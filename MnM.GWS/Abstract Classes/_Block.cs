@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public abstract class _Block: IBlock
+    public abstract class _Block : IBlock
     {
         #region VARIABLES
         protected int width, height, length;
@@ -26,7 +26,6 @@ namespace MnM.GWS
         public int Width => width;
         public int Height => height;
         public int Length => length;
-        #region PROPERTIES
         public virtual IReadContext Background
         {
             get => BkgPen ?? Pens.White;
@@ -39,22 +38,6 @@ namespace MnM.GWS
                     return;
                 }
                 BkgPen = value.ToPen(Width, Height);
-            }
-        }
-        #endregion
-
-        public IReadContext Foreground
-        {
-            get => FrgPen?? Pens.Black;
-            set
-            {
-                if (value == null)
-                {
-                    (FrgPen as IDisposable)?.Dispose();
-                    FrgPen = null;
-                    return;
-                }
-                FrgPen = value.ToPen(Width, Height);
             }
         }
         public bool IsDisposed => isDisposed;
@@ -71,6 +54,7 @@ namespace MnM.GWS
 
         protected abstract unsafe int* source { get; }
 #if Advanced
+        public abstract IObjectDraw ObjectDraw { get; }
         public unsafe abstract byte* SourceAlphas { set; }
         protected abstract unsafe byte* alphas { get; }
 #endif
@@ -104,12 +88,12 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IBlock block, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
+        public unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
         {
             var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
 
 #if Advanced
-            if(block is IAlphaSource)
+            if (block is IAlphaSource)
                 ((IAlphaSource)block).SourceAlphas = alphas;
 #endif
             Rectangle dstRc;
@@ -153,6 +137,12 @@ namespace MnM.GWS
 
         #region INVALIDATE
         public abstract void Invalidate(int x, int y, int width, int height, bool updateImmediate = false);
+        #endregion
+
+        #region FIND ELEMENT
+#if Advanced
+        public abstract IRenderable FindElement(int x, int y);
+#endif
         #endregion
 
         #region CLONE

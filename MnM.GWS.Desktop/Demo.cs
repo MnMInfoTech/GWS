@@ -552,6 +552,8 @@ namespace MnM.GWS.Desktop
                 }
             }
 
+            IReadContext context;
+
             if (textureBrush == null)
             {
                 Enum.TryParse(cmbGradient.SelectedItem + "", true, out MnM.GWS.BrushType grad);
@@ -568,10 +570,10 @@ namespace MnM.GWS.Desktop
                     fStyle = new BrushStyle(grad, Rgba.Silver);
                 }
 
-                Window.Foreground = fStyle;
+                context = fStyle;
             }
             else
-                Window.Foreground = textureBrush;
+                context = textureBrush;
 
             if (chkInvertBrush.Checked)
                 Settings.BrushCommand |= BrushCommand.InvertRotation;
@@ -605,7 +607,7 @@ namespace MnM.GWS.Desktop
                         System.Windows.Forms.MessageBox.Show("Please provide 2 coordinates to create a line by clicking 2 points on GWS picture box!");
                         return;
                     }
-                    GwsMethod = () => Canvas.DrawLines(true, drawPoints);
+                    GwsMethod = () => Canvas.DrawLines(context , true, drawPoints);
                     break;
                 case "Trapezium":
                     if (drawPoints == null || drawPoints.Length < 4)
@@ -615,17 +617,17 @@ namespace MnM.GWS.Desktop
                     }
                     GwsMethod = () => Canvas.DrawTrapezium(
                         new float[] {drawPoints[0], drawPoints[1], drawPoints[2], drawPoints[3],
-                                (float) numSize.Value, (float)numSizeDiff.Value});
+                                (float) numSize.Value, (float)numSizeDiff.Value}, context);
                     break;
 
                 case "Circle":
                     if (drawPoints?.Length >= 4)
                     {
                         GwsMethod = () => Canvas.DrawCircle(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]));
+                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), context);
                     }
                     else
-                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, w);
+                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, w, context);
 
                     break;
                 case "Ellipse":
@@ -637,7 +639,7 @@ namespace MnM.GWS.Desktop
                             new VectorF(drawPoints[2], drawPoints[3]),
                             new VectorF(drawPoints[4], drawPoints[5]),
                             new VectorF(drawPoints[6], drawPoints[7]),
-                            new VectorF(drawPoints[8], drawPoints[9]));
+                            new VectorF(drawPoints[8], drawPoints[9]), context);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
@@ -645,40 +647,40 @@ namespace MnM.GWS.Desktop
                             new VectorF(drawPoints[0], drawPoints[1]),
                             new VectorF(drawPoints[2], drawPoints[3]),
                             new VectorF(drawPoints[4], drawPoints[5]),
-                            new VectorF(drawPoints[6], drawPoints[7]), type: curveType);
+                            new VectorF(drawPoints[6], drawPoints[7]), type: curveType,context: context);
                     }
                     else if (drawPoints?.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawEllipse(
                             new VectorF(drawPoints[0], drawPoints[1]),
                             new VectorF(drawPoints[2], drawPoints[3]),
-                            new VectorF(drawPoints[4], drawPoints[5]), type: curveType);
+                            new VectorF(drawPoints[4], drawPoints[5]), type: curveType, context: context);
                     }
 
                     else
-                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, h);
+                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, h, context);
                     break;
                 case "Arc":
                     if (drawPoints?.Length >= 10)
                     {
                         GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), context, curveType);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
                         GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), context, curveType);
                     }
 
                     else if (drawPoints?.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), curveType);
+                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), context, curveType);
                     }
                     else
-                        GwsMethod = () => Canvas.DrawArc(x, y, w, h, startA, endA, curveType);
+                        GwsMethod = () => Canvas.DrawArc(x, y, w, h, startA, endA, context, curveType);
 
                     break;
                 case "Pie":
@@ -686,43 +688,43 @@ namespace MnM.GWS.Desktop
                     {
                         GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), context, curveType);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
                         GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), context, curveType);
                     }
 
                     else if (drawPoints?.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), curveType);
+                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), context, curveType);
                     }
                     else
-                        GwsMethod = () => Canvas.DrawPie(x, y, w, h, startA, endA, curveType);
+                        GwsMethod = () => Canvas.DrawPie(x, y, w, h, startA, endA, context, curveType);
 
                     break;
                 case "Square":
-                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, w);
+                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, w, context);
                     break;
                 case "Rectangle":
-                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h);
+                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h, context);
                     break;
 
                 case "RoundedArea":
-                    GwsMethod = () => Canvas.DrawRoundedBox(x, y, w, h, (float)numCornerRadius.Value);
+                    GwsMethod = () => Canvas.DrawRoundedBox(x, y, w, h, (float)numCornerRadius.Value , context);
                     break;
 
                 case "Rhombus":
                     if (drawPoints != null && drawPoints.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawRhombus(drawPoints[0], drawPoints[1],
-                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5]);
+                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5], context);
                         break;
                     }
-                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h);
+                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h, context);
 
                     break;
                 case "Triangle":
@@ -732,13 +734,13 @@ namespace MnM.GWS.Desktop
                         return;
                     }
                     GwsMethod = () => Canvas.DrawTriangle(drawPoints[0], drawPoints[1],
-                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5]);
+                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5], context);
                     break;
 
                 case "Polygon":
                     if (drawPoints == null)
                         return;
-                    GwsMethod = () => Canvas.DrawPolygon(drawPoints.Select(p => p + 0f).ToArray());
+                    GwsMethod = () => Canvas.DrawPolygon(context, drawPoints.Select(p => p + 0f).ToArray());
                     break;
                 case "Bezier":
                     var type = cmbBezier.SelectedIndex != -1 ?
@@ -747,7 +749,7 @@ namespace MnM.GWS.Desktop
                     {
                         if (drawPoints == null || drawPoints.Length < 6)
                             return;
-                        GwsMethod = () => Canvas.DrawBezier(type, drawPoints.Select(p => (float)p).ToArray());
+                        GwsMethod = () => Canvas.DrawBezier(type, context, drawPoints.Select(p => (float)p).ToArray());
                     }
                     else
                     {
@@ -756,11 +758,11 @@ namespace MnM.GWS.Desktop
                             System.Windows.Forms.MessageBox.Show("Please provide at least 3 coordinates to create a bezier by clicking 3 points on GWS picture box!");
                             return;
                         }
-                        GwsMethod = () => Canvas.DrawBezier(type, drawPoints.Select(p => (float)p).ToArray());
+                        GwsMethod = () => Canvas.DrawBezier(type, context, drawPoints.Select(p => (float)p).ToArray());
                     }
                     break;
                 case "Glyphs":
-                    GwsMethod = () => Canvas.DrawText(font, 130, 130 + font.Size, txtPts.Text, drawStyle: ds);
+                    GwsMethod = () => Canvas.DrawText(font, 130, 130 + font.Size, txtPts.Text, context, drawStyle: ds);
                     break;
             }
         }
