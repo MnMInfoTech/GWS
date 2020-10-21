@@ -137,15 +137,9 @@ namespace MnM.GWS
         new Rectangle Bounds { get; }
 
         /// <summary>
-        /// Parent window this object belongs to.
+        /// Gets or sets Parent window this object belongs to.
         /// </summary>
-        IBuffer Window { get; }
-
-        /// <summary>
-        /// Assigns host window to this object. 
-        /// </summary>
-        /// <param name="window"></param>
-        void Assign(IBuffer window);
+        IBuffer Window { get; set; }
     }
     #endregion
 

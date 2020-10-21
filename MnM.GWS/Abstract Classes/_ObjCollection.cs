@@ -57,7 +57,7 @@ namespace MnM.GWS
         public T Add<T>(T Shape, IReadContext context)
             where T : IRenderable
         {
-            if (Shape == null)
+            if (Shape == null|| Shape.ID == null || Shape is IWipeable)
                 return Shape;
 
             AddMode = !Contains(Shape);
@@ -65,9 +65,6 @@ namespace MnM.GWS
             {
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
-
-                if (Shape is IHostable)
-                    ((IHostable)Shape).Assign(Parent);
             }
             Parent.Render(Shape, context);
             AddMode = false;
@@ -75,7 +72,7 @@ namespace MnM.GWS
         }
         public override T Add<T>(T Shape) 
         {
-            if (Shape == null || Shape.ID == null)
+            if (Shape == null || Shape.ID == null || Shape is IWipeable)
                 return Shape;
             AddMode = !Contains(Shape);
 
@@ -84,8 +81,7 @@ namespace MnM.GWS
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
             }
-            if(!(Shape is IShowable2))
-                Parent.Render(Shape, null);
+            Parent.Render(Shape, null);
             AddMode = false;
             return Shape;
         }

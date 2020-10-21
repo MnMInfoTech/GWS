@@ -226,7 +226,6 @@ namespace MnM.GWS
         {
             penID = null;
             bufferID = null;
-            shapeID = null;
             Clip = Size.Empty;
             
             brushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;

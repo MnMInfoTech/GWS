@@ -10,6 +10,7 @@ namespace MnM.GWS.Desktop
     {
         const int dx = 602, dy = 200, dw = 404, dh = 506;
         readonly ICanvas Canvas;
+        bool Resizing;
 
         #region CONSTRUCTORS
         public MsWindow() :
@@ -65,13 +66,16 @@ namespace MnM.GWS.Desktop
         #region PAINT
         protected override void OnPaint(PaintEventArgs e)
         {
+            if (Resizing)
+                return;
             base.OnPaint(e);
             var size = Canvas.Portion(out IntPtr Data, e.ClipRectangle.X,
                 e.ClipRectangle.Y, e.ClipRectangle.Width, e.ClipRectangle.Height);
             if (Data == IntPtr.Zero)
                 return;
-            var bitmap = new Bitmap(size.Width, size.Height, size.Width * 4, PixelFormat.Format32bppArgb, Data);
-            e.Graphics.DrawImage(bitmap, e.ClipRectangle.X, e.ClipRectangle.Y);
+            var Bitmap = new Bitmap(size.Width, size.Height, size.Width * 4, PixelFormat.Format32bppArgb, Data);
+            e.Graphics.DrawImage(Bitmap, e.ClipRectangle.X, e.ClipRectangle.Y);
+            Bitmap.Dispose();
         }
         #endregion
 
@@ -127,10 +131,16 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region RESIZE
+        protected override void OnResizeBegin(EventArgs e)
+        {
+            Resizing = true;
+            base.OnResizeBegin(e);
+        }
         protected override void OnResizeEnd(EventArgs e)
         {
-            base.OnResizeEnd(e);
             Canvas.Resize(Width, Height);
+            Resizing = false;
+            base.OnResizeEnd(e);
         }
         #endregion
 
