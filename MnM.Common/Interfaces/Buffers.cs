@@ -9,10 +9,10 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
     #region IBUFFER
+    /// <summary>
+    /// Represents smallest writable and copiable memory block object.
+    /// </summary>
     public interface IBuffer : IWritable, ICopyable, IBackground
-#if Advanced
-        , IAlphaSource
-#endif
     { }
     #endregion
 
@@ -21,9 +21,9 @@ namespace MnM.GWS
     /// Represents smallest writable and copiable memory block object which can also render shapes.
     /// Settings property of this object controls the flow of writing and rendering data.
     /// </summary>
-    public interface IBlock : IBuffer, IID, ISize, IDrawController, IDisposed, ICloneable
+    public interface IBlock : IBuffer, IID,  IDrawController, IDisposed, ICloneable
 #if Advanced
-        , IElementFinder, IObjectDrawer
+        , IElementFinder, IObjectDrawer,  IAlphaSource
 #endif
     {
         /// <summary>

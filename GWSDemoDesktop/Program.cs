@@ -19,14 +19,7 @@ namespace MnM.GWS.Desktop
 #else
             MnM.GWS.Application.Attach(NativeFactory.Instance);
 #endif
-#if Window
-            if (Demo.AttachedAsWindow)
-                MnM.GWS.Application.Run(Demo.Instance);
-            else
             System.Windows.Forms.Application.Run(Demo.Instance);
-#else
-            System.Windows.Forms.Application.Run(Demo.Instance);
-#endif
         }
     }
 }

@@ -25,7 +25,7 @@ namespace MnM.GWS.Desktop
 {
     public partial class Demo : Form, IShowable, IHideable
     {
-        #region variables
+        #region VARIABLES
         string manualFontPath;
         internal float x, y, w, h;
         float startA, endA;
@@ -37,24 +37,18 @@ namespace MnM.GWS.Desktop
         ISurface Original;
         static Font ptFont = new System.Drawing.Font("Verdana", 10);
         static Demo instance;
-        static IHost Window;
+        static MsWindow Window;
         System.Drawing.Font MsFont;
         System.Drawing.Font dfMsFont = new Font("Tahoma", 12);
         System.Drawing.Brush MsBrush;
-        public static bool AttachedAsWindow = true;
         #endregion
 
-        #region constructors
+        #region CONSTRUCTORS
         Demo()
         {
             InitializeComponent();
 
-            if (AttachedAsWindow)
-                Window = new MnM.GWS. Window(new GwsForm());
-            else
-                Window = new Host(new GwsForm());
-
-            
+            Window = new MsWindow();
             Load += this.OnLoad;
         }
         #endregion
@@ -516,11 +510,11 @@ namespace MnM.GWS.Desktop
             textureBrush = null;
             Draw(sender, e);
         }
-        private void ShowCoordinates(object sender, IMouseEventArgs e)
+        private void ShowCoordinates(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             Text = e.X + "," + e.Y + ",";
         }
-        private void DrawCoordinates(object sender, IMouseEventArgs e)
+        private void DrawCoordinates(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             txtPts.Text += "," + e.X + "," + e.Y;
             Window.DrawRectangle(e.X, e.Y, 2, 2, Rgba.Red);

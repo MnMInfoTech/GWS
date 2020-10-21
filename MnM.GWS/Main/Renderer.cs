@@ -2701,13 +2701,16 @@ namespace MnM.GWS
             block.Settings.CopySettings(null, true);
             block.Settings.FillMode = FillMode.DrawOutLine;
             block.Settings.LineCommand = LineCommand.Dot;
-            block.Settings.BrushCommand |= BrushCommand.InvertColor | BrushCommand.NoAutoSizing;
+            block.Settings.BrushCommand |= BrushCommand.InvertColor;
+#if Advanced
+            block.Settings.BrushCommand |= | BrushCommand.NoAutoSizing;
+#endif
             block.DrawRectangle(X, Y, W, H, block.Background);
             block.Settings.CopySettings(settings);
         }
-        #endregion
+#endregion
 
-        #region PORTION
+            #region PORTION
         public static unsafe Size Portion(this ICopyable block, out int[] Data, int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (block == null)
@@ -2739,9 +2742,9 @@ namespace MnM.GWS
             }
             return new Size(rc);
         }
-        #endregion
+            #endregion
 
-        #region WRITE IMAGE
+            #region WRITE IMAGE
         /// <summary>
         /// Writes a given memory block to a file on a given path.
         /// </summary>
@@ -2801,9 +2804,9 @@ namespace MnM.GWS
             }
             catch { }
         }
-        #endregion
+            #endregion
 
-        #region SAVE AS
+            #region SAVE AS
         /// <summary>
         /// Saves entire image or a portion of it with or without backgound to a disk file in a specified image format.
         /// </summary>
@@ -2836,9 +2839,9 @@ namespace MnM.GWS
             size = block.Portion(out int[] data, portion?.X, portion?.Y, portion?.Width, portion?.Height);
             Factory.ImageProcessor.Write(data, size.Width, size.Height, file, format, pitch, quality);
         }
-        #endregion
+            #endregion
 
-        #region COPY FROM
+            #region COPY FROM
         /// <summary>
         /// Copies a data block specified by srcX, srcY, srcW and srcH parameters to itself.
         /// </summary>
@@ -2851,11 +2854,11 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyFrom(this ICopier target, ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
             target.CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
-        #endregion
+            #endregion
     }
     partial class Renderer
     {
-        #region RENDER CIRCLE OR ELLIPSE
+            #region RENDER CIRCLE OR ELLIPSE
         static void RenderCircleOrEllipse(this IBlock buffer, float x, float y, float width, float height,
             IReadContext context = null)
         {
@@ -2894,9 +2897,9 @@ namespace MnM.GWS
             var curve = new Curve(first, second, third, fourth, fifth, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER ARC - PIE
+            #region RENDER ARC - PIE
         /// <summary>
         /// Renders an arc or pie specified by the bounding area and angle of rotation if supplied using various option supplied throuh CurveType enum.
         /// </summary>
@@ -2982,9 +2985,9 @@ namespace MnM.GWS
             var curve = new Curve(first, second, third, fourth, fifth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER BEZIER
+            #region RENDER BEZIER
         /// <summary>
         /// Renders a bezier defined by points and specified by type and an angle of rotation if supplied.
         /// </summary>
@@ -3002,9 +3005,9 @@ namespace MnM.GWS
             var bezier = new Bezier(type, pts.ToArray(), null);
             buffer.Render(bezier, context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER TRINAGLE
+            #region RENDER TRINAGLE
         /// <summary>
         /// Renders a trianle formed by three points specified by x1,y1 & x2,y2 & x3,y3 and angle of rotation if supplied.
         /// </summary>
@@ -3024,9 +3027,9 @@ namespace MnM.GWS
             var triangle = new Triangle(x1, y1, x2, y2, x3, y3);
             buffer.Render(triangle, context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER POLYGON
+            #region RENDER POLYGON
         /// <summary>
         /// Renders a polygon specified by a collection of points and angle of rotation if supplied.
         /// </summary>
@@ -3041,9 +3044,9 @@ namespace MnM.GWS
             IList<VectorF> points = polyPoints.ToPoints();
             buffer.Render(new Shape(points, "Polygon"), context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER RECTANGLE
+            #region RENDER RECTANGLE
         /// <summary>
         /// Renders a rectangle specified by x, y, width, height parameters and angle of rotation if supplied.
         /// </summary>
@@ -3060,9 +3063,9 @@ namespace MnM.GWS
                 return;
             buffer.Render(new BoxF(x, y, width, height), context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER ROUNDED BOX
+            #region RENDER ROUNDED BOX
         /// <summary>
         /// Renders a rounded box specified by x, y, width, height parameters and angle of rotation if supplied and a hull convex of circle determined by corner radius at all four corners.
         /// </summary>
@@ -3083,9 +3086,9 @@ namespace MnM.GWS
             var pts = Curves.RoundedBoxPoints(x, y, width, height, cornerRadius);
             buffer.Render(new Shape(pts, "RoundBox"), context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER RHOMBUS
+            #region RENDER RHOMBUS
         /// <summary>
         /// Renders a rhombus specified by x, y, width, height parameters and angle of rotation if supplied.
         /// </summary>
@@ -3114,9 +3117,9 @@ namespace MnM.GWS
             var rhombus = new Tetragon(first, second, third);
             buffer.Render(rhombus, context);
         }
-        #endregion
+            #endregion
 
-        #region RENDER TRAPEZIUM
+            #region RENDER TRAPEZIUM
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line, parallel line deviation and angle of rotation if supplied.
         /// </summary>
@@ -3133,11 +3136,11 @@ namespace MnM.GWS
             var trapezium = new Tetragon(baseLine, deviation, buffer.Settings.StrokeMode, skeyBy);
             buffer.Render(trapezium, context);
         }
-        #endregion
+            #endregion
     }
     partial class Renderer
     {
-        #region CREATE LINE ACTION
+            #region CREATE LINE ACTION
         /// <summary>
         /// Retuns an action delegate for storing an axial line or pixel information in specified list.
         /// </summary>
@@ -3194,9 +3197,9 @@ namespace MnM.GWS
             };
         }
 
-        #endregion
+            #endregion
 
-        #region PROCESS LINE
+            #region PROCESS LINE
         /// <summary>
         /// Processes a line using standard line algorithm between two points of a line segment using specified action.
         /// </summary>
@@ -3252,9 +3255,9 @@ namespace MnM.GWS
         {
             ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand);
         }
-        #endregion
+            #endregion
 
-        #region PROCESS LINES
+            #region PROCESS LINES
         /// <summary>
         /// Processes a collection of lines using standard line algorithm between two points of a line segment using specified action.
         /// </summary>
@@ -3270,9 +3273,9 @@ namespace MnM.GWS
             foreach (var l in lines)
                 Process(l, action, lineCommand, skip);
         }
-        #endregion
+            #endregion
 
-        #region SCAN LINES
+            #region SCAN LINES
         /// <summary>
         /// Scans a collection of lines using standard line algorithm between two points of a line segment using specified action.
         /// While scanning each line, the processing will not exceed the boundaries defined by min and max values.
@@ -3294,9 +3297,9 @@ namespace MnM.GWS
                 ScanLine(line.X1, line.Y1, line.X2, line.Y2, horizontalScan, scanAction);
             }
         }
-        #endregion
+            #endregion
 
-        #region POLY FILL SCAN
+            #region POLY FILL SCAN
         /// <summary>
         /// Includes lines in filling operation.
         /// </summary>
@@ -3327,9 +3330,9 @@ namespace MnM.GWS
         {
             polyFill.Scan(a.X, a.Y, b.X, b.Y);
         }
-        #endregion
+            #endregion
 
-        #region PROCESS TRIANGLE
+            #region PROCESS TRIANGLE
         /// <summary>
         /// Scan triangle lines horizontally and performs fill action.
         /// </summary>
@@ -3372,9 +3375,9 @@ namespace MnM.GWS
                 Settings.BrushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
             }
         }
-        #endregion
+            #endregion
 
-        #region PROCESS QUADRILATERAL
+            #region PROCESS QUADRILATERAL
         /// <summary>
         /// Scan Quardilateral lines horizontally and performs fill action.
         /// </summary>
@@ -3421,9 +3424,9 @@ namespace MnM.GWS
                 Settings.BrushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
             }
         }
-        #endregion
+            #endregion
 
-        #region PROCESS RHOMBUS
+            #region PROCESS RHOMBUS
         /// <summary>
         /// Scan rhombus lines horizontally and performs fill action.
         /// </summary>
@@ -3438,9 +3441,9 @@ namespace MnM.GWS
             var p4 = Vectors.FourthPointOfRhombus(p1, p2, p3);
             ProcessQuardilateral(p1, p2, p3, p4, Action, Settings, drawOutLines);
         }
-        #endregion
+            #endregion
 
-        #region PROCESS CONIC
+            #region PROCESS CONIC
         /// <summary>
         /// Process conic - notifying each obtained axial scan line by executing specified action.
         /// </summary>
@@ -3506,9 +3509,9 @@ namespace MnM.GWS
                 }
             }
         }
-        #endregion
+            #endregion
 
-        #region PROCESS OUT LINES
+            #region PROCESS OUT LINES
         /// <summary>
         /// Fills the area between specified two collections of lines.
         /// Filling is done by scanning each line of outer perimeter with correspoinding line of inner perimeter at given index.
@@ -3530,11 +3533,11 @@ namespace MnM.GWS
                 ProcessQuardilateral(p1, p2, p3, p4, action, Settings, false);
             }
         }
-        #endregion
+            #endregion
     }
     partial class Renderer
     {
-        #region ANIMATED GIF FRAME
+            #region ANIMATED GIF FRAME
         /// <summary>
         /// Load GIF from file.
         /// </summary>
@@ -3581,9 +3584,9 @@ namespace MnM.GWS
         /// <returns></returns>
         public static AnimatedGifFrame[] GifFromStream(Stream stream, out int x, out int y, out int comp, int requiredComposition) =>
             STBImage.Processor.ReadAnimatedGif(stream, out x, out y, out comp, requiredComposition);
-        #endregion
+            #endregion
 
-        #region IMAGE READ
+            #region IMAGE READ
         /// <summary>
         /// Read Image from file and return the image with width and height data.
         /// </summary>
@@ -3602,9 +3605,9 @@ namespace MnM.GWS
         {
             return Factory.ImageProcessor.Read(data);
         }
-        #endregion
+            #endregion
 
-        #region ROTATE 
+            #region ROTATE 
         /// <summary>
         /// Returns a rotated and scalled copy of this object.
         /// </summary>
@@ -3618,9 +3621,9 @@ namespace MnM.GWS
             var sz = buffer.RotateAndScale(out int[] data, angle, antiAliased, scale);
             return Factory.newSurface(data, sz.Width, sz.Height);
         }
-        #endregion
+            #endregion
 
-        #region FLIP
+            #region FLIP
         /// <summary>
         /// Returns a flipped version of this object.
         /// </summary>
@@ -3631,7 +3634,7 @@ namespace MnM.GWS
             var sz = buffer.Flip(out int[] data, flipMode);
             return Factory.newSurface(data, sz.Width, sz.Height);
         }
-        #endregion
+            #endregion
     }
 #endif
-}
+        }

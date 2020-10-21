@@ -92,7 +92,7 @@ namespace MnM.GWS
     #endregion
 
     #region OBJECT COLLECTION
-        public override IObjCollection newObjectCollection(ISurface buffer)
+        public override IObjCollection newObjectCollection(IBlock buffer)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
         }

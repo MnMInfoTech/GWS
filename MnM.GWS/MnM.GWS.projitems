@@ -9,7 +9,6 @@
     <Import_RootNamespace>MnM.GWS</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Block.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
@@ -36,9 +35,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Box.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\BoxF.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Windows\Window.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Texure.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Windows\Host.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\PolyFill.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Shape.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fonts\Font.cs" />
