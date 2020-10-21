@@ -11,7 +11,12 @@ namespace MnM.GWS
     {
         #region VARIABLES
         protected readonly bool IsContainer;
-        protected IPen BkgPen;
+        #endregion
+
+        #region PROPERTIES
+#if Advanced
+        public abstract IObjectDraw ObjectDraw { get; }
+#endif
         #endregion
 
         #region CONTRUCTORS
@@ -19,26 +24,6 @@ namespace MnM.GWS
         {
             IsContainer = this is IContainer;
         }
-        #endregion
-
-        #region PROPERTIES
-        public virtual IReadContext Background
-        {
-            get => BkgPen?? Pens.White;
-            set
-            {
-                if (value == null)
-                {
-                    (BkgPen as IDisposable)?.Dispose();
-                    BkgPen = null;
-                    return;
-                }
-                BkgPen = value.ToPen(Width, Height);
-            }
-        }
-#if Advanced
-        public abstract IObjectDraw ObjectDraw { get; }
-#endif
         #endregion
 
         #region BEGIN - END
@@ -49,8 +34,6 @@ namespace MnM.GWS
 #if Advanced
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
-            CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
         public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
         #endregion
 #endif
@@ -341,6 +324,14 @@ namespace MnM.GWS
 
         #region UPDATE
         public abstract void Update();
+        #endregion
+
+        #region DISPOSE
+        public virtual void Dispose()
+        {
+            isDisposed = true;
+            (BkgPen as IDisposable)?.Dispose();
+        }
         #endregion
 
 #if Advanced

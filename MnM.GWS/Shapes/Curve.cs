@@ -224,7 +224,7 @@ namespace MnM.GWS
         #endregion
 
         #region DRAW TO
-        public bool Draw(IWritable buffer, IReadContext readContext, out IPen Pen)
+        public bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen)
         {
             Pen = null;
             if (!Valid)
@@ -238,7 +238,7 @@ namespace MnM.GWS
 
                 buffer.Settings.FillCommand &= ~FillCommand.Outlininig;
                 bool drawEndsOnly = buffer.Settings.FillCommand.HasFlag(FillCommand.DrawEndsOnly);
-                Pen = buffer.GetPen(this, readContext);
+                Pen = buffer.Settings.GetPen(this, readContext);
 
                 buffer.CreateAction(Pen, out FillAction<float> action);
                 Renderer.Process(this, action, buffer.Settings, drawEndsOnly);
@@ -246,7 +246,7 @@ namespace MnM.GWS
             }
 
             var outerCurve = (this).StrokedCurve(buffer.Settings.Stroke, buffer.Settings.FillMode, buffer.Settings.StrokeMode);
-            Pen = buffer.GetPen(outerCurve, readContext);
+            Pen = buffer.Settings.GetPen(outerCurve, readContext);
 
             switch (buffer.Settings.FillMode)
             {

@@ -35,7 +35,7 @@ namespace MnM.GWS
         /// <param name="renderable">Renderable object which is to be rendered</param>
         /// <param name="readContext">A pen context which to create a buffer pen from</param>
         /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        public static void Render(this IWritable buffer, IRenderable renderable, IReadContext readContext = null)
+        public static void Render(this IBlock buffer, IRenderable renderable, IReadContext readContext = null)
         {
             IPen Pen = null;
             IReadContext Context = readContext;
@@ -55,7 +55,7 @@ namespace MnM.GWS
                 ((ISurface)buffer).End(Pen);
         }
 
-        static bool Render(this IWritable buffer, IDrawable drawable, IReadContext Context, out IPen Pen)
+        static bool Render(this IBlock buffer, IDrawable drawable, IReadContext Context, out IPen Pen)
         {
             if (drawable.Draw(buffer, Context, out Pen))
                 return true;
@@ -73,7 +73,7 @@ namespace MnM.GWS
         /// <param name="shape">Shape to render on the buffer.</param>
         /// <param name="readContext">A pen context which to create a buffer pen from.</param>
         /// <param name="Pen">Resultant pen created from conversion of read context.</param>
-        static void Render(this IWritable buffer, IShape shape, IReadContext readContext, out IPen Pen)
+        static void Render(this IBlock buffer, IShape shape, IReadContext readContext, out IPen Pen)
         {
             Pen = null;
             if (shape == null)
@@ -134,7 +134,7 @@ namespace MnM.GWS
                     bounds = bounds.Scale(Settings.Rotation, new VectorF(Cx, Cy));
             }
 
-            Pen = buffer.GetPen(shape, readContext, bounds);
+            Pen = buffer.Settings.GetPen(shape, readContext, bounds);
 
             Settings.FillMode = Factory.ShapeParser.GetFillMode(Settings.FillMode, ShapeName, Settings.Stroke);
             var draw = Settings.LineCommand;
@@ -173,11 +173,10 @@ namespace MnM.GWS
         /// <param name="shape">An element for which buffer pen is required</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <returns>Buffer pen</returns>
-        public static IPen GetPen(this IWritable buffer, IRenderable shape, IReadContext context, RectangleF? suppliedBounds = null)
+        public static IPen GetPen(this IDrawSettings Settings, IRenderable shape, IReadContext context, RectangleF? suppliedBounds = null)
         {
             bool enabled = true;
-            IPen Pen = null;
-            var Settings = buffer.Settings;
+            IPen Pen;
 
             if (shape is IVisible2)
                 enabled = (shape as IVisible2).Enabled;
@@ -198,8 +197,7 @@ namespace MnM.GWS
             var w = Settings.Bounds.Width + 1;
             var h = Settings.Bounds.Height + 1;
 
-            IReadContext penContext = context ??
-                buffer.Foreground ?? BrushStyle.Black;
+            IReadContext penContext = context ?? BrushStyle.Black;
 
             Pen = penContext.ToPen(w, h);
 
@@ -753,7 +751,7 @@ namespace MnM.GWS
         /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
         /// <param name="color">colour of pixel.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color)
+        public static void WritePixel(this IBlock buffer, float val, int axis, bool horizontal, int color)
         {
             int intVal = (int)val;
 
@@ -788,7 +786,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate on 2d buffer memory block</param>
         /// <param name="color">colour of pixel.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float x, float y, int color)
+        public static void WritePixel(this IBlock buffer, float x, float y, int color)
         {
             int x0 = (int)x;
             int y0 = (int)y;
@@ -836,7 +834,7 @@ namespace MnM.GWS
         /// <param name="pen">buffer pen which to read pixel from</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void WriteLine(this IWritable buffer, float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha)
+        public static unsafe void WriteLine(this IBlock buffer, float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha)
         {
             if (float.IsNaN(start) && float.IsNaN(end))
                 return;
@@ -952,7 +950,7 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="color">Color by which pixels should be written.</param>
-        public static void WritePixels(this IWritable buffer, IEnumerable<VectorF> points, int color)
+        public static void WritePixels(this IBlock buffer, IEnumerable<VectorF> points, int color)
         {
             if (points == null)
                 return;
@@ -966,7 +964,7 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="color">Color by which pixels should be written.</param>
-        public static void WritePixels(this IWritable buffer, int color, IEnumerable<Vector> points)
+        public static void WritePixels(this IBlock buffer, int color, IEnumerable<Vector> points)
         {
             if (points == null)
                 return;
@@ -980,7 +978,7 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="pen">Pen to read corresponding pixels from in oroder to copy them.</param>
-        public static void WritePixels(this IWritable buffer, IEnumerable<VectorF> points, IReadable pen)
+        public static void WritePixels(this IBlock buffer, IEnumerable<VectorF> points, IReadable pen)
         {
             if (points == null)
                 return;
@@ -994,7 +992,7 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="pen">Pen to read corresponding pixels from in oroder to copy them.</param>
-        public static void WritePixels(this IWritable buffer, IReadable pen, IEnumerable<Vector> points)
+        public static void WritePixels(this IBlock buffer, IReadable pen, IEnumerable<Vector> points)
         {
             if (points == null)
                 return;
@@ -1011,7 +1009,7 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreateAction(this IWritable buffer, IReadable pen, out FillAction<float> action)
+        public static void CreateAction(this IBlock buffer, IReadable pen, out FillAction<float> action)
         {
             action = (val1, axis, horizontal, val2, alpha) =>
             {
@@ -1026,7 +1024,7 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreateAction(this IWritable buffer, IReadable pen, out PixelAction<float> action)
+        public static void CreateAction(this IBlock buffer, IReadable pen, out PixelAction<float> action)
         {
             action = (val, axis, horizontal) =>
             {
@@ -1051,7 +1049,7 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreateAction(this IWritable buffer, IReadable pen, out PixelAction<int> action)
+        public static void CreateAction(this IBlock buffer, IReadable pen, out PixelAction<int> action)
         {
             action = (val, axis, horizontal) =>
             {
@@ -1127,7 +1125,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer target which to render a shape on</param>
         /// <param name="shape">Element which is to be rendered</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void Draw(this IWritable buffer, IRenderable shape, IReadContext context) =>
+        public static void Draw(this IBlock buffer, IRenderable shape, IReadContext context) =>
             buffer.Render(shape, context);
 
         /// <summary>
@@ -1141,7 +1139,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer target which to render a shape on</param>
         /// <param name="shape">Element which is to be rendered</param>
-        public static void Draw(this IWritable buffer, IRenderable shape) =>
+        public static void Draw(this IBlock buffer, IRenderable shape) =>
             buffer.Render(shape, null);
 
         /// <summary>
@@ -1185,7 +1183,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public static unsafe void DrawImage(this IWritable block, IntPtr source, int srcW, int srcH, int destX, int destY,
+        public static unsafe void DrawImage(this IBlock block, IntPtr source, int srcW, int srcH, int destX, int destY,
             int copyX, int copyY, int copyW, int copyH)
         {
             var src = Factory.newSurface(source, srcW, srcH);
@@ -1201,7 +1199,7 @@ namespace MnM.GWS
         /// <param name="srcW">Width of the entire source</param>
         /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
-        public static unsafe void DrawImage(this IWritable block, IntPtr source, int srcW, int srcH, int destX, int destY) =>
+        public static unsafe void DrawImage(this IBlock block, IntPtr source, int srcW, int srcH, int destX, int destY) =>
             DrawImage(block, source, srcW, srcH, destX, destY, 0, 0, srcW, srcH);
 
         /// <summary>
@@ -1216,7 +1214,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public unsafe static void DrawImage(this IWritable block, byte[] source, int srcW, int srcH, int destX, int destY,
+        public unsafe static void DrawImage(this IBlock block, byte[] source, int srcW, int srcH, int destX, int destY,
             int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
         {
             var srcLen = source.Length / 4;
@@ -1239,7 +1237,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public unsafe static void DrawImage(this IWritable block, int[] source, int srcW, int srcH, int destX, int destY,
+        public unsafe static void DrawImage(this IBlock block, int[] source, int srcW, int srcH, int destX, int destY,
             int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
         {
             var rc = Rects.CompitibleRc(srcW, source.Length / srcW, copyX, copyY, copyW, copyH);
@@ -1257,7 +1255,7 @@ namespace MnM.GWS
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
         /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
-        public static unsafe void DrawImage(this IWritable block, ICopyable source, int destX, int destY) =>
+        public static unsafe void DrawImage(this IBlock block, ICopyable source, int destX, int destY) =>
             source.CopyTo(block, destX, destY, 0, 0, source.Width, source.Height);
 
         /// <summary>
@@ -1271,7 +1269,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public static unsafe void DrawImage(this IWritable block, ICopyable source, int destX, int destY, int copyX, int copyY, int copyW, int copyH) =>
+        public static unsafe void DrawImage(this IBlock block, ICopyable source, int destX, int destY, int copyX, int copyY, int copyW, int copyH) =>
             source.CopyTo(block, destX, destY, copyX, copyY, copyW, copyH);
 
         /// <summary>
@@ -1282,7 +1280,7 @@ namespace MnM.GWS
         /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyRc">An Area from source to be copied</param>
-        public static void DrawImage(this IWritable block, ICopyable source, int destX, int destY, Rectangle copyRc)
+        public static void DrawImage(this IBlock block, ICopyable source, int destX, int destY, Rectangle copyRc)
         {
             source.CopyTo(block, destX, destY, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height);
         }
@@ -1299,7 +1297,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawLine(this IWritable buffer, float x1, float y1, float x2, float y2, IReadContext context)
+        public static void DrawLine(this IBlock buffer, float x1, float y1, float x2, float y2, IReadContext context)
         {
             if (buffer == null)
                 return;
@@ -1316,7 +1314,7 @@ namespace MnM.GWS
         /// <param name="x2">X corordinate of end point</param>
         /// <param name="y2">Y corordinate of end point</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawLine(this IWritable buffer, float x1, float y1, float x2, float y2)
+        public static void DrawLine(this IBlock buffer, float x1, float y1, float x2, float y2)
         {
             if (buffer == null)
                 return;
@@ -1330,7 +1328,7 @@ namespace MnM.GWS
         /// <param name="line">Line to draw</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawLine(this IWritable buffer, ILine line, IReadContext context)
+        public static void DrawLine(this IBlock buffer, ILine line, IReadContext context)
         {
             if (buffer == null)
                 return;
@@ -1344,7 +1342,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="l">Line to draw</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IWritable buffer, ILine l) =>
+        public static void DrawLine(this IBlock buffer, ILine l) =>
             buffer.DrawLine(l, null);
 
         /// <summary>
@@ -1355,7 +1353,7 @@ namespace MnM.GWS
         /// <param name="p2">end point of line segment</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IWritable buffer, VectorF p1, VectorF p2, IReadContext context = null) =>
+        public static void DrawLine(this IBlock buffer, VectorF p1, VectorF p2, IReadContext context = null) =>
             buffer.DrawLine(p1.X, p1.Y, p2.X, p2.Y, context);
 
         /// <summary>
@@ -1366,7 +1364,7 @@ namespace MnM.GWS
         /// <param name="p2">end point of line segment</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IWritable buffer, Vector p1, Vector p2, IReadContext context = null) =>
+        public static void DrawLine(this IBlock buffer, Vector p1, Vector p2, IReadContext context = null) =>
             buffer.DrawLine(p1.X, p1.Y, p2.X, p2.Y, context);
 
         /// <summary>
@@ -1378,7 +1376,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IWritable buffer, VectorF p1, float x2, float y2, IReadContext context = null) =>
+        public static void DrawLine(this IBlock buffer, VectorF p1, float x2, float y2, IReadContext context = null) =>
             buffer.DrawLine(p1.X, p1.Y, x2, y2, context);
 
         /// <summary>
@@ -1387,7 +1385,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="lines">A collection of lines</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawLines(this IWritable buffer, IEnumerable<ILine> lines, IReadContext context = null)
+        public static void DrawLines(this IBlock buffer, IEnumerable<ILine> lines, IReadContext context = null)
         {
             var draw = buffer.Settings.LineCommand;
             foreach (var l in lines)
@@ -1403,7 +1401,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="lines">A collection of lines</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawLines(this IWritable buffer, IEnumerable<VectorF> points, IReadContext context = null, bool connectEach = true)
+        public static void DrawLines(this IBlock buffer, IEnumerable<VectorF> points, IReadContext context = null, bool connectEach = true)
         {
             var draw = buffer.Settings.LineCommand;
             VectorF previous = VectorF.Empty;
@@ -1435,7 +1433,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="lines">A collection of lines</param>
-        public static void DrawLines(this IWritable buffer, IReadContext context, params ILine[] lines) =>
+        public static void DrawLines(this IBlock buffer, IReadContext context, params ILine[] lines) =>
             buffer.DrawLines(lines as IEnumerable<ILine>, context);
 
         /// <summary>
@@ -1443,7 +1441,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="lines">A collection of lines</param>
-        public static void DrawLines(this IWritable buffer, params ILine[] lines) =>
+        public static void DrawLines(this IBlock buffer, params ILine[] lines) =>
             buffer.DrawLines(lines as IEnumerable<ILine>, null);
 
         /// <summary>
@@ -1455,7 +1453,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">An interger array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23, 56, 98, 205} creates Line(X1 = 23, Y1 = 56, X2 = 98,Y2 = 205) </param>
-        public static void DrawLines(this IWritable buffer, IReadContext context, bool connectEach, params int[] values)
+        public static void DrawLines(this IBlock buffer, IReadContext context, bool connectEach, params int[] values)
         {
             var points = (values).ToPointsF();
             if (connectEach && points.Count > 2)
@@ -1483,7 +1481,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">A float array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23.33f, 56.67f, 98.45f, 205.21f} creates Line(X1 = 23.33f, Y1 = 56.67f, X2 = 98.45f,Y2 = 205.21f) </param>
-        public static void DrawLines(this IWritable buffer, IReadContext context, bool connectEach, params float[] values)
+        public static void DrawLines(this IBlock buffer, IReadContext context, bool connectEach, params float[] values)
         {
             var points = values.ToPoints();
             if (connectEach && points.Count > 2)
@@ -1508,7 +1506,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">An interger array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23, 56, 98, 205} creates Line(X1 = 23, Y1 = 56, X2 = 98,Y2 = 205) </param>
-        public static void DrawLines(this IWritable buffer, bool connectEach, Rotation angle, params int[] values) =>
+        public static void DrawLines(this IBlock buffer, bool connectEach, Rotation angle, params int[] values) =>
             buffer.DrawLines(null, connectEach, values);
 
         /// <summary>
@@ -1520,7 +1518,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">A float array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23.33f, 56.67f, 98.45f, 205.21f} creates Line(X1 = 23.33f, Y1 = 56.67f, X2 = 98.45f,Y2 = 205.21f) </param>
-        public static void DrawLines(this IWritable buffer, bool connectEach, Rotation angle, params float[] values) =>
+        public static void DrawLines(this IBlock buffer, bool connectEach, Rotation angle, params float[] values) =>
             buffer.DrawLines(null, connectEach, values);
 
         /// <summary>
@@ -1531,7 +1529,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">An interger array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23, 56, 98, 205} creates Line(X1 = 23, Y1 = 56, X2 = 98,Y2 = 205) </param>
-        public static void DrawLines(this IWritable buffer, bool connectEach, params int[] values) =>
+        public static void DrawLines(this IBlock buffer, bool connectEach, params int[] values) =>
             buffer.DrawLines(null, connectEach, values);
 
         /// <summary>
@@ -1541,7 +1539,7 @@ namespace MnM.GWS
         /// <param name="connectEach">If true then each line segment will be connected to the previous and next one</param>
         /// <param name="values">A float array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23.33f, 56.67f, 98.45f, 205.21f} creates Line(X1 = 23.33f, Y1 = 56.67f, X2 = 98.45f,Y2 = 205.21f) </param>
-        public static void DrawLines(this IWritable buffer, bool connectEach, params float[] values) =>
+        public static void DrawLines(this IBlock buffer, bool connectEach, params float[] values) =>
             buffer.DrawLines(null, connectEach, values);
         #endregion
 
@@ -1555,7 +1553,7 @@ namespace MnM.GWS
         /// <param name="width">Width of a bounding area where the circle is to be drawn -> circle's minor X axis = Width/2</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IWritable buffer, float x, float y, float width, IReadContext context) =>
+        public static void DrawCircle(this IBlock buffer, float x, float y, float width, IReadContext context) =>
             RenderCircleOrEllipse(buffer, x, y, width, width, context);
 
         /// <summary>
@@ -1566,7 +1564,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate of a bounding area where the circle is to be drawn</param>
         /// <param name="width">Width of a bounding area where the circle is to be drawn -> circle's minor X axis = Width/2</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IWritable buffer, float x, float y, float width) =>
+        public static void DrawCircle(this IBlock buffer, float x, float y, float width) =>
             RenderCircleOrEllipse(buffer, x, y, width, width, null);
 
         /// <summary>
@@ -1577,7 +1575,7 @@ namespace MnM.GWS
         /// <param name="centerOfCircle">Center of a circle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IWritable buffer, VectorF pointOnCircle, VectorF centerOfCircle, IReadContext context)
+        public static void DrawCircle(this IBlock buffer, VectorF pointOnCircle, VectorF centerOfCircle, IReadContext context)
         {
             Curves.GetCircleData(pointOnCircle, centerOfCircle, out float x, out float y, out float w);
             RenderCircleOrEllipse(buffer, x, y, w, w, context);
@@ -1590,7 +1588,7 @@ namespace MnM.GWS
         /// <param name="pointOnCircle">A point on a circle which you want</param>
         /// <param name="centerOfCircle">Center of a circle</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IWritable buffer, VectorF pointOnCircle, VectorF centerOfCircle)
+        public static void DrawCircle(this IBlock buffer, VectorF pointOnCircle, VectorF centerOfCircle)
         {
             Curves.GetCircleData(pointOnCircle, centerOfCircle, out float x, out float y, out float w);
             RenderCircleOrEllipse(buffer, x, y, w, w, null);
@@ -1607,7 +1605,7 @@ namespace MnM.GWS
         /// <param name="width">Width of a bounding area where the ellipse is to be drawn -> ellipse's minor X axis = Width/2</param>
         /// <param name="height">Height of a bounding area where the ellipse is to be drawn -> ellipse's minor Y axis = Height/2</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawEllipse(this IWritable buffer, float x, float y, float width, float height, IReadContext context) =>
+        public static void DrawEllipse(this IBlock buffer, float x, float y, float width, float height, IReadContext context) =>
             RenderCircleOrEllipse(buffer, x, y, width, height, context);
 
         /// <summary>
@@ -1618,7 +1616,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate of a bounding area where the ellipse is to be drawn</param>
         /// <param name="width">Width of a bounding area where the ellipse is to be drawn -> ellipse's minor X axis = Width/2</param>
         /// <param name="height">Height of a bounding area where the ellipse is to be drawn -> ellipse's minor Y axis = Height/2</param>
-        public static void DrawEllipse(this IWritable buffer, float x, float y, float width, float height) =>
+        public static void DrawEllipse(this IBlock buffer, float x, float y, float width, float height) =>
             RenderCircleOrEllipse(buffer, x, y, width, height, null);
 
         /// <summary>
@@ -1631,7 +1629,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, context, type);
 
         /// <summary>
@@ -1643,7 +1641,7 @@ namespace MnM.GWS
         /// <param name="p3">third point on the ellipse</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, null, type);
 
         /// <summary>
@@ -1657,7 +1655,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, p4, context, type);
 
         /// <summary>
@@ -1670,7 +1668,7 @@ namespace MnM.GWS
         /// <param name="p4">third point on the ellipse</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, p4, null, type);
 
         /// <summary>
@@ -1683,7 +1681,7 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, VectorF p5, IReadContext context) =>  
+        public static void DrawEllipse(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, VectorF p5, IReadContext context) =>  
             RenderCircleOrEllipse(buffer, p1, p2, p3, p4, p5, context);
 
         /// <summary>
@@ -1695,7 +1693,7 @@ namespace MnM.GWS
         /// <param name="third">third point on the ellipse</param>
         /// <param name="fourth">Fourth point</param>
         /// <param name="fifth">Fifth point</param>
-        public static void DrawEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth) =>
+        public static void DrawEllipse(this IBlock buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth) =>
             RenderCircleOrEllipse(buffer, first, second, third, fourth, fifth, null);
         #endregion
 
@@ -1712,7 +1710,7 @@ namespace MnM.GWS
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="type"> Defines the type of an arc along with other supplimentary options on how to draw it</param>
-        public static void DrawArc(this IWritable buffer, float x, float y, float width, float height, float startAngle, float endAngle,
+        public static void DrawArc(this IBlock buffer, float x, float y, float width, float height, float startAngle, float endAngle,
             IReadContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, x, y, width, height, startAngle, endAngle, context, type);
 
@@ -1727,7 +1725,7 @@ namespace MnM.GWS
         /// <param name="startAngle">Start angle from where a curve start</param>
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="type"> Defines the type of an arc along with other supplimentary options on how to draw it</param>
-        public static void DrawArc(this IWritable buffer, float x, float y, float width, float height, float startAngle, float endAngle,
+        public static void DrawArc(this IBlock buffer, float x, float y, float width, float height, float startAngle, float endAngle,
             CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, x, y, width, height, startAngle, endAngle, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
@@ -1739,7 +1737,7 @@ namespace MnM.GWS
         /// <param name="p2">Second point  on the arc</param>
         /// <param name="p3">Third point on the arc</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, context, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1751,7 +1749,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the arc</param>
         /// <param name="p4">Fourth point on the arc</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context,
+        public static void DrawArc(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context,
             CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, context, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
@@ -1764,7 +1762,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the arc</param>
         /// <param name="p4">Fourth point on the arc</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1774,7 +1772,7 @@ namespace MnM.GWS
         /// <param name="p1">First point on an arc</param>
         /// <param name="p2">Second point  on the arc</param>
         /// <param name="p3">Third point on the arc</param>
-        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Arc) =>
             buffer.DrawArc(p1, p2, p3, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1787,7 +1785,7 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawArc(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, VectorF p5, IReadContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, context, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
@@ -1800,7 +1798,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the arc</param>
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
-        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawArc(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, VectorF p5, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
         #endregion
@@ -1819,7 +1817,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IWritable buffer, float x, float y, float width, float height,
+        public static void DrawPie(this IBlock buffer, float x, float y, float width, float height,
             float startAngle, float endAngle, IReadContext context, CurveType type = CurveType.Pie) =>
             RenderArcOrPie(buffer, x, y, width, height, startAngle, endAngle, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1835,7 +1833,7 @@ namespace MnM.GWS
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IWritable buffer, float x, float y, float width, float height, float startAngle, float endAngle,
+        public static void DrawPie(this IBlock buffer, float x, float y, float width, float height, float startAngle, float endAngle,
             CurveType type = CurveType.Pie) =>
             buffer.DrawPie(x, y, width, height, startAngle, endAngle, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1850,7 +1848,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Pie) =>
+        public static void DrawPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Pie) =>
             RenderArcOrPie(buffer, p1, p2, p3, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
         /// <summary>
@@ -1863,7 +1861,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the pie</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Pie) =>
+        public static void DrawPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Pie) =>
             buffer.DrawPie(p1, p2, p3, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
 
@@ -1877,7 +1875,7 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, IReadContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1890,7 +1888,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the pie</param>
         /// <param name="p4">Fourth point</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1906,7 +1904,7 @@ namespace MnM.GWS
         /// <param name="p5">Fifth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, VectorF p5, IReadContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1920,7 +1918,7 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, VectorF p5, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
         #endregion
@@ -1932,7 +1930,7 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer which to render a curve on</param>
         /// <param name="Curve">Cureve object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawCurve(this IWritable buffer, ICurve Curve, IReadContext context = null)
+        public static void DrawCurve(this IBlock buffer, ICurve Curve, IReadContext context = null)
         {
             buffer.Render(Curve, context);
         }
@@ -1946,7 +1944,7 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer which to render a curve on</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="drawEndsOnly">If true, only out line of conic will be drawn and filling will not be performed.</param>
-        public static void DrawConic(this IWritable buffer, IConic conic, IReadContext context = null, bool drawEndsOnly = false)
+        public static void DrawConic(this IBlock buffer, IConic conic, IReadContext context = null, bool drawEndsOnly = false)
         {
             if (buffer == null)
                 return;
@@ -1972,7 +1970,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawBezier(this IWritable buffer, IReadContext context, params float[] points) =>
+        public static void DrawBezier(this IBlock buffer, IReadContext context, params float[] points) =>
             RenderBezier(buffer, points, BezierType.Cubic, context);
 
         /// <summary>
@@ -1982,7 +1980,7 @@ namespace MnM.GWS
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawBezier(this IWritable buffer, BezierType type, IReadContext context, params float[] points) =>
+        public static void DrawBezier(this IBlock buffer, BezierType type, IReadContext context, params float[] points) =>
             RenderBezier(buffer, points, type, context);
 
         /// <summary>
@@ -1990,7 +1988,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
-        public static void DrawBezier(this IWritable buffer, params float[] points) =>
+        public static void DrawBezier(this IBlock buffer, params float[] points) =>
             RenderBezier(buffer, points, BezierType.Cubic, null);
 
         /// <summary>
@@ -1999,7 +1997,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
-        public static void DrawBezier(this IWritable buffer, BezierType type, params float[] points) =>
+        public static void DrawBezier(this IBlock buffer, BezierType type, params float[] points) =>
             RenderBezier(buffer, points, type, null);
 
         /// <summary>
@@ -2007,7 +2005,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in integers - each group of two subsequent values forms one point i.e x & y</param>
-        public static void DrawBezier(this IWritable buffer, params int[] points) =>
+        public static void DrawBezier(this IBlock buffer, params int[] points) =>
             RenderBezier(buffer, points.Select(p => (float)p), BezierType.Cubic, null);
 
         /// <summary>
@@ -2016,7 +2014,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in integers - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
-        public static void DrawBezier(this IWritable buffer, BezierType type, params int[] points) =>
+        public static void DrawBezier(this IBlock buffer, BezierType type, params int[] points) =>
             RenderBezier(buffer, points.Select(p => (float)p), type, null);
         #endregion
 
@@ -2033,7 +2031,7 @@ namespace MnM.GWS
         /// <param name="y3">Y corodinate of the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the traingle</param>
-        public static void DrawTriangle(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3, IReadContext context) =>
+        public static void DrawTriangle(this IBlock buffer, float x1, float y1, float x2, float y2, float x3, float y3, IReadContext context) =>
             RenderTriangle(buffer, x1, y1, x2, y2, x3, y3, context);
 
         /// <summary>
@@ -2047,7 +2045,7 @@ namespace MnM.GWS
         /// <param name="x3">X corodinate of the third point</param>
         /// <param name="y3">Y corodinate of the third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the traingle</param>
-        public static void DrawTriangle(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
+        public static void DrawTriangle(this IBlock buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
             buffer.DrawTriangle(x1, y1, x2, y2, x3, y3, null);
 
         /// <summary>
@@ -2059,7 +2057,7 @@ namespace MnM.GWS
         /// <param name="p3">the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IWritable buffer, Vector p1, Vector p2, Vector p3, IReadContext context) =>
+        public static void DrawTriangle(this IBlock buffer, Vector p1, Vector p2, Vector p3, IReadContext context) =>
             buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, context);
 
         /// <summary>
@@ -2071,7 +2069,7 @@ namespace MnM.GWS
         /// <param name="p3">the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context) =>
+        public static void DrawTriangle(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context) =>
             buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, context);
 
         /// <summary>
@@ -2082,7 +2080,7 @@ namespace MnM.GWS
         /// <param name="p2">The second point</param>
         /// <param name="p3">the third point</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IWritable buffer, Vector p1, Vector p2, Vector p3) =>
+        public static void DrawTriangle(this IBlock buffer, Vector p1, Vector p2, Vector p3) =>
         buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, null);
 
         /// <summary>
@@ -2093,7 +2091,7 @@ namespace MnM.GWS
         /// <param name="p2">The second point</param>
         /// <param name="p3">the third point</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3) =>
+        public static void DrawTriangle(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3) =>
             buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, null);
         #endregion
 
@@ -2107,7 +2105,7 @@ namespace MnM.GWS
         /// <param name="width">Width  and also height of the rectangle/param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawSquare(this IWritable buffer, float x, float y, float width, IReadContext context) =>
+        public static void DrawSquare(this IBlock buffer, float x, float y, float width, IReadContext context) =>
             RenderRectangle(buffer, x, y, width, width, context);
 
         /// <summary>
@@ -2118,7 +2116,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate of the rectangle</param>
         /// <param name="width">Width  and also height of the rectangle/param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawSquare(this IWritable buffer, float x, float y, float width) =>
+        public static void DrawSquare(this IBlock buffer, float x, float y, float width) =>
             RenderRectangle(buffer, x, y, width, width, null);
         #endregion
 
@@ -2133,7 +2131,7 @@ namespace MnM.GWS
         /// <param name="height">Height the rectangle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IWritable buffer, float x, float y, float width, float height, IReadContext context) =>
+        public static void DrawRectangle(this IBlock buffer, float x, float y, float width, float height, IReadContext context) =>
             RenderRectangle(buffer, x, y, width, height, context);
 
         /// <summary>
@@ -2145,7 +2143,7 @@ namespace MnM.GWS
         /// <param name="width">Width of the rectangle/param>
         /// <param name="height">Height the rectangle</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IWritable buffer, float x, float y, float width, float height) =>
+        public static void DrawRectangle(this IBlock buffer, float x, float y, float width, float height) =>
             RenderRectangle(buffer, x, y, width, height, null);
 
         /// <summary>
@@ -2155,7 +2153,7 @@ namespace MnM.GWS
         /// <param name="r">Rectangle to draw</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IWritable buffer, Rectangle r, IReadContext context) =>
+        public static void DrawRectangle(this IBlock buffer, Rectangle r, IReadContext context) =>
             RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, context);
 
         /// <summary>
@@ -2165,7 +2163,7 @@ namespace MnM.GWS
         /// <param name="r">Rectangle to draw</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IWritable buffer, RectangleF r, IReadContext context) =>
+        public static void DrawRectangle(this IBlock buffer, RectangleF r, IReadContext context) =>
            RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, context);
 
         /// <summary>
@@ -2174,7 +2172,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a rectangle on</param>
         /// <param name="r">Rectangle to draw</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IWritable buffer, Rectangle r) =>
+        public static void DrawRectangle(this IBlock buffer, Rectangle r) =>
             RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, null);
 
         /// <summary>
@@ -2183,7 +2181,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a rectangle on</param>
         /// <param name="r">Rectangle to draw</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IWritable buffer, RectangleF r) =>
+        public static void DrawRectangle(this IBlock buffer, RectangleF r) =>
            RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, null);
         #endregion
 
@@ -2199,7 +2197,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IWritable buffer, float x, float y, float width, float height, float cornerRadius, IReadContext context) =>
+        public static void DrawRoundedBox(this IBlock buffer, float x, float y, float width, float height, float cornerRadius, IReadContext context) =>
            RenderRoundedBox(buffer, x, y, width, height, cornerRadius, context);
 
         /// <summary>
@@ -2212,7 +2210,7 @@ namespace MnM.GWS
         /// <param name="height">Height the rounded box</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IWritable buffer, float x, float y, float width, float height, float cornerRadius) =>
+        public static void DrawRoundedBox(this IBlock buffer, float x, float y, float width, float height, float cornerRadius) =>
             RenderRoundedBox(buffer, x, y, width, height, cornerRadius, null);
 
         /// <summary>
@@ -2223,7 +2221,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IWritable buffer, RectangleF r, float cornerRadius, IReadContext context) =>
+        public static void DrawRoundedBox(this IBlock buffer, RectangleF r, float cornerRadius, IReadContext context) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, context);
 
         /// <summary>
@@ -2234,7 +2232,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IWritable buffer, Rectangle r, float cornerRadius, IReadContext context) =>
+        public static void DrawRoundedBox(this IBlock buffer, Rectangle r, float cornerRadius, IReadContext context) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, context);
 
         /// <summary>
@@ -2244,7 +2242,7 @@ namespace MnM.GWS
         /// <param name="r">Base rectange to construct the rounded box from</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IWritable buffer, RectangleF r, float cornerRadius) =>
+        public static void DrawRoundedBox(this IBlock buffer, RectangleF r, float cornerRadius) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, null);
 
         /// <summary>
@@ -2254,7 +2252,7 @@ namespace MnM.GWS
         /// <param name="r">Base rectange to construct the rounded box from</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IWritable buffer, Rectangle r, float cornerRadius) =>
+        public static void DrawRoundedBox(this IBlock buffer, Rectangle r, float cornerRadius) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, null);
         #endregion
 
@@ -2268,7 +2266,7 @@ namespace MnM.GWS
         /// <param name="third">Third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawRhombus(this IWritable buffer, VectorF first, VectorF second, VectorF third, IReadContext context) =>
+        public static void DrawRhombus(this IBlock buffer, VectorF first, VectorF second, VectorF third, IReadContext context) =>
             RenderRhombus(buffer, first, second, third, context);
 
         /// <summary>
@@ -2279,7 +2277,7 @@ namespace MnM.GWS
         /// <param name="second">Second point</param>
         /// <param name="third">Third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
-        public static void DrawRhombus(this IWritable buffer, VectorF first, VectorF second, VectorF third) =>
+        public static void DrawRhombus(this IBlock buffer, VectorF first, VectorF second, VectorF third) =>
             RenderRhombus(buffer, first, second, third, null);
 
         /// <summary>
@@ -2294,7 +2292,7 @@ namespace MnM.GWS
         /// <param name="y3">Y coordinate of third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawRhombus(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3,
+        public static void DrawRhombus(this IBlock buffer, float x1, float y1, float x2, float y2, float x3, float y3,
             IReadContext context) =>
             RenderRhombus(buffer, new VectorF(x1, y1), new VectorF(x2, y2), new VectorF(x3, y3), context);
 
@@ -2309,7 +2307,7 @@ namespace MnM.GWS
         /// <param name="x3">X coordinate of third point</param>
         /// <param name="y3">Y coordinate of third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
-        public static void DrawRhombus(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
+        public static void DrawRhombus(this IBlock buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
             RenderRhombus(buffer, new VectorF(x1, y1), new VectorF(x2, y2), new VectorF(x3, y3), null);
         #endregion
 
@@ -2323,7 +2321,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, ILine baseLine, float parallelLineDeviation, float skewBy, IReadContext context) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, skewBy, context);
 
         /// <summary>
@@ -2333,7 +2331,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation, float skewBy) =>
+        public static void DrawTrapezium(this IBlock buffer, ILine baseLine, float parallelLineDeviation, float skewBy) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, skewBy, null);
 
         /// <summary>
@@ -2342,7 +2340,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a trapezium on</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IBlock buffer, ILine baseLine, float parallelLineDeviation) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, 0, null);
 
         /// <summary>
@@ -2353,7 +2351,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, ILine baseLine, float parallelLineDeviation, IReadContext context) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2366,7 +2364,7 @@ namespace MnM.GWS
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, float[] values, IReadContext context)
+        public static void DrawTrapezium(this IBlock buffer, float[] values, IReadContext context)
         {
             if (values.Length < 4)
                 return;
@@ -2391,7 +2389,7 @@ namespace MnM.GWS
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, int[] values, IReadContext context)
+        public static void DrawTrapezium(this IBlock buffer, int[] values, IReadContext context)
         {
             if (values.Length < 4)
                 return;
@@ -2415,7 +2413,7 @@ namespace MnM.GWS
         /// 6th item i.e values[5] in values would form parallel Line Size Difference value if the lenght of values is 6 otherwise zero.
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, float[] values) =>
+        public static void DrawTrapezium(this IBlock buffer, float[] values) =>
             buffer.DrawTrapezium(values, null);
 
         /// <summary>
@@ -2428,7 +2426,7 @@ namespace MnM.GWS
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, int[] values) =>
+        public static void DrawTrapezium(this IBlock buffer, int[] values) =>
             buffer.DrawTrapezium(values, null);
 
         /// <summary>
@@ -2444,7 +2442,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2,
+        public static void DrawTrapezium(this IBlock buffer, float x1, float y1, float x2, float y2,
             float parallelLineDeviation, float skewBy, IReadContext context) =>
             RenderTrapezium(buffer, new Line(x1, y1, x2, y2), parallelLineDeviation, skewBy, context);
 
@@ -2460,7 +2458,7 @@ namespace MnM.GWS
         /// <param name="deviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2, float deviation, float skewBy) =>
+        public static void DrawTrapezium(this IBlock buffer, float x1, float y1, float x2, float y2, float deviation, float skewBy) =>
             RenderTrapezium(buffer, new Line(x1, y1, x2, y2), deviation, skewBy, null);
 
         /// <summary>
@@ -2476,7 +2474,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation, IReadContext context) =>
             RenderTrapezium(buffer, new Line(x1, y1, x2, y2), parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2490,7 +2488,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IBlock buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation) =>
             RenderTrapezium(buffer, new Line(x1, y1, x2, y2), parallelLineDeviation, 0, null);
 
         /// <summary>
@@ -2504,7 +2502,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
             RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, skewBy, context);
 
         /// <summary>
@@ -2518,7 +2516,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
             RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, context);
 
 
@@ -2532,7 +2530,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy) =>
+        public static void DrawTrapezium(this IBlock buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy) =>
             RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, skewBy, null);
 
         /// <summary>
@@ -2545,7 +2543,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy) =>
+        public static void DrawTrapezium(this IBlock buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy) =>
             RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, null);
 
         /// <summary>
@@ -2558,7 +2556,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, VectorF p1, VectorF p2, float parallelLineDeviation, IReadContext context) =>
             RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2571,7 +2569,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IBlock buffer, Vector p1, Vector p2, float parallelLineDeviation, IReadContext context) =>
             RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2583,7 +2581,7 @@ namespace MnM.GWS
         /// <param name="p2">An end point of a base line</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IBlock buffer, VectorF p1, VectorF p2, float parallelLineDeviation) =>
             RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, 0, null);
 
         /// <summary>
@@ -2595,7 +2593,7 @@ namespace MnM.GWS
         /// <param name="p2">An end point of a base line</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IBlock buffer, Vector p1, Vector p2, float parallelLineDeviation) =>
             RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, null);
         #endregion
 
@@ -2607,7 +2605,7 @@ namespace MnM.GWS
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon  an each group of two subsequent values in polypoints forms a point x,y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawPolygon(this IWritable buffer, IReadContext context, params float[] polyPoints) =>
+        public static void DrawPolygon(this IBlock buffer, IReadContext context, params float[] polyPoints) =>
             RenderPolygon(buffer, polyPoints, context);
 
         /// <summary>
@@ -2615,7 +2613,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a polygom on</param>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon an each group of two subsequent values in polypoints forms a point x,y</param>
-        public static void DrawPolygon(this IWritable buffer, params float[] polyPoints) =>
+        public static void DrawPolygon(this IBlock buffer, params float[] polyPoints) =>
             RenderPolygon(buffer, polyPoints, null);
 
         /// <summary>
@@ -2623,7 +2621,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a polygom on</param>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon an each group of two subsequent values in polypoints forms a point x,y</param>
-        public static void DrawPolygon(this IWritable buffer, params int[] polyPoints) =>
+        public static void DrawPolygon(this IBlock buffer, params int[] polyPoints) =>
             RenderPolygon(buffer, polyPoints.Select(p => (float)p), null);
 
         /// <summary>
@@ -2632,7 +2630,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a polygom on</param>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon  an each group of two subsequent values in polypoints forms a point x,y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawPolygon(this IWritable buffer, IReadContext context, params int[] polyPoints) =>
+        public static void DrawPolygon(this IBlock buffer, IReadContext context, params int[] polyPoints) =>
             RenderPolygon(buffer, polyPoints.Select(p => (float)p), context);
         #endregion
 
@@ -2649,7 +2647,7 @@ namespace MnM.GWS
         /// <param name="drawStyle">A draw style to be used to draw text</param>
         /// <returns>GlyphsData object which contains a draw result information such as glyphs, drawn area etc.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Glyphs DrawText(this IWritable buffer, IFont font, float destX, float destY, string text,
+        public static Glyphs DrawText(this IBlock buffer, IFont font, float destX, float destY, string text,
             IReadContext context = null, TextDrawStyle drawStyle = null)
         {
             if (buffer == null || font == null || string.IsNullOrEmpty(text))
@@ -2666,7 +2664,7 @@ namespace MnM.GWS
         /// <param name="text">A text object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawText(this IWritable buffer, IGlyphs text, IReadContext context = null)
+        public static void DrawText(this IBlock buffer, IGlyphs text, IReadContext context = null)
         {
             buffer.Render(text, context);
         }
@@ -2677,7 +2675,7 @@ namespace MnM.GWS
         /// <param name="text">A text object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawText(this IWritable buffer, IGlyphs text, int dstX, int dstY, IReadContext context = null)
+        public static void DrawText(this IBlock buffer, IGlyphs text, int dstX, int dstY, IReadContext context = null)
         {
             buffer.Settings.X = dstX;
             buffer.Settings.Y = dstY;
@@ -2686,35 +2684,34 @@ namespace MnM.GWS
         #endregion
 
         #region PORTION
-        public static unsafe Size Portion(this ICopyable block, out int[] data, int? x = null, int? y = null, int? w = null, int? h = null)
+        public static unsafe Size Portion(this ICopyable block, out int[] Data, int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (block == null)
             {
-                data = null;
+                Data = null;
                 return Size.Empty;
             }
             var rc = block.CompitibleRc(x, y, w, h);
-            data = new int[rc.Width * rc.Height];
-            fixed (int* p = data)
+            Data = new int[rc.Width * rc.Height];
+            fixed (int* p = Data)
             {
-                block.CopyTo(rc.X, rc.Y, rc.Width, rc.Height, (IntPtr)p, data.Length, rc.Width, 0, 0);
+                block.CopyTo(rc.X, rc.Y, rc.Width, rc.Height, (IntPtr)p, Data.Length, rc.Width, 0, 0);
             }
             return new Size(rc);
         }
-        public static unsafe Size Portion(this ICopyable block, out IntPtr result,
-            int? x = null, int? y = null, int? w = null, int? h = null)
+        public static unsafe Size Portion(this ICopyable block, out IntPtr Data, int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (block == null)
             {
-                result = IntPtr.Zero;
+                Data = IntPtr.Zero;
                 return Size.Empty;
             }
             var rc = block.CompitibleRc(x, y, w, h);
             int[] data = new int[rc.Width * rc.Height];
             fixed (int* p = data)
             {
-                result = (IntPtr)p;
-                block.CopyTo(rc.X, rc.Y, rc.Width, rc.Height, result, data.Length, rc.Width, 0, 0);
+                Data = (IntPtr)p;
+                block.CopyTo(rc.X, rc.Y, rc.Width, rc.Height, Data, data.Length, rc.Width, 0, 0);
             }
             return new Size(rc);
         }
@@ -2816,11 +2813,26 @@ namespace MnM.GWS
             Factory.ImageProcessor.Write(data, size.Width, size.Height, file, format, pitch, quality);
         }
         #endregion
+
+        #region COPY FROM
+        /// <summary>
+        /// Copies a data block specified by srcX, srcY, srcW and srcH parameters to itself.
+        /// </summary>
+        /// <param name="target">Target which data to be uploaded to.</param>
+        /// <param name="source">Source which data to be uploaded from.</param>
+        /// <param name="srcX">X co-ordinate of source area to upload.</param>
+        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
+        /// <param name="srcW">Width of source area to upload.</param>
+        /// <param name="srcH">Height of source area to upload.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CopyFrom(this ICopier target, ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
+            target.CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
+        #endregion
     }
     partial class Renderer
     {
         #region RENDER CIRCLE OR ELLIPSE
-        static void RenderCircleOrEllipse(this IWritable buffer, float x, float y, float width, float height,
+        static void RenderCircleOrEllipse(this IBlock buffer, float x, float y, float width, float height,
             IReadContext context = null)
         {
             if (buffer == null)
@@ -2829,7 +2841,7 @@ namespace MnM.GWS
 
             DrawCurve(buffer, curve, context);
         }
-        static void RenderCircleOrEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, IReadContext context = null,
+        static void RenderCircleOrEllipse(this IBlock buffer, VectorF first, VectorF second, VectorF third, IReadContext context = null,
             CurveType type = CurveType.Full)
         {
             if (buffer == null)
@@ -2840,7 +2852,7 @@ namespace MnM.GWS
             DrawCurve(buffer, curve, context);
         }
 
-        static void RenderCircleOrEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
+        static void RenderCircleOrEllipse(this IBlock buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
             IReadContext context = null, CurveType type = CurveType.Full)
         {
             if (buffer == null)
@@ -2850,7 +2862,7 @@ namespace MnM.GWS
             var curve = new Curve(first, second, third, fourth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
-        static void RenderCircleOrEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth,
+        static void RenderCircleOrEllipse(this IBlock buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth,
             IReadContext context = null)
         {
             if (buffer == null)
@@ -2874,7 +2886,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IWritable buffer, float x, float y, float width, float height,
+        static void RenderArcOrPie(this IBlock buffer, float x, float y, float width, float height,
             float startAngle, float endAngle, IReadContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
@@ -2896,7 +2908,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context = null, CurveType type = CurveType.Pie)
+        static void RenderArcOrPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
                 return;
@@ -2917,7 +2929,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context = null, CurveType type = CurveType.Pie)
+        static void RenderArcOrPie(this IBlock buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
                 return;
@@ -2938,7 +2950,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
+        static void RenderArcOrPie(this IBlock buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
             VectorF fifth, IReadContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
@@ -2957,7 +2969,7 @@ namespace MnM.GWS
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the bezier</param>
-        static void RenderBezier(this IWritable buffer, IEnumerable<float> pts, BezierType type = BezierType.Cubic,
+        static void RenderBezier(this IBlock buffer, IEnumerable<float> pts, BezierType type = BezierType.Cubic,
             IReadContext context = null)
         {
             if (buffer == null)
@@ -2981,7 +2993,7 @@ namespace MnM.GWS
         /// <param name="y3">Y corodinate of the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the traingle</param>
-        static void RenderTriangle(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3, IReadContext context)
+        static void RenderTriangle(this IBlock buffer, float x1, float y1, float x2, float y2, float x3, float y3, IReadContext context)
         {
             if (buffer == null)
                 return;
@@ -2998,7 +3010,7 @@ namespace MnM.GWS
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon an each group of two subsequent values in polypoints forms a point x,y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the polygon</param>
-        static void RenderPolygon(this IWritable buffer, IEnumerable<float> polyPoints, IReadContext context)
+        static void RenderPolygon(this IBlock buffer, IEnumerable<float> polyPoints, IReadContext context)
         {
             if (buffer == null)
                 return;
@@ -3018,7 +3030,7 @@ namespace MnM.GWS
         /// <param name="height">Height the rectangle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        static void RenderRectangle(this IWritable buffer, float x, float y, float width, float height, IReadContext context)
+        static void RenderRectangle(this IBlock buffer, float x, float y, float width, float height, IReadContext context)
         {
             if (buffer == null)
                 return;
@@ -3038,7 +3050,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        static void RenderRoundedBox(this IWritable buffer, float x, float y, float width, float height, float cornerRadius,
+        static void RenderRoundedBox(this IBlock buffer, float x, float y, float width, float height, float cornerRadius,
             IReadContext context)
         {
             if (buffer == null)
@@ -3061,7 +3073,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="deviation">If not zero, it replaces the value of width parameter</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        static void RenderRhombus(this IWritable buffer, float x, float y, float width, float height, float? deviation, IReadContext context) =>
+        static void RenderRhombus(this IBlock buffer, float x, float y, float width, float height, float? deviation, IReadContext context) =>
             RenderRectangle(buffer, x, y, (deviation ?? width), height, context);
 
         /// <summary>
@@ -3073,7 +3085,7 @@ namespace MnM.GWS
         /// <param name="third">Third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        static void RenderRhombus(this IWritable buffer, VectorF first, VectorF second, VectorF third, IReadContext context)
+        static void RenderRhombus(this IBlock buffer, VectorF first, VectorF second, VectorF third, IReadContext context)
         {
             var rhombus = new Tetragon(first, second, third);
             buffer.Render(rhombus, context);
@@ -3090,7 +3102,7 @@ namespace MnM.GWS
         /// <param name="skeyBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        static void RenderTrapezium(this IWritable buffer, ILine baseLine, float deviation, float skeyBy, IReadContext context)
+        static void RenderTrapezium(this IBlock buffer, ILine baseLine, float deviation, float skeyBy, IReadContext context)
         {
             if (buffer == null)
                 return;

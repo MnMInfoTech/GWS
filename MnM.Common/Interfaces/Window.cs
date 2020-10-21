@@ -8,15 +8,27 @@ using System.Collections.Generic;
 namespace MnM.GWS
 {
 #if (GWS || Window)
+    #region IRENDERTARGET
+    /// <summary>
+    /// Represents an object which has a capability to receive data from copyable source object.
+    /// </summary>
+    public interface IRenderTarget : ISize, IDisposed, ICopier
+#if Advaced
+, IWritable
+#endif
+    {
+    }
+    #endregion
+
     #region IRENDER-WINDOW
-    public interface IRenderWindow : IRenderTarget, ICopyable, IHandle, IResizable, IDrawController
+    public interface IRenderWindow : ISize, IDisposed, ICopier, ICopyable, IHandle, IResizable
     {
         RendererFlags RendererFlags { get; }
     }
     #endregion
 
     #region IHOST
-    public interface IHost : IRenderWindow, IWritable, IContainer, IUpdatable,
+    public interface IHost : IRenderWindow, IBlock, IContainer, IUpdatable,
         IRecognizable, IResizable, IEventPusher, IShowable, IHideable, IRefreshable,
         IClearable, IFocusable, IBackground, IForeground, IDisposed,
         IDisposable, IMinimalEvents
@@ -292,5 +304,4 @@ namespace MnM.GWS
     }
     #endregion
 #endif
-
 }

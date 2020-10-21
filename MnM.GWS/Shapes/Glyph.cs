@@ -71,7 +71,7 @@ namespace MnM.GWS
             #endregion
 
             #region DRAW
-            public override bool Draw(IWritable buffer, IReadContext readContext, out IPen Pen)
+            public override bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen)
             {
                 Pen = null;
                 if (Character == ' ')
@@ -81,7 +81,7 @@ namespace MnM.GWS
                     Pen = readContext as IPen;
                 else
                 {
-                    Pen = buffer.GetPen(this, readContext);
+                    Pen = buffer.Settings.GetPen(this, readContext);
                 }
                 if ((buffer.Settings.Rotation) || buffer.Settings.Scale.HasScale)
                     RotateAndScale(buffer.Settings);

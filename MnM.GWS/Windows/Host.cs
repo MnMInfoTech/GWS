@@ -20,7 +20,7 @@ namespace MnM.GWS
         {
             Control = control;
             bounds = new Rectangle(0, 0, control.Width, control.Height);
-            Canvas = Factory.newCanvas(this);
+            Canvas = Factory.newCanvas(control);
             Control.Assign(this);
             id = "Parent".NewID();
         }

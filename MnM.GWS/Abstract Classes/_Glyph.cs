@@ -26,7 +26,7 @@ namespace MnM.GWS
         #endregion
 
         #region DRAW
-        public abstract bool Draw(IWritable buffer, IReadContext readContext, out IPen Pen);
+        public abstract bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen);
         #endregion
 
         #region TO SHAPE

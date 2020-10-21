@@ -129,9 +129,9 @@ namespace MnM.GWS
         #endregion
 
         #region IBUFFER
-        int ISurface.Length =>
+        int IWritable.Length =>
             Buffer.Length;
-        int IWritable.Length => 
+        int IBlock.Length => 
             Buffer.Length;
 
         bool IWritable.Antialiased => 
@@ -142,7 +142,7 @@ namespace MnM.GWS
         IObjectDraw ISurface.ObjectDraw =>
             Buffer.ObjectDraw;
 
-        unsafe byte* ISurface.SourceAlphas
+        unsafe byte* IAlphaSource.SourceAlphas
         {
             set => Buffer.SourceAlphas = value;
         }
@@ -171,7 +171,7 @@ namespace MnM.GWS
             return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY);
         }
 
-        public virtual Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY,
+        public virtual Rectangle CopyTo(IBlock block, int destX, int destY, int copyX, int copyY,
             int copyW, int copyH)
         {
             var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);

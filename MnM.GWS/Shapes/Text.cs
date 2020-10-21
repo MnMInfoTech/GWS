@@ -112,7 +112,7 @@ namespace MnM.GWS
         #endregion
 
         #region DRAW TO
-        public bool Draw(IWritable buffer, IReadContext context, out IPen Pen)
+        public bool Draw(IBlock buffer, IReadContext context, out IPen Pen)
         {
             if (Changed)
                 Measure();
@@ -121,7 +121,7 @@ namespace MnM.GWS
             if ((buffer.Settings.Rotation) || buffer.Settings.Scale.HasScale)
                 bounds = Bounds.Scale(buffer.Settings.Rotation, buffer.Settings.Scale, out _);
 
-            Pen = buffer.GetPen(this, context, bounds);
+            Pen = buffer.Settings.GetPen(this, context, bounds);
             foreach (var item in Data)
                 item.Draw(buffer, Pen, out _);
             return true;

@@ -34,15 +34,23 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region IWINCONTROL
-    public interface IWindowControl : IDependentObject, IHandle, IEventPusher, IClearable
+    #region IWINDOW-CONTROL
+    public interface IWindowControl : IDependentObject, IHandle, IEventPusher, IClearable, IRenderTarget
     {
         /// <summary>
         /// Gets or sets the text of this control.
         /// </summary>
         string Text { get; set; }
+    }
+    #endregion
 
-        bool IsDisposed { get; }
+    #region IWINDOW-FORM
+    public interface IWindowForm: IRenderTarget, IHandle, IEventPusher, IClearable
+    {
+        /// <summary>
+        /// Gets or sets the text of this control.
+        /// </summary>
+        string Text { get; set; }
     }
     #endregion
 
@@ -247,7 +255,7 @@ namespace MnM.GWS
     #region ISIMPLE BUTTON
     public interface ISimpleButton: ISimpleLabel
     {
-        IWritable Image { get; set; }
+        IBlock Image { get; set; }
         ImagePosition ImageAlingn { get; set; }
         IReadContext HoverBackground { get; set; }
         IReadContext HoverForeground { get; set; }

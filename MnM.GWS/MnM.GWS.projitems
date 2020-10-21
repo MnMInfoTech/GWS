@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_RenderTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Surface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />

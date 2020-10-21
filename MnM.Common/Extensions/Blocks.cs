@@ -273,6 +273,7 @@ namespace MnM.GWS
         public static T[] ResizedData<T>(this T[] source, int newWidth, int newHeight, ref int oldWidth, ref int oldHeight, bool clear = false)
         {
             T[] result = new T[newWidth * newHeight];
+
             if (clear)
             {
                 oldWidth = newWidth;
@@ -280,6 +281,7 @@ namespace MnM.GWS
                 result = new T[newWidth * newHeight];
                 return result;
             }
+
             int copyW = newWidth;
             int copyH = newHeight;
             CopyBlock2(0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, 0, 0, newWidth, result.Length, (si, di, w, x, y) =>

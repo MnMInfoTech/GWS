@@ -9,6 +9,79 @@ namespace MnM.GWS
     using System;
     using System.Collections.Generic;
 
+    #region IREADABLE
+    public interface IReadable : IID, ISize, IReadContext
+    {
+        /// <summary>
+        /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
+        /// </summary>
+        /// <param name="x">X co-ordinate of the location to read pixel from.</param>
+        /// <param name="y">Y co-ordinate of the location to read pixel from.</param>
+        /// <returns>Pixel value.</returns>
+        int ReadPixel(int x, int y);
+
+        /// <summary>
+        /// Reads an axial line after applying applying offset and rotation transformation (if exists).
+        /// </summary>
+        /// <param name="start">Start of an axial line to read from this object - X co-ordinate if horizontal otherwise Y co-ordinate.</param>
+        /// <param name="end">End of an axial line to read from this object - Y co-ordinate if not horizontal otherwise X co-ordinate.</param>
+        /// <param name="axis">Axis value of line to read from this object -  Y co-ordinate if horizontal otherwise X co-ordinate.</param>
+        /// <param name="horizontal">Direction of axial line if true then horizontal otherwise vertiacal.</param>
+        /// <param name="pixels">Resultant memory block.</param>
+        /// <param name="srcIndex">Location in the resultant memory block from where reading shoud start.</param>
+        /// <param name="length">Length up to which the block should be read.</param>
+        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length);
+    }
+    #endregion
+
+    #region IWRITEABLE
+    /// <summary>
+    /// Represents smallest writable memory block object.
+    /// </summary>
+    public interface IWritable
+    {
+        #region PROPERTIES
+        /// <summary>
+        /// Length of this memory block.
+        /// </summary>
+        int Length { get; }
+
+        /// <summary>
+        /// Gets whether currently antialising is on or off.
+        /// </summary>
+        bool Antialiased { get; }
+        #endregion
+
+        #region WRITE PIXEL
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position of axis -Y cordinate if horizontal otherwise X.</param>
+        /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="color">Color to write at given location.</param>
+        ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
+        #endregion
+
+        #region WRITE LINE
+        /// <summary>
+        /// Writes line to the this block at given position specified by x and y parameters by reading specified source
+        /// starting from give source index upto the length specified.
+        /// </summary>
+        /// <param name="source">Source memory block to copy data from.</param>
+        /// <param name="srcIndex">Location in source memory block from which copy should begin.</param>
+        /// <param name="srcW">Width of source memory block.</param>
+        /// <param name="length">Length up to which source should be read for writing.</param>
+        /// <param name="horizontal"></param>
+        /// <param name="x">X co-ordinate of the location where writing begins.</param>
+        /// <param name="y">Y co-ordinate of the location where writing begins.</param>
+        ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
+        unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
+        #endregion
+    }
+    #endregion
+
     #region IRENDERABLE
     /// <summary>
     ///Marker interface -  Represents an object which has a unique ID and can be rendered on screen.
@@ -32,7 +105,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">Buffer to draw this object to.</param>
         /// <param name="readContext">Read context to create a valid pen to draw on buffer.</param>
-        bool Draw(IWritable buffer, IReadContext readContext, out IPen Pen);
+        bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen);
 
         /// <summary>
         /// Converts this object to shape.
@@ -321,7 +394,7 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH);
+        Rectangle CopyTo(IBlock block, int destX, int destY, int copyX, int copyY, int copyW, int copyH);
 
         /// <summary>
         /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
@@ -339,6 +412,27 @@ namespace MnM.GWS
         unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY);
     }
     #endregion
+
+    #region ICOPIER
+    /// <summary>
+    /// Represents an object with capbility to read and copy data from copyable memory block.
+    /// </summary>
+    public interface ICopier
+    {
+        /// <summary>
+        /// Uploads a data block specified by srcX, srcY, srcW and srcH parameters from copyable memory block at given location specified by dstX and dstY.
+        /// </summary>
+        /// <param name="source">Source from which data to be uploaded.</param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="srcX">X co-ordinate of source area to upload.</param>
+        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
+        /// <param name="srcW">Width of source area to upload.</param>
+        /// <param name="srcH">Height of source area to upload.</param>
+        void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
+    }
+    #endregion
+
 
     #region IDRAW-CONTROLLER
     public interface IDrawController

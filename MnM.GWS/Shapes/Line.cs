@@ -273,7 +273,7 @@ namespace MnM.GWS
         #endregion
 
         #region DRAW TO
-        public bool Draw(IWritable buffer, IReadContext readContext, out IPen Pen)
+        public bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen)
         {
             Pen = null;
             if (Valid == 0)
@@ -297,7 +297,7 @@ namespace MnM.GWS
 
             Lines.MakeDrawable(false, ref x1, ref y1, ref x2, ref y2, null, out _, out _);
             var rc = RectangleF.FromLTRB(x1, y1, x2, y2, true);
-            Pen = buffer.GetPen(this, readContext);
+            Pen = buffer.Settings.GetPen(this, readContext);
             bool aa = !buffer.Settings.LineCommand.HasFlag(LineCommand.Breshenham);
 
             if (type == LineType.Horizontal || type == LineType.Vertical || !aa)

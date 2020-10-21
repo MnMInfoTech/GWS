@@ -15,6 +15,10 @@ namespace MnM.GWS.Desktop
         readonly EventArgs<IContainer> parentArgs = new EventArgs<IContainer>();
         readonly KeyPressEventArgs KeyPressEventArgs = new KeyPressEventArgs();
         protected ISurface Window;
+#if Advanced
+        protected int[] Data;
+        protected byte[] Alphas;
+#endif
         #endregion
 
         #region CONSTRUCTORS
@@ -53,9 +57,13 @@ namespace MnM.GWS.Desktop
         }
         public bool FocusOnHover { get; set; }
         public IReadContext Foreground { get; set; }
-        Rectangle IBounds.Bounds => 
+        Rectangle IBounds.Bounds =>
             new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
         ISurface IHostable.Window => Window;
+#if Advanced
+        int[] IRenderTarget.Data => Data;
+        byte[] IRenderTarget.Alphas => Alphas;
+#endif
         #endregion
 
         #region ASSIGN PARENT
@@ -81,7 +89,7 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region DRAW
-        public bool Draw(IWritable writable, IReadContext context, out IPen pen)
+        public bool Draw(IBlock writable, IReadContext context, out IPen pen)
         {
             pen = null;
             return true;
@@ -94,6 +102,13 @@ namespace MnM.GWS.Desktop
         {
             Invalidate(new Rectangle(x, y, width, height));
             Update();
+        }
+        #endregion
+
+        #region COPY FROM
+        public void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 

@@ -8,91 +8,46 @@ using System.IO;
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    #region IREADABLE
-    public interface IReadable : IID, ISize, IReadContext
-    {
-        /// <summary>
-        /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
-        /// </summary>
-        /// <param name="x">X co-ordinate of the location to read pixel from.</param>
-        /// <param name="y">Y co-ordinate of the location to read pixel from.</param>
-        /// <returns>Pixel value.</returns>
-        int ReadPixel(int x, int y);
-
-        /// <summary>
-        /// Reads an axial line after applying applying offset and rotation transformation (if exists).
-        /// </summary>
-        /// <param name="start">Start of an axial line to read from this object - X co-ordinate if horizontal otherwise Y co-ordinate.</param>
-        /// <param name="end">End of an axial line to read from this object - Y co-ordinate if not horizontal otherwise X co-ordinate.</param>
-        /// <param name="axis">Axis value of line to read from this object -  Y co-ordinate if horizontal otherwise X co-ordinate.</param>
-        /// <param name="horizontal">Direction of axial line if true then horizontal otherwise vertiacal.</param>
-        /// <param name="pixels">Resultant memory block.</param>
-        /// <param name="srcIndex">Location in the resultant memory block from where reading shoud start.</param>
-        /// <param name="length">Length up to which the block should be read.</param>
-        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length);
-    }
+    #region IBUFFER
+    public interface IBuffer : IWritable, ICopyable, IBackground
+#if Advanced
+        , IAlphaSource
+#endif
+    { }
     #endregion
 
-    #region IWRITEABLE
-    public interface IWritable : IID, ISize, IDrawController, IInvalidatable, IForeground, IDisposed, ICloneable
+    #region IBLOCK
+    /// <summary>
+    /// Represents smallest writable and copiable memory block object which can also render shapes.
+    /// Settings property of this object controls the flow of writing and rendering data.
+    /// </summary>
+    public interface IBlock : IBuffer, IID, ISize, IDrawController, IInvalidatable, IDisposed, ICloneable
     {
-        #region PROPERTIES
         /// <summary>
         /// Length of this memory block.
         /// </summary>
-        int Length { get; }
-
-        /// <summary>
-        /// Gets whether currently antialising is on or off.
-        /// </summary>
-        bool Antialiased { get; }
-        #endregion
-
-        #region WRITE PIXEL
-        /// <summary>
-        /// Writes pixel to this block at given axial position using specified color.
-        /// </summary>
-        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
-        /// <param name="axis">Position of axis -Y cordinate if horizontal otherwise X.</param>
-        /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
-        /// <param name="color">Color to write at given location.</param>
-        ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
-        #endregion
-
-        #region WRITE LINE
-        /// <summary>
-        /// Writes line to the this block at given position specified by x and y parameters by reading specified source
-        /// starting from give source index upto the length specified.
-        /// </summary>
-        /// <param name="source">Source memory block to copy data from.</param>
-        /// <param name="srcIndex">Location in source memory block from which copy should begin.</param>
-        /// <param name="srcW">Width of source memory block.</param>
-        /// <param name="length">Length up to which source should be read for writing.</param>
-        /// <param name="horizontal"></param>
-        /// <param name="x">X co-ordinate of the location where writing begins.</param>
-        /// <param name="y">Y co-ordinate of the location where writing begins.</param>
-        ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
-        #endregion
+        new int Length { get; }
     }
     #endregion
 
-    #region ISURFACE
-    public interface ISurface : IWritable, ICopyable, IScalable, IBackground, IClearable, IUpdatable
-#if Advanced
-        , IRenderTarget
-#endif
+    #region IALPHASOURCE
+    public interface IAlphaSource
     {
-        new int Length { get; }
-
-#if Advanced
-        IObjectDraw ObjectDraw { get; }
-
         /// <summary>
         /// Sets Source Alpha values to be read while copying image source.
         /// </summary>
         unsafe byte* SourceAlphas { set; }
+    }
+    #endregion
+
+    #region ISURFACE
+    public interface ISurface : IBlock, IScalable, IClearable, IUpdatable, IDisposable
+#if Advanced
+        , ICopier
+#endif
+    {
+#if Advanced
+        IObjectDraw ObjectDraw { get; }
 
         /// <summary>
         /// Finds an element from this collection if it exists on a given x and y coordinates.
@@ -125,7 +80,6 @@ namespace MnM.GWS
         /// <param name="pen">Pen used in rendering a shape.</param>
         void End(IPen pen);
         #endregion
-
     }
     #endregion
 
@@ -143,8 +97,7 @@ namespace MnM.GWS
     /// This is a marker interface which represents an object which can be converted to a buffer pen.
     /// </summary>
     public interface IReadContext
-    {
-    }
+    { }
     #endregion
 
     #region IPEN
@@ -174,36 +127,6 @@ namespace MnM.GWS
         /// Delay unit to be used to change a frame.
         /// </summary>
         int Delay { get; }
-    }
-    #endregion
-
-    #region IRENDERTARGET
-    /// <summary>
-    /// Represents an object which has a capability to receive data from copyable source object.
-    /// </summary>
-    public interface IRenderTarget : ISize, IDisposed
-    {
-        /// <summary>
-        /// Uploads a data block specified by x, y, width and height parameters for update to IUpdateable object.
-        /// </summary>
-        /// <param name="source">Source from which data to be uploaded.</param>
-        /// <param name="srcX">X co-ordinate of source area to upload.</param>
-        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
-        /// <param name="srcW">Width of source area to upload.</param>
-        /// <param name="srcH">Height of source area to upload.</param>
-        void CopyFrom(ICopyable source, int srcX, int srcY, int srcW, int srcH);
-
-        /// <summary>
-        /// Uploads a data block specified by x, y, width and height parameters for update to IUpdateable object at given destination.
-        /// </summary>
-        /// <param name="source">Source from which data to be uploaded.</param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="srcX">X co-ordinate of source area to upload.</param>
-        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
-        /// <param name="srcW">Width of source area to upload.</param>
-        /// <param name="srcH">Height of source area to upload.</param>
-        void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
     }
     #endregion
 

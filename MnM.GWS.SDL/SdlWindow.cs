@@ -145,8 +145,8 @@ namespace MnM.GWS
             #region SET PRIMARY BUFFER AND TEXTURE
             protected override void SetPrimary(out ICanvas buffer, out IRenderTarget texture)
             {
-                buffer = Factory.newCanvas(this);
                 texture = Factory.newTexture(this, isPrimary: true);
+                buffer = Factory.newCanvas(texture);
             }
             #endregion
 

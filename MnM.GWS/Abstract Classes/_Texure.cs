@@ -8,26 +8,30 @@ using System.Runtime.CompilerServices;
 namespace MnM.GWS
 {
 #if Window
-    public abstract class _Texture : ITexture
+    public abstract class _Texture : _RenderTarget, ITexture
     {
         #region VARIABLES
         protected readonly IRenderWindow Window;
         bool locked;
+        protected int width, height;
+        protected bool isDisposed;
         #endregion
 
         #region CONSTRUCTORS
-        protected unsafe _Texture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, uint? pixelFormat = null, TextureAccess? textureAccess = null)
+        protected unsafe _Texture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false,
+            uint? pixelFormat = null, TextureAccess? textureAccess = null)
         {
             Window = window;
             IsPrimary = isPrimary;
-            Width = w ?? Window.Width;
-            Height = h ?? Window.Height;
+            width = w ?? Window.Width;
+            height = h ?? Window.Height;
             Handle = CreateHandle(pixelFormat, textureAccess, Width, Height, out Size s);
-            Width = s.Width;
-            Height = s.Height;
+            width = s.Width;
+            height = s.Height;
             ID = this.NewID();
         }
-        protected unsafe _Texture(IRenderWindow window, ICopyable source, bool isPrimary = false, uint? pixelFormat = null, TextureAccess? textureAccess = null) :
+        protected unsafe _Texture(IRenderWindow window, ICopyable source, bool isPrimary = false, 
+            uint? pixelFormat = null, TextureAccess? textureAccess = null) :
             this(window, source.Width, source.Height, isPrimary, pixelFormat, textureAccess)
         {
             var rc = this.CompitibleRc(0, 0, source.Width, source.Height);
@@ -41,22 +45,18 @@ namespace MnM.GWS
 
         #region PROPERTIES
         public string ID { get; private set; }
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public override int Width => width;
+        public override int Height => height;
         public bool IsPrimary { get; private set; }
-        public int Length => Width * Height;
+        public int Length => width * height;
         public IntPtr Handle { get; private set; }
-        public bool IsDisposed { get; private set; }
+        public override bool IsDisposed => Window.IsDisposed || isDisposed;
         public RendererFlags RendererFlags => Window.RendererFlags;
         #endregion
 
-        #region UPLOAD
+        #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
-            CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
-       
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
+        public override void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
         {
             var dstRC = this.CompitibleRc(dstX, dstY, srcW, srcH);
             IntPtr textureData;
@@ -114,75 +114,14 @@ namespace MnM.GWS
         public abstract void Unbind();
         #endregion
 
-        #region COPY TO
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int destLen, int destW, int destX, int destY)
-        //{
-        //    Rectangle copyRc = this.CompitibleRc(copyX, copyY, copyW, copyH);
-        //    Lock(copyRc, out IntPtr textureData, out int lockedLength);
-        //    var src = (int*)textureData;
-        //    var dst = (int*)dest;
-        //    copyW = copyRc.Width;
-        //    copyH = copyRc.Height;
-
-        //    var result = Blocks.CopyBlock(0,0,copyW, copyH, lockedLength, Width, Height,
-        //        destX, destY, destW, destLen, (srcIndex, dstIndex, w, x, y) =>
-        //    Blocks.Copy(src, srcIndex, dst, dstIndex, w));
-
-        //    Unlock();
-        //    return result;
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
-        //{
-        //    Rectangle destRc = Rectangle.Empty;
-        //    Rectangle copy = Rects.CompitibleRc(Width, Height, copyX, copyY, copyW, copyH);
-
-        //    int destLen = destination.Length;
-        //    int destW = destination.Width;
-        //    var dy = destY;
-        //    var x = copy.X;
-        //    var r = x + copy.Width;
-        //    var y = copy.Y;
-        //    var b = y + copy.Height;
-        //    copyW = copy.Width;
-        //    copyH = copy.Height;
-
-        //    if (y < 0)
-        //    {
-        //        b += y;
-        //        y = 0;
-        //    }
-
-        //    int[] array = new int[copy.Width * copy.Height];
-        //    int srcLen = array.Length;
-        //    int srcIndex = 0;
-        //    int copylen = copy.Width;
-
-        //    fixed (int* src = array)
-        //    {
-        //        CopyTo(x, y, r - x, b - y, (IntPtr)src, srcLen, copylen, 0, 0);
-        //        for (int j = y; j <= b; j++)
-        //        {
-        //            destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
-        //            srcIndex += copylen;
-        //            if (srcIndex >= srcLen)
-        //                break;
-        //        }
-        //    }
-        //    destRc = new Rectangle(destX, destY, copyW, dy - destY);
-        //    destination.Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
-        //    return destRc;
-        //}
+        #region COPY TO RENDERER
         protected abstract void CopyToRenderer(IntPtr texture, Rectangle sourceRc, Rectangle destRc);
         #endregion
 
         #region DISPOSE
         public virtual void Dispose()
         {
-            IsDisposed = true;
-           
+            isDisposed = true;
             DestoryTextureHandle(Handle);
         }
         #endregion
@@ -192,9 +131,9 @@ namespace MnM.GWS
         {
             DestoryTextureHandle(Handle);
             Handle = CreateHandle(null, null, width ?? Width, height ?? Height, out Size s);
-            Width = s.Width;
-            Height = s.Height;
-            CopyFrom(Window, 0, 0, Width, Height);
+            this.width = s.Width;
+            this.height = s.Height;
+            CopyFrom(Window, 0, 0, 0, 0, Width, Height);
         }
         #endregion
 

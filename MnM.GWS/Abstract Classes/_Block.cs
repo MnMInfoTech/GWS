@@ -1,13 +1,13 @@
-﻿using System;
-/* Licensed under the MIT/X11 license.
+﻿/* Licensed under the MIT/X11 license.
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+using System;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public abstract class _Block: IWritable, ICopyable
+    public abstract class _Block: IBlock
     {
         #region VARIABLES
         protected int width, height, length;
@@ -17,6 +17,7 @@ namespace MnM.GWS
         protected bool CheckForCloseness;
         protected bool LineOnly;
         protected bool EndsOnly;
+        protected IPen BkgPen;
         protected IPen FrgPen;
         #endregion
 
@@ -25,6 +26,23 @@ namespace MnM.GWS
         public int Width => width;
         public int Height => height;
         public int Length => length;
+        #region PROPERTIES
+        public virtual IReadContext Background
+        {
+            get => BkgPen ?? Pens.White;
+            set
+            {
+                if (value == null)
+                {
+                    (BkgPen as IDisposable)?.Dispose();
+                    BkgPen = null;
+                    return;
+                }
+                BkgPen = value.ToPen(Width, Height);
+            }
+        }
+        #endregion
+
         public IReadContext Foreground
         {
             get => FrgPen?? Pens.Black;
@@ -86,13 +104,13 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
+        public unsafe Rectangle CopyTo(IBlock block, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
         {
             var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
 
 #if Advanced
-            if(block is ISurface)
-                ((ISurface)block).SourceAlphas = alphas;
+            if(block is IAlphaSource)
+                ((IAlphaSource)block).SourceAlphas = alphas;
 #endif
             Rectangle dstRc;
             var x = copy.X;
@@ -121,8 +139,8 @@ namespace MnM.GWS
             dstRc = new Rectangle(destX, destY, copyW, dy - destY);
 
 #if Advanced
-            if (block is ISurface)
-                ((ISurface)block).SourceAlphas = null;
+            if (block is IAlphaSource)
+                ((IAlphaSource)block).SourceAlphas = null;
 #endif
 
             if (dstRc)

@@ -22,7 +22,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets a Buffer image to be drawn to screen.
         /// </summary>
-        public IWritable Image { get; set; }
+        public IBlock Image { get; set; }
 
         /// <summary>
         /// Clones this object and returns it.
@@ -33,7 +33,7 @@ namespace MnM.GWS
             var i = new ImageStyle();
             i.Alignment = Alignment;
             i.Draw = Draw;
-            i.Image = Image.Clone() as IWritable;
+            i.Image = Image.Clone() as IBlock;
             return i;
         }
 

@@ -109,7 +109,7 @@ namespace MnM.GWS
         public abstract ISimplePopup newSimplePopup(params string[] items);
         public abstract ISimplePopup newSimplePopup(int width, int height, params string[] items);
         public abstract ISimpleLabel newSimpleLabel(string text = null, IFont font = null);
-        public abstract ISimpleButton newSimpleButton(string text = null, IFont font = null, IWritable block = null);
+        public abstract ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock block = null);
 #endif
     }
 
