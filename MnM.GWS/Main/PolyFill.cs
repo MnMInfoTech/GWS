@@ -62,7 +62,7 @@ namespace MnM.GWS
                 for (int i = MinY; i < MaxY; i++)
                     FillLine(Results[i - MinY], i, true, fillAction);
             }
-            public override void Fill(IBlock buffer, IReadable pen, LineCommand lineCommand = 0)
+            public override void Fill(IBuffer buffer, IReadable pen, LineCommand lineCommand = 0)
             {
                 if (buffer == null)
                     return;
@@ -122,7 +122,7 @@ namespace MnM.GWS
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override void FillLine(IBlock buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null)
+            public override void FillLine(IBuffer buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null)
             {
                 if (data == null || data.Count == 0)
                     return;

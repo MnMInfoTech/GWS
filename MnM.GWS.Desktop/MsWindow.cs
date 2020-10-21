@@ -47,6 +47,19 @@ namespace MnM.GWS.Desktop
 #if Advanced
         public IObjectDraw ObjectDraw => Canvas.ObjectDraw;
 #endif
+
+        DrawCommand IBasicDrawInfo2.DrawCommand 
+        { 
+            get => Settings.DrawCommand; 
+            set => Settings.DrawCommand = value;
+        }
+        LineCommand IBasicDrawInfo2.LineCommand
+        {
+            get => Settings.LineCommand;
+            set => Settings.LineCommand = value;
+        }
+        DrawCommand IBasicDrawInfo.DrawCommand => Settings.DrawCommand;
+        LineCommand IBasicDrawInfo.LineCommand => Settings.LineCommand;
         #endregion
 
         #region PAINT
@@ -127,6 +140,13 @@ namespace MnM.GWS.Desktop
 
         public Size Flip(out int[] Data, Flip flipMode) =>
             Canvas.Flip(out Data, flipMode);
+        #endregion
+
+        #region PUSH EVENT
+        public virtual void PushEvent(IEventInfo e)
+        {
+        }
+        public event EventHandler<IEventInfo> EventPushed;
         #endregion
 
         #region CLONE

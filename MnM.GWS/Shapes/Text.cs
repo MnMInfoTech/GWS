@@ -112,7 +112,7 @@ namespace MnM.GWS
         #endregion
 
         #region DRAW TO
-        public bool Draw(IBlock buffer, IReadContext context, out IPen Pen)
+        public bool Draw(IBuffer buffer, IReadContext context, out IPen Pen)
         {
             if (Changed)
                 Measure();

@@ -167,8 +167,8 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region IRENDERINFO
-    public interface IRenderInfo : IID<int>, ISettable, ISettings
+    #region IBASICDRAWIFO
+    public interface IBasicDrawInfo
     {
         /// <summary>
         /// Gets command to apply on buffers while writing them for rendering a shape.
@@ -176,14 +176,35 @@ namespace MnM.GWS
         DrawCommand DrawCommand { get; }
 
         /// <summary>
+        /// Gets line draw settings for this object.
+        /// </summary>
+        LineCommand LineCommand { get; }
+    }
+    #endregion
+
+    #region  IBASICDRAWINFO2
+    public interface IBasicDrawInfo2: IBasicDrawInfo
+    {
+        /// <summary>
+        /// Gets or sets command to apply on buffers while writing them for rendering a shape.
+        /// </summary>
+        new DrawCommand DrawCommand { get; set; }
+
+        /// <summary>
+        /// Gets or sets line draw settings for this object.
+        /// </summary>
+        new LineCommand LineCommand { get; set; }
+    }
+    #endregion
+    
+    #region IRENDERINFO
+    public interface IRenderInfo : IID<int>, ISettable, ISettings, IBasicDrawInfo
+    {
+        /// <summary>
         /// Gets fill pattern settings for this object.
         /// </summary>
         FillCommand FillCommand { get; }
 
-        /// <summary>
-        /// Gets line draw settings for this object.
-        /// </summary>
-        LineCommand LineCommand { get; }
 
         /// <summary>
         /// Gets command to apply on brushes while reading them for rendering a shape.
@@ -193,13 +214,8 @@ namespace MnM.GWS
     #endregion
 
     #region IRENDERINFO2
-    public interface IRenderInfo2 : IRenderInfo
+    public interface IRenderInfo2 : IRenderInfo, IBasicDrawInfo2
     {
-        /// <summary>
-        /// Gets or sets command to apply on buffers while writing them for rendering a shape.
-        /// </summary>
-        new DrawCommand DrawCommand { get; set; }
-
         /// <summary>
         /// Gets or sets fill command for this object.
         /// </summary>
@@ -210,10 +226,6 @@ namespace MnM.GWS
         /// </summary>
         new BrushCommand BrushCommand { get; set; }
 
-        /// <summary>
-        /// Gets or sets line draw settings for this object.
-        /// </summary>
-        new LineCommand LineCommand { get; set; }
 
         /// <summary>
         /// Extract currently effective fill parameters from this object.

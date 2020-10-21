@@ -12,11 +12,9 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public interface IRenderTarget : ISize, IDisposed, ICopier, IWritable
-    {
-        new bool Antialiased { get; set; }
-    }
-#endregion
+    public interface IRenderTarget : ISize, IDisposed, ICopier, IBasicDrawInfo2, IWritable
+    { }
+    #endregion
 
     #region IRENDER-WINDOW
     public interface IRenderWindow : ISize, IDisposed, ICopier, ICopyable, IHandle, IResizable
@@ -25,21 +23,24 @@ namespace MnM.GWS
     }
     #endregion
 
+    public interface IWindowControl : IRenderTarget, IBuffer, IClearable,
+        IShowable, IHideable, IUpdatable, IHandle, IEventPusher
+    { }
+
     #region IFORM
-    public interface IForm : IRenderTarget, IBlock, IClearable, 
-        IRenderSession, IContainer, IScalable, IShowable, IHideable, IUpdatable
+    public interface IForm : IWindowControl, IRenderSession, IContainer, IScalable
 #if Advanced
         , IObjectDrawer
 #endif
-    { 
-    }
+    { }
     #endregion
 
     #region IHOST
-    public interface IHost : IRenderWindow, IForm, IRecognizable, IResizable, IEventPusher, 
-        IRefreshable,  IFocusable, IDisposed, IDisposable, IMinimalEvents
+    public interface IHost : IRenderWindow, IBuffer, IClearable, IRenderSession, 
+        IContainer, IScalable, IShowable, IHideable, IUpdatable, IRecognizable, 
+        IEventPusher, IRefreshable,  IFocusable, IDisposable, IMinimalEvents
 #if Advanced
-       , IEvents 
+       , IEvents , IObjectDrawer
 #endif
     {
         /// <summary>

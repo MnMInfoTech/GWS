@@ -73,7 +73,7 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer to fill line to.</param>
         /// <param name="pen">Pen to read line from.</param>
         /// <param name="lineCommand">Line command to be used to draw end pixels</param>
-        void Fill(IBlock buffer, IReadable pen, LineCommand lineCommand = 0);
+        void Fill(IBuffer buffer, IReadable pen, LineCommand lineCommand = 0);
         #endregion
 
         #region END
@@ -135,7 +135,7 @@ namespace MnM.GWS
         /// <param name="axis">Axis value of the line. If horizontal is true then it is Y otherwise X axis.</param>
         /// <param name="horizontal">If true, line should be scanned from top to bottom otherwise left to right</param>
         /// <param name="alpha">Alha factor to apply to whole line if supplied at all.</param>
-        void FillLine(IBlock buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null);
+        void FillLine(IBuffer buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null);
         #endregion
     }
     #endregion

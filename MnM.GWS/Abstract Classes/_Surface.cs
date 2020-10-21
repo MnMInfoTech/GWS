@@ -160,7 +160,7 @@ namespace MnM.GWS
 #if Advanced
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
+        public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
         #endregion
 #endif
         #region CLONE

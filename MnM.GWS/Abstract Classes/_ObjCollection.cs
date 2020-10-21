@@ -11,12 +11,12 @@ namespace MnM.GWS
         _ObjDictionary<IRenderable, string>, IObjCollection
     {
         #region VARIABLES
-        public readonly IBlock Parent;
+        public readonly IBuffer Parent;
         protected bool isDisposed;
         #endregion
 
         #region CONSTRUCTORS
-        public _ObjCollection(IBlock buffer)
+        public _ObjCollection(IBuffer buffer)
         {
             Parent = buffer;
             ID = "ObjectCollection".NewID();

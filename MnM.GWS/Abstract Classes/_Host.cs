@@ -44,7 +44,7 @@ namespace MnM.GWS
         public abstract IntPtr Handle { get; }
         public abstract Rectangle Bounds { get; }
         public abstract bool Focused { get; }
-        protected abstract IBlock Buffer { get; }
+        protected abstract IBuffer Buffer { get; }
         int ICopyable.Length => Buffer.Length;
         public bool Antialiased {
 
@@ -148,7 +148,7 @@ namespace MnM.GWS
         #region IBUFFER
         int IWritable.Length =>
             Buffer.Length;
-        int IBlock.Length => 
+        int IBuffer.Length => 
             Buffer.Length;
 
         bool IWritable.Antialiased => 

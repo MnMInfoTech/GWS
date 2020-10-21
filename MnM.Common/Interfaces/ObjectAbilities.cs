@@ -105,7 +105,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">Buffer to draw this object to.</param>
         /// <param name="readContext">Read context to create a valid pen to draw on buffer.</param>
-        bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen);
+        bool Draw(IBuffer buffer, IReadContext readContext, out IPen Pen);
 
         /// <summary>
         /// Converts this object to shape.
@@ -139,13 +139,13 @@ namespace MnM.GWS
         /// <summary>
         /// Parent window this object belongs to.
         /// </summary>
-        IBlock Window { get; }
+        IBuffer Window { get; }
 
         /// <summary>
         /// Assigns host window to this object. 
         /// </summary>
         /// <param name="window"></param>
-        void Assign(IBlock window);
+        void Assign(IBuffer window);
     }
     #endregion
 

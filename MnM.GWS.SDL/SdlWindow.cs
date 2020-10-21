@@ -143,10 +143,9 @@ namespace MnM.GWS
             #endregion
 
             #region SET PRIMARY BUFFER AND TEXTURE
-            protected override void SetPrimary(out ICanvas buffer, out IRenderTarget texture)
+            protected override void GetTexture(out IRenderTarget texture)
             {
                 texture = Factory.newTexture(this, isPrimary: true);
-                buffer = Factory.newCanvas(texture);
             }
             #endregion
 

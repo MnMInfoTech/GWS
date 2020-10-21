@@ -47,12 +47,12 @@ namespace MnM.GWS
         /// </summary>
         BatchUpdate = 0x10,
 
-#if Advanced
         /// <summary>
         /// Uploads data directly on screen (which of course temporary in nature) bypassing the internal buffer completely.
         /// </summary>
         DirectOnScreen = 0x20,
 
+#if Advanced
         /// <summary>
         /// Erases specified shape from the memory block. Advanced version only.
         /// </summary>
@@ -241,7 +241,7 @@ namespace MnM.GWS
         None = 0x0,
 
         /// <summary>
-        /// Exclusively use breshenham line with with integer arithmetic and no nti-aliasing.  
+        /// Exclusively use breshenham line with with integer arithmetic and no anti-aliasing.  
         /// </summary>
         Breshenham = 0x1,
 

@@ -71,7 +71,7 @@ namespace MnM.GWS
             #endregion
 
             #region DRAW
-            public override bool Draw(IBlock buffer, IReadContext readContext, out IPen Pen)
+            public override bool Draw(IBuffer buffer, IReadContext readContext, out IPen Pen)
             {
                 Pen = null;
                 if (Character == ' ')

@@ -166,7 +166,7 @@ namespace MnM.GWS
         #endregion
 
         #region OBJECT COLLECTION
-        IObjCollection newObjectCollection(IBlock buffer);
+        IObjCollection newObjectCollection(IBuffer buffer);
         #endregion
 
         #region BUFFER COLLECTION
@@ -360,6 +360,7 @@ namespace MnM.GWS
         IWindow newWindow(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
             RendererFlags? renderFlags = null);
+
         /// <summary>
         /// Create a new window from an existing window by refercing the exisitng window's handle.
         /// </summary>

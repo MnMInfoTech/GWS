@@ -47,7 +47,7 @@ namespace MnM.GWS
 
         #region FILL
         public abstract void Fill(FillAction<float> fillAction, LineCommand lineCommand = 0);
-        public abstract void Fill(IBlock buffer, IReadable pen, LineCommand lineCommand = 0);
+        public abstract void Fill(IBuffer buffer, IReadable pen, LineCommand lineCommand = 0);
         #endregion
 
         #region END
@@ -62,7 +62,7 @@ namespace MnM.GWS
 
         #region FILL LINE
         public abstract void FillLine(ICollection<float> data, int axis, bool horizontal, FillAction<float> action, float? alpha = null);
-        public abstract void FillLine(IBlock buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null);
+        public abstract void FillLine(IBuffer buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null);
         #endregion
 
         #region SCAN

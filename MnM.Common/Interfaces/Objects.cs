@@ -34,16 +34,6 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region IWINDOW-CONTROL
-    public interface IWindowControl : IDependentObject, IHandle, IEventPusher, IClearable, IRenderTarget
-    {
-        /// <summary>
-        /// Gets or sets the text of this control.
-        /// </summary>
-        string Text { get; set; }
-    }
-    #endregion
-
     #region IOBJECT
     public interface IObject : IDependentObject, IElement, IHandleCreateable, IRefreshable
 #if Advanced

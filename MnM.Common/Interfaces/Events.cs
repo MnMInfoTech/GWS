@@ -161,7 +161,7 @@ namespace MnM.GWS
         /// <summary>
         /// Underlying surface object to draw.
         /// </summary>
-        IBlock Surface { get; }
+        IBuffer Surface { get; }
     }
     #endregion
 

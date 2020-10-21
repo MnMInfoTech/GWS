@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
@@ -15,7 +16,15 @@ namespace MnM.GWS
         bool locked;
         protected int width, height, length;
         protected bool isDisposed;
-        protected bool antialiased;
+        bool AntiAliased;
+        bool Distinct;
+        bool Opaque, Back, Direct;
+        IPen BkgPen;
+        LineCommand lineCommand;
+        DrawCommand drawCommand;
+
+        readonly HashSet<int> DrawnIndices = new HashSet<int>();
+        const byte o = 0;
         #endregion
 
         #region CONSTRUCTORS
@@ -31,8 +40,10 @@ namespace MnM.GWS
             height = s.Height;
             length = width * height;
             ID = this.NewID();
+#if Advanced
+#endif
         }
-        protected unsafe _Texture(IRenderWindow window, ICopyable source, bool isPrimary = false, 
+        protected unsafe _Texture(IRenderWindow window, ICopyable source, bool isPrimary = false,
             uint? pixelFormat = null, TextureAccess? textureAccess = null) :
             this(window, source.Width, source.Height, isPrimary, pixelFormat, textureAccess)
         {
@@ -54,11 +65,46 @@ namespace MnM.GWS
         public bool IsDisposed => Window.IsDisposed || isDisposed;
         public RendererFlags RendererFlags => Window.RendererFlags;
         public int Length => length;
-        public bool Antialiased
+        public IReadContext Background
         {
-            get => antialiased;
-            set => antialiased = value;
+            get => BkgPen;
+            set
+            {
+                if (value == null)
+                {
+                    (BkgPen as IDisposable)?.Dispose();
+                    BkgPen = null;
+                    return;
+                }
+                BkgPen = value.ToPen(Width, Height);
+            }
         }
+        public LineCommand LineCommand
+        {
+            get => lineCommand;
+            set
+            {
+                lineCommand = value;
+                AntiAliased = !LineCommand.HasFlag(LineCommand.Breshenham);
+                var distinct = LineCommand.HasFlag(LineCommand.Distinct);
+                if (distinct != !Distinct)
+                    DrawnIndices.Clear();
+                Distinct = distinct;
+            }
+        }
+        public DrawCommand DrawCommand
+        {
+            get => drawCommand;
+            set
+            {
+                drawCommand = value;
+                Opaque = Back = Direct = false;
+                Opaque = value.HasFlag(DrawCommand.Opaque);
+                Back = !Opaque && value.HasFlag(DrawCommand.Back);
+                Direct = value.HasFlag(DrawCommand.DirectOnScreen);
+            }
+        }
+        bool IWritable.Antialiased => AntiAliased;
         #endregion
 
         #region COPY FROM
@@ -71,7 +117,7 @@ namespace MnM.GWS
             Lock(dstRC, out textureData, out lockedLength);
             source.CopyTo(srcX, srcY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0);
             Unlock();
-            if(updateImmediate)
+            if (updateImmediate)
                 CopyToRenderer(Handle, dstRC, dstRC);
         }
         #endregion
@@ -127,23 +173,142 @@ namespace MnM.GWS
         #endregion
 
         #region WRITE PIXEL
-        public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void WritePixel(int val, int axis, bool horizontal, int srcColor, float? Alpha)
         {
-            throw new NotImplementedException();
+            if (srcColor == 0 && !Opaque)
+                return;
+
+            int i;
+            int x = horizontal ? val : axis;
+            int y = horizontal ? axis : val;
+
+            if (x < 0 || y < 0 || x >= width || y >= height)
+                return;
+
+
+            IntPtr textureData;
+            Lock(new Rectangle(x, y, 1, 1), out textureData, out _);
+
+            i = x + y * width;
+            int* Data = (int*)textureData;
+
+            int dstColor = Data[0];
+
+            if (Back && dstColor != 0)
+                return;
+
+            if (Distinct)
+            {
+                if (DrawnIndices.Contains(i))
+                    return;
+                DrawnIndices.Add(i);
+            }
+            byte alpha;
+
+            float delta = Alpha ?? Colors.Alphas[(byte)((srcColor >> Colors.AShift) & 0xFF)];
+            alpha = (byte)(delta * 255);
+
+            if (alpha == 0)
+                return;
+
+            if (alpha != 255)
+            {
+                if (dstColor == 0)
+                    dstColor = BkgPen?.ReadPixel(x, y) ?? 0;
+
+                uint C1, C2, invAlpha, RB, AG;
+                //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+                C1 = (uint)dstColor;
+                C2 = (uint)srcColor;
+                invAlpha = 255 - (uint)alpha;
+                RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
+                AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
+                srcColor = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
+            }
+            Data[0] = srcColor;
         }
         #endregion
 
         #region WRITE LINE
-        public unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void WriteLine(int* src, int srcIndex, int srcW, int copyLength, bool horizontal, int x, int y, float? Alpha)
         {
-            throw new NotImplementedException();
+            #region VARAIBLE INITIALIZATION
+            if (copyLength <= 0)
+                return;
+            IntPtr textureData;
+            Lock(new Rectangle(x, y, horizontal ?  width : 1, horizontal ? 1 : height), out textureData, out _);
+
+            int* dst = (int*) textureData;
+            int dstIndex = 0;
+            int dplus = 1;
+            int splus = horizontal || srcW == copyLength ? 1 : srcW;
+            int last = dstIndex + dplus * copyLength;
+            int j = srcIndex;
+
+            int px = x;
+            int py = y;
+            int ix = horizontal ? 1 : 0;
+            int iy = horizontal ? 0 : 1;
+            bool hasBkg = BkgPen != null;
+
+            int dstColor, srcColor;
+            var NoBlend = Alpha == null;
+            byte alpha = !NoBlend ? (byte)(Alpha.Value * 255) : o;
+            #endregion
+
+            #region WRITING LINE
+            for (int i = dstIndex; i < last; i += dplus, j += splus, px += ix, py += iy)
+            {
+                if (i >= length) break;
+
+                dstColor = dst[i];
+                srcColor = src[j];
+
+                if (srcColor == 0 && dstColor == 0)
+                    continue;
+
+                if (srcColor == 0)
+                {
+                    if (Opaque)
+                        dst[i] = srcColor;
+                    continue;
+                }
+
+                if (Back && dstColor != 0)
+                    continue;
+
+                if (!NoBlend && alpha < 2)
+                    continue;
+
+                if (NoBlend || alpha == 255)
+                {
+                    dst[i] = srcColor;
+                    continue;
+                }
+
+                if (dstColor == 0 && hasBkg)
+                    dstColor = BkgPen.ReadPixel(px, py);
+
+                uint C1, C2, invAlpha, RB, AG;
+                //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+                C1 = (uint)dstColor;
+                C2 = (uint)srcColor;
+                invAlpha = 255 - (uint)alpha;
+                RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
+                AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
+                srcColor = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
+                dst[i] = srcColor;
+            }
+            #endregion
         }
         #endregion
 
         #region INVALIDATE
         public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false)
         {
-            CopyFrom(Window, x, y, x, y, width, height);
+            CopyFrom(Window, x, y, x, y, width, height, updateImmediate);
         }
         #endregion
 

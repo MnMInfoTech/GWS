@@ -19,7 +19,7 @@ namespace MnM.GWS
         readonly EventInfo Event = new EventInfo();
         protected Rectangle bounds;
         protected bool focused;
-        IWindowControl Control;
+        protected IWindowControl Control;
 #if Advanced
         IBufferCollection Buffers;
 #endif
@@ -35,14 +35,14 @@ namespace MnM.GWS
         {
             if (!Initialize(externalWindow: control))
                 throw new Exception("Window could not be initialized!");
+            Control = control;
+            UnderlyingWindow = Control;
+            Primary = Factory.newCanvas(UnderlyingWindow);
 
-            SetPrimary(out Primary, out UnderlyingWindow);
 #if Advanced
             Buffers = Factory.newBufferCollection(Primary);
             Buffers.BufferChanged += BufferIsChanged;
 #endif
-            Control = control;
-            Control.Assign(this);
             GwsWindowFlags = 0;
             WindowID = Factory.GetWindowID(Handle);
             Name = "Window" + WindowID;
@@ -56,7 +56,9 @@ namespace MnM.GWS
             if (!Initialize(title, width, height, x, y, flags, display, renderFlags: renderFlags))
                 throw new Exception("Window could not be initialized!");
 
-            SetPrimary(out Primary, out UnderlyingWindow);
+            GetTexture(out UnderlyingWindow);
+            Primary = Factory.newCanvas(UnderlyingWindow);
+
 #if Advanced
             Buffers = Factory.newBufferCollection(Primary);
             Buffers.BufferChanged += BufferIsChanged;
@@ -73,11 +75,11 @@ namespace MnM.GWS
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
             IWindowControl externalWindow = null, RendererFlags? renderFlags = null);
 
-        protected abstract void SetPrimary(out ICanvas buffer, out IRenderTarget texture);
+        protected abstract void GetTexture(out IRenderTarget texture);
         #endregion
 
         #region PROPERTIES
-        protected sealed override IBlock Buffer
+        protected sealed override IBuffer Buffer
         {
             get
             {
