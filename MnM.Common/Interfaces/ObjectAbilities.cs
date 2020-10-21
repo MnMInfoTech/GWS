@@ -38,7 +38,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents smallest writable memory block object.
     /// </summary>
-    public interface IWritable: IInvalidatable
+    public interface IWritable: IUpdatable
     {
         #region PROPERTIES
         /// <summary>
@@ -268,25 +268,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IINVALIDATABLE
-    /// <summary>
-    /// Represents an object which has a capability to invalidate the screen display.For example render window.
-    /// It also supports selective update of certain area.
-    /// </summary>
-    public interface IInvalidatable
-    {
-        /// <summary> 
-        /// Invalidates data blocks covered by area specified by x, y, width and height parameters for later update.
-        /// </summary>
-        /// <param name="x">Left most corner of region which is to be updated.</param>
-        /// <param name="y">Top most corner of region which is to be updated.</param>
-        /// <param name="width">Width of region which is to be updated.</param>
-        /// <param name="height">Height of region which is to be updated.</param>
-        /// <param name="updateImmediate">If true, Update method will immediately be called and screen will get updated otherwise not.</param>
-        void Invalidate(int x, int y, int width, int height, bool updateImmediate = false);
-    }
-    #endregion
-
     #region IPOPUPABLE
     public interface IPopupable : IHostable, IShowable2, IHideable
     {
@@ -365,11 +346,21 @@ namespace MnM.GWS
 
     #region IUPDATABLE
     /// <summary>
-    /// Represents an object which has a capability to update the screen display.For example render window.
-    /// It also supports selective update of certain area.
+    /// Represents an object which has a capability to update or invalidate the screen display. For example render window.
+    /// It also supports selective update of certain area invaldated currently.
     /// </summary>
     public interface IUpdatable : ISize
     {
+        /// <summary> 
+        /// Invalidates data blocks covered by area specified by x, y, width and height parameters for later update.
+        /// </summary>
+        /// <param name="x">Left most corner of region which is to be updated.</param>
+        /// <param name="y">Top most corner of region which is to be updated.</param>
+        /// <param name="width">Width of region which is to be updated.</param>
+        /// <param name="height">Height of region which is to be updated.</param>
+        /// <param name="updateImmediate">If true, Update method will immediately be called and screen will get updated otherwise not.</param>
+        void Invalidate(int x, int y, int width, int height, bool updateImmediate = false);
+
         /// <summary>
         /// Updates invalidated area on screen.
         /// </summary>

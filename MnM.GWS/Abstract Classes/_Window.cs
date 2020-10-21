@@ -19,7 +19,7 @@ namespace MnM.GWS
         readonly EventInfo Event = new EventInfo();
         protected Rectangle bounds;
         protected bool focused;
-        protected IWindowControl Control;
+        IWindowControl Control;
 #if Advanced
         IBufferCollection Buffers;
 #endif

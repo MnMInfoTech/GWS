@@ -8,11 +8,16 @@ using System.IO;
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    #region IBUFFER
+    #region IBlock
     /// <summary>
     /// Represents smallest writable and copiable memory block object.
     /// </summary>
-    public interface IMemoryBlock : IWritable, ICopyable, IBackground, IBasicDrawInfo2
+    public interface IBlock : IWritable, ICopyable, IBackground
+    { }
+    #endregion
+
+    #region IIMAGE
+    public interface IImage : IBlock, IBasicDrawInfo2
     { }
     #endregion
 
@@ -21,7 +26,7 @@ namespace MnM.GWS
     /// Represents smallest writable and copiable memory block object which can also render shapes.
     /// Settings property of this object controls the flow of writing and rendering data.
     /// </summary>
-    public interface IBuffer : IWritable, ICopyable, IBackground, IID,  IDrawController, IDisposed, ICloneable
+    public interface IBuffer : IBlock, IID,  IDrawController, IDisposed, ICloneable
 #if Advanced
         , IElementFinder, IObjectDrawer, IAlphaSource
 #endif

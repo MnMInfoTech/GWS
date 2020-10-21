@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed class Block : IMemoryBlock
+    public sealed class Block : IBlock
     {
         #region VARIABLES
         int width, height, length;
@@ -368,6 +368,7 @@ namespace MnM.GWS
 
         #region INVALIDATE
         public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false) { }
+        public void Update() { }
         #endregion
     }
 

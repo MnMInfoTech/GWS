@@ -30,7 +30,7 @@ namespace MnM.GWS
 
     #region IDEPENDENT-OBJECT
     public interface IDependentObject : IHostable, IMinimalEvents,
-        IInvalidatable, IFocusable, IRefreshable, IShowable, IHideable, IBackground, IForeground
+        IUpdatable, IFocusable, IRefreshable, IShowable, IHideable, IBackground, IForeground
     { }
     #endregion
 

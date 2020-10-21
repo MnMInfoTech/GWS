@@ -17,15 +17,17 @@ namespace MnM.GWS
     #endregion
 
     #region IRENDER-WINDOW
-    public interface IRenderWindow : ISize, IDisposed, ICopier, ICopyable, IHandle, IResizable
+    public interface IRenderWindow : ISize, IDisposed, ICopier, ICopyable, IHandle, IResizable, IUpdatable
     {
         RendererFlags RendererFlags { get; }
     }
     #endregion
 
+    #region IWINDOW-CONTROL
     public interface IWindowControl : IRenderTarget, IBuffer, IClearable,
         IShowable, IHideable, IUpdatable, IHandle, IEventPusher
     { }
+    #endregion
 
     #region IFORM
     public interface IForm : IWindowControl, IRenderSession, IContainer, IScalable

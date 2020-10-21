@@ -305,11 +305,19 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region INVALIDATE
+        #region INVALIDATE - UPDATE
         public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false)
         {
+            if (Direct)
+            {
+                var dstRc = new Rectangle(x, y, width, height);
+                if (updateImmediate)
+                    CopyToRenderer(Handle, dstRc, dstRc);
+                return;
+            }
             CopyFrom(Window, x, y, x, y, width, height, updateImmediate);
         }
+        public void Update() { }
         #endregion
 
         #region DISPOSE

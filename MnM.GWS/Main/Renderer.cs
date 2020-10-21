@@ -2854,6 +2854,56 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyFrom(this ICopier target, ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
             target.CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
+
+        /// <summary>
+        /// Copies a data block specified by srcX, srcY, srcW and srcH parameters to itself.
+        /// </summary>
+        /// <param name="target">Target which data to be uploaded to.</param>
+        /// <param name="source">Source which data to be uploaded from.</param>
+        /// <param name="srcX">X co-ordinate of source area to upload.</param>
+        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
+        /// <param name="srcW">Width of source area to upload.</param>
+        /// <param name="srcH">Height of source area to upload.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CopyFrom(this ICopier target, ICopyable source, Rectangle sourceArea) =>
+            target.CopyFrom(source, sourceArea.X, sourceArea.Y, sourceArea.X, sourceArea.Y, sourceArea.Width, sourceArea.Height);
+        #endregion
+
+        #region COPY TO
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="block"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="area">Area to copy</param>
+        /// <param name="updateImmediate"></param>
+        /// <returns></returns>
+        public static Rectangle CopyTo(this ICopyable source, IWritable block, int dstX, int dstY, Rectangle area, bool updateImmediate = true) =>
+            source.CopyTo(block, dstX, dstY, area.X, area.Y, area.Width, area.Height, updateImmediate);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="block"></param>
+        /// <param name="area"></param>
+        /// <param name="updateImmediate"></param>
+        /// <returns></returns>
+        public static Rectangle CopyTo(this ICopyable source, IWritable block, Rectangle area, bool updateImmediate = true) =>
+            source.CopyTo(block, area.X, area.Y, area.X, area.Y, area.Width, area.Height, updateImmediate);
+        #endregion
+
+        #region INVALIDATE
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="updatable"></param>
+        /// <param name="area">Area to invalidate.</param>
+        /// <param name="updateImmediate"></param>
+        public static void Invalidate(this IUpdatable updatable, Rectangle area, bool updateImmediate = true) =>
+            updatable.Invalidate(area.X, area.Y, area.Width, area.Height, updateImmediate);
         #endregion
     }
     partial class Renderer
