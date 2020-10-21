@@ -282,7 +282,7 @@ namespace MnM.GWS
         /// <param name="y">Top most corner of region which is to be updated.</param>
         /// <param name="width">Width of region which is to be updated.</param>
         /// <param name="height">Height of region which is to be updated.</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        /// <param name="updateImmediate">If true, Update method will immediately be called and screen will get updated otherwise not.</param>
         void Invalidate(int x, int y, int width, int height, bool updateImmediate = false);
     }
     #endregion
@@ -398,7 +398,8 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        Rectangle CopyTo(IWritable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH);
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        Rectangle CopyTo(IWritable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true);
 
         /// <summary>
         /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
@@ -433,7 +434,8 @@ namespace MnM.GWS
         /// <param name="srcY">Y co-ordinate of source area to upload.</param>
         /// <param name="srcW">Width of source area to upload.</param>
         /// <param name="srcH">Height of source area to upload.</param>
-        void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
     }
     #endregion
 

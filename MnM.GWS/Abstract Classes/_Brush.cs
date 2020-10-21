@@ -730,7 +730,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
+        public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
         {
             Rectangle destRc = Rectangle.Empty;
             Rectangle copyRc = new Rectangle(copyX, copyY, copyW, copyH);
@@ -761,7 +761,7 @@ namespace MnM.GWS
             }
             destRc = Rectangle.FromLTRB(x, y, r, dy);
             if (destRc)
-                (destination).Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, true);
+                (destination).Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, updateImmediate);
 
             return destRc;
         }

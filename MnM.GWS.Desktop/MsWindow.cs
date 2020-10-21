@@ -64,15 +64,15 @@ namespace MnM.GWS.Desktop
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
+        public unsafe void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true)
         {
-            source.CopyTo(Canvas, dstX, dstY, srcX, srcY, srcW, srcH);
+            source.CopyTo(Canvas, dstX, dstY, srcX, srcY, srcW, srcH, updateImmediate);
         }
         #endregion
 
         #region COPY TO
-        public Rectangle CopyTo(IWritable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH) =>
-            Canvas.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH);
+        public Rectangle CopyTo(IWritable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true) =>
+            Canvas.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, updateImmediate);
 
         public Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY) =>
             Canvas.CopyTo(copyX, copyY, copyW, copyH, destination, dstLen, dstW, dstX, dstY);
@@ -89,8 +89,12 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region INVALIDATE
-        public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false) =>
-            Canvas.Invalidate(x, y, width, height, updateImmediate);
+        public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false) 
+        {
+            Invalidate(new Rectangle(x, y, width, height));
+            if (updateImmediate)
+                Update();
+        }
         #endregion
 
         #region BEGIN - END

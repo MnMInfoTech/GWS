@@ -100,7 +100,7 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH)
+        public unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
         {
             var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
 
@@ -140,7 +140,7 @@ namespace MnM.GWS
 #endif
 
             if (dstRc)
-                block.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height, true);
+                block.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height, updateImmediate);
 
             return dstRc;
         }

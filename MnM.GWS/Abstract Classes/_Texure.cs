@@ -63,7 +63,7 @@ namespace MnM.GWS
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
+        public void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true)
         {
             var dstRC = this.CompitibleRc(dstX, dstY, srcW, srcH);
             IntPtr textureData;
@@ -71,7 +71,8 @@ namespace MnM.GWS
             Lock(dstRC, out textureData, out lockedLength);
             source.CopyTo(srcX, srcY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0);
             Unlock();
-            CopyToRenderer(Handle, dstRC, dstRC);
+            if(updateImmediate)
+                CopyToRenderer(Handle, dstRC, dstRC);
         }
         #endregion
 
@@ -142,7 +143,7 @@ namespace MnM.GWS
         #region INVALIDATE
         public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false)
         {
-            throw new NotImplementedException();
+            CopyFrom(Window, x, y, x, y, width, height);
         }
         #endregion
 

@@ -130,9 +130,9 @@ namespace MnM.GWS
         #endregion
 
         #region COPY FROM
-        public override void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH)
+        public override void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true)
         {
-            UnderlyingWindow?.CopyFrom(source, dstX, dstY, srcX, srcY, srcW, srcH);
+            UnderlyingWindow?.CopyFrom(source, dstX, dstY, srcX, srcY, srcW, srcH, updateImmediate);
         }
         #endregion
 

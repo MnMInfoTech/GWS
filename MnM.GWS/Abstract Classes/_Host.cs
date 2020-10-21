@@ -73,9 +73,22 @@ namespace MnM.GWS
         #endregion
 
         #region COPY FROM
-        public void CopyFrom(ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
-            CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
-        public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH);
+        public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
+        #endregion
+
+        #region COPY TO
+        public virtual Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY)
+        {
+            var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
+            return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY);
+        }
+
+        public virtual Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY,
+            int copyW, int copyH, bool updateImmediate = true)
+        {
+            var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
+            return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height, updateImmediate);
+        }
         #endregion
 
         #region SHOW - HIDE
@@ -179,20 +192,6 @@ namespace MnM.GWS
             }
             Data = new int[0];
             return Size.Empty;
-        }
-
-        public virtual Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH,
-            IntPtr destination, int destLen, int destW, int destX, int destY)
-        {
-            var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY);
-        }
-
-        public virtual Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY,
-            int copyW, int copyH)
-        {
-            var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height);
         }
 
         void IRenderSession.Begin(IRenderable renderable, out IPen pen)
