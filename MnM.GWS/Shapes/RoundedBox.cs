@@ -128,6 +128,7 @@ namespace MnM.GWS
         #endregion
 
         #region IEnumerable<VectorF>
+        public IEnumerable<VectorF> Figure() => this;
         public IEnumerator<VectorF> GetEnumerator()
         {
             return points.GetEnumerator();

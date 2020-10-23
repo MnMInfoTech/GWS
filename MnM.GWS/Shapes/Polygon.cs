@@ -78,6 +78,7 @@ namespace MnM.GWS
         #endregion
 
         #region IEnumerable<VectorF>
+        public IEnumerable<VectorF> Figure() => this;
         IEnumerator<VectorF> IEnumerable<VectorF>.GetEnumerator() =>
             Points.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() =>

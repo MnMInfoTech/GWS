@@ -36,6 +36,7 @@ namespace MnM.GWS
 
         #region ISHAPE
         public string ID { get; private set; }
+        public IEnumerable<VectorF> Figure() => this;
         IEnumerator<VectorF> IEnumerable<VectorF>.GetEnumerator() => Points.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Points.GetEnumerator();
         RectangleF IBoundsF.Bounds => Bounds;

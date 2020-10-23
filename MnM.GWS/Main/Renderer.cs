@@ -4,6 +4,7 @@
 * See license.txt for detailed licensing details. */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -20,51 +21,45 @@ namespace MnM.GWS
         #region RENDER
         /// <summary>
         /// Renders any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IElement
+        /// 1. IDrawable
         /// 2. IShape
-        /// 3. IDrawable
-        /// 4. IConic
-        /// 5. ICurve
-        /// 6. IGlyphs
-        /// 7. IText
-        /// 8. IRenderable2
-        /// 9. IWipeable
+        /// 3. IFigurable
         /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
         /// Once you have handled it return true otherwise false.
         /// </summary>
         /// <param name="renderable">Renderable object which is to be rendered</param>
         /// <param name="readContext">A pen context which to create a buffer pen from</param>
         /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        public static void Render(this IBuffer buffer, IRenderable renderable, IReadContext readContext = null)
+        public static void Render(this IBuffer buffer, IFigurable figure, IReadContext readContext = null)
         {
             IPen Pen = null;
-            IReadContext Context = readContext;
+            IReadContext context = readContext;
 
             if (buffer is IRenderSession)
-                ((IRenderSession)buffer).Begin(renderable, out Pen);
+                ((IRenderSession)buffer).Begin(figure, out Pen);
 
-            if (Pen != null) Context = Pen;
+            if (Pen != null) context = Pen;
 
-            if (renderable is IDrawable)
-                buffer.Render((IDrawable)renderable, Context, out Pen);
+            if (figure is IDrawable)
+            {
+                var drawable = (IDrawable)figure;
+                if (drawable.Draw(buffer, context, out Pen))
+                {
+                    goto End;
+                }
+                var shape = figure.Figure();
+                if (shape == null)
+                    return;
 
-            else if (renderable is IShape)
-                buffer.Render((IShape)renderable, Context, out Pen);
+                IShape Shape = (shape is IShape) ? (IShape)shape : new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
+                Pen = Shape.Render(buffer, context);
+            }
+            else if(figure is IShape)
+                Pen = ((IShape)figure).Render(buffer, context);
 
+            End:
             if (buffer is IRenderSession)
-                ((IRenderSession)buffer).End(renderable, Pen);
-        }
-
-        static bool Render(this IBuffer buffer, IDrawable drawable, IReadContext Context, out IPen Pen)
-        {
-            if (drawable.Draw(buffer, Context, out Pen))
-                return true;
-            var shape = drawable.ToShape();
-            if (shape == null)
-                return false;
-            IShape Shape = (shape is IShape) ? (IShape)shape : new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
-            buffer.Render(Shape, Context, out Pen);
-            return true;
+                ((IRenderSession)buffer).End(figure, Pen);
         }
 
         /// <summary>
@@ -73,11 +68,11 @@ namespace MnM.GWS
         /// <param name="shape">Shape to render on the buffer.</param>
         /// <param name="readContext">A pen context which to create a buffer pen from.</param>
         /// <param name="Pen">Resultant pen created from conversion of read context.</param>
-        static void Render(this IBuffer buffer, IShape shape, IReadContext readContext, out IPen Pen)
+        static IPen Render(this IShape shape, IBuffer buffer, IReadContext readContext)
         {
-            Pen = null;
+            IPen Pen;
             if (shape == null)
-                return;
+                return null;
 
             string ShapeName = shape.Name;
 
@@ -163,6 +158,7 @@ namespace MnM.GWS
             Renderer.Process(Data[2], Action, Settings.LineCommand, skip2);
 
             Settings.LineCommand = draw;
+            return Pen;
         }
         #endregion
 
@@ -1114,36 +1110,7 @@ namespace MnM.GWS
     }
     partial class Renderer
     {
-        #region DRAW - ADD SHAPE AT LOCATION
-        /// <summary>
-        /// Draws any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IShape
-        /// 2. IDrawable
-        /// 3. ICurve
-        /// 4. IText
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine
-        /// by overriding RenderCustom method. Once you have handled it return true otherwise an exception wiil be raised.
-        /// </summary>
-        /// <param name="buffer">buffer target which to render a shape on</param>
-        /// <param name="shape">Element which is to be rendered</param>
-        /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void Draw(this IBuffer buffer, IRenderable shape, IReadContext context) =>
-            buffer.Render(shape, context);
-
-        /// <summary>
-        /// Draws any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IShape
-        /// 2. IDrawable
-        /// 3. ICurve
-        /// 4. IText
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine
-        /// by overriding RenderCustom method. Once you have handled it return true otherwise an exception wiil be raised.
-        /// </summary>
-        /// <param name="buffer">buffer target which to render a shape on</param>
-        /// <param name="shape">Element which is to be rendered</param>
-        public static void Draw(this IBuffer buffer, IRenderable shape) =>
-            buffer.Render(shape, null);
-
+        #region ADD SHAPE AT LOCATION
         /// <summary>
         /// Adds a shape object to this collection.
         /// </summary>
@@ -1304,7 +1271,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             var line = new Line(x1, y1, x2, y2);
-            buffer.Render(line, context);
+            buffer.Render((IDrawable)line, context);
         }
 
         /// <summary>
@@ -1334,7 +1301,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            buffer.Render(line, context);
+            buffer.Render((IDrawable)line, context);
         }
 
 
@@ -3055,7 +3022,7 @@ namespace MnM.GWS
                 return;
 
             var bezier = new Bezier(type, pts.ToArray(), null);
-            buffer.Render(bezier, context);
+            bezier.Render(buffer, context);
         }
         #endregion
 
@@ -3077,7 +3044,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             var triangle = new Triangle(x1, y1, x2, y2, x3, y3);
-            buffer.Render(triangle, context);
+            triangle.Render(buffer, context);
         }
         #endregion
 
@@ -3094,7 +3061,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             IList<VectorF> points = polyPoints.ToPoints();
-            buffer.Render(new Shape(points, "Polygon"), context);
+            new Shape(points, "Polygon").Render(buffer, context);
         }
         #endregion
 
@@ -3113,7 +3080,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            buffer.Render(new BoxF(x, y, width, height), context);
+            new BoxF(x, y, width, height).Render(buffer, context);
         }
         #endregion
 
@@ -3136,7 +3103,7 @@ namespace MnM.GWS
                 return;
 
             var pts = Curves.RoundedBoxPoints(x, y, width, height, cornerRadius);
-            buffer.Render(new Shape(pts, "RoundBox"), context);
+            new Shape(pts, "RoundBox").Render(buffer, context);
         }
         #endregion
 
@@ -3167,7 +3134,7 @@ namespace MnM.GWS
         static void RenderRhombus(this IBuffer buffer, VectorF first, VectorF second, VectorF third, IReadContext context)
         {
             var rhombus = new Tetragon(first, second, third);
-            buffer.Render(rhombus, context);
+            rhombus.Render(buffer, context);
         }
         #endregion
 
@@ -3186,7 +3153,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             var trapezium = new Tetragon(baseLine, deviation, buffer.Settings.StrokeMode, skeyBy);
-            buffer.Render(trapezium, context);
+            trapezium.Render(buffer, context);
         }
         #endregion
     }

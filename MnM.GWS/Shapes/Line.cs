@@ -315,7 +315,7 @@ namespace MnM.GWS
         #endregion
 
         #region TO SHAPE
-        public IEnumerable<VectorF> ToShape() => this;
+        public IEnumerable<VectorF> Figure() => this;
         #endregion
 
         #region OPERATORS

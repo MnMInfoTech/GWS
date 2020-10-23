@@ -583,7 +583,7 @@ namespace MnM.GWS
             protected abstract bool RotateAndScale(IDrawSettings Settings);
             #endregion
 
-            public override IEnumerable<VectorF> ToShape() => null;
+            public override IEnumerable<VectorF> Figure() => null;
 
             #region CLONE
             public override object Clone()

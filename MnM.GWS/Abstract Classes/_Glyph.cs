@@ -30,7 +30,7 @@ namespace MnM.GWS
         #endregion
 
         #region TO SHAPE
-        public virtual IEnumerable<VectorF> ToShape() => null;
+        public virtual IEnumerable<VectorF> Figure() => null;
         #endregion
 
         public virtual bool Contains(int x, int y)

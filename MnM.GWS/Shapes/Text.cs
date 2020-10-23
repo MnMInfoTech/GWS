@@ -129,7 +129,7 @@ namespace MnM.GWS
         #endregion
 
         #region TO SHAPE
-        public IEnumerable<VectorF> ToShape() => null;
+        public IEnumerable<VectorF> Figure() => null;
         #endregion
 
         #region MEASURE

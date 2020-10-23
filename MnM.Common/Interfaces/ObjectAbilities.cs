@@ -89,13 +89,25 @@ namespace MnM.GWS
     { }
     #endregion
 
+    #region IPERIMITERIZED
+    public interface IFigurable: IRenderable
+    {
+        /// <summary>
+        /// Converts this object to shape.
+        /// Returns null if this object can not be converted to shape.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<VectorF> Figure();
+    } 
+    #endregion
+
     #region IDRAWABLE
     /// <summary>
     /// An object which can be drawable to a given pixel target such as surface with a given pixel source.
     /// A smalll entities like point or entities which requires special drawing routine for example ISLine
     /// Inherit this interface if your shape/element is special in terms of drawing routine.
     /// </summary>
-    public interface IDrawable : IRenderable
+    public interface IDrawable : IRenderable, IFigurable
     {
         /// <summary>
         /// Draws itself to the buffer by creating readable pen from the given context.
@@ -106,13 +118,29 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer to draw this object to.</param>
         /// <param name="readContext">Read context to create a valid pen to draw on buffer.</param>
         bool Draw(IBuffer buffer, IReadContext readContext, out IPen Pen);
+    }
+    #endregion
+
+    #region IOOBJECT-DRAWABLE
+    /// <summary>
+    /// An object which can be drawable to a given pixel target such as surface with a given pixel source.
+    /// A smalll entities like point or entities which requires special drawing routine for example ISLine
+    /// Inherit this interface if your shape/element is special in terms of drawing routine.
+    /// </summary>
+    public interface ISelfDrawable : IRenderable, IForeground
+    {
+        /// <summary>
+        /// Gets or sets Parent window this object belongs to.
+        /// </summary>
+        IBuffer Window { get; set; }
 
         /// <summary>
-        /// Converts this object to shape.
-        /// Returns null if this object can not be converted to shape.
+        /// Draws itself to the buffer by creating readable pen from the given context.
+        /// If the context itself is pen and if it needs to be changed then this is possible by
+        /// Calling SetPen method in renderer and then using current pen in renderer through 
+        /// CurrentPen property.
         /// </summary>
-        /// <returns></returns>
-        IEnumerable<VectorF> ToShape();
+        bool Draw();
     }
     #endregion
 
@@ -129,17 +157,12 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable : IDrawable, IBounds, ILocation, ISize, IRecognizable, IBackground, IBackgroundPen
+    public interface IHostable : ISelfDrawable, IBounds, ILocation, ISize, IRecognizable, IBackground, IBackgroundPen
     {
         /// <summary>
         /// Gets bounds of this object.
         /// </summary>
         new Rectangle Bounds { get; }
-
-        /// <summary>
-        /// Gets or sets Parent window this object belongs to.
-        /// </summary>
-        IBuffer Window { get; set; }
     }
     #endregion
 

@@ -66,25 +66,20 @@ namespace MnM.GWS
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
             }
-            Parent.Render(Shape, context);
-            AddMode = false;
-            return Shape;
-        }
-        public override T Add<T>(T Shape) 
-        {
-            if (Shape == null || Shape.ID == null || Shape is IWipeable)
-                return Shape;
-            AddMode = !Contains(Shape);
-
-            if (AddMode)
+            if(Shape is IFigurable)
+                Parent.Render((IFigurable)Shape, context);
+            else if(Shape is ISelfDrawable)
             {
-                var info = NewDrawInfo(Shape);
-                AddInternal(Shape, info);
+                var obj = ((ISelfDrawable)Shape);
+                if (obj.Foreground == null)
+                    obj.Foreground = context;
+                obj.Draw();
             }
-            Parent.Render(Shape, null);
             AddMode = false;
             return Shape;
         }
+        public sealed override T Add<T>(T Shape) =>
+            Add<T>(Shape, null);
 
 #if Advanced
         protected abstract void AddInternal(IRenderable Shape, IDrawInfo2 info);
@@ -97,15 +92,6 @@ namespace MnM.GWS
             {
                 Add(item);
             }
-        }
-        #endregion
-
-        #region DRAW
-        public void Draw(IRenderable renderable)
-        {
-            if (!Contains(renderable))
-                return;
-            Parent.Render(renderable, null);
         }
         #endregion
 
@@ -188,12 +174,14 @@ namespace MnM.GWS
         #endregion
 
         #region REFRESH
-        public void Refresh(IRenderable shape)
+        public virtual void Refresh(IRenderable shape)
         {
             if (Parent == null || !Contains(shape))
                 return;
 
-            Parent.Draw(shape);
+            if(shape is IFigurable)
+                Parent.Render((IFigurable)shape);
+
             var info = GetInfo(shape.ID);
             SetCurrentPage(info, true);
 
@@ -203,9 +191,17 @@ namespace MnM.GWS
                 if (i == null)
                     continue;
                 if (IsDrawable(i, info))
-                    Parent.Draw(item);
+                {
+                    if (item is IFigurable)
+                        Parent.Render((IFigurable)item);
+                    else if (item is ISelfDrawable)
+                        ((ISelfDrawable)item).Draw();
+                }
             }
         }
+        #endregion
+
+        #region SET CURRENT PAGE
         protected abstract void SetCurrentPage(
 #if Advanced
             IDrawInfo2

@@ -288,7 +288,7 @@ namespace MnM.GWS
         #endregion
 
         #region TO SHAPE
-        public IEnumerable<VectorF> ToShape()
+        public IEnumerable<VectorF> Figure()
         {
             var pts = Curves.GetEllipsePoints(Cx, Cy, Rx, Ry, false, Rotation);
             return (pts);

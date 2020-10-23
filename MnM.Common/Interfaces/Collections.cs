@@ -1141,14 +1141,12 @@ namespace MnM.GWS
 
         #region METHODS
         /// <summary>
-        /// Draws any element on this path. This renderer has a built-in support for the following kind of elements:
+        /// Refreshes given element on this path. This renderer has a built-in support for the following kind of elements:
         /// 1. IShape
         /// 2. IDrawable
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine
-        /// by overriding Render3 in GwsRenderer method. Once you have handled it return true otherwise an exception wiil be raised.
-        /// </summary>
-        /// <param name="shape">Element which is to be rendered</param>
-        void Draw(IRenderable shape);
+        /// 3. ISelfDrawable
+        /// <param name="shape">Element which is to be refreshed.</param>
+        void Refresh(IRenderable shape);
 
         /// <summary>
         /// Creates a new drawing information object for a given element after it is added in this collection to hold the current drawing information.
@@ -1197,12 +1195,6 @@ namespace MnM.GWS
         /// Removes all existing elements from the current page of this collection.
         /// </summary>
         void RemoveAll();
-
-        /// <summary>
-        /// Re-display the given element in the current page of this collection.
-        /// </summary>
-        /// <param name="shape"></param>
-        void Refresh(IRenderable shape);
 
         /// <summary>
         /// Gets all elements in this colleciton satisfying given condition.

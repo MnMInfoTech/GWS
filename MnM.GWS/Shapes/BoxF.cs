@@ -189,6 +189,7 @@ namespace MnM.GWS
         #endregion
 
         #region IENUMERABLE
+        public IEnumerable<VectorF> Figure() => this;
         public IEnumerator<VectorF> GetEnumerator()
         {
             yield return new VectorF(X, Y);

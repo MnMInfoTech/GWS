@@ -71,7 +71,7 @@ namespace MnM.GWS
     /// Represents an object which can rotate, offer perimeters(surround area represented by points in sequential order) and has bounds.
     /// And of course, must also implement IElement - the gateway interface.
     /// </summary>
-    public interface IShape : IID, IRenderable, IRecognizable, IEnumerable<VectorF>
+    public interface IShape : IID, IFigurable, IRecognizable, IEnumerable<VectorF>
     { }
     #endregion
 

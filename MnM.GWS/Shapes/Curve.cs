@@ -273,7 +273,7 @@ namespace MnM.GWS
         #endregion
 
         #region TO SHAPE
-        public IEnumerable<VectorF> ToShape()
+        public IEnumerable<VectorF> Figure()
         {
             VectorF[] pts;
             if (Full)
