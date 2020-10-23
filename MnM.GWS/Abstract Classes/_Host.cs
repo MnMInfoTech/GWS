@@ -199,8 +199,8 @@ namespace MnM.GWS
             pen = null;
             (Buffer as IRenderSession)?.Begin(renderable, out pen);
         }
-        void IRenderSession.End(IPen pen) =>
-            (Buffer as IRenderSession)?.End(pen);
+        void IRenderSession.End(IRenderable renderable, IPen pen) =>
+            (Buffer as IRenderSession)?.End(renderable, pen);
 
         object ICloneable.Clone() =>
             Buffer.Clone();

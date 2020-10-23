@@ -418,7 +418,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets the draw style attached to this object.
         /// </summary>
-        TextDrawStyle DrawStyle { get; }
+        ITextStyle DrawStyle { get; }
         
         /// <summary>
         /// Indicates if any of the vital parameters such as font or text is changed in this object or not.
@@ -437,7 +437,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="style"></param>
         /// <returns></returns>
-        RectangleF MeasureText(TextDrawStyle style = null);
+        RectangleF MeasureText(ITextStyle style = null);
 
         /// <summary>
         /// Gets the kerning information available with font object for a character at a given index.
@@ -451,7 +451,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="drawStyle"></param>
         /// <param name="temporary"></param>
-        void ChangeDrawStyle(TextDrawStyle newDrawStyle, bool temporary = true);
+        void ChangeDrawStyle(ITextStyle newDrawStyle, bool temporary = true);
 
         /// <summary>
         /// Restores the current draw style to revious default .

@@ -39,10 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Texure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\PolyFill.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Shape.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fonts\Font.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fonts\Font2.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fonts\GlyphRenderer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fonts\GlyphSlot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_NativeFont.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Factory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Sound.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Window.cs" />
@@ -56,7 +53,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Bezier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Conic.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Curve.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Glyph.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Line.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Polygon.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\RoundedBox.cs" />
@@ -76,7 +72,6 @@
     <Content Include="$(MSBuildThisFileDirectory)UFL.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Fonts\" />
     <Folder Include="$(MSBuildThisFileDirectory)ImageProcessing\" />
     <Folder Include="$(MSBuildThisFileDirectory)Windows\" />
   </ItemGroup>

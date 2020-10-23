@@ -22,7 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Classes\DrawSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Genre.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Genres.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\ImageStyle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\SysTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Pointer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Range.cs" />
@@ -37,7 +36,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\Texts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\BenchMarks.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Matrixs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />

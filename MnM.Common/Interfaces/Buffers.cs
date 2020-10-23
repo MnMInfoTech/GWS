@@ -17,7 +17,7 @@ namespace MnM.GWS
     #endregion
 
     #region IIMAGE
-    public interface IImage : IBlock, IBasicDrawInfo2
+    public interface IImage : IBlock, IBasicDrawInfo2, ICloneable
     { }
     #endregion
 
@@ -109,7 +109,17 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IBACKGROUND
+    #region IBACKGROUNDPEN
+    public interface IBackgroundPen
+    {
+        /// <summary>
+        /// Gets or sets background for this object.
+        /// </summary>
+        IPen BackgroundPen { get; }
+    }
+    #endregion
+
+    #region IFOREGROUND
     public interface IForeground
     {
         /// <summary>

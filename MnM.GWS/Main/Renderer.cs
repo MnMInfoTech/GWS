@@ -52,7 +52,7 @@ namespace MnM.GWS
                 buffer.Render((IShape)renderable, Context, out Pen);
 
             if (buffer is IRenderSession)
-                ((IRenderSession)buffer).End(Pen);
+                ((IRenderSession)buffer).End(renderable, Pen);
         }
 
         static bool Render(this IBuffer buffer, IDrawable drawable, IReadContext Context, out IPen Pen)
@@ -206,6 +206,8 @@ namespace MnM.GWS
 
             Settings.PenID = Pen.ID;
             (Pen as ISettings)?.CopySettings(Settings);
+            if(shape is IBackgroundPen)
+                (((IBackgroundPen)shape).BackgroundPen as ISettings)?.CopySettings(Settings);
             return Pen;
         }
         #endregion

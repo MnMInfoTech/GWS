@@ -7,13 +7,8 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
     using System;
-    public sealed class TextDrawStyle : ICloneable
+    public class TextDrawStyle : ITextStyle
     {
-        /// <summary>
-        /// Image style to be used for placing an image it at all one is provided.
-        /// </summary>
-        public ImageStyle ImageStyle { get; set; }
-
         /// <summary>
         /// Gets or sets the preffered size of the text bounds.
         /// </summary>
@@ -55,23 +50,44 @@ namespace MnM.GWS
         /// </summary>
         public bool DrawGlyphIndividually { get; set; }
 
+#if Advanced
+        /// <summary>
+        /// Get sor sets an alignment of a buffer in a bounding box.
+        /// </summary>
+        public ImagePosition ImageAlignment { get; set; }
+
+        /// <summary>
+        /// Gets or sets how buffer is drawn whether scalled or unscalled.
+        /// </summary>
+        public ImageDraw ImageDraw { get; set; }
+
+        /// <summary>
+        /// Gets or sets a Buffer image to be drawn to screen.
+        /// </summary>
+        public IImage Image { get; set; }
+
+#endif
         /// <summary>
         //  Creates a new instance of a class with the same value as an existing instance.
         /// </summary>
         /// <returns></returns>
-        public TextDrawStyle Clone()
+        public ITextStyle Clone()
         {
-            var d = new TextDrawStyle();
-            d.PreferredSize = new Size(PreferredSize.Width, PreferredSize.Height);
-            d.CaseConversion = CaseConversion;
-            d.Position = Position;
-            d.Breaker = Breaker;
-            d.Delimiter = Delimiter;
-            d.TextStyle = TextStyle;
-            d.LineHeight = LineHeight;
-            d.ImageStyle = ImageStyle?.Clone() as ImageStyle;
-            d.DrawGlyphIndividually = DrawGlyphIndividually;
-            return d;
+            var txtStyle = new TextDrawStyle();
+            txtStyle.PreferredSize = PreferredSize;
+            txtStyle.CaseConversion = CaseConversion;
+            txtStyle.Position = Position;
+            txtStyle.Breaker = Breaker;
+            txtStyle.Delimiter = Delimiter;
+            txtStyle.TextStyle = TextStyle;
+            txtStyle.LineHeight = LineHeight;
+            txtStyle.DrawGlyphIndividually = DrawGlyphIndividually;
+#if Advanced
+            txtStyle.ImageAlignment = ImageAlignment;
+            txtStyle.ImageDraw = ImageDraw;
+            txtStyle.Image = Image.Clone() as IImage;
+#endif
+            return txtStyle;
         }
 
         object ICloneable.Clone() => Clone();

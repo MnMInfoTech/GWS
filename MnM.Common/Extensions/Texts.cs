@@ -430,7 +430,7 @@ namespace MnM.GWS
 
             switch (convertCase)
             {
-                #region sentence
+        #region sentence
                 case CaseConversion.Sentence:
                     for (int i = start; i <= end; i++)
                     {
@@ -453,8 +453,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-                #endregion
-                #region title
+        #endregion
+        #region title
                 case CaseConversion.Title:
                     for (int i = start; i <= end; i++)
                     {
@@ -475,8 +475,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-                #endregion
-                #region upper
+        #endregion
+        #region upper
                 case CaseConversion.Upper:
                     for (int i = start; i <= end; i++)
                     {
@@ -493,8 +493,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-                #endregion
-                #region lower
+        #endregion
+        #region lower
                 case CaseConversion.Lower:
                     for (int i = start; i <= end; i++)
                     {
@@ -511,8 +511,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-                #endregion
-                #region toggle
+        #endregion
+        #region toggle
                 case CaseConversion.Toggle:
                     for (int i = start; i <= end; i++)
                     {
@@ -532,7 +532,7 @@ namespace MnM.GWS
                         }
                     }
                     break;
-                #endregion
+        #endregion
                 default:
                     return;
             }
@@ -1060,7 +1060,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="page">The page.</param>
         /// <returns>IEnumerable&lt;System.String&gt;.</returns>
-             #endregion
+        #endregion
         #endregion
 
         #region replace all
@@ -1667,6 +1667,28 @@ namespace MnM.GWS
                 result.Output = new string(data.Substring(start, (end - start) + 1).
                     Where(x => (x >= 48 && x <= 57)).ToArray());
             }
+        }
+        #endregion
+#endif
+
+#if GWS || Window
+        #region MEASURE TEXT
+        public static void MeasureText(this IFont font, string text, float destX, float destY,
+            out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, ITextStyle drawStyle = null)
+        {
+            Area = RectangleF.Empty;
+            minHBY = 0;
+            ResultGlyphs = null;
+
+            if (font == null || string.IsNullOrEmpty(text))
+                return;
+
+            IList<IGlyph> Glyphs = new IGlyph[(text + "").Length];
+
+            for (int i = 0; i < Glyphs.Count; i++)
+                Glyphs[i] = font.GetGlyph(text[i]);
+
+            font.MeasureGlyphs(Glyphs, destX, destY, out Area, out ResultGlyphs, out minHBY, drawStyle);
         }
         #endregion
 #endif

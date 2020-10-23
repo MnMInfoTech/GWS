@@ -3,6 +3,8 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
+using System.Collections.Generic;
+
 namespace MnM.GWS
 {
     public abstract class _Font : IFont
@@ -12,7 +14,15 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public string ID => id;
+        public string ID
+        {
+            get
+            {
+                if (id == null)
+                    id = "Font".NewID();
+                return id;
+            }
+        }
         public virtual bool EnableKerning { get; set; }
         public virtual bool Hinting { get; set; }
         public abstract IFontInfo Info { get; }
@@ -28,12 +38,9 @@ namespace MnM.GWS
         public abstract IGlyph GetGlyph(char character);
         #endregion
 
-        #region ASSIGN ID
-        public void AssignIDIfNone()
-        {
-            if (id == null)
-                id = "Font".NewID();
-        }
+        #region MEASURE GLYPHS
+        public abstract void MeasureGlyphs(IList<IGlyph> Glyphs, float destX, float destY,
+            out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, ITextStyle drawStyle = null);
         #endregion
     }
 }

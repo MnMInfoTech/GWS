@@ -35,7 +35,7 @@ namespace MnM.GWS
         public int Length => length;
         public virtual IReadContext Background
         {
-            get => BkgPen ?? Pens.White;
+            get => BkgPen ?? Pens.Silver;
             set
             {
                 if (value == null)
@@ -44,11 +44,14 @@ namespace MnM.GWS
                     BkgPen = null;
                     return;
                 }
-                BkgPen = value.ToPen(Width, Height);
+                BkgPen = value.ToPen(width, height);
+                Invalidate(0, 0, width, height);
             }
         }
-        public bool IsDisposed => isDisposed;
-        bool IWritable.Antialiased => AntiAliased;
+        public bool IsDisposed =>
+            isDisposed;
+        bool IWritable.Antialiased => 
+            AntiAliased;
 
         public abstract
 #if Advanced
@@ -69,7 +72,7 @@ namespace MnM.GWS
 
         #region BEGIN - END
         public abstract void Begin(IRenderable renderable, out IPen pen);
-        public abstract void End(IPen pen);
+        public abstract void End(IRenderable renderable, IPen pen);
         #endregion
 
         #region BLEND

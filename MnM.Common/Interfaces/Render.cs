@@ -154,7 +154,7 @@ namespace MnM.GWS
         /// Tells this object to end the rendering session and to finalize settings.
         /// </summary>
         /// <param name="pen">Pen used in rendering a shape.</param>
-        void End(IPen pen);
+        void End(IRenderable renderable, IPen pen);
     }
 #endregion
 

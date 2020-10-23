@@ -118,8 +118,8 @@ namespace MnM.GWS.Desktop
         void IRenderSession.Begin(IRenderable renderable, out IPen pen) =>
             Canvas.Begin(renderable, out pen);
 
-        void IRenderSession.End(IPen pen) =>
-            Canvas.End(pen);
+        void IRenderSession.End(IRenderable renderable, IPen pen) =>
+            Canvas.End(renderable, pen);
         #endregion
 
         #region CLEAR

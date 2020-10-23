@@ -12,7 +12,7 @@ namespace MnM.GWS
     public static partial class Fonts
     {
         #region MEASURE TEXT
-        public static Glyphs MeasureText(this IFont font, string text, float destX, float destY, TextDrawStyle drawStyle = null)
+        public static Glyphs MeasureText(this IFont font, string text, float destX, float destY, ITextStyle drawStyle = null)
         {
             if (font == null || string.IsNullOrEmpty(text))
                 return GWS.Glyphs.Empty;
@@ -23,12 +23,12 @@ namespace MnM.GWS
 
             return MeasureGlyphs(font, Glyphs, destX, destY, drawStyle);
         }
-        public static Glyphs MeasureGlyphs(this IFont font, IList<IGlyph> Glyphs, float destX, float destY, TextDrawStyle drawStyle = null)
+        public static Glyphs MeasureGlyphs(this IFont font, IList<IGlyph> Glyphs, float destX, float destY, ITextStyle drawStyle = null)
         {
             if (font == null)
                 return GWS.Glyphs.Empty;
 
-            MeasureGlyphs(font, Glyphs, destX, destY, out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, drawStyle);
+            font.MeasureGlyphs(Glyphs, destX, destY, out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, drawStyle);
 
             return new Glyphs(null, Area, ResultGlyphs, minHBY);
         }

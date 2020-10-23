@@ -203,13 +203,7 @@ namespace MnM.GWS
         IPolyFill newPolyFill();
         #endregion
 
-        #region FONT, GLYPH, TEXT, RENDERER
-        /// <summary>
-        /// Creates a new Glyph renderer.
-        /// </summary>
-        /// <returns>IGlyphRenderer</returns>
-        IGlyphRenderer newGlyphRenderer();
-
+        #region FONT
         /// <summary>
         /// Creates a new font with given parameters.
         /// </summary>

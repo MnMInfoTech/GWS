@@ -44,7 +44,6 @@ namespace MnM.GWS
 #endif
             Operations.Converters["GWS"] = factory.newConverter();
             Pens.Attach(Instance);
-            FontRenderer = Instance.newGlyphRenderer();
             ImageProcessor = Instance.newImageProcessor();
             ShapeParser = Instance.newShapeParser();
             using (var fontStream = System.IO.File.OpenRead(sysFontpath))
@@ -67,11 +66,6 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        /// <summary>
-        /// Gets the default font renderer provide by the GWS.
-        /// </summary>
-        public static IGlyphRenderer FontRenderer { get; private set; }
-
         /// <summary>
         /// Returns a default system font available in GWS.
         /// The font is: UbuntuMono-Regular and is covered under UBUNTU FONT LICENCE Version 1.0.
@@ -397,15 +391,6 @@ namespace MnM.GWS
 
         #region FONT, GLYPH, GLYPH RENDERER
         /// <summary>
-        /// Creates a new Glyph renderer.
-        /// </summary>
-        /// <returns>IGlyphRenderer</returns>
-        public static IGlyphRenderer newGlyphRenderer()
-        {
-            return Instance.newGlyphRenderer();
-        }
-
-        /// <summary>
         /// Creates a new font with given parameters.
         /// </summary>
         /// <param name="fontStream">A stream containig font data</param>
@@ -457,7 +442,6 @@ namespace MnM.GWS
         public static void Dispose()
         {
             Instance.Dispose();
-            FontRenderer?.Dispose();
             Pens.Dispose();
             SystemFont = null;
             ImageProcessor.Dispose();

@@ -62,10 +62,7 @@ namespace MnM.GWS
         #endregion
 
         #region FONT - GLYPH - GLYPHSLOT - TEXT - RENDERER
-        public virtual IFont newFont(Stream fontStream,  int fontSize) =>
-            new Font(fontStream, fontSize);
-        public virtual IGlyphRenderer newGlyphRenderer() => 
-            new GlyphRenderer();
+        public abstract IFont newFont(Stream fontStream, int fontSize);
         #endregion
 
         #region IMAGE PROCESSOR

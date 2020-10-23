@@ -11,7 +11,7 @@ namespace MnM.GWS
     sealed class Text : IText
     {
         #region VARIABLES
-        TextDrawStyle drawStyle, oldDrawStyle;
+        ITextStyle drawStyle, oldDrawStyle;
         IFont font;
         IList<IGlyph> Data;
         RectangleF area;
@@ -69,7 +69,7 @@ namespace MnM.GWS
             set => Data[index] = value;
         }
         public int Count => Data.Count;
-        public TextDrawStyle DrawStyle => drawStyle;
+        public ITextStyle DrawStyle => drawStyle;
         public bool Changed { get; private set; }
         public RectangleF Bounds
         {
@@ -154,7 +154,7 @@ namespace MnM.GWS
         #endregion
 
         #region CHANGE
-        public void ChangeDrawStyle(TextDrawStyle value, bool temporary = true)
+        public void ChangeDrawStyle(ITextStyle value, bool temporary = true)
         {
             if (value == null)
                 return;
@@ -204,7 +204,7 @@ namespace MnM.GWS
         #endregion
 
         #region MEASURE TEXT
-        public RectangleF MeasureText(TextDrawStyle style = null)
+        public RectangleF MeasureText(ITextStyle style = null)
         {
             if (!Changed)
                 return Bounds;
