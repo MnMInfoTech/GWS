@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
+using System.IO;
 
 //The following are just a namespaces allocation statements.
 namespace MnM.GWS.Standard { }
@@ -96,7 +97,14 @@ namespace MnM.GWS
         {
             throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
         }
-    #endregion
-}
+        #endregion
+
+        #region FONT
+        public override IFont newFont(Stream fontStream, int fontSize)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IFont"));
+        }
+        #endregion
+    }
 #endif
 }
