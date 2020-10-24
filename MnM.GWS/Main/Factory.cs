@@ -3,7 +3,6 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace MnM.GWS
@@ -419,26 +418,6 @@ namespace MnM.GWS
         #endregion
 
         class _EventArgs : EventArgs, IEventArgs { }
-
-#if Advanced
-        #region SIMPLE POPUP
-        public static ISimplePopup newSimplePopup(params string[] items) =>
-            Instance.newSimplePopup(items);
-
-        public static ISimplePopup newSimplePopup(int width, int height, params string[] items) =>
-            Instance.newSimplePopup(width, height, items);
-        #endregion
-
-        #region SIMPLE LABLE
-        public static ISimpleLabel newSimpleLabel(string text = null, IFont font = null) =>
-            Instance.newSimpleLabel(text, font);
-        #endregion
-
-        #region SIMPLE BUTTON
-        public static ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock image = null) =>
-            Instance.newSimpleButton(text, font, image);
-        #endregion
-#endif
         public static void Dispose()
         {
             Instance.Dispose();

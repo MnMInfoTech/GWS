@@ -18,7 +18,8 @@ namespace MnM.GWS
 
     #region IIMAGE
     public interface IImage : IBlock, IBasicDrawInfo2, ICloneable
-    { }
+    {
+    }
     #endregion
 
     #region IBLOCK

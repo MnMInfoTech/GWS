@@ -3,8 +3,10 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
-using System.Collections.Generic;
 using System.IO;
+#if Advanced
+using MnM.GWS.Advanced;
+#endif
 
 namespace MnM.GWS
 {
@@ -101,13 +103,6 @@ namespace MnM.GWS
         }
         protected virtual void Dispose2() { }
         #endregion
-
-#if Advanced
-        public abstract ISimplePopup newSimplePopup(params string[] items);
-        public abstract ISimplePopup newSimplePopup(int width, int height, params string[] items);
-        public abstract ISimpleLabel newSimpleLabel(string text = null, IFont font = null);
-        public abstract ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock block = null);
-#endif
     }
 
     partial class _Factory

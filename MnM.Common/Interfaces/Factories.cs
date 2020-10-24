@@ -8,6 +8,10 @@ namespace MnM.GWS
     using System;
     using System.IO;
 
+#if Advanced
+    using MnM.GWS.Advanced;
+#endif
+
     #region FACTORY
 #if (GWS || Window)
     public partial interface IFactory : IAttachment
@@ -249,47 +253,6 @@ namespace MnM.GWS
         /// <returns></returns>
         IShapeParser newShapeParser();
         #endregion
-
-        #region FOR ADVANCED VERSION
-#if Advanced
-        #region SIMPLE POPUP
-        /// <summary>
-        /// Creates a new simple popup using string values converted to simple popup items.
-        /// </summary>
-        /// <param name="items"></param>
-        /// <returns></returns>
-        ISimplePopup newSimplePopup(params string[] items);
-
-        /// <summary>
-        /// Creates a new simple popup of specified width and height using string values converted to simple popup items.
-        /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="items"></param>
-        /// <returns></returns>
-        ISimplePopup newSimplePopup(int width, int height, params string[] items);
-        #endregion
-
-        #region SIMPLE LABLE
-        /// <summary>
-        /// Creates a new simple label.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        ISimpleLabel newSimpleLabel(string text = null, IFont font = null);
-        #endregion
-
-        #region SIMPLE BUTTON
-        /// <summary>
-        /// Creates a new simple button.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        ISimpleButton newSimpleButton(string text = null, IFont font = null, IBlock image = null);
-        #endregion
-#endif
-        #endregion
-
     }
 #endif
     #endregion

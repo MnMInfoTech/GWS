@@ -89,7 +89,10 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region IPERIMITERIZED
+    #region IFIGURABLE
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IFigurable: IRenderable
     {
         /// <summary>
@@ -121,7 +124,7 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IOOBJECT-DRAWABLE
+    #region ISELF-DRAWABLE
     /// <summary>
     /// An object which can be drawable to a given pixel target such as surface with a given pixel source.
     /// A smalll entities like point or entities which requires special drawing routine for example ISLine
@@ -157,8 +160,14 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable : ISelfDrawable, IBounds, ILocation, ISize, IRecognizable, IBackground, IBackgroundPen
+    public interface IHostable : ISelfDrawable, IBounds, ILocation,
+        ISize, IRecognizable, IBackground, IBackgroundPen
     {
+        /// <summary>
+        /// Gets or sets type of background draw while drawing background.
+        /// </summary>
+        BackgroundType BackgroundType { get; set; }
+
         /// <summary>
         /// Gets bounds of this object.
         /// </summary>

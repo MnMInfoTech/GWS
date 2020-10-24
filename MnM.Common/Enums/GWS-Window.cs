@@ -54,66 +54,71 @@ namespace MnM.GWS
 
 #if Advanced
         /// <summary>
+        /// Calculates the rendering area but does not draw shape.
+        /// </summary>
+        Calculate = 0x40,
+
+        /// <summary>
         /// Erases specified shape from the memory block. Advanced version only.
         /// </summary>
-        EraseControl = 0x40,
+        EraseControl = 0x80,
 
         /// <summary>
         /// Removes specified shape from the collection and memory block. Advanced version only.
         /// </summary>
-        RemoveControl = EraseControl | 0x80,
+        RemoveControl = EraseControl | 0x100,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
         /// </summary>
-        RestoreControl = 0x100,
+        RestoreControl = 0x200,
 
         /// <summary>
         /// Gets or sets a flag to determine that rendering of shape is done i backdrop mode or not.
         /// </summary>
-        BackgroundBuffer = 0x200,
+        BackgroundBuffer = 0x400,
 
         /// <summary>
         /// Tells GWS to place animation on main buffer where permanent controls are drawn.
         /// </summary>
-        ForegroundBuffer = 0x400,
+        ForegroundBuffer = 0x800,
 
         /// <summary>
         /// Pushes drawing of added controls to background and brings background to the front.
         /// </summary>
-        SwapBackground = 0x800,
+        SwapBackground = 0x1000,
 
         /// <summary>
         /// Excludes everything drawn on background buffer for rendering on screen. 
         /// </summary>
-        SkipBackgroundDraw = 0x1000,
+        SkipBackgroundDraw = 0x2000,
 
         /// <summary>
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. 
         /// </summary>
-        SkipForegroundDraw = 0x2000,
+        SkipForegroundDraw = 0x4000,
 
         /// <summary>
         /// Tells GWS to handle any furture rendering in an animation mode.
         /// At the end of animation cycle, last rendered shape is kept on display untill the next draw of screen.
         /// </summary>
-        Animate = 0x4000,
+        Animate = 0x8000,
 
         /// <summary>
         /// Tells GWS to handle any furture rendering in an animation mode.
         /// At the end of animation cycle, screen will be restored to original state.
         /// </summary>
-        AnimateRestore = Animate | 0x8000,
+        AnimateRestore = Animate | 0x10000,
 
         /// <summary>
         /// Swap background with foreground.
         /// </summary>
-        SwapZOrder = 0x10000,
+        SwapZOrder = 0x20000,
 
         /// <summary>
         /// Gets or sets a flag to determine if color on screen  will be inverted before upload or not.
         /// </summary>
-        InvertColorBeforeDisplay = 0x20000,
+        InvertColorBeforeDisplay = 0x40000,
 #endif
     }
     #endregion
@@ -408,6 +413,17 @@ namespace MnM.GWS
         /// Used for Strokes that define a perimiter that has a start and end such as an Arc.
         /// </summary>
         Both = Reset1st | JoinEnds,
+    }
+    #endregion
+
+    #region BackgroundType
+    public enum BackgroundType
+    {
+        Rectangular = 0,
+        RoundRectangular = 1,
+        Triangular = 2,
+        Elliptical = 3,
+        Circular = 4,
     }
     #endregion
 

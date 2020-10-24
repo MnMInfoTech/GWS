@@ -42,7 +42,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Windows.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Timers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Buffers.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Objects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\DrawParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Factories.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Font.cs" />

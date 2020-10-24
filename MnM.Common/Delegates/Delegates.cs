@@ -3,6 +3,8 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
+using System;
+
 namespace MnM.GWS
 {
     /// <summary>

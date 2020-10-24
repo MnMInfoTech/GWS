@@ -4,7 +4,6 @@
 * See license.txt for detailed licensing details. */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -1001,7 +1000,7 @@ namespace MnM.GWS
 
         #region CREATE LINE ACTION
         /// <summary>
-        /// Retuns an action delegate for rendering a glyph on specified buffer target using specified buffer pen.
+        /// Retuns an action delegate for rendering a line on specified buffer target using specified buffer pen.
         /// </summary>
         /// <param name="buffer">Buffer which to render a memory block on</param>
         /// <param name="pen">Buffer pen which to read pixeld from</param>

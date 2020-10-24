@@ -8,6 +8,25 @@ using System.Collections.Generic;
 namespace MnM.GWS
 {
 #if (GWS || Window)
+    #region IELEMENT
+    /// <summary>
+    /// Represents an object which has a place in GWS object eco system.
+    /// This is an entry point interface to be in the GWS object eco system.
+    /// A minimum required interface to inherit in order to make your control work in the GWS.
+    /// It must have an ID, a name Name and area to work upon.
+    /// </summary>
+    public interface IElement : IID, IRenderable, IRecognizable, IBounds, IMinSizable
+#if Advanced
+        , IEventPusher
+#endif
+    {
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
+        new Rectangle Bounds { get; }
+    }
+    #endregion
+
     #region IRENDERTARGET
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.

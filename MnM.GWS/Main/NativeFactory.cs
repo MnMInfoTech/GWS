@@ -31,7 +31,7 @@ namespace MnM.GWS
         public static readonly IFactory Instance = new NativeFactory();
         protected NativeFactory() { }
 
-    #region SURFACE
+        #region SURFACE
         public override ISurface newSurface(int width, int height)
         {
             throw new NotImplementedException(string.Format(goforStandard, "ISurface"));
@@ -48,9 +48,9 @@ namespace MnM.GWS
         {
             throw new NotImplementedException(string.Format(goforStandard, "ISurface"));
         }
-    #endregion
+        #endregion
 
-    #region CANVAS
+        #region CANVAS
         public override ICanvas newCanvas(int width, int height)
         {
             throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
@@ -72,9 +72,9 @@ namespace MnM.GWS
         {
             throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
         }
-    #endregion
+        #endregion
 
-    #region BRUSH
+        #region BRUSH
         public override IBrush newBrush(BrushStyle style, int width, int height)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IBrush"));
@@ -83,16 +83,16 @@ namespace MnM.GWS
         {
             throw new NotImplementedException(string.Format(goforStandard, "IBrush"));
         }
-    #endregion
+        #endregion
 
-    #region TO PEN
+        #region TO PEN
         public override IPen ToPen(IReadContext context, int? w = null, int? h = null)
         {
             throw new NotImplementedException(string.Format(goforStandard, "ISurface, ICanvas, IBrush, IObjCollection"));
         }
-    #endregion
+        #endregion
 
-    #region OBJECT COLLECTION
+        #region OBJECT COLLECTION
         public override IObjCollection newObjectCollection(IBuffer buffer)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
