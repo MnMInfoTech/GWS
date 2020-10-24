@@ -1098,13 +1098,12 @@ namespace MnM.GWS
     /// <summary>
     /// Object containing a collection of objects of type IRenderable.
     /// </summary>
-    public interface IObjCollection : IObjCollection<IRenderable>, IID
+    public partial interface IObjCollection : IObjCollection<IRenderable>, IID
 #if Advanced
-        , IEventPusher, IInteractable
+        , IEventPusher
 #endif
     {
         #region PROPERTIES
-
         /// <summary>
         /// Retries drawing information such as last drawn area, fill mode, stroke mode etc. etc for a given element.
         /// </summary>
@@ -1250,148 +1249,6 @@ namespace MnM.GWS
 #endif
             > condition);
 
-        #endregion
-
-        #region ADVANCED VERSION
-#if Advanced
-        /// <summary>
-        /// Returns the number of pages available in this collection.
-        /// </summary>
-        int PageCount { get; }
-
-        /// <summary>
-        /// Returns the index of the current page of this collection.
-        /// </summary>
-        int CurrentPage { get; }
-
-        /// <summary>
-        /// Gets th actual location when the drag operation started.
-        /// </summary>
-        Vector DragLocation { get; }
-
-        /// <summary>
-        /// Gets current status in relation to mouse dragging routine.
-        /// </summary>
-        MouseDrag MouseDrag { get; }
-
-        /// <summary>
-        /// Sets a page as specified by the index to be the active page int this collection.
-        /// </summary>
-        /// <param name="page">Index of the page intended to be the current one.</param>
-        /// <param name="silent">Specifies whether or not it should do the change without any notification</param>
-        void SetCurrentPage(int page, bool silent = false);
-
-        /// <summary>
-        /// Sets number of pages to be available in this collection.
-        /// </summary>
-        /// <param name="noOfPages">Numer of pages to be available for use</param>
-        void SetPages(int noOfPages);
-
-        /// <summary>
-        /// Moves a given element in the collection to new x,y co-ordinates.
-        /// </summary>
-        /// <param name="shape">IElement to move.</param>
-        /// <param name="drawX">Null or new x co-ordinate.</param>
-        /// <param name="drawY">Null or new y co-ordinate.</param>
-        void Move(IRenderable shape, int? drawX = null, int? drawY = null);
-
-        /// <summary>
-        /// Resize a given element in the collection.
-        /// </summary>
-        /// <param name="shape">Element to resize.</param>
-        /// <param name="size">New size - representing same scale for width and height</param>
-        /// <param name="clear">If true then it applies the background and thus wiping the drawing with in.</param>
-        void Resize(IRenderable shape, float size, bool clear = false);
-
-        /// <summary>
-        /// Resize a given element in the collection.
-        /// </summary>
-        /// <param name="shape">Element to resize.</param>
-        /// <param name="width">New width</param>
-        /// <param name="width">New height</param>
-        /// <param name="clear">If true then it applies the background and thus wiping the drawing with in.</param>
-        void Resize(IRenderable shape, float width, float height, bool clear = false);
-
-        /// <summary>
-        /// Sets focus to a giave element in this collection so that it can receive user inputs.
-        /// </summary>
-        /// <param name="shape">An element to get focus</param>
-        /// <returns>False if the element can not be focused.</returns>
-        bool Focus(IRenderable shape);
-
-        /// <summary>
-        /// Bring the shape to front of the IContext supplied to it.
-        /// </summary>
-        /// <param name="shape">IElement to bring to front.</param>
-        void BringToFront(IRenderable shape);
-
-        /// <summary>
-        /// Sends the Shape to the Back of the drawings on the IContext supplied.
-        /// </summary>
-        /// <param name="shape"></param>
-        void SendToBack(IRenderable shape);
-
-        /// <summary>
-        /// Moves the give shape to another page of this collection.
-        /// </summary>
-        /// <param name="shape">shape which to change page number for.</param>
-        /// <param name="newOrder">New page number for the shape.</param>
-        bool MoveToPage(IRenderable shape, int pageNumber);
-
-        /// <summary>
-        /// Changes ZOrder of given shape in this collection.
-        /// </summary>
-        /// <param name="shape">shape which to change zorder for.</param>
-        /// <param name="newOrder">New zorder for the shape.</param>
-        int ChangeZOrder(IRenderable shape, int newOrder);
-
-        /// <summary>
-        /// Changes TabIndex of given shape in this collection.
-        /// </summary>
-        /// <param name="shape">Shape which to change zorder for.</param>
-        /// <param name="newTabIndex">New zorder for the shape.</param>
-        int ChangeTabIndex(IFocusable shape, int newTabIndex);
-
-        /// <summary>
-        /// Enable the interactive properties of the given Shape.
-        /// </summary>
-        /// <param name="shape">Shape to be given user input.</param>
-        void Enable(IRenderable shape);
-
-        /// <summary>
-        /// Disable user interaction with the given shape.
-        /// </summary>
-        /// <param name="shape">IElement of shape that has user interaction disabled.</param>
-
-        void Disable(IRenderable shape);
-
-        /// <summary>
-        /// Draw the given shape in the provided IContext.
-        /// </summary>
-        /// <param name="shape">IElement of the shape to be displayed</param>
-        void Show(IRenderable shape);
-
-        /// <summary>
-        /// Hides the given shape in the provided IContext.
-        /// </summary>
-        /// <param name="shape">IElement of the shape to be removed from the IContext.</param>
-        void Hide(IRenderable shape);
-
-        /// <summary>
-        /// Re-display all existing elements including those which are hidden in the current pageof this collection.
-        /// </summary>
-        void ShowAll();
-
-        /// <summary>
-        /// Hides all existing elments in the current page of this collection.
-        /// </summary>
-        void HideAll();
-
-        /// <summary>
-        /// Invokes an event whenever current page in this collection is changed.
-        /// </summary>
-        event EventHandler<IEventArgs> PageChanged;
-#endif
         #endregion
     }
     #endregion

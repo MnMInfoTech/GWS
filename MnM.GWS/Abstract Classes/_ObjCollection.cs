@@ -7,8 +7,7 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-    public abstract class _ObjCollection:
-        _ObjDictionary<IRenderable, string>, IObjCollection
+    public abstract partial class _ObjCollection: _ObjDictionary<IRenderable, string>, IObjCollection
     {
         #region VARIABLES
         public readonly IBuffer Parent;
@@ -258,40 +257,6 @@ namespace MnM.GWS
             IDrawInfo
 #endif
             > condition);
-        #endregion
-
-        #region ADVANCED VERSION IMPLEMENTATION
-#if Advanced
-        public virtual int PageCount { get; protected set; }
-        public virtual int CurrentPage { get; protected set; }
-        public MouseDrag MouseDrag { get; protected set; }
-        public IEventPusher ActiveObject { get; protected set; }
-        public IRenderable HoveredItem { get; protected set; }
-        public IRenderable DraggedItem { get; protected set; }
-        public virtual Vector DragLocation { get; protected set; }
-
-        public abstract void ShowAll();
-        public abstract void PushEvent(IEventInfo e);
-        public abstract event EventHandler<IEventInfo> EventPushed;
-        public abstract void SetCurrentPage(int page, bool silent = false);
-        public abstract void SetPages(int noOfPages);
-        public abstract void Move(IRenderable shape, int? drawX = null, int? drawY = null);
-        public abstract void Resize(IRenderable shape, float size, bool clear = false);
-        public abstract void Resize(IRenderable shape, float width, float height, bool clear = false);
-        public abstract bool Focus(IRenderable shape);
-        public abstract void BringToFront(IRenderable shape);
-        public abstract void SendToBack(IRenderable shape);
-        public abstract void Enable(IRenderable shape);
-        public abstract void Disable(IRenderable shape);
-        public abstract void Show(IRenderable shape);
-        public abstract void Hide(IRenderable shape);
-        public abstract void HideAll();
-        public abstract bool MoveToPage(IRenderable shape, int pageNumber);
-        public abstract int ChangeZOrder(IRenderable shape, int newOrder);
-        public abstract int ChangeTabIndex(IFocusable shape, int newTabIndex);
-        public abstract event EventHandler<IEventArgs> PageChanged;
-
-#endif
         #endregion
     }
 }
