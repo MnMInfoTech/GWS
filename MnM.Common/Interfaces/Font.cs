@@ -95,7 +95,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents a glyph object which contains all the information on how a particual character it represents should be drawn on screen.
     /// </summary>
-    public interface IGlyph : IDrawable, ICloneable, ILocation
+    public interface IGlyph : IDrawable, ICloneable, IPoint
     {
         /// <summary>
         /// Gets or sets X co-ordinate of position of this glyph.

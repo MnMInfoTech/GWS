@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\Texts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\BenchMarks.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Matrixs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />

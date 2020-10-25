@@ -123,8 +123,8 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ILOCATION
-    public interface ILocation
+    #region IPOINT
+    public interface IPoint
     {
         /// <summary>
         /// Gets X co-ordinate of the location this object.
@@ -138,7 +138,7 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ILOCATIONF
+    #region IPOINTF
     public interface IPointF
     {
         /// <summary>

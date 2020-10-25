@@ -13,7 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Surface.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Block.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows\Converter.cs" />
@@ -22,10 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\InvalidateEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\PaintEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\SizeEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Vectors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ObjCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Host.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PolyFill.cs" />

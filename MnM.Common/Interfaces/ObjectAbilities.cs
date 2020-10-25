@@ -171,7 +171,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable : ISelfDrawable, IBounds, ILocation,
+    public interface IHostable : ISelfDrawable, IBounds, IPoint,
         ISize, IRecognizable, IBackground, IBackgroundPen
     {
         /// <summary>
@@ -618,7 +618,7 @@ namespace MnM.GWS
     #endregion
 
     #region IWINDOWABLE
-    public interface IWindowable : IRefreshable, ISize, IFocusable, IMoveable, ILocation,
+    public interface IWindowable : IRefreshable, ISize, IFocusable, IMoveable, IPoint,
         IResizable, IOVerlap, IMinMaxSizable, IShowable, IHideable, IVisible2, IMinimalEvents, IDisposable
 #if Advanced
         , IEvents

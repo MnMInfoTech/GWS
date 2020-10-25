@@ -369,7 +369,7 @@ namespace MnM.GWS
     #endregion
 
     #region IBOX
-    public interface IBox : IShape, ILocation, ISize
+    public interface IBox : IShape, IPoint, ISize
     {
         /// <summary>
         /// 
