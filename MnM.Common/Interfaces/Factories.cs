@@ -6,6 +6,7 @@
 namespace MnM.GWS
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
 
 #if Advanced
@@ -233,6 +234,176 @@ namespace MnM.GWS
         /// </summary>
         /// <returns>IImageProcessor</returns>
         IImageProcessor newImageProcessor();
+        #endregion
+
+        #region LINE
+        /// <summary>
+        /// Creates a new line segment with points specified by x1, y1 and x2, y2.
+        /// </summary>
+        /// <param name="x1">X corordinate of start point</param>
+        /// <param name="y1">Y corordinate of start point</param>
+        /// <param name="x2">X corordinate of end point</param>
+        /// <param name="y2">Y corordinate of end point</param>
+        ILine newLine(float x1, float y1, float x2, float y2);
+        #endregion
+
+        #region CURVE
+        /// <summary>
+        /// Creates a new circle or ellipse or pie or an arc specified by the bounding area, start and end angles and angle of rotation if supplied.
+        /// </summary>
+        /// <param name="x">X cordinate of a bounding area where the circle/ellipse is to be drawn</param>
+        /// <param name="y">Y cordinate of a bounding area where the circle/ellipse is to be drawn</param>
+        /// <param name="width">Width of a bounding area where the circle/ellipse is to be drawn -> circle/ellipse's minor X axis = Width/2</param>
+        /// <param name="height">Height of a bounding area where the circle is to be drawn ->circle/ellipse's minor Y axis = Height/2</param>
+        /// <param name="startAngle">Start angle from where a curve start</param>
+        /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
+        /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
+        /// <param name="rotation">Angle to apply rotation while rendering the arc/pie</param>
+        ICurve newCurve(float x, float y, float width, float height, 
+            float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF));
+
+        /// <summary>
+        /// Creates a curve replicationg data provided by conic parameter and specified array of three VectorF instances representing pie trianlge.
+        /// </summary>
+        /// <param name="conic">A conic whose perimeter will be used.</param>
+        /// <param name="pieTriangle">Array of three VectorF instances representing pie trianlge.</param>
+        /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
+        ICurve newCurve(IConic conic, VectorF[] pieTriangle, CurveType type);
+        #endregion
+
+        #region CONIC
+        /// <summary>
+        /// Creates a new conic for circle or ellipse or pie or an arc specified by the bounding area, cut angles and angle of rotation if supplied.
+        /// </summary>
+        /// <param name="x">X cordinate of a bounding area where the circle/ellipse is to be drawn</param>
+        /// <param name="y">Y cordinate of a bounding area where the circle/ellipse is to be drawn</param>
+        /// <param name="width">Width of a bounding area where the circle/ellipse is to be drawn -> circle/ellipse's minor X axis = Width/2</param>
+        /// <param name="height">Height of a bounding area where the circle is to be drawn ->circle/ellipse's minor Y axis = Height/2</param>
+        /// <param name="rotation">Angle to apply rotation while rendering the arc/pie</param>
+        /// <param name="startAngle">Start angle from where a curve start</param>
+        /// <param name="endAngle">Start angle from where a curve start</param>
+        /// <param name="tiltAngle">Tilt angle is a deviation from 0 angle conic.</param>
+        IConic newConic(Rotation rotation, float x, float y, float width, float height, float startAngle = 0, float endAngle = 0, float tiltAngle = 0);
+        #endregion
+
+        #region TETRAGON
+        /// <summary>
+        /// Creates a tetragon specified by four points and applies an angle of rotation if supplied.
+        /// </summary>
+        /// <param name="first">First point.</param>
+        /// <param name="second">Second point.</param>
+        /// <param name="third">Third point.</param>
+        /// <param name="fourth">Fourth point.</param>
+        ITetragon newTetragon(VectorF first, VectorF second, VectorF third, VectorF fourth);
+        #endregion
+
+        #region BEZIER
+        /// <summary>
+        /// Creates a bezier defined by either pointsData (float values) or pixels (points) and specified by type and an angle of rotation if supplied.
+        /// </summary>
+        /// <param name="type">Type of bezier to create.</param>
+        /// <param name="pointValues">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
+        /// <param name="points">Points which defines perimiter of the bezier.</param>
+        IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points);
+        #endregion
+
+        #region TRIANGLE
+        /// <summary>
+        /// Creates a new trianle formed by three points specified by x1, y1, x2, y2, x3, y3 and angle of rotation if supplied.
+        /// </summary>
+        /// <param name="x1">X corodinate of the first point</param>
+        /// <param name="y1">Y corodinate of the first point</param>
+        /// <param name="x2">X corodinate of the second point</param>
+        /// <param name="y2">Y corodinate of the second point</param>
+        /// <param name="x3">X corodinate of the third point</param>
+        /// <param name="y3">Y corodinate of the third point</param>
+        ITriangle newTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+        #endregion
+
+        #region BOX
+        /// <summary>
+        /// Creates a new rect with specifed parameters.
+        /// </summary>
+        /// <param name="x">Far left horizontal co-rodinate of the rectangle.</param>
+        /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
+        /// <param name="w">Width of the rectangle.</param>
+        /// <param name="h">Height of the rectangle.</param>
+        IBox newBox(int x, int y, int width, int height);
+        #endregion
+
+        #region BOXF
+        /// <summary>
+        /// Creates a new rect with specifed parameters.
+        /// </summary>
+        /// <param name="x">Far left horizontal co-rodinate of the rectangle.</param>
+        /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
+        /// <param name="w">Width of the rectangle.</param>
+        /// <param name="h">Height of the rectangle.</param>
+        IBoxF newBoxF(float x, float y, float width, float height);
+        #endregion
+
+        #region SHAPE
+        /// <summary>
+        /// Returns an instance of IShape.
+        /// </summary>
+        /// <param name="shape">Points to form a shape.</param>
+        /// <param name="name">NAme of shape</param>
+        /// <returns></returns>
+        IShape newShape(IEnumerable<VectorF> shape, string name);
+        #endregion
+
+        #region GLYPHS
+        /// <summary>
+        /// Returns an instance of IGlyphs.
+        /// </summary>
+        /// <param name="text">Text of the glyphs.</param>
+        /// <param name="area">Area of the glyphs.</param>
+        /// <param name="resultGlyphs">Glyphs collection of the glyphs.</param>
+        /// <param name="minHBY">Minimum horizontal bearing of the glyphs.</param>
+        /// <returns></returns>
+        IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY);
+        #endregion
+
+        #region ROUNDBOX
+        /// <summary>
+        /// Creates a new rouded box with specifed parameters.
+        /// </summary>
+        /// <param name="x">Far left horizontal co-rodinate of the rectangle.</param>
+        /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
+        /// <param name="w">Width of the rectangle.</param>
+        /// <param name="h">Height of the rectangle.</param>
+        /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
+        IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false);
+        #endregion
+
+        #region POLYGON
+        /// <summary>
+        /// Creates a new polygon specified by a collection of points and angle of rotation if supplied.
+        /// </summary>
+        /// <param name="polyPoints">A collection of points which forms perimeter of the polygon.</param>
+        /// <param name="angle">Angle to apply rotation while rendering the polygon</param>
+        IPolygon newPolygon(IList<VectorF> polyPoints);
+        #endregion
+
+        #region TEXT
+        /// <summary>
+        /// Cretes new text object with given parameters.
+        /// </summary>
+        /// <param name="glyphs">A list of processed glyphs collection from font</param>
+        /// <param name="drawStyle">A specific drawstyle to use to measure and draw glyphs if desired so</param>
+        /// <param name="dstX">X cordinate of destination location where glyphs to be drawn</param>
+        /// <param name="dstY">X cordinate of destination location where glyphs to be drawn</param>
+        IText newText(IList<IGlyph> glyphs, ITextStyle drawStyle = null, int? dstX = null, int? dstY = null);
+
+        /// <summary>
+        /// Cretes new text object with given parameters.
+        /// </summary>
+        /// <param name="font">the font object to be used to get glyphs</param>
+        /// <param name="text">A text string to process to obtain glyphs collection from font</param>
+        /// <param name="dstX">X cordinate of destination location where glyphs to be drawn</param>
+        /// <param name="dstY">X cordinate of destination location where glyphs to be drawn</param>
+        /// <param name="drawStyle">A specific drawstyle to use to measure and draw glyphs if desired so</param>
+        IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null);
         #endregion
 
         #region CONVERTER

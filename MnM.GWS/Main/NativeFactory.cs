@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 //The following are just a namespaces allocation statements.
@@ -103,6 +104,114 @@ namespace MnM.GWS
         public override IFont newFont(Stream fontStream, int fontSize)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IFont"));
+        }
+
+        public override IShapeParser newShapeParser()
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IShapeParser"));
+        }
+        #endregion
+
+        #region LINE
+        public override ILine newLine(float x1, float y1, float x2, float y2)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "ILine"));
+        }
+        #endregion
+
+        #region CURVE
+        public override ICurve newCurve(float x, float y, float width, float height,
+            float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF))
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "ICurve"));
+        }
+
+        public override ICurve newCurve(IConic conic, VectorF[] pieTriangle, CurveType type)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "ICurve"));
+        }
+        #endregion
+
+        #region CONIC
+        public override IConic newConic(Rotation rotation, float x, float y, float width, float height, 
+            float startAngle = 0, float endAngle = 0, float tiltAngle = 0)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IConic"));
+        }
+        #endregion
+
+        #region TETRAGON
+        public override ITetragon newTetragon(VectorF first, VectorF second, VectorF third, VectorF fourth)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "ITetragon"));
+        }
+        #endregion
+
+        #region BEZIER
+        public override IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IBezier"));
+        }
+        #endregion
+
+        #region TRIANGLE
+        public override ITriangle newTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "ITriangle"));
+        }
+        #endregion
+
+        #region BOX
+        public override IBox newBox(int x, int y, int width, int height)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IBox"));
+        }
+        #endregion
+
+        #region BOXF
+        public override IBoxF newBoxF(float x, float y, float width, float height)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IBoxF"));
+        }
+        #endregion
+
+        #region SHAPE
+        public override IShape newShape(IEnumerable<VectorF> shape, string name)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IShape"));
+        }
+        #endregion
+
+        #region GLYPHS
+        public override IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IGlyphs"));
+        }
+        #endregion
+
+        #region ROUNDBOX
+        public override IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IRoundBox"));
+        }
+        #endregion
+
+        #region POLYGON
+        public override IPolygon newPolygon(IList<VectorF> polyPoints)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IPolygon"));
+        }
+        #endregion
+
+        #region TEXT
+        public override IText newText(IList<IGlyph> glyphs, ITextStyle drawStyle = null, int? dstX = null, int? dstY = null)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IText"));
+        }
+
+        public override IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IText"));
         }
         #endregion
     }

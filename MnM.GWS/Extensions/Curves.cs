@@ -37,7 +37,7 @@ namespace MnM.GWS
             if (addCenter)
                 points[0] = center;
 
-            var line = new Line(first, last);
+            var line = Factory.newLine(first, last);
             Func<float, float, bool> condition;
 
             if (negativeMotion)
@@ -227,9 +227,9 @@ namespace MnM.GWS
                 //if inner bounds is not equal to curve bounds get inner curve.
                 if (inner != curve.Bounds)
                 {
-                    var innerConic = new Conic(curve.Rotation, inner.X, inner.Y, inner.Width, inner.Height);
+                    IConic innerConic = Factory.newConic(curve.Rotation, inner.X, inner.Y, inner.Width, inner.Height);
                     VectorF[] pieTriangle = curve.Full ? null : innerConic.GetPieTriangle(curve.Type, start, end, childCenter);
-                    innerCurve = new Curve(innerConic, pieTriangle, curve.Type);
+                    innerCurve = Factory.newCurve(innerConic, pieTriangle, curve.Type);
 
                 }
                 else
@@ -240,9 +240,9 @@ namespace MnM.GWS
             //if outer bounds is not equal to curve bounds get outer curve.
             if (outer != curve.Bounds)
             {
-                var outerConic = new Conic(curve.Rotation, outer.X, outer.Y, outer.Width, outer.Height);
+                var outerConic = Factory.newConic(curve.Rotation, outer.X, outer.Y, outer.Width, outer.Height);
                 VectorF[] pieTriangle = curve.Full ? null : outerConic.GetPieTriangle(curve.Type, start, end, mainCenter);
-                outerCurve = new Curve(outerConic, pieTriangle, curve.Type);
+                outerCurve = Factory.newCurve(outerConic, pieTriangle, curve.Type);
             }
             else
                 outerCurve = curve;

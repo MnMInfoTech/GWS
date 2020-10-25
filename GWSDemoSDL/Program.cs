@@ -49,29 +49,29 @@ namespace Test
             var Path = window.Objects;
             //Renderer.Settings.InvertBrushColor = true;
             //window.InvertColor = true;
-            Path.Add(new Polygon(90, 215, 163, 29, 63, 202,
+            Path.Add(Factory.newPolygon(90, 215, 163, 29, 63, 202,
                  188, 46, 41, 182, 206, 70, 26, 156, 217, 97, 20,
                  127, 219, 127, 22, 97, 213, 156, 33, 70, 198, 182, 51,
                  46, 176, 202, 76, 29, 149, 215, 105,
                  21, 120, 220, 134, 21, 90, 215), rg1);
-            Path.Add(new Curve(600, 10, 300, 400));
+            Path.Add(Factory.newCurve(600, 10, 300, 400));
             //Renderer.Settings.InvertBrushColor = false;
 
             window.Settings.Stroke = 23;
             window.Settings.FillMode = FillMode.FillOutLine;
 
             window.Settings.FreezeSettings = true;
-            Path.Add(new Bezier(158, 181, 174, 348, 350, 363, 541, 145));
+            Path.Add(Factory.newBezier(158, 181, 174, 348, 350, 363, 541, 145));
 
-            Path.Add(new Tetragon(425, 480, 650, 690, 190), rg1);
+            Path.Add(Factory.newTetragon(425, 480, 650, 690, 190), rg1);
 
 
-            Path.Add(new Text(tahoma, "GWS - Drawing", 576, 507));
+            Path.Add(Factory.newText(tahoma, "GWS - Drawing", 576, 507));
 
-            Path.Add(new RoundBox(300, 300, 200, 200, 25));
-            Path.Add(new Triangle(20, 300, 200, 350, 200, 467));
+            Path.Add(Factory.newRoundBox(300, 300, 200, 200, 25));
+            Path.Add(Factory.newTriangle(20, 300, 200, 350, 200, 467));
 
-            Path.Add(new Curve(100, 500, 300, 200, 55, 300, CurveType.Pie));
+            Path.Add(Factory.newCurve(100, 500, 300, 200, 55, 300, CurveType.Pie));
             window.Settings.FreezeSettings = false;
             window.Settings.CopySettings(null);
             window.Show();
@@ -142,7 +142,7 @@ namespace Test
                 int size = 400;
                 int offset = 2;
                 int offset2 = offset * 4;
-                var ellipse = new Curve(0, 0, 500, 400);
+                var ellipse = Factory.newCurve(0, 0, 500, 400);
                 Rectangle rc;
                 int x = 0, y = 0;
                 var img = Factory.newSurface(300, 300);

@@ -50,7 +50,7 @@ namespace MnM.GWS
                 if (shape == null)
                     return;
 
-                IShape Shape = (shape is IShape) ? (IShape)shape : new Shape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
+                IShape Shape = (shape is IShape) ? (IShape)shape : Factory.newShape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
                 Pen = Shape.Render(buffer, context);
             }
             else if(figure is IShape)
@@ -505,10 +505,10 @@ namespace MnM.GWS
                 var l1 = outerLines[0];
                 var l2 = innerLines[0];
 
-                var close1 = new Line(l1.X1, l1.Y1, l2.X1, l2.Y1);
+                var close1 = Factory.newLine(l1.X1, l1.Y1, l2.X1, l2.Y1);
                 l1 = outerLines.Last();
                 l2 = innerLines.Last();
-                var close2 = new Line(l1.X2, l1.Y2, l2.X2, l2.Y2);
+                var close2 = Factory.newLine(l1.X2, l1.Y2, l2.X2, l2.Y2);
                 innerLines.Add(close1);
                 outerLines.Add(close2);
             }
@@ -1269,7 +1269,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            var line = new Line(x1, y1, x2, y2);
+            var line = Factory.newLine(x1, y1, x2, y2);
             buffer.Render((IDrawable)line, context);
         }
 
@@ -1286,7 +1286,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            var line = new Line(x1, y1, x2, y2);
+            var line = Factory.newLine(x1, y1, x2, y2);
             buffer.Render(line);
         }
         /// <summary>
@@ -2337,7 +2337,7 @@ namespace MnM.GWS
             if (values.Length < 4)
                 return;
 
-            var first = new Line(values[0], values[1], values[2], values[3]);
+            var first = Factory.newLine(values[0], values[1], values[2], values[3]);
             float parallelLineDeviation = 30f;
             float skewBy = 0;
             if (values.Length > 4)
@@ -2362,7 +2362,7 @@ namespace MnM.GWS
             if (values.Length < 4)
                 return;
 
-            var first = new Line(values[0], values[1], values[2], values[3]);
+            var first = Factory.newLine(values[0], values[1], values[2], values[3]);
             float deviation = 30f;
             float skewBy = 0;
             if (values.Length > 4)
@@ -2412,7 +2412,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2,
             float parallelLineDeviation, float skewBy, IReadContext context) =>
-            RenderTrapezium(buffer, new Line(x1, y1, x2, y2), parallelLineDeviation, skewBy, context);
+            RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), parallelLineDeviation, skewBy, context);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from parameters x1, y1, x2, y2, 
@@ -2427,7 +2427,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2, float deviation, float skewBy) =>
-            RenderTrapezium(buffer, new Line(x1, y1, x2, y2), deviation, skewBy, null);
+            RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), deviation, skewBy, null);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from parameters x1, y1, x2, y2, 
@@ -2443,7 +2443,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation, IReadContext context) =>
-            RenderTrapezium(buffer, new Line(x1, y1, x2, y2), parallelLineDeviation, 0, context);
+            RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), parallelLineDeviation, 0, context);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from parameters x1, y1, x2, y2, 
@@ -2457,7 +2457,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation) =>
-            RenderTrapezium(buffer, new Line(x1, y1, x2, y2), parallelLineDeviation, 0, null);
+            RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), parallelLineDeviation, 0, null);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2471,7 +2471,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
-            RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, skewBy, context);
+            RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, skewBy, context);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2485,7 +2485,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
-            RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, context);
+            RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, context);
 
 
         /// <summary>
@@ -2499,7 +2499,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy) =>
-            RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, skewBy, null);
+            RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, skewBy, null);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2512,7 +2512,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy) =>
-            RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, null);
+            RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, null);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2525,7 +2525,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation, IReadContext context) =>
-            RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, 0, context);
+            RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, 0, context);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2538,7 +2538,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation, IReadContext context) =>
-            RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, context);
+            RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, context);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2550,7 +2550,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation) =>
-            RenderTrapezium(buffer, new Line(p1, p2), parallelLineDeviation, 0, null);
+            RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, 0, null);
 
         /// <summary>
         /// Renders a trapezium (defined as per the definition in British English) specified by a base line formed from points p1 & p2, 
@@ -2562,7 +2562,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation) =>
-            RenderTrapezium(buffer, new Line(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, null);
+            RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, null);
         #endregion
 
         #region DRAW POLYGON
@@ -2615,11 +2615,11 @@ namespace MnM.GWS
         /// <param name="drawStyle">A draw style to be used to draw text</param>
         /// <returns>GlyphsData object which contains a draw result information such as glyphs, drawn area etc.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Glyphs DrawText(this IBuffer buffer, IFont font, float destX, float destY, string text,
+        public static IGlyphs DrawText(this IBuffer buffer, IFont font, float destX, float destY, string text,
             IReadContext context = null, TextDrawStyle drawStyle = null)
         {
             if (buffer == null || font == null || string.IsNullOrEmpty(text))
-                return Glyphs.Empty;
+                return null;
             var info = font.MeasureText(text, destX, destY, drawStyle);
             buffer.Render(info, context);
             return info;
@@ -2882,7 +2882,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            var curve = new Curve(x, y, width, height, 0, 0, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(x, y, width, height, 0, 0, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
 
             DrawCurve(buffer, curve, context);
         }
@@ -2893,7 +2893,7 @@ namespace MnM.GWS
                 return;
             type = type.Exclude(CurveType.Arc).Exclude(CurveType.Pie).Exclude(CurveType.ClosedArc);
             type = type.Include(CurveType.Full);
-            var curve = new Curve(first, second, third, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(first, second, third, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -2904,7 +2904,7 @@ namespace MnM.GWS
                 return;
             type = type.Exclude(CurveType.Arc).Exclude(CurveType.Pie).Exclude(CurveType.ClosedArc);
             type = type.Include(CurveType.Full);
-            var curve = new Curve(first, second, third, fourth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(first, second, third, fourth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
         static void RenderCircleOrEllipse(this IBuffer buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth,
@@ -2912,7 +2912,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            var curve = new Curve(first, second, third, fourth, fifth, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
+            ICurve curve = Factory.newCurve(first, second, third, fourth, fifth, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
         #endregion
@@ -2939,7 +2939,7 @@ namespace MnM.GWS
 
             type = type.Exclude(CurveType.Full);
 
-            var curve = new Curve(x, y, width, height, startAngle, endAngle, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(x, y, width, height, startAngle, endAngle, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -2959,7 +2959,7 @@ namespace MnM.GWS
                 return;
             type = type.Exclude(CurveType.Full);
 
-            var curve = new Curve(p1, p2, p3, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(p1, p2, p3, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -2979,7 +2979,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Full);
-            var curve = new Curve(p1, p2, p3, p4, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(p1, p2, p3, p4, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -3000,7 +3000,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            var curve = new Curve(first, second, third, fourth, fifth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(first, second, third, fourth, fifth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
         #endregion
@@ -3020,7 +3020,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
 
-            var bezier = new Bezier(type, pts.ToArray(), null);
+            IBezier bezier = Factory.newBezier(type, pts.ToArray(), default(IList<VectorF>));
             bezier.Render(buffer, context);
         }
         #endregion
@@ -3042,7 +3042,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            var triangle = new Triangle(x1, y1, x2, y2, x3, y3);
+            ITriangle triangle = Factory.newTriangle(x1, y1, x2, y2, x3, y3);
             triangle.Render(buffer, context);
         }
         #endregion
@@ -3060,7 +3060,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             IList<VectorF> points = polyPoints.ToPoints();
-            new Shape(points, "Polygon").Render(buffer, context);
+            Factory.newShape(points, "Polygon").Render(buffer, context);
         }
         #endregion
 
@@ -3079,7 +3079,8 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            new BoxF(x, y, width, height).Render(buffer, context);
+            IBoxF box = Factory.newBoxF(x, y, width, height);
+            box.Render(buffer, context);
         }
         #endregion
 
@@ -3102,7 +3103,8 @@ namespace MnM.GWS
                 return;
 
             var pts = Curves.RoundedBoxPoints(x, y, width, height, cornerRadius);
-            new Shape(pts, "RoundBox").Render(buffer, context);
+            var shape = Factory.newShape(pts, "RoundBox");
+            shape.Render(buffer, context);
         }
         #endregion
 
@@ -3132,7 +3134,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         static void RenderRhombus(this IBuffer buffer, VectorF first, VectorF second, VectorF third, IReadContext context)
         {
-            var rhombus = new Tetragon(first, second, third);
+            var rhombus = Factory.newTetragon(first, second, third);
             rhombus.Render(buffer, context);
         }
         #endregion
@@ -3145,13 +3147,12 @@ namespace MnM.GWS
         /// <param name="baseLine">A line from where the trapezium start</param>
         /// <param name="deviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skeyBy">A change in parallel line size to tilt the trapezium</param>
-        /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         static void RenderTrapezium(this IBuffer buffer, ILine baseLine, float deviation, float skeyBy, IReadContext context)
         {
             if (buffer == null)
                 return;
-            var trapezium = new Tetragon(baseLine, deviation, buffer.Settings.StrokeMode, skeyBy);
+            ITetragon trapezium = Factory.newTetragon(baseLine, deviation, buffer.Settings.StrokeMode, skeyBy);
             trapezium.Render(buffer, context);
         }
         #endregion

@@ -59,18 +59,17 @@ namespace MnM.GWS
                         result = (T)(object)Convert.ToBase64String(ms.ToArray());
                         return true;
                     }
-                    else if(ttype == typeof(int[]))
+                    else if (ttype == typeof(int[]))
                     {
                         result = (T)(object)data;
                     }
-                    else if(ttype == typeof(byte[]))
+                    else if (ttype == typeof(byte[]))
                     {
-                        result =(T)(object) ms.ToArray();
+                        result = (T)(object)ms.ToArray();
                         return true;
                     }
                 }
             }
-
             return false;
         }
     }

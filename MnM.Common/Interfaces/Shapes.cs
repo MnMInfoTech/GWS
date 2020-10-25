@@ -368,6 +368,56 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IBOX
+    public interface IBox : IShape, ILocation, ISize
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        int Right { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        int Bottom { get; }
+
+        /// <summary>
+        /// X co-ordinate of center of this object.
+        /// </summary>
+        int Cx { get; }
+
+        /// <summary>
+        /// Y co-ordinate of center of this object.
+        /// </summary>
+        int Cy { get; }
+    }
+    #endregion
+
+    #region IBOXF
+    public interface IBoxF : IShape, IPointF, ISizeF
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        float Right { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        float Bottom { get; }
+
+        /// <summary>
+        /// X co-ordinate of center of this object.
+        /// </summary>
+        float Cx { get; }
+
+        /// <summary>
+        /// Y co-ordinate of center of this object.
+        /// </summary>
+        float Cy { get; }
+    }
+    #endregion
+
     #region ICUT
     /// <summary>
     /// Represents an object which has a capability to apply a cut to any axial line in order to fragement and omit an unwanted portion.

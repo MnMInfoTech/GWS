@@ -11,31 +11,29 @@ namespace MnM.GWS
     public static partial class Lines
     {
         #region ROTATE
-        public static Line Rotate(this ILine l, Rotation angle, bool? antiClock = null)
+        public static ILine Rotate(this ILine l, Rotation angle, bool? antiClock = null)
         {
             if (angle)
-                return new Line(l.X1, l.Y1, l.X2, l.Y2, angle, antiClock);
-            if (l is Line)
-                return (Line)l;
-            return new Line(l);
+                return Factory.newLine(l.X1, l.Y1, l.X2, l.Y2, angle, antiClock);
+            return Factory.newLine(l.X1, l.Y1, l.X2, l.Y2);
         }
         #endregion
 
         #region OFFSET & SHRINK
-        public static Line Offset(this ILine l, float offsetX, float offsetY) =>
-            new Line(l.X1 + offsetX, l.Y1 + offsetY, l.X2 + offsetX, l.Y2 + offsetY);
+        public static ILine Offset(this ILine l, float offsetX, float offsetY) =>
+            Factory.newLine(l.X1 + offsetX, l.Y1 + offsetY, l.X2 + offsetX, l.Y2 + offsetY);
         #endregion
 
         #region MOVE
-        public static Line Move(this ILine l, float move)
+        public static ILine Move(this ILine l, float move)
         {
             var p = Vectors.Move(l.X1, l.Y1, l.X2, l.Y2, move);
-            return new Line(p.X, p.Y, l.X2, l.Y2);
+            return Factory.newLine(p.X, p.Y, l.X2, l.Y2);
         }
-        public static Line Extend(this ILine l, float deviation)
+        public static ILine Extend(this ILine l, float deviation)
         {
             Vectors.Extend(l.X1, l.Y1, l.X2, l.Y2, out VectorF a, out VectorF b, deviation, true);
-            return new Line(a, b);
+            return Factory.newLine(a, b);
         }
         #endregion
 
@@ -43,23 +41,23 @@ namespace MnM.GWS
         public static VectorF Perpendicular(this ILine line, VectorF point) =>
             Perpendicular(line.X1, line.Y1, line.X2, line.Y2, point.X, point.Y);
 
-        public static Line PerpendicularLine(this ILine line, VectorF p)
+        public static ILine PerpendicularLine(this ILine line, VectorF p)
         {
             var p1 = line.Perpendicular(p);
-            return new Line(p, p1);
+            return Factory.newLine(p, p1);
         }
         #endregion
 
         #region CREATE AXIS
-        public static Line Axis(this ILine l)
+        public static ILine Axis(this ILine l)
         {
             Axis(l.X1, l.Y1, l.X2, l.Y2, out float x1, out float y1, out float x2, out float y2);
-            return new Line(x1, y1, x2, y2);
+            return Factory.newLine(x1, y1, x2, y2);
         }
         #endregion
 
         #region MIRROR LINE
-        public static Line Mirror(this ILine l, bool startPointCommon = false)
+        public static ILine Mirror(this ILine l, bool startPointCommon = false)
         {
             var m = -l.M;
             var c = l.C;
@@ -79,7 +77,7 @@ namespace MnM.GWS
                 nx2 = l.X1;
                 ny2 = m * nx2 + c;
             }
-            return new Line(nx1, ny1, nx2, ny2);
+            return Factory.newLine(nx1, ny1, nx2, ny2);
         }
         #endregion
 
@@ -87,7 +85,7 @@ namespace MnM.GWS
         public static ILine[] JoinEnds(this ILine l1, ILine l2, bool opposite = false)
         {
             if (!l2.Valid)
-                return new ILine[] { new Line(l1.X1, l1.Y1, l1.X2, l1.Y2) };
+                return new ILine[] { Factory.newLine(l1.X1, l1.Y1, l1.X2, l1.Y2) };
 
             var v1 = new VectorF(l1.X1, l1.Y1);
             var v2 = new VectorF(l1.X2, l1.Y2);
@@ -106,28 +104,28 @@ namespace MnM.GWS
                 if(distance1> distance2)
                     Numbers.Swap(ref v3, ref v4);
             }
-            return new ILine[] { new Line(v1, v3), new Line(v2, v4) };
+            return new ILine[] { Factory.newLine(v1, v3), Factory.newLine(v2, v4) };
         }
         #endregion
 
         #region STROKE SIDES
-        public static IList<Line> StrokedSides(this ILine line, float stroke, Rotation angle = default(Rotation), bool expandCentrally = false)
+        public static IList<ILine> StrokedSides(this ILine line, float stroke, Rotation angle = default(Rotation), bool expandCentrally = false)
         {
             if (!line.Valid)
             {
-                return new Line[0];
+                return new ILine[0];
             }
-            Line first, second;
+            ILine first, second;
 
             if (!expandCentrally)
             {
-                first = new Line(line);
-                second = new Line(first, stroke);
+                first = Factory.newLine(line);
+                second = Factory.newLine(first, stroke);
             }
             else
             {
-                first = new Line(line, -stroke / 2f);
-                second = new Line(line, stroke / 2f);
+                first = Factory.newLine(line, -stroke / 2f);
+                second = Factory.newLine(line, stroke / 2f);
             }
             if (angle)
             {
@@ -135,9 +133,9 @@ namespace MnM.GWS
                 second = second.Rotate(angle);
             }
 
-            var third = new Line(first.X1, first.Y1, second.X1, second.Y1);
-            var fourth = new Line(first.X2, first.Y2, second.X2, second.Y2);
-            return new Line[] { first, second, third, fourth };
+            var third = Factory.newLine(first.X1, first.Y1, second.X1, second.Y1);
+            var fourth = Factory.newLine(first.X2, first.Y2, second.X2, second.Y2);
+            return new ILine[] { first, second, third, fourth };
         }
         #endregion
 

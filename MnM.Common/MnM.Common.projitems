@@ -52,6 +52,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Shapes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Window.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\IDGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Application.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Factory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\APoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AxisLine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\BrushStyle.cs" />

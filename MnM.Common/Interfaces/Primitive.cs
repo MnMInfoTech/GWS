@@ -7,7 +7,7 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
 
-    #region ISize
+    #region ISIZE
     /// <summary>
     /// Represents a location.
     /// </summary>
@@ -22,6 +22,24 @@ namespace MnM.GWS
         /// Gets height of this object.
         /// </summary>
         int Height { get; }
+    }
+    #endregion
+
+    #region ISIZEF
+    /// <summary>
+    /// Represents a location.
+    /// </summary>
+    public interface ISizeF
+    {
+        /// <summary>
+        /// Gets width of this object.
+        /// </summary>
+        float Width { get; }
+
+        /// <summary>
+        /// Gets height of this object.
+        /// </summary>
+        float Height { get; }
     }
     #endregion
 
@@ -117,6 +135,21 @@ namespace MnM.GWS
         /// Gets Y co-ordinate of the location of this object.
         /// </summary>
         int Y { get; }
+    }
+    #endregion
+
+    #region ILOCATIONF
+    public interface IPointF
+    {
+        /// <summary>
+        /// Gets X co-ordinate of the location this object.
+        /// </summary>
+        float X { get; }
+
+        /// <summary>
+        /// Gets Y co-ordinate of the location of this object.
+        /// </summary>
+        float Y { get; }
     }
     #endregion
 

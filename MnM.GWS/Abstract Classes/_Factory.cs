@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
+using System.Collections.Generic;
 using System.IO;
 #if Advanced
 using MnM.GWS.Advanced;
@@ -86,8 +87,64 @@ namespace MnM.GWS
         #endregion
 
         #region SHAPE PARSER
-        public virtual IShapeParser newShapeParser() =>
-            new ShapeParser();
+        public abstract IShapeParser newShapeParser();
+        #endregion
+
+        #region LINE
+        public abstract ILine newLine(float x1, float y1, float x2, float y2);
+        #endregion
+
+        #region CURVE
+        public abstract ICurve newCurve(float x, float y, float width, float height,
+            float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF));
+
+        public abstract ICurve newCurve(IConic conic, VectorF[] pieTriangle, CurveType type);
+        #endregion
+
+        #region CONIC
+        public abstract IConic newConic(Rotation rotation, float x, float y, float width, float height, float startAngle = 0, float endAngle = 0, float tiltAngle = 0);
+        #endregion
+
+        #region TETRAGON
+        public abstract ITetragon newTetragon(VectorF first, VectorF second, VectorF third, VectorF fourth);
+        #endregion
+
+        #region BEZIER
+        public abstract IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points);
+        #endregion
+
+        #region TRIANGLE
+        public abstract ITriangle newTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
+        #endregion
+
+        #region BOX
+        public abstract IBox newBox(int x, int y, int width, int height);
+        #endregion
+
+        #region BOXF
+        public abstract IBoxF newBoxF(float x, float y, float width, float height);
+        #endregion
+
+        #region SHAPE
+        public abstract IShape newShape(IEnumerable<VectorF> shape, string name);
+        #endregion
+
+        #region GLYPHS
+        public abstract IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY);
+        #endregion
+
+        #region ROUNDBOX
+        public abstract IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false);
+        #endregion
+
+        #region POLYGON
+        public abstract IPolygon newPolygon(IList<VectorF> polyPoints);
+        #endregion
+
+        #region TEXT
+        public abstract IText newText(IList<IGlyph> glyphs, ITextStyle drawStyle = null, int? dstX = null, int? dstY = null);
+
+        public abstract IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null);
         #endregion
 
         #region MISC

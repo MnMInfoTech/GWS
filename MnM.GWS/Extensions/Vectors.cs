@@ -62,7 +62,7 @@ namespace MnM.GWS
         public static ILine FindPerpendicularLine(this VectorF p, VectorF lp1, VectorF lp2)
         {
             var p1 = Lines.Perpendicular(lp1.X, lp1.Y, lp2.X, lp2.Y, p.X, p.Y);
-            return new Line(p, p1);
+            return Factory.newLine(p, p1);
         }
         #endregion
 
@@ -184,7 +184,7 @@ namespace MnM.GWS
                     if (p0.VeryCloseTo(p1))
                         continue;
                 }
-                lines.Add(new Line(p0, p1, stroke));
+                lines.Add(Factory.newLine(p0, p1, stroke));
 
                 if (connectEach)
                     p0 = p1;
@@ -194,7 +194,7 @@ namespace MnM.GWS
 
             if (connectEach && joinEnds && !Equals(p1, first))
             {
-                var line = new Line(p1, first, stroke);
+                var line = Factory.newLine(p1, first, stroke);
                 lines.Add(line);
             }
 
