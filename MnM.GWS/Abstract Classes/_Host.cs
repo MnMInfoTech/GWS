@@ -46,11 +46,20 @@ namespace MnM.GWS
         public abstract bool Focused { get; }
         protected abstract IBuffer Buffer { get; }
         int ICopyable.Length => Buffer.Length;
-        public bool Antialiased {
+        public bool Antialiased 
+        {
 
             get => Buffer.Antialiased;
             set { }
         }
+        public
+#if Advanced
+            IDrawSettings2
+#else
+            IDrawSettings 
+#endif
+            Settings =>
+            Buffer.Settings;
         #endregion
 
         #region PUSH EVENT
@@ -155,18 +164,22 @@ namespace MnM.GWS
             Buffer.Antialiased;
 #if Advanced
 
-        IObjectDraw IObjectDrawer.ObjectDraw =>
-            Buffer.ObjectDraw;
-
-        unsafe byte* IAlphaSource.SourceAlphas
+        bool IObjectDrawer.DrawingChildrenNow
+        {
+            set => Buffer.DrawingChildrenNow = value;
+        }
+        bool IObjectDrawer.DrawingObject
+        {
+            set => Buffer.DrawingObject = value;
+        }
+        string IObjectDrawer.ObjectID
+        {
+            set => Buffer.ObjectID = value;
+        }
+        unsafe byte* IBuffer.SourceAlphas
         {
             set => Buffer.SourceAlphas = value;
         }
-        IDrawSettings2 IDrawController.Settings => 
-            Buffer.Settings;
-#else
-        IDrawSettings IDrawController.Settings => 
-            Buffer.Settings;
 #endif
          void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
             Buffer.WritePixel(val, axis, horizontal, color, Alpha);

@@ -157,27 +157,5 @@ namespace MnM.GWS
         void End(IRenderable renderable, IPen pen);
     }
 #endregion
-
-#if Advanced
-        #region IOBJECT-DRAWINFO
-    public interface IObjectDraw
-    {
-        bool DrawChildrenNow { set; }
-
-        /// <summary>
-        /// <summary>
-        /// Sets object draw information to take into account overriding current draw-settings.
-        /// </summary>
-        /// <param name="control">Control which to set object draw info for.</param>
-        void Set(IHostable control);
-
-        /// <summary>
-        /// Clears all information at once.
-        /// </summary>
-        void Clear();
-    }
-        #endregion
-#endif
-
 #endif
     }

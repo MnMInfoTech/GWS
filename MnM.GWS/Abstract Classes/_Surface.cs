@@ -64,9 +64,10 @@ namespace MnM.GWS
 
         protected abstract unsafe int* source { get; }
 #if Advanced
-        public abstract IObjectDraw ObjectDraw { get; }
+        public abstract bool DrawingChildrenNow { set; }
+        public abstract bool DrawingObject { set; }
+        public abstract string ObjectID { set; }
         public unsafe abstract byte* SourceAlphas { set; }
-        protected abstract unsafe byte* alphas { get; }
 #endif
         #endregion
 
@@ -103,14 +104,10 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
+        public virtual unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
         {
             var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
 
-#if Advanced
-            if (block is IAlphaSource)
-                ((IAlphaSource)block).SourceAlphas = alphas;
-#endif
             Rectangle dstRc;
             var x = copy.X;
             var y = copy.Y;
@@ -136,11 +133,6 @@ namespace MnM.GWS
                     break;
             }
             dstRc = new Rectangle(destX, destY, copyW, dy - destY);
-
-#if Advanced
-            if (block is IAlphaSource)
-                ((IAlphaSource)block).SourceAlphas = null;
-#endif
 
             if (dstRc)
                 block.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height, updateImmediate);

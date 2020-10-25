@@ -43,15 +43,37 @@ namespace MnM.GWS.Desktop
             get => Canvas.Background;
             set => Canvas.Background = value;
         }
-        public IDrawSettings Settings => Canvas.Settings;
-        public IObjCollection Objects => Canvas.Objects;
+        public
 #if Advanced
-        public IObjectDraw ObjectDraw => Canvas.ObjectDraw;
+            IDrawSettings2
+#else
+            IDrawSettings 
+#endif
+            Settings => Canvas.Settings;
+        public IObjCollection Objects => 
+            Canvas.Objects;
+#if Advanced
+        bool IObjectDrawer.DrawingChildrenNow
+        {
+            set => Canvas.DrawingChildrenNow = value;
+        }
+        bool IObjectDrawer.DrawingObject
+        {
+            set => Canvas.DrawingObject = value;
+        }
+        string IObjectDrawer.ObjectID
+        {
+            set => Canvas.ObjectID = value;
+        }
+        unsafe byte* IBuffer.SourceAlphas
+        {
+            set => Canvas.SourceAlphas = value;
+        }
 #endif
 
-        DrawCommand IBasicDrawInfo2.DrawCommand 
-        { 
-            get => Settings.DrawCommand; 
+        DrawCommand IBasicDrawInfo2.DrawCommand
+        {
+            get => Settings.DrawCommand;
             set => Settings.DrawCommand = value;
         }
         LineCommand IBasicDrawInfo2.LineCommand
@@ -106,7 +128,7 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region INVALIDATE
-        public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false) 
+        public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false)
         {
             Invalidate(new Rectangle(x, y, width, height));
             if (updateImmediate)
@@ -157,6 +179,13 @@ namespace MnM.GWS.Desktop
         {
         }
         public event EventHandler<IEventInfo> EventPushed;
+        #endregion
+
+        #region FIND ELEMENT
+#if Advanced
+        public IRenderable FindElement(int x, int y) =>
+            Canvas?.FindElement(x, y);
+#endif
         #endregion
 
         #region CLONE

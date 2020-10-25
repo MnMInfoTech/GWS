@@ -105,7 +105,7 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public interface IDrawSettings : IDrawInfo, IRenderInfo2, IShapeDrawInfo2, IForeground, IReadContext
+    public interface IDrawSettings : IDrawInfo, IRenderInfo2, IShapeDrawInfo2, IForeground
     {
         /// <summary>
         /// Gets or sets fill mode settings for this object.

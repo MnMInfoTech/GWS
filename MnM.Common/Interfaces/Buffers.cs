@@ -8,7 +8,7 @@ using System.IO;
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    #region IBlock
+    #region IBLOCK
     /// <summary>
     /// Represents smallest writable and copiable memory block object.
     /// </summary>
@@ -22,30 +22,27 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IBLOCK
+    #region IBUFFER
     /// <summary>
     /// Represents smallest writable and copiable memory block object which can also render shapes.
     /// Settings property of this object controls the flow of writing and rendering data.
     /// </summary>
-    public interface IBuffer : IBlock, IID,  IDrawController, IDisposed, ICloneable
+    public interface IBuffer : IBlock, IID, IDrawController, IDisposed, ICloneable
 #if Advanced
-        , IElementFinder, IObjectDrawer, IAlphaSource
+        , IElementFinder, IObjectDrawer
 #endif
     {
         /// <summary>
         /// Length of this memory block.
         /// </summary>
         new int Length { get; }
-    }
-    #endregion
 
-    #region IALPHASOURCE
-    public interface IAlphaSource
-    {
+#if Advanced
         /// <summary>
         /// Sets Source Alpha values to be read while copying image source.
         /// </summary>
         unsafe byte* SourceAlphas { set; }
+#endif
     }
     #endregion
 

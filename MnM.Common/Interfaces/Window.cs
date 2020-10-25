@@ -49,7 +49,7 @@ namespace MnM.GWS
     #endregion
 
     #region IFORM
-    public interface IForm : IWindowControl, IRenderSession, IContainer, IScalable
+    public interface IForm : IWindowControl, IRenderSession, IContainer, IScalable, IDrawController
 #if Advanced
         , IObjectDrawer
 #endif

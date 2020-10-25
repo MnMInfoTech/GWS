@@ -148,12 +148,23 @@ namespace MnM.GWS
     #endregion
 
     #region IOBJECTDRAWER
-#if Advanced
-    public interface IObjectDrawer  
+    public interface IObjectDrawer
     {
-        IObjectDraw ObjectDraw { get; }
+        /// <summary>
+        /// Indicates GWS that from now on children of composite control are being drawn or not.
+        /// </summary>
+        bool DrawingChildrenNow { set; }
+
+        /// <summary>
+        /// Indicates GWS that from now on composite control is being drawn or not.
+        /// </summary>
+        bool DrawingObject { set; }
+
+        /// <summary>
+        /// Tells GWS an id of composite cotrol being drawn.
+        /// </summary>
+        string ObjectID { set; }
     }
-#endif
     #endregion
 
     #region IHOSTABLE
