@@ -181,7 +181,7 @@ namespace MnM.GWS
 
 #if Advanced
     #region ISIMPLE-POPUP-ITEM
-    public interface ISimplePopupItem 
+    public interface ISimplePopupItem
     {
         string Text { get; }
         bool Enabled { get; }

@@ -76,6 +76,10 @@ namespace MnM.GWS
         public abstract void End(IRenderable renderable, IPen pen);
         #endregion
 
+        #region RENDER
+        public abstract IPen Render(IShape shape, IReadContext readContext);
+        #endregion
+
         #region BLEND
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int Blend(int dstColor, int srcColor, byte alpha)

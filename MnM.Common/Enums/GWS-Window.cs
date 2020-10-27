@@ -419,11 +419,12 @@ namespace MnM.GWS
     #region BackgroundType
     public enum BackgroundType
     {
-        Rectangular = 0,
-        RoundRectangular = 1,
-        Triangular = 2,
-        Elliptical = 3,
-        Circular = 4,
+        None = 0,
+        Rectangular,
+        RoundRectangular,
+        Triangular,
+        Elliptical,
+        Circular,
     }
     #endregion
 

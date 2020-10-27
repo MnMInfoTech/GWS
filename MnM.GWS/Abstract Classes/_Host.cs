@@ -6,10 +6,10 @@ using System;
 
 namespace MnM.GWS
 {
-    public abstract class _Host : _Events, IHost
+    public abstract partial class _Host : IHost
     {
         #region VARIABLES
-        readonly KeyPressEventArgs KeyPressEventArgs = new KeyPressEventArgs();
+        readonly KeyPressEventArgs keyPressEventArgs = new KeyPressEventArgs();
         readonly DrawEventArgs DrawEventArgs = new DrawEventArgs();
         #endregion
 
@@ -60,18 +60,6 @@ namespace MnM.GWS
 #endif
             Settings =>
             Buffer.Settings;
-        #endregion
-
-        #region PUSH EVENT
-        public override void PushEvent(IEventInfo e)
-        {
-#if Advanced
-            Objects?.PushEvent(e);
-            if (e.Status == EventUseStatus.Used)
-                return;
-#endif
-            base.PushEvent(e);
-        }
         #endregion
 
         #region UPDATE - INVALIDATE
@@ -138,15 +126,6 @@ namespace MnM.GWS
         public abstract void Resize(int? width = null, int? height = null);
         #endregion
 
-        #region DISPOSE
-        public override void Dispose()
-        {
-            IsDisposed = true;
-            Objects?.Dispose();
-            (Buffer as IDisposable)?.Dispose();
-        }
-        #endregion
-
         #region FIND ELEMENT
 #if Advanced
         public IRenderable FindElement(int x, int y) =>
@@ -154,13 +133,271 @@ namespace MnM.GWS
 #endif
         #endregion
 
+        #region PUSH EVENT
+        public virtual void PushEvent(IEventInfo e)
+        {
+#if Advanced
+            Objects?.PushEvent(e);
+            if (e.Status == EventUseStatus.Used)
+                return;
+#endif
+
+            switch (e.Type)
+            {
+                case GwsEvent.KEYDOWN:
+                    OnKeyDown(e.Args as IKeyEventArgs);
+                    break;
+                case GwsEvent.KEYUP:
+                    OnKeyDown(e.Args as IKeyEventArgs);
+                    break;
+                case GwsEvent.TEXTINPUT:
+                    var txtInput = e.Args as ITextInputEventArgs;
+                    if (txtInput != null)
+                    {
+                        foreach (var item in txtInput.Characters)
+                        {
+                            keyPressEventArgs.KeyChar = item;
+                            OnKeyPress(keyPressEventArgs);
+                        }
+                    }
+                    break;
+                case GwsEvent.MOUSEMOTION:
+                    OnMouseMove(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.ENTER:
+                    OnMouseEnter(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.LEAVE:
+                    OnMouseLeave(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.MOUSEBUTTONDOWN:
+                    OnMouseDown(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.MOUSEBUTTONUP:
+                    IMouseEventArgs me = e.Args as IMouseEventArgs;
+                    OnMouseUp(me);
+                    OnMouseClick(me);
+                    break;
+                case GwsEvent.MOUSEWHEEL:
+                    OnMouseWheel(e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.SIZE_CHANGED:
+                    break;
+                case GwsEvent.RESIZED:
+                    OnResize(e.Args as ISizeEventArgs);
+                    break;
+                case GwsEvent.PAINT:
+                    OnPaint(e.Args as IDrawEventArgs);
+                    break;
+                case GwsEvent.APPCLICK:
+                    OnAppClicked(e.Args as IMouseEventArgs);
+                    break;
+                //Minimal Events ends here...
+                case GwsEvent.SHOWN:
+                case GwsEvent.HIDDEN:
+                    OnVisibleChanged(e.Args);
+                    break;
+                case GwsEvent.MOVED:
+                    OnMoved(e.Args);
+                    break;
+                case GwsEvent.FOCUS_GAINED:
+                    OnGotFocus(e.Args);
+                    break;
+                case GwsEvent.FOCUS_LOST:
+                    if (!(e.Args is ICancelEventArgs))
+                        e = new EventInfo(e.Sender, new CancelEventArgs(), GwsEvent.FOCUS_LOST);
+                    OnLostFocus(e.Args as ICancelEventArgs);
+                    break;
+                case GwsEvent.CONTROLLERAXISMOTION:
+                case GwsEvent.JOYAXISMOTION:
+                    OnJoystickMove(e.Args as IJoystickAxisEventArgs);
+                    break;
+                case GwsEvent.JOYBUTTONDOWN:
+                    OnJoystickDown(e.Args as IJoystickButtonEventArgs);
+                    break;
+                case GwsEvent.JOYBUTTONUP:
+                    OnJoystickUp(e.Args as IJoystickButtonEventArgs);
+                    break;
+                case GwsEvent.FINGERDOWN:
+                    OnTouchBegan(e.Args as ITouchEventArgs);
+                    break;
+                case GwsEvent.FINGERMOTION:
+                    OnTouchBegan(e.Args as ITouchEventArgs);
+                    break;
+                case GwsEvent.FINGERUP:
+                    OnTouchBegan(e.Args as ITouchEventArgs);
+                    break;
+                case GwsEvent.MINIMIZED:
+                    OnMinimized(Factory.EmptyArgs);
+                    break;
+                case GwsEvent.MAXIMIZED:
+                    OnMaximized(Factory.EmptyArgs);
+                    break;
+                case GwsEvent.RESTORED:
+                    OnRestored(Factory.EmptyArgs);
+                    break;
+                case GwsEvent.LASTEVENT:
+                case GwsEvent.FIRSTEVENT:
+                    break;
+                case GwsEvent.QUIT:
+                case GwsEvent.EXPOSED:
+                case GwsEvent.CLOSE:
+                default:
+                    e.Status = EventUseStatus.Unused;
+                    break;
+            }
+            if (e.Status == EventUseStatus.Used)
+                return;
+            OnEventPushed(e);
+        }
+        protected virtual void OnEventPushed(IEventInfo e) =>
+            EventPushed?.Invoke(this, e);
+
+        public virtual event EventHandler<IEventInfo> EventPushed;
+        #endregion
+
+        #region EVENTS EXPOSING METHODS
+        protected virtual void OnKeyDown(IKeyEventArgs e) =>
+            KeyDown?.Invoke(this, e);
+        protected virtual void OnKeyUp(IKeyEventArgs e) =>
+            KeyUp?.Invoke(this, e);
+        protected virtual bool OnKeyPress(IKeyPressEventArgs e)
+        {
+            KeyPress?.Invoke(this, e);
+            return true;
+        }
+        protected virtual void OnMouseWheel(IMouseEventArgs e) =>
+            MouseWheel?.Invoke(this, e);
+        protected virtual void OnMouseDown(IMouseEventArgs e) =>
+            MouseDown?.Invoke(this, e);
+        protected virtual void OnMouseUp(IMouseEventArgs e) =>
+            MouseUp?.Invoke(this, e);
+        protected virtual void OnMouseClick(IMouseEventArgs e) =>
+            MouseClick?.Invoke(this, e);
+        protected virtual void OnMouseMove(IMouseEventArgs e) =>
+            MouseMove?.Invoke(this, e);
+
+        protected virtual void OnMouseEnter(IMouseEventArgs e) =>
+            MouseWheel?.Invoke(this, e);
+        protected virtual void OnMouseLeave(IMouseEventArgs e) =>
+            MouseWheel?.Invoke(this, e);
+
+        protected virtual void OnAppClicked(IMouseEventArgs e) =>
+            AppClicked?.Invoke(this, e);
+
+
+        protected virtual void OnResize(ISizeEventArgs e) =>
+            Resized?.Invoke(this, e);
+        protected virtual void OnPaint(IDrawEventArgs e) =>
+            Paint?.Invoke(this, e);
+        #endregion
+
+        #region EVENT DECLARATION
+        public virtual event EventHandler<IKeyEventArgs> KeyDown;
+        public virtual event EventHandler<IKeyEventArgs> KeyUp;
+        public virtual event EventHandler<IKeyPressEventArgs> KeyPress;
+        public virtual event EventHandler<IMouseEventArgs> MouseWheel;
+        public virtual event EventHandler<IMouseEventArgs> MouseDown;
+        public virtual event EventHandler<IMouseEventArgs> MouseUp;
+        public virtual event EventHandler<IMouseEventArgs> MouseClick;
+        public virtual event EventHandler<IMouseEventArgs> MouseMove;
+        public virtual event EventHandler<IMouseEventArgs> Enter;
+        public virtual event EventHandler<IMouseEventArgs> Leave;
+        public virtual event EventHandler<IMouseEventArgs> AppClicked;
+        public virtual event EventHandler<ISizeEventArgs> Resized;
+        public virtual event EventHandler<IDrawEventArgs> Paint;
+        #endregion
+
+        #region EVENT2 DECLARATION
+        public virtual event EventHandler<ICancelEventArgs> LostFocus;
+        public virtual event EventHandler<IEventArgs> GotFocus;
+        public virtual event EventHandler<IEventArgs> Moved;
+        public virtual event EventHandler<IKeyEventArgs> PreviewKeyDown;
+        public virtual event EventHandler<IMouseEventArgs> MouseDoubleClick;
+        public virtual event EventHandler<IEventArgs> VisibleChanged;
+        public virtual event EventHandler<IEventArgs> FirstShown;
+        public virtual event EventHandler<ITouchEventArgs> TouchBegan;
+        public virtual event EventHandler<ITouchEventArgs> TouchMoved;
+        public virtual event EventHandler<ITouchEventArgs> TouchEnded;
+        public virtual event EventHandler<IMouseEventArgs> MouseDrag;
+        public virtual event EventHandler<IMouseEventArgs> MouseDragBegin;
+        public virtual event EventHandler<IMouseEventArgs> MouseDragEnd;
+        public virtual event EventHandler<IJoystickButtonEventArgs> JoystickDown;
+        public virtual event EventHandler<IJoystickButtonEventArgs> JoystickUp;
+        public virtual event EventHandler<IJoystickAxisEventArgs> JoystickMove;
+        public virtual event EventHandler<IEventArgs> JoystickConnected;
+        public virtual event EventHandler<IEventArgs> JoystickDisconnected;
+        public virtual event EventHandler<IEventArgs> Minimized;
+        public virtual event EventHandler<IEventArgs> Maximized;
+        public virtual event EventHandler<IEventArgs> Restored;
+        #endregion
+
+        #region EVENTS2 EXPOSING METHODS
+        protected virtual void OnPreviewKeyDown(IKeyEventArgs e) =>
+            PreviewKeyDown?.Invoke(this, e);
+
+        protected virtual void OnMouseDoubleClick(IMouseEventArgs e) =>
+            MouseDoubleClick?.Invoke(this, e);
+        protected virtual void OnMouseDragBegin(IMouseEventArgs e) =>
+            MouseDragBegin?.Invoke(this, e);
+        protected virtual void OnMouseDragEnd(IMouseEventArgs e) =>
+            MouseDragEnd?.Invoke(this, e);
+        protected virtual void OnMouseDrag(IMouseEventArgs e) =>
+            MouseDrag?.Invoke(this, e);
+        protected virtual void OnVisibleChanged(IEventArgs e) =>
+            VisibleChanged?.Invoke(this, e);
+        protected virtual void OnFirstShown(IEventArgs e) =>
+            FirstShown?.Invoke(this, e);
+        protected virtual void OnGotFocus(IEventArgs e) =>
+            GotFocus?.Invoke(this, e);
+        protected virtual void OnLostFocus(ICancelEventArgs e) =>
+            LostFocus?.Invoke(this, e);
+        protected virtual void OnMoved(IEventArgs e) =>
+            Moved?.Invoke(this, e);
+        protected virtual void OnTouchBegan(ITouchEventArgs e) =>
+            TouchBegan?.Invoke(this, e);
+        protected virtual void OnTouchMoved(ITouchEventArgs e) =>
+            TouchMoved?.Invoke(this, e);
+        protected virtual void OnTouchEnded(ITouchEventArgs e) =>
+            TouchEnded?.Invoke(this, e);
+        protected virtual void OnJoystickDown(IJoystickButtonEventArgs e) =>
+            JoystickDown?.Invoke(this, e);
+        protected virtual void OnJoystickUp(IJoystickButtonEventArgs e) =>
+            JoystickUp?.Invoke(this, e);
+        protected virtual void OnJoystickMove(IJoystickAxisEventArgs e) =>
+            JoystickMove?.Invoke(this, e);
+        protected virtual void OnJoystickConnected(IEventArgs e) =>
+            JoystickConnected?.Invoke(this, e);
+        protected virtual void OnJoystickDisconnected(IEventArgs e) =>
+            JoystickDisconnected?.Invoke(this, e);
+
+        protected virtual void OnMaximized(IEventArgs e) =>
+            Maximized?.Invoke(this, e);
+        protected virtual void OnMinimized(IEventArgs e) =>
+            Minimized?.Invoke(this, e);
+        protected virtual void OnRestored(IEventArgs e) =>
+            Restored?.Invoke(this, e);
+        #endregion
+
+        #region DISPOSE
+        public virtual void Dispose()
+        {
+            IsDisposed = true;
+            Objects?.Dispose();
+            (Buffer as IDisposable)?.Dispose();
+        }
+        #endregion
+
+    }
+    partial class _Host
+    {
         #region IBUFFER
         int IWritable.Length =>
             Buffer.Length;
-        int IBuffer.Length => 
+        int IBuffer.Length =>
             Buffer.Length;
 
-        bool IWritable.Antialiased => 
+        bool IWritable.Antialiased =>
             Buffer.Antialiased;
 #if Advanced
 
@@ -181,8 +418,8 @@ namespace MnM.GWS
             set => Buffer.SourceAlphas = value;
         }
 #endif
-         void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
-            Buffer.WritePixel(val, axis, horizontal, color, Alpha);
+        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
+           Buffer.WritePixel(val, axis, horizontal, color, Alpha);
 
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha) =>
@@ -190,14 +427,14 @@ namespace MnM.GWS
 
         public Size RotateAndScale(out int[] Data, Rotation angle, bool antiAliased = true, float scale = 1)
         {
-            if(Buffer is IScalable)
+            if (Buffer is IScalable)
             {
                 return ((IScalable)Buffer).RotateAndScale(out Data, angle, antiAliased, scale);
             }
             Data = new int[0];
             return Size.Empty;
         }
-        public Size Flip(out int[] Data, Flip flipMode) 
+        public Size Flip(out int[] Data, Flip flipMode)
         {
             if (Buffer is IScalable)
             {
@@ -215,8 +452,12 @@ namespace MnM.GWS
         void IRenderSession.End(IRenderable renderable, IPen pen) =>
             (Buffer as IRenderSession)?.End(renderable, pen);
 
+        IPen IBuffer.Render(IShape shape, IReadContext readContext) =>
+            Buffer.Render(shape, readContext);
+
         object ICloneable.Clone() =>
             Buffer.Clone();
         #endregion
+
     }
 }

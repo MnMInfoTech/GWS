@@ -216,6 +216,17 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region REMOVE INFLATION
+        public static Rectangle RemoveInflation(Rectangle value)
+        {
+            var x = value.X + LocationOffset;
+            var y = value.Y + LocationOffset;
+            var r = value.Right - SizeOffset;
+            var b = value.Bottom - SizeOffset;
+            return Rectangle.FromLTRB(x, y, r, b);
+        }
+        #endregion
+
         /// <summary>
         /// Converts this oject to rectangle structure.
         /// </summary>

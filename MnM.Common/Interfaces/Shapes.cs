@@ -138,7 +138,6 @@ namespace MnM.GWS
         float Area { get; }
 
         bool Contains(float x, float y);
-        bool Contains(VectorF p);
     }
     #endregion
 
@@ -150,6 +149,9 @@ namespace MnM.GWS
     public interface ITetragon : IShape
     {
         QuadType Type { get; }
+#if Advanced
+        bool Contains(float x, float y);
+#endif
     }
 
     /// <summary>

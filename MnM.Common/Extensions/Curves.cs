@@ -124,7 +124,7 @@ namespace MnM.GWS
             x = CX + cosrx;
             y = CY + sinry;
 
-            if (rotation != null && rotation)
+            if (rotation)
                 rotation.Rotate(x, y, out x, out y);
         }
 
@@ -1333,7 +1333,5 @@ namespace MnM.GWS
         }
         #endregion
     }
-
-
 #endif
 }

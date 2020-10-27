@@ -171,8 +171,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which is dependent on parent window to exist.
     /// </summary>
-    public interface IHostable : ISelfDrawable, IBounds, IPoint,
-        ISize, IRecognizable, IBackground, IBackgroundPen
+    public interface IHostable : ISelfDrawable, IBounds, IPoint, ISize, IRecognizable, IBackground, IRefreshable
     {
         /// <summary>
         /// Gets or sets type of background draw while drawing background.

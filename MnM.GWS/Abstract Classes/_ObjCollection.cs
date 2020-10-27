@@ -65,14 +65,17 @@ namespace MnM.GWS
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
             }
+            
             if(Shape is IFigurable)
                 Parent.Render((IFigurable)Shape, context);
+           
             else if(Shape is ISelfDrawable)
             {
                 var obj = ((ISelfDrawable)Shape);
-                if (obj.Foreground == null)
+                if (obj.Foreground == null && context != null)
                     obj.Foreground = context;
-                obj.Draw();
+                else
+                    obj.Draw();
             }
             AddMode = false;
             return Shape;

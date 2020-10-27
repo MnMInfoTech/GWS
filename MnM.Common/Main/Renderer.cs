@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 
 namespace MnM.GWS
 {
@@ -51,113 +52,14 @@ namespace MnM.GWS
                     return;
 
                 IShape Shape = (shape is IShape) ? (IShape)shape : Factory.newShape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
-                Pen = Shape.Render(buffer, context);
+                Pen = buffer.Render(Shape, context);
             }
             else if(figure is IShape)
-                Pen = ((IShape)figure).Render(buffer, context);
+                Pen = buffer.Render((IShape)figure, context);
 
             End:
             if (buffer is IRenderSession)
                 ((IRenderSession)buffer).End(figure, Pen);
-        }
-
-        /// <summary>
-        /// Renders specified shape on this buffer with specified reading context.
-        /// </summary>
-        /// <param name="shape">Shape to render on the buffer.</param>
-        /// <param name="readContext">A pen context which to create a buffer pen from.</param>
-        /// <param name="Pen">Resultant pen created from conversion of read context.</param>
-        static IPen Render(this IShape shape, IBuffer buffer, IReadContext readContext)
-        {
-            IPen Pen;
-            if (shape == null)
-                return null;
-
-            string ShapeName = shape.Name;
-
-            float x, y;
-            x = y = 0;
-            IEnumerable<VectorF> Original = shape;
-            IList<VectorF> Outer, Inner;
-            RectangleF o, i;
-            var Settings = buffer.Settings;
-            var bounds = shape.Bounds;
-            float Cx, Cy;
-            float Sx = Settings.Scale.X + 1;
-            float Sy = Settings.Scale.Y + 1;
-
-            if (Settings.Scale.HasScale)
-            {
-                Original = Original.Scale(Sx, Sy, bounds.Center());
-                bounds = bounds.Scale(new VectorF(Sx, Sy));
-            }
-            bool isRotated = Settings.Rotation.EffectiveCenter(bounds, out Cx, out Cy);
-
-            if (Settings.Stroke == 0 || Settings.FillMode == FillMode.Original)
-            {
-                if (isRotated)
-                {
-                    Original = Original.Rotate(Settings.Rotation, Cx, Cy);
-                    if (Settings.Rotation.Skew != 0)
-                        bounds = bounds.Scale(Settings.Rotation, new VectorF(Cx, Cy));
-                }
-                if (shape is IBezier)
-                {
-                    Original = Curves.GetBezierPoints(8, (shape as IBezier).Option, Original.ToArray());
-                }
-
-                if (Original is IList<VectorF>)
-                    Outer = Inner = Original as IList<VectorF>;
-                else
-                    Outer = Inner = Original.ToList();
-            }
-            else
-            {
-                if (shape is IBezier)
-                    Original = Curves.GetBezierPoints(8, (shape as IBezier).Option, Original.ToArray());
-
-                Renderer.StrokePoints(Original, ShapeName, Settings.Stroke, Settings.StrokeMode, out Outer, out Inner);
-
-                bounds = Outer.HybridBounds(Inner).Clamp(Settings.Clip);
-                if (isRotated)
-                {
-                    Outer = Outer.Rotate(Settings.Rotation, Cx, Cy);
-                    Inner = Inner.Rotate(Settings.Rotation, Cx, Cy);
-                }
-                if (isRotated && Settings.Rotation.Skew != 0)
-                    bounds = bounds.Scale(Settings.Rotation, new VectorF(Cx, Cy));
-            }
-
-            Pen = buffer.Settings.GetPen(shape, readContext, bounds);
-
-            Settings.FillMode = Factory.ShapeParser.GetFillMode(Settings.FillMode, ShapeName, Settings.Stroke);
-            var draw = Settings.LineCommand;
-            Settings.LineCommand = Settings.LineCommand | Factory.ShapeParser.GetLineDraw(ShapeName);
-
-            buffer.CreateAction(Pen, out PixelAction<float> Action);
-            buffer.CreateAction(Pen, out FillAction<float> FillAction);
-
-            var Data = Renderer.GetDrawParams(Settings.FillMode, Settings.FillCommand, Settings.Stroke, ShapeName, Original, Outer, Inner);
-
-            Factory.ShapeParser.GetLineSkip(ShapeName, Settings.FillMode, out SlopeType skip0, out SlopeType skip2);
-            o = Outer.ToArea().Hybrid(Inner.ToArea()).Clamp(Settings.Clip);
-            int oy = (o.Y).Round();
-            int oBottom = (int)(o.Bottom) + 1;
-            int oRight = (int)(o.Right) + 1;
-
-            if (Data[1] != null || Data[3] != null)
-            {
-                if (Settings.FillCommand.HasFlag(FillCommand.Outlininig))
-                    Renderer.ProcessWith(Data[1], Data[3], Settings, FillAction);
-                else
-                    Renderer.Fill(Data[1].AppendItems(Data[3]), FillAction, oy, oBottom, Settings.FillCommand, Settings.LineCommand);
-            }
-
-            Renderer.Process(Data[0], Action, Settings.LineCommand, skip0);
-            Renderer.Process(Data[2], Action, Settings.LineCommand, skip2);
-
-            Settings.LineCommand = draw;
-            return Pen;
         }
         #endregion
 
@@ -201,8 +103,10 @@ namespace MnM.GWS
 
             Settings.PenID = Pen.ID;
             (Pen as ISettings)?.CopySettings(Settings);
-            if(shape is IBackgroundPen)
-                (((IBackgroundPen)shape).BackgroundPen as ISettings)?.CopySettings(Settings);
+
+            if(shape is IBackground)
+                (((IBackground)shape).Background as ISettings)?.CopySettings(Settings);
+
             return Pen;
         }
         #endregion
@@ -238,7 +142,8 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(int x1, int y1, int x2, int y2, PixelAction<int> action, LineCommand command, SlopeType skip = SlopeType.None)
+        public static void ProcessLine(int x1, int y1, int x2, int y2, PixelAction<int> action, 
+            LineCommand command, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (skip == SlopeType.Both)
                 return;
@@ -246,7 +151,7 @@ namespace MnM.GWS
             if (type == LineType.Point || nskip == skip)
                 return;
             if (!Lines.DrawParams(x1, y1, x2, y2, out bool horizontalScan, out int m,
-                out int step, out int min, out int max, out int value))
+                out int step, out int min, out int max, out int value, clip))
                 return;
             var Draw = command;
             Draw &= ~LineCommand.Breshenham;
@@ -311,7 +216,8 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(float x1, float y1, float x2, float y2, PixelAction<float> action, LineCommand command, SlopeType skip = SlopeType.None)
+        public static void ProcessLine(float x1, float y1, float x2, float y2, PixelAction<float> action,
+            LineCommand command, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (skip == SlopeType.Both)
                 return;
@@ -323,12 +229,12 @@ namespace MnM.GWS
 
             if (type == LineType.Horizontal || type == LineType.Vertical)
             {
-                ProcessLine(x1.Ceiling(), y1.Ceiling(), x2.Ceiling(), y2.Ceiling(), action.ToIntPixelAction(), command);
+                ProcessLine(x1.Ceiling(), y1.Ceiling(), x2.Ceiling(), y2.Ceiling(), action.ToIntPixelAction(), command, 0, clip);
                 return;
             }
 
             if (!Lines.DrawParams(x1, y1, x2, y2, horizontalScan, false, out float m,
-                out int step, out int min, out int max, out float val, out _))
+                out int step, out int min, out int max, out float val, out _, clip))
                 return;
             var Draw = command;
             Draw &= ~LineCommand.Breshenham;
@@ -3021,7 +2927,7 @@ namespace MnM.GWS
                 return;
 
             IBezier bezier = Factory.newBezier(type, pts.ToArray(), default(IList<VectorF>));
-            bezier.Render(buffer, context);
+            buffer.Render(bezier, context);
         }
         #endregion
 
@@ -3043,7 +2949,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             ITriangle triangle = Factory.newTriangle(x1, y1, x2, y2, x3, y3);
-            triangle.Render(buffer, context);
+            buffer.Render(triangle, context);
         }
         #endregion
 
@@ -3060,7 +2966,8 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             IList<VectorF> points = polyPoints.ToPoints();
-            Factory.newShape(points, "Polygon").Render(buffer, context);
+            var polygon = Factory.newShape(points, "Polygon");
+            buffer.Render(polygon, context);
         }
         #endregion
 
@@ -3080,7 +2987,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             IBoxF box = Factory.newBoxF(x, y, width, height);
-            box.Render(buffer, context);
+            buffer.Render(box, context);
         }
         #endregion
 
@@ -3102,9 +3009,8 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
 
-            var pts = Curves.RoundedBoxPoints(x, y, width, height, cornerRadius);
-            var shape = Factory.newShape(pts, "RoundBox");
-            shape.Render(buffer, context);
+            var shape = Factory.newRoundBox(x, y, width, height, cornerRadius);
+            buffer.Render(shape, context);
         }
         #endregion
 
@@ -3135,7 +3041,7 @@ namespace MnM.GWS
         static void RenderRhombus(this IBuffer buffer, VectorF first, VectorF second, VectorF third, IReadContext context)
         {
             var rhombus = Factory.newTetragon(first, second, third);
-            rhombus.Render(buffer, context);
+            buffer.Render(rhombus, context);
         }
         #endregion
 
@@ -3153,7 +3059,7 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             ITetragon trapezium = Factory.newTetragon(baseLine, deviation, buffer.Settings.StrokeMode, skeyBy);
-            trapezium.Render(buffer, context);
+            buffer.Render(trapezium, context);
         }
         #endregion
     }
@@ -3226,11 +3132,11 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         /// If current stroke value is other than 0, it results in a rendering of a trapezium instead of the line</param>
-        public static void Process(this ILine line, PixelAction<float> action, LineCommand lineCommand, SlopeType skip = SlopeType.None)
+        public static void Process(this ILine line, PixelAction<float> action, LineCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (line == null || !line.Valid)
                 return;
-            ProcessLine(line.X1, line.Y1, line.X2, line.Y2, action, lineCommand, skip);
+            ProcessLine(line.X1, line.Y1, line.X2, line.Y2, action, lineCommand, skip, clip);
         }
 
         /// <summary>
@@ -3240,11 +3146,11 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         /// If current stroke is other than 0, it results in a rendering of a trapezium instead of the line</param>
-        public static void Process(this ILine line, PixelAction<int> action, LineCommand lineCommand, SlopeType skip = SlopeType.None)
+        public static void Process(this ILine line, PixelAction<int> action, LineCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (line == null || !line.Valid)
                 return;
-            ProcessLine(line.X1.Round(), line.Y1.Round(), line.X2.Round(), line.Y2.Round(), action, lineCommand, skip);
+            ProcessLine(line.X1.Round(), line.Y1.Round(), line.X2.Round(), line.Y2.Round(), action, lineCommand, skip, clip);
         }
 
         /// <summary>
@@ -3256,9 +3162,9 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A Vector action delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(int x1, int y1, int x2, int y2, VectorAction<int> action, LineCommand lineCommand)
+        public static void ProcessLine(int x1, int y1, int x2, int y2, VectorAction<int> action, LineCommand lineCommand, Size clip = default(Size))
         {
-            ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand);
+            ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand, 0, clip);
         }
 
         /// <summary>
@@ -3270,9 +3176,9 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A Vector action delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(float x1, float y1, float x2, float y2, VectorAction<float> action, LineCommand lineCommand)
+        public static void ProcessLine(float x1, float y1, float x2, float y2, VectorAction<float> action, LineCommand lineCommand, Size clip = default(Size))
         {
-            ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand);
+            ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand, 0, clip);
         }
         #endregion
 
@@ -3284,13 +3190,13 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Process(this IEnumerable<ILine> lines, PixelAction<float> action, LineCommand lineCommand, SlopeType skip = SlopeType.None)
+        public static void Process(this IEnumerable<ILine> lines, PixelAction<float> action, LineCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (lines == null || skip == SlopeType.Both)
                 return;
 
             foreach (var l in lines)
-                Process(l, action, lineCommand, skip);
+                Process(l, action, lineCommand, skip, clip);
         }
         #endregion
 

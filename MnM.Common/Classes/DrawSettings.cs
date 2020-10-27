@@ -6,7 +6,12 @@
 namespace MnM.GWS
 {
 #if(GWS || Window)
-    public class DrawSettings : IDrawSettings
+    public class DrawSettings :
+#if Advancd
+        IDrawSettings2
+#else
+        IDrawSettings
+#endif
     {
         #region VARIABLES
         protected DrawCommand drawCommand;
@@ -22,7 +27,8 @@ namespace MnM.GWS
 
         protected string bufferID;
         protected string penID, shapeID;
-#endregion
+        public readonly static DrawSettings Default = new DrawSettings();
+        #endregion
 
         #region CONSTRUCTORS
         public DrawSettings()
@@ -55,7 +61,7 @@ namespace MnM.GWS
                     value &= ~DrawCommand.Permanent;
                     previousDrawCommand = value;
                 }
-                drawCommand =  value;
+                drawCommand = value;
                 SyncDrawCommand();
             }
         }
@@ -145,6 +151,10 @@ namespace MnM.GWS
         }
         public Rectangle Bounds { get; set; }
         public virtual Rectangle RecentlyDrawn { get; protected set; }
+#if Advanced
+        public virtual bool Clipped => ClipRect;
+        public virtual Rectangle ClipRect { get; set; }
+#endif
         int IID<int>.ID => 0;
         #endregion
 
@@ -202,7 +212,7 @@ namespace MnM.GWS
                 Rotation = info.Rotation;
                 RecentlyDrawn = info.RecentlyDrawn;
             }
-            if(settings is IRenderInfo)
+            if (settings is IRenderInfo)
             {
                 var info = settings as IRenderInfo;
                 fillCommand = calculatedFillCommand = info.FillCommand;
@@ -227,7 +237,7 @@ namespace MnM.GWS
             penID = null;
             bufferID = null;
             Clip = Size.Empty;
-            
+
             brushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
 
             if (FreezeSettings)

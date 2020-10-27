@@ -175,9 +175,7 @@ namespace MnM.GWS.Desktop
         #endregion
 
         #region PUSH EVENT
-        public virtual void PushEvent(IEventInfo e)
-        {
-        }
+        public virtual void PushEvent(IEventInfo e) { }
         public event EventHandler<IEventInfo> EventPushed;
         #endregion
 

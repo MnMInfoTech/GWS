@@ -20,6 +20,7 @@ namespace MnM.GWS
         public float X, Y, Width, Height;
         byte valid;
         public static RectangleF Empty = new RectangleF();
+        static string description = "X: {0}, Y: {1}, W: {2}, H: {3}";
         #endregion
 
         #region CONSTRUCTORS
@@ -159,6 +160,12 @@ namespace MnM.GWS
             return !a.Equals(b);
         }
         #endregion
+
+        public override string ToString()
+        {
+            return string.Format(description, X, Y, Width, Height);
+        }
+
     }
 #endif
 }

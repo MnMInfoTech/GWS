@@ -27,7 +27,8 @@ namespace MnM.GWS
     /// Represents smallest writable and copiable memory block object which can also render shapes.
     /// Settings property of this object controls the flow of writing and rendering data.
     /// </summary>
-    public interface IBuffer : IBlock, IID, IDrawController, IDisposed, ICloneable
+    public interface IBuffer : IBlock, IID, IDisposed, ICloneable
+        , IDrawController
 #if Advanced
         , IElementFinder, IObjectDrawer
 #endif
@@ -43,6 +44,14 @@ namespace MnM.GWS
         /// </summary>
         unsafe byte* SourceAlphas { set; }
 #endif
+
+        /// <summary>
+        /// Renders specified shape on this buffer with specified reading context.
+        /// </summary>
+        /// <param name="shape">Shape to render on the buffer.</param>
+        /// <param name="readContext">A pen context which to create a buffer pen from.</param>
+        /// <returns>Result pen - an instance of IPen.</returns>
+        IPen Render(IShape shape, IReadContext readContext);
     }
     #endregion
 
@@ -104,16 +113,6 @@ namespace MnM.GWS
         /// Gets or sets background for this object.
         /// </summary>
         IReadContext Background { get; set; }
-    }
-    #endregion
-
-    #region IBACKGROUNDPEN
-    public interface IBackgroundPen
-    {
-        /// <summary>
-        /// Gets or sets background for this object.
-        /// </summary>
-        IPen BackgroundPen { get; }
     }
     #endregion
 
