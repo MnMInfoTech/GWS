@@ -1068,7 +1068,7 @@ namespace MnM.GWS
         /// this lets user to pass something like new shape(....) and then used it further more.
         /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
         /// </returns>
-        U Add<U>(U shape, IReadContext context) where U : T;
+        U Add<U>(U shape, IContext context) where U : T;
 
         /// <summary>
         /// Add object to collection (if allowed).
@@ -1110,9 +1110,9 @@ namespace MnM.GWS
         /// <param name="shape">The element for which the drawing information is sought for</param>
         /// <returns></returns>
 #if Advanced
-        IDrawInfo2
+        IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             this[IRenderable shape]
         { get; }
@@ -1130,9 +1130,9 @@ namespace MnM.GWS
         IEnumerable<IRenderable> Items { get; }
 
 #if Advanced
-        IEnumerable<IDrawInfo2>
+        IEnumerable<IRenderInfo2>
 #else
-        IEnumerable<IDrawInfo>
+        IEnumerable<IRenderInfo>
 #endif
             InfoItems
         { get; }
@@ -1153,9 +1153,9 @@ namespace MnM.GWS
         /// <param name="shape">Element - which draw information is sought for.</param>
         /// <returns></returns>
 #if Advanced
-        IDrawInfo2
+        IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             NewDrawInfo(IRenderable shape);
 
@@ -1165,9 +1165,9 @@ namespace MnM.GWS
         /// <param name="shapeID">ID of an element - which drawing information object is sought for.</param>
         /// <returns>IDrawInfo object.</returns>
 #if Advanced
-        IDrawInfo2
+        IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             NewDrawInfo(string shapeID);
 
@@ -1177,9 +1177,9 @@ namespace MnM.GWS
         /// <param name="shape">Element - which draw information is sought for.</param>
         /// <returns></returns>
 #if Advanced
-        IDrawInfo2
+        IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
         GetInfo(string shape);
 
@@ -1203,9 +1203,9 @@ namespace MnM.GWS
         /// <returns></returns>
         IEnumerable<T> Query<T>(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition) where T : IRenderable;
 
@@ -1216,9 +1216,9 @@ namespace MnM.GWS
         /// <returns></returns>
         IList<IDrawnInfo> QueryDraw(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition);
 
@@ -1230,9 +1230,9 @@ namespace MnM.GWS
         /// <returns></returns>
         T QueryFirst<T>(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition) where T : IRenderable;
 
@@ -1243,9 +1243,9 @@ namespace MnM.GWS
         /// <returns></returns>
         IDrawnInfo QueryFirstDraw(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition);
 
@@ -1284,9 +1284,9 @@ namespace MnM.GWS
         /// <summary>
         /// Adds new buffer in the collection.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="Canvas">If true, creates and adds ICanvas instance otherwise ISurface instance.</param>
         /// <returns></returns>
-        int AddBuffer();
+        int AddBuffer(bool Canvas = false);
 
         /// <summary>
         /// Removes buffer from the collection at a given buffer index.
@@ -1317,18 +1317,18 @@ namespace MnM.GWS
         void RemoveBuffers();
     }
 
-    public interface IBufferCollection : IBuffers, IEnumerable<ICanvas>, IDisposable
+    public interface IBufferCollection : IBuffers, IEnumerable<ISurface>, IDisposable
     {
         /// <summary>
         /// Gets the active buffer in this collection now.
         /// </summary>
-        ICanvas Current { get; }
-        
+        ISurface Current { get; }
+
         /// <summary>
         /// Lets user to change the primary buffer held in this object. Please note that it is not a part of collection itself.
         /// </summary>
         /// <param name="primary">The buffer intended to be the primary buffer for this collection</param>
-        void ChangePrimary(ICanvas primary);
+        void ChangePrimary(ISurface primary);
 
         /// <summary>
         /// This event gets invoked whenever curret active buffer gets changed.

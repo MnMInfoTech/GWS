@@ -132,6 +132,18 @@ namespace MnM.GWS
         ICanvas newCanvas(IRenderTarget window);
         #endregion
 
+        #region RENDER TARGET
+#if Window
+        IRenderTarget newRenderTarget(IRenderWindow window);
+#endif
+        #endregion
+
+        #region FORM
+#if NATIVE
+        IForm newForm(int x, int y, int w, int h);
+#endif
+        #endregion
+
         #region BRUSH - PEN
         /// <summary>
         /// Creates a new brush of certain width and height using specified fill style.
@@ -156,7 +168,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        IPen newPen(int color);
+        IReadable newPen(int color);
         #endregion
 
         #region TO PEN
@@ -167,11 +179,11 @@ namespace MnM.GWS
         /// <param name="w">Width of IPen instance. Will be default if not supplied.</param>
         /// <param name="h">Height of IPen instance. Will be default if not supplied.</param>
         /// <returns>IPen</returns>
-        IPen ToPen(IReadContext context, int? w = null, int? h = null);
+        IReadable ToPen(IPenContext context, int? w = null, int? h = null);
         #endregion
 
         #region OBJECT COLLECTION
-        IObjCollection newObjectCollection(IBuffer buffer);
+        IObjCollection newObjectCollection(IWritable buffer);
         #endregion
 
         #region BUFFER COLLECTION
@@ -189,7 +201,7 @@ namespace MnM.GWS
         /// If no null value is provided then ChangePrimary method will not be able to change the primary buffer value.
         /// As we have already provided dedicated primary buffer here.</param>
         /// <returns>IBufferCollection</returns>
-        IBufferCollection newBufferCollection(ICanvas primary);
+        IBufferCollection newBufferCollection(ISurface primary);
 
         /// <summary>
         /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
@@ -198,6 +210,15 @@ namespace MnM.GWS
         /// <returns></returns>
         IBufferCollection newBufferCollection(int capacity);
 #endif
+        #endregion
+
+        #region RENDER INFO
+#if Advanced
+        IRenderInfo2
+#else
+        IRenderInfo
+#endif
+        newRenderInfo(string shapeID);
         #endregion
 
         #region POLY FILL
@@ -259,7 +280,7 @@ namespace MnM.GWS
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         /// <param name="rotation">Angle to apply rotation while rendering the arc/pie</param>
-        ICurve newCurve(float x, float y, float width, float height, 
+        ICurve newCurve(float x, float y, float width, float height,
             float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF));
 
         /// <summary>
@@ -494,7 +515,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="externalWindow">External window</param>
         /// <returns></returns>
-        IWindow newWindow(IWindowControl externalWindow);
+        IWindow newWindow(IExternalWindow externalWindow);
         #endregion
 
         #region OPENGL CONTEXT
@@ -554,7 +575,7 @@ namespace MnM.GWS
         /// <param name="isPrimary">Defines if its a primary one for the window</param>
         /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
         /// <returns></returns>
-        ITexture newTexture(IHost window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null);
+        ITexture newTexture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null);
 
         /// <summary>
         /// Crates a new texture from a given window. Then copies dat from given buffer.
@@ -564,7 +585,7 @@ namespace MnM.GWS
         /// <param name="isPrimary">Define if its a primary one for the window</param>
         /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
         /// <returns></returns>
-        ITexture newTexture(IHost window, ICopyable source, bool isPrimary = false, TextureAccess? textureAccess = null);
+        ITexture newTexture(IRenderWindow window, ICopyable source, bool isPrimary = false, TextureAccess? textureAccess = null);
         #endregion
 
         #region SET CURSOR POSITION

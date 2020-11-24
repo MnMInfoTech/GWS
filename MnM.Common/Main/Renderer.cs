@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Claims;
 
 namespace MnM.GWS
 {
@@ -16,99 +15,6 @@ namespace MnM.GWS
     {
         #region INSTANCE VARIABLE
         internal const bool Initialize = true;
-        #endregion
-
-        #region RENDER
-        /// <summary>
-        /// Renders any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IDrawable
-        /// 2. IShape
-        /// 3. IFigurable
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
-        /// Once you have handled it return true otherwise false.
-        /// </summary>
-        /// <param name="renderable">Renderable object which is to be rendered</param>
-        /// <param name="readContext">A pen context which to create a buffer pen from</param>
-        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        public static void Render(this IBuffer buffer, IFigurable figure, IReadContext readContext = null)
-        {
-            IPen Pen = null;
-            IReadContext context = readContext;
-
-            if (buffer is IRenderSession)
-                ((IRenderSession)buffer).Begin(figure, out Pen);
-
-            if (Pen != null) context = Pen;
-
-            if (figure is IDrawable)
-            {
-                var drawable = (IDrawable)figure;
-                if (drawable.Draw(buffer, context, out Pen))
-                {
-                    goto End;
-                }
-                var shape = figure.Figure();
-                if (shape == null)
-                    return;
-
-                IShape Shape = (shape is IShape) ? (IShape)shape : Factory.newShape(shape, (drawable as IRecognizable)?.Name ?? "Shape");
-                Pen = buffer.Render(Shape, context);
-            }
-            else if(figure is IShape)
-                Pen = buffer.Render((IShape)figure, context);
-
-            End:
-            if (buffer is IRenderSession)
-                ((IRenderSession)buffer).End(figure, Pen);
-        }
-        #endregion
-
-        #region GET PEN
-        /// <summary>
-        /// Gets an existing pen or creates one matching the size of the shape which is to be rendered.
-        /// </summary>
-        /// <param name="shape">An element for which buffer pen is required</param>
-        /// <param name="context">A pen context which to create a buffer pen from</param>
-        /// <returns>Buffer pen</returns>
-        public static IPen GetPen(this IDrawSettings Settings, IRenderable shape, IReadContext context, RectangleF? suppliedBounds = null)
-        {
-            bool enabled = true;
-            IPen Pen;
-
-            if (shape is IVisible2)
-                enabled = (shape as IVisible2).Enabled;
-
-            if (!enabled)
-            {
-                Pen = Pens.DisabledPen;
-                return Pen;
-            }
-            var rc = suppliedBounds ?? shape.Bounds;
-            Settings.Bounds = rc.Expand();
-
-            if (Settings.Clip)
-                Settings.Bounds = Settings.Bounds.Clamp(Settings.Clip);
-            else
-                Settings.Bounds = Settings.Bounds.Clamp(Vectors.UHD8kWidth, Vectors.UHD8kHeight);
-
-            var w = Settings.Bounds.Width + 1;
-            var h = Settings.Bounds.Height + 1;
-
-            IReadContext penContext = context ?? Settings.Foreground ?? BrushStyle.Black;
-
-            Pen = penContext.ToPen(w, h);
-
-            if (shape is IRotatable)
-                Settings.Rotation = (shape as IRotatable).Rotation;
-
-            Settings.PenID = Pen.ID;
-            (Pen as ISettings)?.CopySettings(Settings);
-
-            if(shape is IBackground)
-                (((IBackground)shape).Background as ISettings)?.CopySettings(Settings);
-
-            return Pen;
-        }
         #endregion
 
         #region FILL
@@ -120,13 +26,14 @@ namespace MnM.GWS
         /// <param name="y">Far top position to consider for filling</param>
         /// <param name="bottom">Far bottom position to consider for filling</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Fill(this IEnumerable<ILine> lines, FillAction<float> action, int y, int bottom, FillCommand command, LineCommand lineCommand)
+        public static void Fill(this IEnumerable<ILine> lines, FillAction<float> action, int y, int bottom, DrawCommand command)
         {
             using (var polyFill = Factory.newPolyFill())
             {
-                polyFill.Begin(y, bottom, command | FillCommand.OddEvenPolyFill);
+                polyFill.Begin(y, bottom);
+                polyFill.Command = command | DrawCommand.OddEvenPolyFill;
                 polyFill.Scan(lines);
-                polyFill.Fill(action, lineCommand);
+                polyFill.Fill(action);
             }
         }
         #endregion
@@ -142,8 +49,8 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(int x1, int y1, int x2, int y2, PixelAction<int> action, 
-            LineCommand command, SlopeType skip = SlopeType.None, Size clip = default(Size))
+        public static void ProcessLine(int x1, int y1, int x2, int y2, PixelAction<int> action,
+            DrawCommand command, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (skip == SlopeType.Both)
                 return;
@@ -154,57 +61,61 @@ namespace MnM.GWS
                 out int step, out int min, out int max, out int value, clip))
                 return;
             var Draw = command;
-            Draw &= ~LineCommand.Breshenham;
-            Draw &= ~LineCommand.Distinct;
+            Draw &= ~DrawCommand.Breshenham;
+            Draw &= ~DrawCommand.Distinct;
+            var Dot = Draw.HasFlag(DrawCommand.Dot);
+            var Dash = Draw.HasFlag(DrawCommand.Dash);
+            var DashDotDot = Draw.HasFlag(DrawCommand.DashDotDash);
+
             int i = 0;
 
             while (min != max)
             {
                 var val = value >> Vectors.BigExp;
-                switch (Draw)
+                if (Dot)
                 {
-                    case LineCommand.Dot:
-                        if (i == 0)
-                        {
-                            action(val, min, horizontalScan);
-                            i = 1;
-                        }
-                        else
-                            i = 0;
-                        break;
-                    case LineCommand.Dash:
-                        if (i < 2)
-                        {
-                            action(val, min, horizontalScan);
-                            ++i;
-                        }
-                        else if (i == 3)
-                            i = 0;
-                        else
-                            ++i;
-                        break;
-                    case LineCommand.DashDotDash:
-                        if (i < 2)
-                        {
-                            action(val, min, horizontalScan);
-                            ++i;
-                        }
-                        else if (i == 3)
-                        {
-                            action(val, min, horizontalScan);
-                            i = 0;
-                        }
-                        else
-                            ++i;
-                        break;
-                    default:
-                        action(val, min, horizontalScan);
-                        break;
+                    if (i == 0)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        i = 1;
+                    }
+                    else
+                        i = 0;
                 }
+                else if (Dash)
+                {
+                    if (i < 2)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        ++i;
+                    }
+                    else if (i == 3)
+                        i = 0;
+                    else
+                        ++i;
+                }
+                else if (DashDotDot)
+                {
+                    if (i < 2)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        ++i;
+                    }
+                    else if (i == 3)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        i = 0;
+                    }
+                    else
+                        ++i;
+                }
+                else
+                    action(val, min, horizontalScan, Draw);
+
                 value += m;
                 min += step;
             }
-            action(value >> Vectors.BigExp, min, horizontalScan);
+            action(value >> Vectors.BigExp, min, horizontalScan, Draw);
         }
 
         /// <summary>
@@ -217,7 +128,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ProcessLine(float x1, float y1, float x2, float y2, PixelAction<float> action,
-            LineCommand command, SlopeType skip = SlopeType.None, Size clip = default(Size))
+            DrawCommand command, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (skip == SlopeType.Both)
                 return;
@@ -237,56 +148,61 @@ namespace MnM.GWS
                 out int step, out int min, out int max, out float val, out _, clip))
                 return;
             var Draw = command;
-            Draw &= ~LineCommand.Breshenham;
-            Draw &= ~LineCommand.Distinct;
+            Draw &= ~DrawCommand.Breshenham;
+            Draw &= ~DrawCommand.Distinct;
 
+            var Dot = Draw.HasFlag(DrawCommand.Dot);
+            var Dash = Draw.HasFlag(DrawCommand.Dash);
+            var DashDotDot = Draw.HasFlag(DrawCommand.DashDotDash);
             int i = 0;
             while (min != max)
             {
-                switch (Draw)
+                if (Dot)
                 {
-                    case LineCommand.Dot:
-                        if (i == 0)
-                        {
-                            action(val, min, horizontalScan);
-                            i = 1;
-                        }
-                        else
-                            i = 0;
-                        break;
-                    case LineCommand.Dash:
-                        if (i < 2)
-                        {
-                            action(val, min, horizontalScan);
-                            ++i;
-                        }
-                        else if (i == 3)
-                            i = 0;
-                        else
-                            ++i;
-                        break;
-                    case LineCommand.DashDotDash:
-                        if (i < 2)
-                        {
-                            action(val, min, horizontalScan);
-                            ++i;
-                        }
-                        else if (i == 3)
-                        {
-                            action(val, min, horizontalScan);
-                            i = 0;
-                        }
-                        else
-                            ++i;
-                        break;
-                    default:
-                        action(val, min, horizontalScan);
-                        break;
+                    if (i == 0)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        i = 1;
+                    }
+                    else
+                        i = 0;
+                }
+                else if (Dash)
+                {
+                    if (i < 2)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        ++i;
+                    }
+                    else if (i == 3)
+                        i = 0;
+                    else
+                        ++i;
+                }
+                else if (DashDotDot)
+                {
+                    if (i < 2)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        ++i;
+                    }
+                    else if (i == 3)
+                    {
+                        action(val, min, horizontalScan, Draw);
+                        i = 0;
+                    }
+                    else
+                        ++i;
+                }
+                else
+                {
+                    action(val, min, horizontalScan, Draw);
                 }
                 val += m;
                 min += step;
             }
-            action(val, min, horizontalScan);
+
+            action(val, min, horizontalScan, Draw);
         }
         #endregion
 
@@ -324,7 +240,7 @@ namespace MnM.GWS
                     val += m;
                     min += step;
                 }
-                action(val, min, horizontalScan);
+                action(val, min, horizontalScan, 0);
 
                 if (!negative)
                 {
@@ -435,7 +351,7 @@ namespace MnM.GWS
         /// <param name="Outer"></param>
         /// <param name="Inner"></param>
         /// <returns></returns>
-        public static IList<ILine>[] GetDrawParams(FillMode fillMode, FillCommand fillCommand, float Stroke, string ShapeName,
+        public static IList<ILine>[] GetDrawParams(FillMode fillMode, DrawCommand fillCommand, float Stroke, string ShapeName,
             IEnumerable<VectorF> Original, IList<VectorF> Outer, IList<VectorF> Inner)
         {
             var mode = fillMode;
@@ -497,7 +413,7 @@ namespace MnM.GWS
                     Data[1] = outer;
                     Data[3] = inner;
 
-                    if (fillCommand.HasFlag(FillCommand.Outlininig))
+                    if (fillCommand.HasFlag(DrawCommand.Outlininig))
                     {
                         switch (ShapeName)
                         {
@@ -568,9 +484,211 @@ namespace MnM.GWS
         }
         #endregion
     }
-
     partial class Renderer
     {
+        #region GET PEN
+        /// <summary>
+        /// Gets an appropriate pen to render the given shape.
+        /// </summary>
+        /// <param name="buffer">Buffer with background.</param>
+        /// <param name="shape">Shape which to get a pen for.</param>
+        /// <param name="Settings">RenderInfo object.</param>
+        /// <param name="suppliedBounds">If supplied, size of pen is that of size of boounds otherwise, it will be size of bounds of shape.</param>
+        /// <param name="suppliedBounds"></param>
+        /// <param name="Control"></param>
+        /// <returns></returns>
+        public static IReadable GetPen(this IWritable buffer, IRenderable shape, IRenderInfo Settings, RectangleF? suppliedBounds = null)
+        {
+            IReadable Pen;
+
+            var rc = suppliedBounds ?? shape.Bounds;
+            Settings.Bounds = rc.Expand();
+
+            if (Settings.Clip)
+                Settings.Bounds = Settings.Bounds.Clamp(Settings.Clip);
+            else
+                Settings.Bounds = Settings.Bounds.Clamp(Vectors.UHD8kWidth, Vectors.UHD8kHeight);
+
+            var w = Settings.Bounds.Width + 1;
+            var h = Settings.Bounds.Height + 1;
+
+#if Advanced
+            if(buffer is IObjectAware)
+            {
+                var renderer = ((IObjectAware)buffer);
+                if (renderer.Control != null)
+                    return renderer.Control.GetPen(Settings);
+            }
+#endif
+
+            IPenContext PenContext = Settings.Foreground;
+            bool Inverted = false;
+
+            if (PenContext != null)
+                goto mks;
+
+            if (PenContext == null && buffer is IBackground)
+            {
+                PenContext = ((IBackground)buffer).BackgroundPen;
+                Inverted = true;
+            }
+
+        mks:
+            Pen = PenContext.ToPen(w, h);
+            if (shape is IRotatable)
+                Settings.Rotation = (shape as IRotatable).Rotation;
+
+            (Pen as ISettings)?.CopySettings(Settings);
+            if (Inverted)
+                Pen.Invert = true;
+            Settings.Foreground = Pen;
+            return Pen;
+        }
+
+        /// <summary>
+        /// Returs current pen appropriated according to the current state of object.
+        /// </summary>
+        /// <returns>IPen</returns>
+        /// <param name="Control">Control which to get an appropriate pen for.</param>
+        /// <param name="Settings">Render settings to be used to get th pen. </param>
+        /// <returns></returns>
+        public static IReadable GetPen(this ISelfDrawable Control, IRenderInfo Settings)
+        {
+            IReadable Pen = null;
+
+            bool UsingParentPen = false;
+            bool UsingTargetPen = false;
+            bool HoverEffect = false;
+            bool DrawingForeground = false;
+            bool Invert = false;
+            bool FollowWritingPosition = false;
+
+#if Advanced
+            HoverEffect = (Settings.Command & DrawCommand.HoverEffect) == DrawCommand.HoverEffect;
+            DrawingForeground = (Settings.Command & DrawCommand.DrawingObjectForeground) == DrawCommand.DrawingObjectForeground;
+            Invert = (Control.BackgroundType & BackgroundType.Invert) == BackgroundType.Invert;
+            FollowWritingPosition = (Settings.Command & DrawCommand.BrushFollowCanvas) == DrawCommand.BrushFollowCanvas;        
+#endif
+            if (HoverEffect)
+            {
+                if (Control is IHoverBackground)
+                    Pen = ((IHoverBackground)Control).HoverBackgroundPen;
+                else
+                    Pen = ((IHoverForeground)Control).HoverForegroundPen;
+            }
+            else
+            {
+                if (DrawingForeground)
+                    Pen = Control.ForegroundPen;
+                else
+                    Pen = Control.BackgroundPen;
+            }
+            if (Pen == null)
+            {
+                if (HoverEffect)
+                {
+                    Pen = DrawingForeground ? Pens.MidnightBlue : Pens.LightSkyBlue;
+                }
+                else
+                {
+                    Pen = (Control.Window as IBackground)?.BackgroundPen;
+#if Advanced
+                    if (Invert)
+                    {
+                        Pen = Control.Window.Target;
+                        UsingTargetPen = true;
+                    }
+#endif
+                }
+                UsingParentPen = true;
+            }
+
+            if (Control is IRotatable)
+                Settings.Rotation = ((IRotatable)Control).Rotation;
+
+#if Advanced
+            Settings.Command |= DrawCommand.NoBrushAutoSizing;
+            Settings.Command |= DrawCommand.NoBrushAutoPositioning;
+
+            if (FollowWritingPosition)
+                Settings.Command |= DrawCommand.BrushFollowCanvas;
+#endif
+            (Pen as ISettings)?.CopySettings(Settings);
+
+            if (Pen == null)
+                Pen = Pens.White;
+
+            if ((!DrawingForeground && !HoverEffect && UsingParentPen) || (UsingTargetPen && DrawingForeground))
+                Pen.Invert = true;
+            else
+                Pen.Invert = false;
+
+            Settings.Foreground = Pen;
+            return Pen;
+        }
+        #endregion
+
+        #region GET SETTINGS
+        public static
+#if Advanced
+            IRenderInfo2 
+#else
+            IRenderInfo
+#endif
+            GetSettings(this IWritable buffer, IContext context, string shapeID)
+        {
+#if Advanced
+            IRenderInfo2 
+#else
+            IRenderInfo
+#endif
+            Settings = null;
+            Rectangle? ExistingRc = null;
+
+            if (buffer is IContainer)
+            {
+                var Controls = ((IContainer)(buffer)).Objects;
+                if (Controls.Contains(shapeID))
+                {
+                    Settings = Controls.GetInfo(shapeID);
+                    ExistingRc = Settings.RecentlyDrawn;
+                }
+            }
+            if (Settings == null)
+            {
+#if Advanced
+                if (context is IRenderInfo2)
+                    Settings = (IRenderInfo2)context;
+#else
+                if (context is IRenderInfo)
+                    Settings = (IRenderInfo)context;
+#endif
+                if (Settings == null)
+                    Settings = Factory.newRenderInfo(shapeID);
+            }
+
+#if Advanced
+            if (!Settings.Visible)
+                Settings.Command |= DrawCommand.InvisibleControl;
+
+            if (!Settings.Enabled)
+                Settings.Command |= DrawCommand.DisableControl;
+#endif
+            if (context is ISettable && context != Settings)
+            {
+                Settings.CopySettings((ISettable)context);
+                if (ExistingRc != null)
+                    Settings.RecentlyDrawn = ExistingRc.Value;
+            }
+
+            Settings.Clip = new Size(buffer.Width, buffer.Height);
+
+            if (context is IPenContext)
+                Settings.Foreground = (IPenContext)context;
+            return Settings;
+        }
+        #endregion
+
         #region READ PIXEL
         /// <summary>
         /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
@@ -647,70 +765,42 @@ namespace MnM.GWS
 
         #region WRITE PIXEL
         /// <summary>
-        /// Writes pixel to this block at given axial position using specified color.
-        /// </summary>
-        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
-        /// <param name="axis">Position on axis - X cordinate if horizontal otherwise Y.</param>
-        /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
-        /// <param name="color">colour of pixel.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IBuffer buffer, float val, int axis, bool horizontal, int color)
-        {
-            int intVal = (int)val;
-
-            float alpha = val - intVal;
-
-            if (alpha == 0 || !buffer.Antialiased)
-            {
-                buffer.WritePixel(intVal, axis, horizontal, color, null);
-                return;
-            }
-
-            int x = horizontal ? intVal : axis;
-            int y = horizontal ? axis : intVal;
-
-            if (horizontal)
-            {
-                buffer.WritePixel(x, y, true, color, 1 - alpha);
-                buffer.WritePixel(x + 1, y, true, color, alpha);
-            }
-            else
-            {
-                buffer.WritePixel(y, x, false, color, 1 - alpha);
-                buffer.WritePixel(y + 1, x, false, color, alpha);
-            }
-        }
-
-        /// <summary>
         /// Writes pixel to the this block at given co-ordinates of location using specified color.
         /// </summary>
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="x">X cordinate on 2d buffer memory block</param>
         /// <param name="y">Y cordinate on 2d buffer memory block</param>
         /// <param name="color">colour of pixel.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="CalculateOnly">If true it just notifies the area to be affcted with this operation but does not write pixel.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IBuffer buffer, float x, float y, int color)
+        public static void WritePixel(this IWritable buffer, float x, float y, int color, int dstOffsetX, int dstOffsetY, DrawCommand command)
         {
+            x += dstOffsetX;
+            y += dstOffsetY;
+
             int x0 = (int)x;
             int y0 = (int)y;
 
-            float alpha1 = x - x0;
-            float alpha2 = y - y0;
-            bool aa = !buffer.Settings.LineCommand.HasFlag(LineCommand.Breshenham);
+            bool Antialiased = !command.HasFlag(DrawCommand.Breshenham);
 
-            if (alpha1 == 0 && alpha2 == 0 || !aa)
+            if (!Antialiased)
             {
-                buffer.WritePixel(x0, y0, true, color);
+                buffer.WritePixel(x0, y0, true, color, null, command);
                 return;
             }
+
+            float alpha1 = x - x0;
+            float alpha2 = y - y0;
 
             if (alpha1 == 0 || alpha2 == 0)
             {
                 bool horizontal = alpha1 != 0 ? true : false;
                 if (horizontal)
-                    buffer.WritePixel(x, y0, true, color);
+                    buffer.WritePixel(x, y0, true, color, 0, 0, command);
                 else
-                    buffer.WritePixel(y, x0, false, color);
+                    buffer.WritePixel(y, x0, false, color, 0, 0, command);
                 return;
             }
             else
@@ -718,11 +808,147 @@ namespace MnM.GWS
                 var invAlpha1 = 1 - alpha1;
                 var invAlpha2 = 1 - alpha2;
 
-                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2);
-                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2);
-                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2);
-                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2);
+                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, command);
+                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, command);
+                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, command);
+                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, command);
             }
+        }
+
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="color">colour of pixel.</param>
+        ///<param name="Antialiased">If false, writes pixel without antialiasing correction.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="CalculateOnly">If true it just notifies the area to be affcted with this operation but does not write pixel.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color,
+            int dstOffsetX, int dstOffsetY, DrawCommand command)
+        {
+            int intVal = (int)val;
+
+            float alpha = val - intVal;
+
+            int x = horizontal ? intVal : axis;
+            int y = horizontal ? axis : intVal;
+
+            x += dstOffsetX;
+            y += dstOffsetY;
+            bool Antialiased = !command.HasFlag(DrawCommand.Breshenham);
+
+            if (alpha == 0 || !Antialiased)
+            {
+                buffer.WritePixel(x, y, true, color, null, command);
+                return;
+            }
+
+            if (horizontal)
+            {
+                buffer.WritePixel(x, y, true, color, 1 - alpha, command);
+                buffer.WritePixel(x + 1, y, true, color, alpha, command);
+            }
+            else
+            {
+                buffer.WritePixel(y, x, false, color, 1 - alpha, command);
+                buffer.WritePixel(y + 1, x, false, color, alpha, command);
+            }
+        }
+
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="color">colour of pixel.</param>
+        ///<param name="Antialiased">If false, writes pixel without antialiasing correction.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="CalculateOnly">If true it just notifies the area to be affcted with this operation but does not write pixel.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen,
+            int dstOffsetX, int dstOffsetY, DrawCommand command)
+        {
+            int intVal = (int)val;
+
+            float alpha = val - intVal;
+
+            int x = horizontal ? intVal : axis;
+            int y = horizontal ? axis : intVal;
+
+            x += dstOffsetX;
+            y += dstOffsetY;
+            int color = pen.ReadPixel(x, y);
+            bool Antialiased = !command.HasFlag(DrawCommand.Breshenham);
+
+            if (alpha == 0 || !Antialiased)
+            {
+                buffer.WritePixel(x, y, true, color, null, command);
+                return;
+            }
+
+            if (horizontal)
+            {
+                buffer.WritePixel(x, y, true, color, 1 - alpha, command);
+                buffer.WritePixel(x + 1, y, true, color, alpha, command);
+            }
+            else
+            {
+                buffer.WritePixel(y, x, false, color, 1 - alpha, command);
+                buffer.WritePixel(y + 1, x, false, color, alpha, command);
+            }
+        }
+
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="color">colour of pixel.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="CalculateOnly">If true it just notifies the area to be affcted with this operation but does not write pixel.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, int val, int axis, bool horizontal, int color, float? Alpha,
+            int dstOffsetX, int dstOffsetY, DrawCommand command)
+        {
+            int x = horizontal ? val : axis;
+            int y = horizontal ? axis : val;
+
+            x += dstOffsetX;
+            y += dstOffsetY;
+
+            buffer.WritePixel(x, y, true, color, Alpha, command);
+        }
+
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="horizontal">xis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="color">colour of pixel.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="CalculateOnly">If true it just notifies the area to be affcted with this operation but does not write pixel.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, int val, int axis, bool horizontal, IReadable pen, float? Alpha,
+            int dstOffsetX, int dstOffsetY, DrawCommand command)
+        {
+            int x = horizontal ? val : axis;
+            int y = horizontal ? axis : val;
+
+            int color = pen.ReadPixel(x, y);
+            x += dstOffsetX;
+            y += dstOffsetY;
+
+            buffer.WritePixel(x, y, true, color, Alpha, command);
         }
         #endregion
 
@@ -736,26 +962,52 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical</param>
         /// <param name="pen">buffer pen which to read pixel from</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
+        /// <param name="fillCommand">Fill command to determine how writing will take place.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void WriteLine(this IBuffer buffer, float start, float end, int axis, bool horizontal, IReadable pen, float? Alpha)
+        public unsafe static void WriteLine(this IWritable buffer, float start, float end, int axis, bool horizontal,
+            IReadable pen, float? Alpha, DrawCommand drawCommand, int dstOffsetX, int dstOffsetY)
         {
             if (float.IsNaN(start) && float.IsNaN(end))
                 return;
 
-            Numbers.Order(ref start, ref end);
+            if (start > end)
+            {
+                float temp = end;
+                end = start;
+                start = temp;
+            }
 
             bool IsPoint = start == end;
             int Start, End;
-            bool jump = false;
             bool NotSoClose = true;
 
-            Start = start.Ceiling();
-            End = end.Ceiling();
-            int w = buffer.Width;
-            int h = buffer.Height;
+            int iStart = (int)start;
+            int iEnd = (int)end;
 
-            var Settings = buffer.Settings;
-            Settings.GetFillParameters(out bool CheckForCloseness, out bool LineOnly, out bool EndsOnly);
+            Start = iStart;
+            End = iEnd;
+
+            if (start - iStart != 0)
+                ++Start;
+
+            if (end - iEnd != 0)
+                ++End;
+
+            var CheckForCloseness = drawCommand.HasFlag(DrawCommand.CheckForCloseness);
+            var LineOnly = drawCommand.HasFlag(DrawCommand.DrawLineOnly);
+            var EndsOnly = drawCommand.HasFlag(DrawCommand.DrawEndsOnly);
+            var CalculateOnly = drawCommand.HasFlag(DrawCommand.Calculate);
+            var Antialiased = !drawCommand.HasFlag(DrawCommand.Breshenham);
+            if (!LineOnly)
+            {
+                buffer.WritePixel(start, axis, horizontal, pen, dstOffsetX, dstOffsetY, drawCommand);
+
+                if (IsPoint)
+                    return;
+                buffer.WritePixel(end, axis, horizontal, pen, dstOffsetX, dstOffsetY, drawCommand);
+            }
 
             if (CheckForCloseness)
                 NotSoClose = (End - (int)start) > 1;
@@ -764,86 +1016,102 @@ namespace MnM.GWS
 
             if (NotSoClose && !IsPoint && !EndsOnly)
             {
-                int destVal = Start;
-                int destAxis = axis;
-                int dstX, dstY;
-
-                if (Start == int.MinValue && End == int.MinValue)
-                    return;
-
-                dstX = horizontal ? destVal : destAxis;
-                dstY = horizontal ? destAxis : destVal;
-
-                dstX += Settings.X;
-                dstY += Settings.Y;
-
-                if (horizontal && (dstY < 0 || dstY >= h))
-                    return;
-                if (!horizontal && (dstX < 0 || dstX >= w))
-                    return;
-
                 copyLength = End - Start;
-
-                if (Start < 0)
-                    Start = 0;
-
-                if (horizontal)
-                {
-                    if (dstX < 0)
-                    {
-                        copyLength += dstX;
-                        dstX = 0;
-                    }
-                }
-                else
-                {
-                    if (dstY < 0)
-                    {
-                        copyLength += dstY;
-                        dstY = 0;
-                    }
-                }
-
-                if (horizontal)
-                {
-                    if (dstX + copyLength >= w)
-                        copyLength = -dstX + w;
-                }
-                else
-                {
-                    if (dstY + copyLength >= h)
-                        copyLength = -dstY + h;
-                }
-
-                pen.ReadLine(Start, Start + copyLength, axis, horizontal, out int[] source, out int srcIndex, out copyLength);
                 if (copyLength == 0)
                     return;
 
-                fixed (int* src = source)
-                    buffer.WriteLine(src, srcIndex, copyLength, copyLength, horizontal, dstX, dstY, Alpha);
-                if (jump)
-                    return;
+                int* src = null;
+                int srcIndex = 0;
+
+                if (!CalculateOnly)
+                    pen.ReadLine(Start, End, axis, horizontal, out src, out srcIndex, out copyLength);
+
+                int dstX = horizontal ? Start : axis;
+                int dstY = horizontal ? axis : Start;
+
+                buffer.WriteLine(src, srcIndex, copyLength, copyLength, horizontal, dstX + dstOffsetX, dstY + dstOffsetY, Alpha, null, drawCommand);
             }
-
-            if (LineOnly)
-                return;
-
-            int x, y, intVal;
-
-            intVal = (int)start;
-            x = horizontal ? intVal : axis;
-            y = horizontal ? axis : intVal;
-            int color = pen.ReadPixel(x, y);
-
-            buffer.WritePixel(start, axis, horizontal, color);
-
-            intVal = (int)end;
-            x = horizontal ? intVal : axis;
-            y = horizontal ? axis : intVal;
-            color = pen.ReadPixel(x, y);
-            buffer.WritePixel(end, axis, horizontal, color);
         }
 
+        /// <summary>
+        /// Writes an axial line (either horizontal or vertical) to this object using specified parameters
+        /// </summary>
+        /// <param name="Start">Start position of reading from buffer pen on axis i.e X co-ordinate if horizontal otherwise Y</param>
+        /// <param name="End">>End position of reading from buffer pen on axis i.e X co-ordinate if horizontal otherwise Y</param>
+        /// <param name="axis">Position of reading from buffer pen on axis i.e Y co-ordinate if horizontal otherwise X</param>
+        /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical</param>
+        /// <param name="pen">buffer pen which to read pixel from</param>
+        ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
+        /// <param name="fillCommand"></param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe static void WriteLine(this IWritable buffer, int Start, int End, int axis, bool horizontal,
+            IReadable pen, float? Alpha, DrawCommand drawCommand, int dstOffsetX, int dstOffsetY)
+        {
+            if (Start == int.MinValue || End == int.MinValue)
+                return;
+
+            if (Start > End)
+            {
+                int temp = End;
+                End = Start;
+                Start = temp;
+            }
+
+            bool IsPoint = Start == End;
+            bool NotSoClose = true;
+
+            int dstX, dstY, endX, endY;
+
+            dstX = horizontal ? Start : axis;
+            dstY = horizontal ? axis : Start;
+
+            var CheckForCloseness = drawCommand.HasFlag(DrawCommand.CheckForCloseness);
+            var LineOnly = drawCommand.HasFlag(DrawCommand.DrawLineOnly);
+            var EndsOnly = drawCommand.HasFlag(DrawCommand.DrawEndsOnly);
+            var CalculateOnly = drawCommand.HasFlag(DrawCommand.Calculate);
+
+            if (!LineOnly)
+            {
+                int color = 0;
+                if (!CalculateOnly)
+                    color = pen.ReadPixel(dstX, dstY);
+
+                buffer.WritePixel(dstX + dstOffsetX, dstY + dstOffsetY, true, color, Alpha, drawCommand);
+
+                if (IsPoint)
+                    return;
+
+                endX = horizontal ? End : axis;
+                endY = horizontal ? axis : End;
+
+                if (!CalculateOnly)
+                    color = pen.ReadPixel(endX, endY);
+
+                buffer.WritePixel(endX + dstOffsetX, endY + dstOffsetY, true, color, dstOffsetX, dstOffsetY, drawCommand);
+            }
+
+            if (CheckForCloseness)
+                NotSoClose = (End - Start) > 1;
+
+            int copyLength;
+
+            if (NotSoClose && !IsPoint && !EndsOnly)
+            {
+                copyLength = End - Start;
+                if (copyLength == 0)
+                    return;
+
+                int* src = null;
+                int srcIndex = 0;
+
+                if (!CalculateOnly)
+                    pen.ReadLine(Start, Start + copyLength, axis, horizontal, out src, out srcIndex, out copyLength);
+
+                buffer.WriteLine(src, srcIndex, copyLength, copyLength, horizontal, dstX + dstOffsetX, dstY + dstOffsetY, Alpha, null, drawCommand);
+            }
+        }
         #endregion
 
         #region WRITE PIXELS
@@ -853,12 +1121,13 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="color">Color by which pixels should be written.</param>
-        public static void WritePixels(this IBuffer buffer, IEnumerable<VectorF> points, int color)
+        public static void WritePixels(this IWritable buffer, IEnumerable<VectorF> points, int color,
+            bool Antialiased, int dstOffsetX, int dstOffsetY, DrawCommand command)
         {
             if (points == null)
                 return;
             foreach (var p in points)
-                buffer.WritePixel(p.X, p.Y, color);
+                buffer.WritePixel(p.X, p.Y, color, dstOffsetX, dstOffsetY, command);
         }
 
         /// <summary>
@@ -867,12 +1136,17 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="color">Color by which pixels should be written.</param>
-        public static void WritePixels(this IBuffer buffer, int color, IEnumerable<Vector> points)
+        public static void WritePixels(this IWritable buffer, int color, IEnumerable<Vector> points,
+            float? Alpha, int dstOffsetX, int dstOffsetY, DrawCommand command)
         {
             if (points == null)
                 return;
             foreach (var p in points)
-                buffer.WritePixel(p.X, p.Y, true, color);
+            {
+                var x = p.X + dstOffsetX;
+                var y = p.Y + dstOffsetY;
+                buffer.WritePixel(x, y, true, color, Alpha, command);
+            }
         }
 
         /// <summary>
@@ -881,12 +1155,13 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="pen">Pen to read corresponding pixels from in oroder to copy them.</param>
-        public static void WritePixels(this IBuffer buffer, IEnumerable<VectorF> points, IReadable pen)
+        public static void WritePixels(this IWritable buffer, IEnumerable<VectorF> points, IReadable pen,
+            int dstOffsetX, int dstOffsetY, DrawCommand command)
         {
             if (points == null)
                 return;
             foreach (var p in points)
-                buffer.WritePixel(p.X, p.Y, pen.ReadPixel((int)p.X, (int)p.Y));
+                buffer.WritePixel(p.X, p.Y, pen.ReadPixel((int)p.X, (int)p.Y), dstOffsetX, dstOffsetY, command);
         }
 
         /// <summary>
@@ -895,28 +1170,68 @@ namespace MnM.GWS
         /// <param name="buffer">Memory block to write pixel to.</param>
         /// <param name="points">Collection of points to offer positions to write pixels.</param>
         /// <param name="pen">Pen to read corresponding pixels from in oroder to copy them.</param>
-        public static void WritePixels(this IBuffer buffer, IReadable pen, IEnumerable<Vector> points)
+        public static void WritePixels(this IWritable buffer, IEnumerable<Vector> points, IReadable pen, float? Alpha,
+            int dstOffsetX, int dstOffsetY, DrawCommand command)
         {
             if (points == null)
                 return;
             foreach (var p in points)
-                buffer.WritePixel(p.X, p.Y, true, pen.ReadPixel(p.X, p.Y));
+            {
+                buffer.WritePixel(p.X, p.Y, true, pen, Alpha, dstOffsetX, dstOffsetY, command);
+            }
         }
         #endregion
 
-        #region CREATE LINE ACTION
+        #region CREATE FILL ACTION
         /// <summary>
         /// Retuns an action delegate for rendering a line on specified buffer target using specified buffer pen.
         /// </summary>
         /// <param name="buffer">Buffer which to render a memory block on</param>
         /// <param name="pen">Buffer pen which to read pixeld from</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreateAction(this IBuffer buffer, IReadable pen, out FillAction<float> action)
+        public static void CreateAction(this IWritable buffer, IReadable pen, out FillAction<float> action, int dstOffsetX, int dstOffsetY)
         {
-            action = (val1, axis, horizontal, val2, alpha) =>
+            action = (val1, axis, horizontal, val2, alpha, cmd) =>
             {
-                buffer.WriteLine(val1, val2, axis, horizontal, pen, alpha);
+                buffer.WriteLine(val1, val2, axis, horizontal, pen, alpha, cmd, dstOffsetX, dstOffsetY);
+            };
+        }
+
+        /// <summary>
+        /// Retuns an action delegate for rendering a line on specified buffer target using specified buffer pen.
+        /// </summary>
+        /// <param name="buffer">Buffer which to render a memory block on</param>
+        /// <param name="pen">Buffer pen which to read pixeld from</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <returns>An instance of FillAction delegate</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CreateAction(this IWritable buffer, IReadable pen, out FillAction<int> action, int dstOffsetX, int dstOffsetY)
+        {
+            action = (val1, axis, horizontal, val2, alpha, cmd) =>
+            {
+                buffer.WriteLine(val1, val2, axis, horizontal, pen, alpha, cmd, dstOffsetX, dstOffsetY);
+            };
+        }
+        #endregion
+
+        #region CREATE PIXEL ACTION
+        /// <summary>
+        /// Retuns an action delegate for rendering an axial line or pixel on specified buffer target using specified buffer pen.
+        /// </summary>
+        /// <param name="buffer">Buffer which to render a memory block on</param>
+        /// <param name="pen">Buffer pen which to read pixeld from</param>
+        /// <returns>An instance of FillAction delegate</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CreateAction(this IWritable buffer, IReadable pen, out PixelAction<float> action,
+            int dstOffsetX, int dstOffsetY)
+        {
+            action = (val, axis, horizontal, cmd) =>
+            {
+                buffer.WritePixel(val, axis, horizontal, pen, dstOffsetX, dstOffsetY, cmd);
             };
         }
 
@@ -927,39 +1242,12 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreateAction(this IBuffer buffer, IReadable pen, out PixelAction<float> action)
+        public static void CreateAction(this IWritable buffer, IReadable pen, out PixelAction<int> action,
+            int dstOffsetX, int dstOffsetY, float? Alpha = null)
         {
-            action = (val, axis, horizontal) =>
+            action = (val, axis, horizontal, cmd) =>
             {
-                var v = (int)val;
-                int x = horizontal ? v : axis;
-                int y = horizontal ? axis : v;
-                if (horizontal)
-                {
-                    buffer.WritePixel(val, axis, horizontal, pen.ReadPixel(x, y));
-                }
-                else
-                {
-                    buffer.WritePixel(val, axis, horizontal, pen.ReadPixel(x, y));
-                }
-            };
-        }
-
-        /// <summary>
-        /// Retuns an action delegate for rendering an axial line or pixel on specified buffer target using specified buffer pen.
-        /// </summary>
-        /// <param name="buffer">Buffer which to render a memory block on</param>
-        /// <param name="pen">Buffer pen which to read pixeld from</param>
-        /// <returns>An instance of FillAction delegate</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreateAction(this IBuffer buffer, IReadable pen, out PixelAction<int> action)
-        {
-            action = (val, axis, horizontal) =>
-            {
-                int x = horizontal ? val : axis;
-                int y = horizontal ? axis : val;
-
-                buffer.WritePixel(x, y, pen.ReadPixel(x, y));
+                buffer.WritePixel(val, axis, horizontal, pen, Alpha, dstOffsetX, dstOffsetY, cmd);
             };
         }
 
@@ -974,7 +1262,7 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CreateAction<T>(this T[] Results, int Min, out PixelAction<float> action) where T : ICollection<float>, new()
         {
-            action = (val, axis, horizontal) =>
+            action = (val, axis, horizontal, cmd) =>
             {
                 int i;
 
@@ -992,24 +1280,24 @@ namespace MnM.GWS
         #region TO PIXEL ACTION
         public static PixelAction<T> ToPixelAction<T>(this FillAction<T> action)
         {
-            return (v, axis, h) => action(v, axis, h, v);
+            return (v, axis, h, cmd) => action(v, axis, h, v, null, cmd);
         }
         public static PixelAction<T> ToPixelAction<T, U>(this FillAction<T> action)
         {
-            return (v, axis, h) => action(v, axis, h, v, null);
+            return (v, axis, h, cmd) => action(v, axis, h, v, null, cmd);
         }
         public static PixelAction<int> ToIntPixelAction(this PixelAction<float> action)
         {
-            return (v, axis, h) => action(v, axis, h);
+            return (v, axis, h, cmd) => action(v, axis, h, cmd);
         }
 
         public static PixelAction<int> ToPixelAction(this VectorAction<int> action)
         {
-            return (v, axis, h) => action(h ? v : axis, h ? axis : v);
+            return (v, axis, h, cmd) => action(h ? v : axis, h ? axis : v);
         }
         public static PixelAction<float> ToPixelAction(this VectorAction<float> action)
         {
-            return (v, axis, h) => action(h ? v : axis, h ? axis : v);
+            return (v, axis, h, cmd) => action(h ? v : axis, h ? axis : v);
         }
         #endregion
     }
@@ -1026,7 +1314,7 @@ namespace MnM.GWS
         /// this lets user to pass something like new shape(....) and then used it further more.
         /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
         /// </returns>
-        public static T Add<T>(this IObjCollection collection, T shape, IReadContext context) where T : IRenderable =>
+        public static T Add<T>(this IObjCollection collection, T shape, IContext context) where T : IRenderable =>
             collection.Add(shape, context);
 
         /// <summary>
@@ -1051,17 +1339,68 @@ namespace MnM.GWS
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
         /// <param name="srcW">Width of the entire source</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public static unsafe void DrawImage(this IWritable block, IntPtr source, int srcW, int srcH, int destX, int destY,
-            int copyX, int copyY, int copyW, int copyH)
+        /// <param name="command">Draw command to control image drawig operation.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
+            int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0)
         {
-            var src = Factory.newSurface(source, srcW, srcH);
-            src.CopyTo(block, destX, destY, copyX, copyY, copyW, copyH);
+            Rectangle dstRc;
+            if (block is IPixels)
+            {
+                IntPtr dest = ((IPixels)block).Source;
+                int* src = (int*)source;
+                int* dst = (int*)dest;
+                BlockCopy action = (srcIndex, dstIndex, copyLength, x, y) => Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength);
+                dstRc = Blocks.CopyBlock(copyX, copyY, copyW, copyH, srcW * srcH, srcW, srcH, dstX, dstY, block.Width, block.Length, action);
+            }
+            else if (block is IWritable)
+            {
+                IWritable writable = (IWritable)block;
+                var copy = Rects.CompitibleRc(writable.Width, writable.Height, copyX, copyY, copyW, copyH);
+
+                var x = copy.X;
+                var y = copy.Y;
+                copyW = copy.Width;
+
+                var b = y + copy.Height;
+                if (y < 0)
+                {
+                    b += y;
+                    y = 0;
+                }
+                int* src = (int*)source;
+                int srcLen = writable.Length;
+                int srcIndex = x + y * writable.Width;
+                var dy = dstY;
+
+                for (int j = y; j <= b; j++)
+                {
+                    writable.WriteLine(src, srcIndex, srcW, copyW, true, dstX, j, null, null, command);
+                    srcIndex += srcW;
+                    if (srcIndex >= srcLen)
+                        break;
+                }
+                dstRc = new Rectangle(dstX, dstY, copyW, dy - dstY);
+            }
+            else
+            {
+                using (var image = Factory.newSurface(source, srcW, srcH))
+                {
+                   dstRc = image.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, command);
+                }
+            }
+            if(dstRc && block is IUpdatable)
+            {
+                IUpdatable updatable = (IUpdatable)block;
+                updatable.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height);
+                updatable.Update(command);
+            }
         }
 
         /// <summary>
@@ -1069,12 +1408,12 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
-        /// <param name="srcLen">Length of an entire source</param>
         /// <param name="srcW">Width of the entire source</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
-        public static unsafe void DrawImage(this IWritable block, IntPtr source, int srcW, int srcH, int destX, int destY) =>
-            DrawImage(block, source, srcW, srcH, destX, destY, 0, 0, srcW, srcH);
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY, DrawCommand command = 0) =>
+            DrawImage(block, source, srcW, srcH, dstX, dstY, 0, 0, srcW, srcH, command);
 
         /// <summary>
         /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
@@ -1082,20 +1421,21 @@ namespace MnM.GWS
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
         /// <param name="srcW">Width of the entire source</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public unsafe static void DrawImage(this IWritable block, byte[] source, int srcW, int srcH, int destX, int destY,
-            int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public unsafe static void DrawImage(this IBlockable block, byte[] source, int srcW, int srcH, int dstX, int dstY,
+            int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0)
         {
             var srcLen = source.Length / 4;
             var rc = Rects.CompitibleRc(srcW, srcLen / srcW, copyX, copyY, copyW, copyH);
             fixed (byte* b = source)
             {
-                block.DrawImage((IntPtr)b, srcW, srcH, destX, destY, rc.X, rc.Y, rc.Width, rc.Height);
+                block.DrawImage((IntPtr)b, srcW, srcH, dstX, dstY, rc.X, rc.Y, rc.Width, rc.Height, command);
             }
         }
 
@@ -1105,20 +1445,21 @@ namespace MnM.GWS
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
         /// <param name="srcW">Width of the entire source</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public unsafe static void DrawImage(this IWritable block, int[] source, int srcW, int srcH, int destX, int destY,
-            int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public unsafe static void DrawImage(this IBlockable block, int[] source, int srcW, int srcH, int dstX, int dstY,
+            int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0)
         {
             var rc = Rects.CompitibleRc(srcW, source.Length / srcW, copyX, copyY, copyW, copyH);
             var srcLen = source.Length;
             fixed (int* src = source)
             {
-                block.DrawImage((IntPtr)src, srcW, srcH, destX, destY, rc.X, rc.Y, rc.Width, rc.Height);
+                block.DrawImage((IntPtr)src, srcW, srcH, dstX, dstY, rc.X, rc.Y, rc.Width, rc.Height, command);
             }
         }
 
@@ -1127,36 +1468,40 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
-        public static unsafe void DrawImage(this IWritable block, ICopyable source, int destX, int destY) =>
-            source.CopyTo(block, destX, destY, 0, 0, source.Width, source.Height);
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public static unsafe void DrawImage(this IBlockable block, ICopyable source, int dstX, int dstY, DrawCommand command = 0) =>
+            source.CopyTo(block, dstX, dstY, 0, 0, source.Width, source.Height, command);
 
         /// <summary>
         /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
         /// </summary>
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        public static unsafe void DrawImage(this IWritable block, ICopyable source, int destX, int destY, int copyX, int copyY, int copyW, int copyH) =>
-            source.CopyTo(block, destX, destY, copyX, copyY, copyW, copyH);
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public static unsafe void DrawImage(this IBlockable block, ICopyable source, int dstX, int dstY,
+            int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0) =>
+            source.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, command);
 
         /// <summary>
         /// Draws an image by taking an area from a source - capable of being copied to the given destination buffer.
         /// </summary>
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">Source - capable of being copied to any buffer</param>
-        /// <param name="destX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="destY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyRc">An Area from source to be copied</param>
-        public static void DrawImage(this IWritable block, ICopyable source, int destX, int destY, Rectangle copyRc)
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public static void DrawImage(this IBlockable block, ICopyable source, int dstX, int dstY, Rectangle copyRc, DrawCommand command = 0)
         {
-            source.CopyTo(block, destX, destY, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height);
+            source.CopyTo(block, dstX, dstY, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height, command);
         }
         #endregion
 
@@ -1171,12 +1516,12 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawLine(this IBuffer buffer, float x1, float y1, float x2, float y2, IReadContext context)
+        public static void DrawLine(this IWritable buffer, float x1, float y1, float x2, float y2, IContext context)
         {
             if (buffer == null)
                 return;
             var line = Factory.newLine(x1, y1, x2, y2);
-            buffer.Render((IDrawable)line, context);
+            buffer.Render(line, context);
         }
 
         /// <summary>
@@ -1188,7 +1533,7 @@ namespace MnM.GWS
         /// <param name="x2">X corordinate of end point</param>
         /// <param name="y2">Y corordinate of end point</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawLine(this IBuffer buffer, float x1, float y1, float x2, float y2)
+        public static void DrawLine(this IWritable buffer, float x1, float y1, float x2, float y2)
         {
             if (buffer == null)
                 return;
@@ -1202,7 +1547,7 @@ namespace MnM.GWS
         /// <param name="line">Line to draw</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawLine(this IBuffer buffer, ILine line, IReadContext context)
+        public static void DrawLine(this IWritable buffer, ILine line, IContext context)
         {
             if (buffer == null)
                 return;
@@ -1216,7 +1561,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="l">Line to draw</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IBuffer buffer, ILine l) =>
+        public static void DrawLine(this IWritable buffer, ILine l) =>
             buffer.DrawLine(l, null);
 
         /// <summary>
@@ -1227,7 +1572,7 @@ namespace MnM.GWS
         /// <param name="p2">end point of line segment</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IBuffer buffer, VectorF p1, VectorF p2, IReadContext context = null) =>
+        public static void DrawLine(this IWritable buffer, VectorF p1, VectorF p2, IContext context = null) =>
             buffer.DrawLine(p1.X, p1.Y, p2.X, p2.Y, context);
 
         /// <summary>
@@ -1238,7 +1583,7 @@ namespace MnM.GWS
         /// <param name="p2">end point of line segment</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IBuffer buffer, Vector p1, Vector p2, IReadContext context = null) =>
+        public static void DrawLine(this IWritable buffer, Vector p1, Vector p2, IContext context = null) =>
             buffer.DrawLine(p1.X, p1.Y, p2.X, p2.Y, context);
 
         /// <summary>
@@ -1250,7 +1595,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before rendering the line segment</param>
-        public static void DrawLine(this IBuffer buffer, VectorF p1, float x2, float y2, IReadContext context = null) =>
+        public static void DrawLine(this IWritable buffer, VectorF p1, float x2, float y2, IContext context = null) =>
             buffer.DrawLine(p1.X, p1.Y, x2, y2, context);
 
         /// <summary>
@@ -1259,12 +1604,10 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="lines">A collection of lines</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawLines(this IBuffer buffer, IEnumerable<ILine> lines, IReadContext context = null)
+        public static void DrawLines(this IWritable buffer, IEnumerable<ILine> lines, IContext context = null)
         {
-            var draw = buffer.Settings.LineCommand;
             foreach (var l in lines)
             {
-                buffer.Settings.LineCommand = draw;
                 DrawLine(buffer, l, context);
             }
         }
@@ -1275,15 +1618,13 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="lines">A collection of lines</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawLines(this IBuffer buffer, IEnumerable<VectorF> points, IReadContext context = null, bool connectEach = true)
+        public static void DrawLines(this IWritable buffer, IEnumerable<VectorF> points, IContext context = null, bool connectEach = true)
         {
-            var draw = buffer.Settings.LineCommand;
             VectorF previous = VectorF.Empty;
             VectorF first = VectorF.Empty;
 
             foreach (var p in points)
             {
-                buffer.Settings.LineCommand = draw;
                 if (!first)
                     first = p;
                 if (!previous)
@@ -1307,7 +1648,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="lines">A collection of lines</param>
-        public static void DrawLines(this IBuffer buffer, IReadContext context, params ILine[] lines) =>
+        public static void DrawLines(this IWritable buffer, IContext context, params ILine[] lines) =>
             buffer.DrawLines(lines as IEnumerable<ILine>, context);
 
         /// <summary>
@@ -1315,7 +1656,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a line on</param>
         /// <param name="lines">A collection of lines</param>
-        public static void DrawLines(this IBuffer buffer, params ILine[] lines) =>
+        public static void DrawLines(this IWritable buffer, params ILine[] lines) =>
             buffer.DrawLines(lines as IEnumerable<ILine>, null);
 
         /// <summary>
@@ -1327,7 +1668,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">An interger array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23, 56, 98, 205} creates Line(X1 = 23, Y1 = 56, X2 = 98,Y2 = 205) </param>
-        public static void DrawLines(this IBuffer buffer, IReadContext context, bool connectEach, params int[] values)
+        public static void DrawLines(this IWritable buffer, IContext context, bool connectEach, params int[] values)
         {
             var points = (values).ToPointsF();
             if (connectEach && points.Count > 2)
@@ -1355,7 +1696,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">A float array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23.33f, 56.67f, 98.45f, 205.21f} creates Line(X1 = 23.33f, Y1 = 56.67f, X2 = 98.45f,Y2 = 205.21f) </param>
-        public static void DrawLines(this IBuffer buffer, IReadContext context, bool connectEach, params float[] values)
+        public static void DrawLines(this IWritable buffer, IContext context, bool connectEach, params float[] values)
         {
             var points = values.ToPoints();
             if (connectEach && points.Count > 2)
@@ -1380,7 +1721,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">An interger array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23, 56, 98, 205} creates Line(X1 = 23, Y1 = 56, X2 = 98,Y2 = 205) </param>
-        public static void DrawLines(this IBuffer buffer, bool connectEach, Rotation angle, params int[] values) =>
+        public static void DrawLines(this IWritable buffer, bool connectEach, Rotation angle, params int[] values) =>
             buffer.DrawLines(null, connectEach, values);
 
         /// <summary>
@@ -1392,7 +1733,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">A float array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23.33f, 56.67f, 98.45f, 205.21f} creates Line(X1 = 23.33f, Y1 = 56.67f, X2 = 98.45f,Y2 = 205.21f) </param>
-        public static void DrawLines(this IBuffer buffer, bool connectEach, Rotation angle, params float[] values) =>
+        public static void DrawLines(this IWritable buffer, bool connectEach, Rotation angle, params float[] values) =>
             buffer.DrawLines(null, connectEach, values);
 
         /// <summary>
@@ -1403,7 +1744,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 of each line segment before rendering the line segment</param>
         /// <param name="values">An interger array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23, 56, 98, 205} creates Line(X1 = 23, Y1 = 56, X2 = 98,Y2 = 205) </param>
-        public static void DrawLines(this IBuffer buffer, bool connectEach, params int[] values) =>
+        public static void DrawLines(this IWritable buffer, bool connectEach, params int[] values) =>
             buffer.DrawLines(null, connectEach, values);
 
         /// <summary>
@@ -1413,7 +1754,7 @@ namespace MnM.GWS
         /// <param name="connectEach">If true then each line segment will be connected to the previous and next one</param>
         /// <param name="values">A float array of values.Each subsequent four elements get converted to a line segment
         /// For example if values are int[]{23.33f, 56.67f, 98.45f, 205.21f} creates Line(X1 = 23.33f, Y1 = 56.67f, X2 = 98.45f,Y2 = 205.21f) </param>
-        public static void DrawLines(this IBuffer buffer, bool connectEach, params float[] values) =>
+        public static void DrawLines(this IWritable buffer, bool connectEach, params float[] values) =>
             buffer.DrawLines(null, connectEach, values);
         #endregion
 
@@ -1427,7 +1768,7 @@ namespace MnM.GWS
         /// <param name="width">Width of a bounding area where the circle is to be drawn -> circle's minor X axis = Width/2</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IBuffer buffer, float x, float y, float width, IReadContext context) =>
+        public static void DrawCircle(this IWritable buffer, float x, float y, float width, IContext context) =>
             RenderCircleOrEllipse(buffer, x, y, width, width, context);
 
         /// <summary>
@@ -1438,7 +1779,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate of a bounding area where the circle is to be drawn</param>
         /// <param name="width">Width of a bounding area where the circle is to be drawn -> circle's minor X axis = Width/2</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IBuffer buffer, float x, float y, float width) =>
+        public static void DrawCircle(this IWritable buffer, float x, float y, float width) =>
             RenderCircleOrEllipse(buffer, x, y, width, width, null);
 
         /// <summary>
@@ -1449,7 +1790,7 @@ namespace MnM.GWS
         /// <param name="centerOfCircle">Center of a circle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IBuffer buffer, VectorF pointOnCircle, VectorF centerOfCircle, IReadContext context)
+        public static void DrawCircle(this IWritable buffer, VectorF pointOnCircle, VectorF centerOfCircle, IContext context)
         {
             Curves.GetCircleData(pointOnCircle, centerOfCircle, out float x, out float y, out float w);
             RenderCircleOrEllipse(buffer, x, y, w, w, context);
@@ -1462,7 +1803,7 @@ namespace MnM.GWS
         /// <param name="pointOnCircle">A point on a circle which you want</param>
         /// <param name="centerOfCircle">Center of a circle</param>
         /// <param name="angle">Angle to apply rotation while rendering the circle</param>
-        public static void DrawCircle(this IBuffer buffer, VectorF pointOnCircle, VectorF centerOfCircle)
+        public static void DrawCircle(this IWritable buffer, VectorF pointOnCircle, VectorF centerOfCircle)
         {
             Curves.GetCircleData(pointOnCircle, centerOfCircle, out float x, out float y, out float w);
             RenderCircleOrEllipse(buffer, x, y, w, w, null);
@@ -1479,7 +1820,7 @@ namespace MnM.GWS
         /// <param name="width">Width of a bounding area where the ellipse is to be drawn -> ellipse's minor X axis = Width/2</param>
         /// <param name="height">Height of a bounding area where the ellipse is to be drawn -> ellipse's minor Y axis = Height/2</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawEllipse(this IBuffer buffer, float x, float y, float width, float height, IReadContext context) =>
+        public static void DrawEllipse(this IWritable buffer, float x, float y, float width, float height, IContext context) =>
             RenderCircleOrEllipse(buffer, x, y, width, height, context);
 
         /// <summary>
@@ -1490,7 +1831,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate of a bounding area where the ellipse is to be drawn</param>
         /// <param name="width">Width of a bounding area where the ellipse is to be drawn -> ellipse's minor X axis = Width/2</param>
         /// <param name="height">Height of a bounding area where the ellipse is to be drawn -> ellipse's minor Y axis = Height/2</param>
-        public static void DrawEllipse(this IBuffer buffer, float x, float y, float width, float height) =>
+        public static void DrawEllipse(this IWritable buffer, float x, float y, float width, float height) =>
             RenderCircleOrEllipse(buffer, x, y, width, height, null);
 
         /// <summary>
@@ -1503,7 +1844,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IContext context, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, context, type);
 
         /// <summary>
@@ -1515,7 +1856,7 @@ namespace MnM.GWS
         /// <param name="p3">third point on the ellipse</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, null, type);
 
         /// <summary>
@@ -1529,7 +1870,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IContext context, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, p4, context, type);
 
         /// <summary>
@@ -1542,7 +1883,7 @@ namespace MnM.GWS
         /// <param name="p4">third point on the ellipse</param>
         /// <param name="type"> Since intention is to draw ellipse, only supplimentary options on how to draw it will be considered.
         /// Such as fitting, third point on ellipse or on center etc.</param>
-        public static void DrawEllipse(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Full) =>
+        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Full) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, p4, null, type);
 
         /// <summary>
@@ -1555,7 +1896,7 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawEllipse(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, VectorF p5, IReadContext context) =>
+        public static void DrawEllipse(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, VectorF p5, IContext context) =>
             RenderCircleOrEllipse(buffer, p1, p2, p3, p4, p5, context);
 
         /// <summary>
@@ -1567,7 +1908,7 @@ namespace MnM.GWS
         /// <param name="third">third point on the ellipse</param>
         /// <param name="fourth">Fourth point</param>
         /// <param name="fifth">Fifth point</param>
-        public static void DrawEllipse(this IBuffer buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth) =>
+        public static void DrawEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth) =>
             RenderCircleOrEllipse(buffer, first, second, third, fourth, fifth, null);
         #endregion
 
@@ -1584,8 +1925,8 @@ namespace MnM.GWS
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="type"> Defines the type of an arc along with other supplimentary options on how to draw it</param>
-        public static void DrawArc(this IBuffer buffer, float x, float y, float width, float height, float startAngle, float endAngle,
-            IReadContext context, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IWritable buffer, float x, float y, float width, float height, float startAngle, float endAngle,
+            IContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, x, y, width, height, startAngle, endAngle, context, type);
 
         /// <summary>
@@ -1599,7 +1940,7 @@ namespace MnM.GWS
         /// <param name="startAngle">Start angle from where a curve start</param>
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="type"> Defines the type of an arc along with other supplimentary options on how to draw it</param>
-        public static void DrawArc(this IBuffer buffer, float x, float y, float width, float height, float startAngle, float endAngle,
+        public static void DrawArc(this IWritable buffer, float x, float y, float width, float height, float startAngle, float endAngle,
             CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, x, y, width, height, startAngle, endAngle, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
@@ -1611,7 +1952,7 @@ namespace MnM.GWS
         /// <param name="p2">Second point  on the arc</param>
         /// <param name="p3">Third point on the arc</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawArc(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, context, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1623,7 +1964,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the arc</param>
         /// <param name="p4">Fourth point on the arc</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawArc(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context,
+        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IContext context,
             CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, context, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
@@ -1636,7 +1977,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the arc</param>
         /// <param name="p4">Fourth point on the arc</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawArc(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1646,7 +1987,7 @@ namespace MnM.GWS
         /// <param name="p1">First point on an arc</param>
         /// <param name="p2">Second point  on the arc</param>
         /// <param name="p3">Third point on the arc</param>
-        public static void DrawArc(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Arc) =>
             buffer.DrawArc(p1, p2, p3, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1659,8 +2000,8 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawArc(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3,
-            VectorF p4, VectorF p5, IReadContext context, CurveType type = CurveType.Arc) =>
+        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+            VectorF p4, VectorF p5, IContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, context, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
 
         /// <summary>
@@ -1672,7 +2013,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the arc</param>
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
-        public static void DrawArc(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawArc(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, VectorF p5, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, null, type.Exclude(CurveType.Pie).Include(CurveType.Arc));
         #endregion
@@ -1691,8 +2032,8 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IBuffer buffer, float x, float y, float width, float height,
-            float startAngle, float endAngle, IReadContext context, CurveType type = CurveType.Pie) =>
+        public static void DrawPie(this IWritable buffer, float x, float y, float width, float height,
+            float startAngle, float endAngle, IContext context, CurveType type = CurveType.Pie) =>
             RenderArcOrPie(buffer, x, y, width, height, startAngle, endAngle, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
         /// <summary>
@@ -1707,7 +2048,7 @@ namespace MnM.GWS
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IBuffer buffer, float x, float y, float width, float height, float startAngle, float endAngle,
+        public static void DrawPie(this IWritable buffer, float x, float y, float width, float height, float startAngle, float endAngle,
             CurveType type = CurveType.Pie) =>
             buffer.DrawPie(x, y, width, height, startAngle, endAngle, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1722,7 +2063,7 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context, CurveType type = CurveType.Pie) =>
+        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IContext context, CurveType type = CurveType.Pie) =>
             RenderArcOrPie(buffer, p1, p2, p3, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
         /// <summary>
@@ -1735,7 +2076,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the pie</param>
         /// <param name="angle">Angle to apply rotation while rendering the pie</param>
         /// <param name="type"> Defines the type of an pie along with other supplimentary options on how to draw it</param>
-        public static void DrawPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Pie) =>
+        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, CurveType type = CurveType.Pie) =>
             buffer.DrawPie(p1, p2, p3, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
 
@@ -1749,8 +2090,8 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3,
-            VectorF p4, IReadContext context, CurveType type = CurveType.Arc) =>
+        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+            VectorF p4, IContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
         /// <summary>
@@ -1762,7 +2103,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point on the pie</param>
         /// <param name="p4">Fourth point</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
@@ -1778,8 +2119,8 @@ namespace MnM.GWS
         /// <param name="p5">Fifth point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3,
-            VectorF p4, VectorF p5, IReadContext context, CurveType type = CurveType.Arc) =>
+        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
+            VectorF p4, VectorF p5, IContext context, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, context, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
 
         /// <summary>
@@ -1792,7 +2133,7 @@ namespace MnM.GWS
         /// <param name="p4">Fourth point</param>
         /// <param name="p5">Fifth point</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc</param>
-        public static void DrawPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3,
+        public static void DrawPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3,
             VectorF p4, VectorF p5, CurveType type = CurveType.Arc) =>
             RenderArcOrPie(buffer, p1, p2, p3, p4, p5, null, type.Exclude(CurveType.Arc).Include(CurveType.Pie));
         #endregion
@@ -1804,7 +2145,7 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer which to render a curve on</param>
         /// <param name="Curve">Cureve object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawCurve(this IBuffer buffer, ICurve Curve, IReadContext context = null)
+        public static void DrawCurve(this IWritable buffer, ICurve Curve, IContext context = null)
         {
             buffer.Render(Curve, context);
         }
@@ -1818,20 +2159,20 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer which to render a curve on</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="drawEndsOnly">If true, only out line of conic will be drawn and filling will not be performed.</param>
-        public static void DrawConic(this IBuffer buffer, IConic conic, IReadContext context = null, bool drawEndsOnly = false)
+        public static void DrawConic(this IWritable buffer, IConic conic, IContext context = null, bool drawEndsOnly = false)
         {
             if (buffer == null)
                 return;
-
+            var Settings = buffer.GetSettings(context, conic.ID);
             if (drawEndsOnly)
             {
-                buffer.Settings.FillCommand |= FillCommand.DrawEndsOnly;
-                buffer.Settings.FillCommand &= ~FillCommand.DrawLineOnly;
+                Settings.Command |= DrawCommand.DrawEndsOnly;
+                Settings.Command &= ~DrawCommand.DrawLineOnly;
             }
             else
             {
-                buffer.Settings.FillCommand &= ~FillCommand.DrawEndsOnly;
-                buffer.Settings.FillCommand &= ~FillCommand.DrawLineOnly;
+                Settings.Command &= ~DrawCommand.DrawEndsOnly;
+                Settings.Command &= ~DrawCommand.DrawLineOnly;
             }
             buffer.Render(conic, context);
         }
@@ -1844,7 +2185,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawBezier(this IBuffer buffer, IReadContext context, params float[] points) =>
+        public static void DrawBezier(this IWritable buffer, IContext context, params float[] points) =>
             RenderBezier(buffer, points, BezierType.Cubic, context);
 
         /// <summary>
@@ -1854,7 +2195,7 @@ namespace MnM.GWS
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawBezier(this IBuffer buffer, BezierType type, IReadContext context, params float[] points) =>
+        public static void DrawBezier(this IWritable buffer, BezierType type, IContext context, params float[] points) =>
             RenderBezier(buffer, points, type, context);
 
         /// <summary>
@@ -1862,7 +2203,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
-        public static void DrawBezier(this IBuffer buffer, params float[] points) =>
+        public static void DrawBezier(this IWritable buffer, params float[] points) =>
             RenderBezier(buffer, points, BezierType.Cubic, null);
 
         /// <summary>
@@ -1871,7 +2212,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
-        public static void DrawBezier(this IBuffer buffer, BezierType type, params float[] points) =>
+        public static void DrawBezier(this IWritable buffer, BezierType type, params float[] points) =>
             RenderBezier(buffer, points, type, null);
 
         /// <summary>
@@ -1879,7 +2220,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in integers - each group of two subsequent values forms one point i.e x & y</param>
-        public static void DrawBezier(this IBuffer buffer, params int[] points) =>
+        public static void DrawBezier(this IWritable buffer, params int[] points) =>
             RenderBezier(buffer, points.Select(p => (float)p), BezierType.Cubic, null);
 
         /// <summary>
@@ -1888,7 +2229,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a bezier on</param>
         /// <param name="points">Defines perimiter of the bezier as values in integers - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
-        public static void DrawBezier(this IBuffer buffer, BezierType type, params int[] points) =>
+        public static void DrawBezier(this IWritable buffer, BezierType type, params int[] points) =>
             RenderBezier(buffer, points.Select(p => (float)p), type, null);
         #endregion
 
@@ -1905,7 +2246,7 @@ namespace MnM.GWS
         /// <param name="y3">Y corodinate of the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the traingle</param>
-        public static void DrawTriangle(this IBuffer buffer, float x1, float y1, float x2, float y2, float x3, float y3, IReadContext context) =>
+        public static void DrawTriangle(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3, IContext context) =>
             RenderTriangle(buffer, x1, y1, x2, y2, x3, y3, context);
 
         /// <summary>
@@ -1919,7 +2260,7 @@ namespace MnM.GWS
         /// <param name="x3">X corodinate of the third point</param>
         /// <param name="y3">Y corodinate of the third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the traingle</param>
-        public static void DrawTriangle(this IBuffer buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
+        public static void DrawTriangle(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
             buffer.DrawTriangle(x1, y1, x2, y2, x3, y3, null);
 
         /// <summary>
@@ -1931,7 +2272,7 @@ namespace MnM.GWS
         /// <param name="p3">the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IBuffer buffer, Vector p1, Vector p2, Vector p3, IReadContext context) =>
+        public static void DrawTriangle(this IWritable buffer, Vector p1, Vector p2, Vector p3, IContext context) =>
             buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, context);
 
         /// <summary>
@@ -1943,7 +2284,7 @@ namespace MnM.GWS
         /// <param name="p3">the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context) =>
+        public static void DrawTriangle(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IContext context) =>
             buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, context);
 
         /// <summary>
@@ -1954,7 +2295,7 @@ namespace MnM.GWS
         /// <param name="p2">The second point</param>
         /// <param name="p3">the third point</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IBuffer buffer, Vector p1, Vector p2, Vector p3) =>
+        public static void DrawTriangle(this IWritable buffer, Vector p1, Vector p2, Vector p3) =>
         buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, null);
 
         /// <summary>
@@ -1965,7 +2306,7 @@ namespace MnM.GWS
         /// <param name="p2">The second point</param>
         /// <param name="p3">the third point</param>
         /// <param name="angle"></param>
-        public static void DrawTriangle(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3) =>
+        public static void DrawTriangle(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3) =>
             buffer.DrawTriangle(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, null);
         #endregion
 
@@ -1979,7 +2320,7 @@ namespace MnM.GWS
         /// <param name="width">Width  and also height of the rectangle/param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawSquare(this IBuffer buffer, float x, float y, float width, IReadContext context) =>
+        public static void DrawSquare(this IWritable buffer, float x, float y, float width, IContext context) =>
             RenderRectangle(buffer, x, y, width, width, context);
 
         /// <summary>
@@ -1990,7 +2331,7 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate of the rectangle</param>
         /// <param name="width">Width  and also height of the rectangle/param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawSquare(this IBuffer buffer, float x, float y, float width) =>
+        public static void DrawSquare(this IWritable buffer, float x, float y, float width) =>
             RenderRectangle(buffer, x, y, width, width, null);
         #endregion
 
@@ -2005,7 +2346,7 @@ namespace MnM.GWS
         /// <param name="height">Height the rectangle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IBuffer buffer, float x, float y, float width, float height, IReadContext context) =>
+        public static void DrawRectangle(this IWritable buffer, float x, float y, float width, float height, IContext context) =>
             RenderRectangle(buffer, x, y, width, height, context);
 
         /// <summary>
@@ -2017,7 +2358,7 @@ namespace MnM.GWS
         /// <param name="width">Width of the rectangle/param>
         /// <param name="height">Height the rectangle</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IBuffer buffer, float x, float y, float width, float height) =>
+        public static void DrawRectangle(this IWritable buffer, float x, float y, float width, float height) =>
             RenderRectangle(buffer, x, y, width, height, null);
 
         /// <summary>
@@ -2027,7 +2368,7 @@ namespace MnM.GWS
         /// <param name="r">Rectangle to draw</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IBuffer buffer, Rectangle r, IReadContext context) =>
+        public static void DrawRectangle(this IWritable buffer, Rectangle r, IContext context) =>
             RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, context);
 
         /// <summary>
@@ -2037,7 +2378,7 @@ namespace MnM.GWS
         /// <param name="r">Rectangle to draw</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IBuffer buffer, RectangleF r, IReadContext context) =>
+        public static void DrawRectangle(this IWritable buffer, RectangleF r, IContext context) =>
            RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, context);
 
         /// <summary>
@@ -2046,7 +2387,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a rectangle on</param>
         /// <param name="r">Rectangle to draw</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IBuffer buffer, Rectangle r) =>
+        public static void DrawRectangle(this IWritable buffer, Rectangle r) =>
             RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, null);
 
         /// <summary>
@@ -2055,7 +2396,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a rectangle on</param>
         /// <param name="r">Rectangle to draw</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        public static void DrawRectangle(this IBuffer buffer, RectangleF r) =>
+        public static void DrawRectangle(this IWritable buffer, RectangleF r) =>
            RenderRectangle(buffer, r.X, r.Y, r.Width, r.Height, null);
         #endregion
 
@@ -2071,7 +2412,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IBuffer buffer, float x, float y, float width, float height, float cornerRadius, IReadContext context) =>
+        public static void DrawRoundedBox(this IWritable buffer, float x, float y, float width, float height, float cornerRadius, IContext context) =>
            RenderRoundedBox(buffer, x, y, width, height, cornerRadius, context);
 
         /// <summary>
@@ -2084,7 +2425,7 @@ namespace MnM.GWS
         /// <param name="height">Height the rounded box</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IBuffer buffer, float x, float y, float width, float height, float cornerRadius) =>
+        public static void DrawRoundedBox(this IWritable buffer, float x, float y, float width, float height, float cornerRadius) =>
             RenderRoundedBox(buffer, x, y, width, height, cornerRadius, null);
 
         /// <summary>
@@ -2095,7 +2436,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IBuffer buffer, RectangleF r, float cornerRadius, IReadContext context) =>
+        public static void DrawRoundedBox(this IWritable buffer, RectangleF r, float cornerRadius, IContext context) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, context);
 
         /// <summary>
@@ -2106,7 +2447,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IBuffer buffer, Rectangle r, float cornerRadius, IReadContext context) =>
+        public static void DrawRoundedBox(this IWritable buffer, Rectangle r, float cornerRadius, IContext context) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, context);
 
         /// <summary>
@@ -2116,7 +2457,7 @@ namespace MnM.GWS
         /// <param name="r">Base rectange to construct the rounded box from</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IBuffer buffer, RectangleF r, float cornerRadius) =>
+        public static void DrawRoundedBox(this IWritable buffer, RectangleF r, float cornerRadius) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, null);
 
         /// <summary>
@@ -2126,7 +2467,7 @@ namespace MnM.GWS
         /// <param name="r">Base rectange to construct the rounded box from</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        public static void DrawRoundedBox(this IBuffer buffer, Rectangle r, float cornerRadius) =>
+        public static void DrawRoundedBox(this IWritable buffer, Rectangle r, float cornerRadius) =>
             RenderRoundedBox(buffer, r.X, r.Y, r.Width, r.Height, cornerRadius, null);
         #endregion
 
@@ -2140,7 +2481,7 @@ namespace MnM.GWS
         /// <param name="third">Third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawRhombus(this IBuffer buffer, VectorF first, VectorF second, VectorF third, IReadContext context) =>
+        public static void DrawRhombus(this IWritable buffer, VectorF first, VectorF second, VectorF third, IContext context) =>
             RenderRhombus(buffer, first, second, third, context);
 
         /// <summary>
@@ -2151,7 +2492,7 @@ namespace MnM.GWS
         /// <param name="second">Second point</param>
         /// <param name="third">Third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
-        public static void DrawRhombus(this IBuffer buffer, VectorF first, VectorF second, VectorF third) =>
+        public static void DrawRhombus(this IWritable buffer, VectorF first, VectorF second, VectorF third) =>
             RenderRhombus(buffer, first, second, third, null);
 
         /// <summary>
@@ -2166,8 +2507,8 @@ namespace MnM.GWS
         /// <param name="y3">Y coordinate of third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawRhombus(this IBuffer buffer, float x1, float y1, float x2, float y2, float x3, float y3,
-            IReadContext context) =>
+        public static void DrawRhombus(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3,
+            IContext context) =>
             RenderRhombus(buffer, new VectorF(x1, y1), new VectorF(x2, y2), new VectorF(x3, y3), context);
 
         /// <summary>
@@ -2181,7 +2522,7 @@ namespace MnM.GWS
         /// <param name="x3">X coordinate of third point</param>
         /// <param name="y3">Y coordinate of third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
-        public static void DrawRhombus(this IBuffer buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
+        public static void DrawRhombus(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3) =>
             RenderRhombus(buffer, new VectorF(x1, y1), new VectorF(x2, y2), new VectorF(x3, y3), null);
         #endregion
 
@@ -2195,7 +2536,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, ILine baseLine, float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation, float skewBy, IContext context) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, skewBy, context);
 
         /// <summary>
@@ -2205,7 +2546,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, ILine baseLine, float parallelLineDeviation, float skewBy) =>
+        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation, float skewBy) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, skewBy, null);
 
         /// <summary>
@@ -2214,7 +2555,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a trapezium on</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, ILine baseLine, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, 0, null);
 
         /// <summary>
@@ -2225,7 +2566,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, ILine baseLine, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, ILine baseLine, float parallelLineDeviation, IContext context) =>
             RenderTrapezium(buffer, baseLine, parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2238,7 +2579,7 @@ namespace MnM.GWS
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, float[] values, IReadContext context)
+        public static void DrawTrapezium(this IWritable buffer, float[] values, IContext context)
         {
             if (values.Length < 4)
                 return;
@@ -2263,7 +2604,7 @@ namespace MnM.GWS
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, int[] values, IReadContext context)
+        public static void DrawTrapezium(this IWritable buffer, int[] values, IContext context)
         {
             if (values.Length < 4)
                 return;
@@ -2287,7 +2628,7 @@ namespace MnM.GWS
         /// 6th item i.e values[5] in values would form parallel Line Size Difference value if the lenght of values is 6 otherwise zero.
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, float[] values) =>
+        public static void DrawTrapezium(this IWritable buffer, float[] values) =>
             buffer.DrawTrapezium(values, null);
 
         /// <summary>
@@ -2300,7 +2641,7 @@ namespace MnM.GWS
         /// </param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, int[] values) =>
+        public static void DrawTrapezium(this IWritable buffer, int[] values) =>
             buffer.DrawTrapezium(values, null);
 
         /// <summary>
@@ -2316,8 +2657,8 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2,
-            float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2,
+            float parallelLineDeviation, float skewBy, IContext context) =>
             RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), parallelLineDeviation, skewBy, context);
 
         /// <summary>
@@ -2332,7 +2673,7 @@ namespace MnM.GWS
         /// <param name="deviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2, float deviation, float skewBy) =>
+        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2, float deviation, float skewBy) =>
             RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), deviation, skewBy, null);
 
         /// <summary>
@@ -2348,7 +2689,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation, IContext context) =>
             RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2362,7 +2703,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IWritable buffer, float x1, float y1, float x2, float y2, float parallelLineDeviation) =>
             RenderTrapezium(buffer, Factory.newLine(x1, y1, x2, y2), parallelLineDeviation, 0, null);
 
         /// <summary>
@@ -2376,7 +2717,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy, IContext context) =>
             RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, skewBy, context);
 
         /// <summary>
@@ -2390,7 +2731,7 @@ namespace MnM.GWS
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy, IContext context) =>
             RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, context);
 
 
@@ -2404,7 +2745,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy) =>
+        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation, float skewBy) =>
             RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, skewBy, null);
 
         /// <summary>
@@ -2417,7 +2758,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skewBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy) =>
+        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation, float skewBy) =>
             RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, skewBy, null);
 
         /// <summary>
@@ -2430,7 +2771,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation, IContext context) =>
             RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2443,7 +2784,7 @@ namespace MnM.GWS
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation, IReadContext context) =>
+        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation, IContext context) =>
             RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, context);
 
         /// <summary>
@@ -2455,7 +2796,7 @@ namespace MnM.GWS
         /// <param name="p2">An end point of a base line</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, VectorF p1, VectorF p2, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IWritable buffer, VectorF p1, VectorF p2, float parallelLineDeviation) =>
             RenderTrapezium(buffer, Factory.newLine(p1, p2), parallelLineDeviation, 0, null);
 
         /// <summary>
@@ -2467,7 +2808,7 @@ namespace MnM.GWS
         /// <param name="p2">An end point of a base line</param>
         /// <param name="parallelLineDeviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawTrapezium(this IBuffer buffer, Vector p1, Vector p2, float parallelLineDeviation) =>
+        public static void DrawTrapezium(this IWritable buffer, Vector p1, Vector p2, float parallelLineDeviation) =>
             RenderTrapezium(buffer, Factory.newLine(p1.X, p1.Y, p2.X, p2.Y), parallelLineDeviation, 0, null);
         #endregion
 
@@ -2479,7 +2820,7 @@ namespace MnM.GWS
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon  an each group of two subsequent values in polypoints forms a point x,y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the trapezium</param>
-        public static void DrawPolygon(this IBuffer buffer, IReadContext context, params float[] polyPoints) =>
+        public static void DrawPolygon(this IWritable buffer, IContext context, params float[] polyPoints) =>
             RenderPolygon(buffer, polyPoints, context);
 
         /// <summary>
@@ -2487,7 +2828,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a polygom on</param>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon an each group of two subsequent values in polypoints forms a point x,y</param>
-        public static void DrawPolygon(this IBuffer buffer, params float[] polyPoints) =>
+        public static void DrawPolygon(this IWritable buffer, params float[] polyPoints) =>
             RenderPolygon(buffer, polyPoints, null);
 
         /// <summary>
@@ -2495,7 +2836,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">buffer which to render a polygom on</param>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon an each group of two subsequent values in polypoints forms a point x,y</param>
-        public static void DrawPolygon(this IBuffer buffer, params int[] polyPoints) =>
+        public static void DrawPolygon(this IWritable buffer, params int[] polyPoints) =>
             RenderPolygon(buffer, polyPoints.Select(p => (float)p), null);
 
         /// <summary>
@@ -2504,7 +2845,7 @@ namespace MnM.GWS
         /// <param name="buffer">buffer which to render a polygom on</param>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon  an each group of two subsequent values in polypoints forms a point x,y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        public static void DrawPolygon(this IBuffer buffer, IReadContext context, params int[] polyPoints) =>
+        public static void DrawPolygon(this IWritable buffer, IContext context, params int[] polyPoints) =>
             RenderPolygon(buffer, polyPoints.Select(p => (float)p), context);
         #endregion
 
@@ -2521,8 +2862,8 @@ namespace MnM.GWS
         /// <param name="drawStyle">A draw style to be used to draw text</param>
         /// <returns>GlyphsData object which contains a draw result information such as glyphs, drawn area etc.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IGlyphs DrawText(this IBuffer buffer, IFont font, float destX, float destY, string text,
-            IReadContext context = null, TextDrawStyle drawStyle = null)
+        public static IGlyphs DrawText(this IWritable buffer, IFont font, float destX, float destY, string text,
+            IContext context = null, TextDrawStyle drawStyle = null)
         {
             if (buffer == null || font == null || string.IsNullOrEmpty(text))
                 return null;
@@ -2538,7 +2879,7 @@ namespace MnM.GWS
         /// <param name="text">A text object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawText(this IBuffer buffer, IGlyphs text, IReadContext context = null)
+        public static void DrawText(this IWritable buffer, IGlyphs text, IContext context = null)
         {
             buffer.Render(text, context);
         }
@@ -2549,11 +2890,12 @@ namespace MnM.GWS
         /// <param name="text">A text object to render</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawText(this IBuffer buffer, IGlyphs text, int dstX, int dstY, IReadContext context = null)
+        public static void DrawText(this IWritable buffer, IGlyphs text, int dstX, int dstY, IContext context = null)
         {
-            buffer.Settings.X = dstX;
-            buffer.Settings.Y = dstY;
-            buffer.Render(text, context);
+            var Settings = buffer.GetSettings(context, text.ID);
+            Settings.X = dstX;
+            Settings.Y = dstY;
+            buffer.Render(text, Settings);
         }
         #endregion
 
@@ -2562,7 +2904,7 @@ namespace MnM.GWS
         /// Draws focus rectangle i.e. border around specified with dotted invert colors
         /// </summary>
         /// <param name="rc">Rectangle to draw focus around.</param>
-        public static void DrawFocusRect(this IBuffer block, Rectangle rc)
+        public static void DrawFocusRect(this IWritable block, Rectangle rc, IRenderInfo info)
         {
             if (rc == null)
                 return;
@@ -2570,21 +2912,21 @@ namespace MnM.GWS
             int Y = rc.Y;
             int W = rc.Width;
             int H = rc.Height;
-            var settings = new DrawSettings();
-            settings.CopySettings(block.Settings);
-            block.Settings.CopySettings(null, true);
-            block.Settings.FillMode = FillMode.DrawOutLine;
-            block.Settings.LineCommand = LineCommand.Dot;
-            block.Settings.BrushCommand |= BrushCommand.InvertColor;
+            var Settings = info ?? new RenderInfo("FocusRect");
+            Settings.CopySettings(null, true);
+            info.FillMode = FillMode.DrawOutLine;
+            info.Command = DrawCommand.Dot | DrawCommand.InvertCanvasColor
 #if Advanced
-            block.Settings.BrushCommand |= BrushCommand.NoAutoSizing;
+             | DrawCommand.NoBrushAutoSizing
 #endif
-            block.DrawRectangle(X, Y, W, H, block.Background);
-            block.Settings.CopySettings(settings);
+             ;
+            Settings.Foreground = (block as IBackground)?.BackgroundPen;
+            block.DrawRectangle(X, Y, W, H, Settings);
         }
         #endregion
 
         #region PORTION
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Size Portion(this ICopyable block, out int[] Data, int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (block == null)
@@ -2600,6 +2942,8 @@ namespace MnM.GWS
             }
             return new Size(rc);
         }
+      
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Size Portion(this ICopyable block, out IntPtr Data, int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (block == null)
@@ -2626,6 +2970,7 @@ namespace MnM.GWS
         /// <param name="path">Path of a file to create and write dat to</param>
         /// <param name="format">Format of the targeted image file</param>
         /// <param name="quality">Resolution quality of the tageted image file</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Write(this IImageProcessor writer, ICopyable image, string path, ImageFormat format, int pitch = 4, int quality = 50)
         {
             try
@@ -2644,6 +2989,7 @@ namespace MnM.GWS
         /// <param name="image">Memory block to write to disk file</param>
         /// <param name="format">Format of the targeted image file</param>
         /// <param name="quality">Resolution quality of the tageted image file</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Write(this IImageProcessor writer, ICopyable image, Stream dest, ImageFormat format, int pitch = 4, int quality = 50)
         {
             int[] data = new int[image.Width * image.Height];
@@ -2664,6 +3010,7 @@ namespace MnM.GWS
         /// <param name="path">Path of a file to create and write dat to</param>
         /// <param name="format">Format of the targeted image file</param>
         /// <param name="quality">Resolution quality of the tageted image file</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Write(this IImageProcessor writer, int[] pixels, int width, int height, string path, ImageFormat format, int pitch = 4, int quality = 50)
         {
             try
@@ -2691,6 +3038,7 @@ namespace MnM.GWS
         /// <param name="portion">Null represents a whole chunk of memory block. Other wise a prtion determined by location X, Y and size Width, Height of the portion rectangle</param>
         /// <param name="pitch">Pitch of the image - default is 4 - R, G, B, A</param>
         /// <param name="quality">Resolution quality of the tageted image file</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SaveAs(this ICopyable block, string file,
             ImageFormat format = ImageFormat.BMP, Rectangle? portion = null, int pitch = 4, int quality = 50)
         {
@@ -2715,47 +3063,21 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region COPY FROM
-        /// <summary>
-        /// Copies a data block specified by srcX, srcY, srcW and srcH parameters to itself.
-        /// </summary>
-        /// <param name="target">Target which data to be uploaded to.</param>
-        /// <param name="source">Source which data to be uploaded from.</param>
-        /// <param name="srcX">X co-ordinate of source area to upload.</param>
-        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
-        /// <param name="srcW">Width of source area to upload.</param>
-        /// <param name="srcH">Height of source area to upload.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyFrom(this ICopier target, ICopyable source, int srcX, int srcY, int srcW, int srcH) =>
-            target.CopyFrom(source, srcX, srcY, srcX, srcY, srcW, srcH);
-
-        /// <summary>
-        /// Copies a data block specified by srcX, srcY, srcW and srcH parameters to itself.
-        /// </summary>
-        /// <param name="target">Target which data to be uploaded to.</param>
-        /// <param name="source">Source which data to be uploaded from.</param>
-        /// <param name="srcX">X co-ordinate of source area to upload.</param>
-        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
-        /// <param name="srcW">Width of source area to upload.</param>
-        /// <param name="srcH">Height of source area to upload.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyFrom(this ICopier target, ICopyable source, Rectangle sourceArea) =>
-            target.CopyFrom(source, sourceArea.X, sourceArea.Y, sourceArea.X, sourceArea.Y, sourceArea.Width, sourceArea.Height);
-        #endregion
-
         #region COPY TO
         /// <summary>
-        /// 
+        /// Copies a memory block to the given destination.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="block"></param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="area">Area to copy</param>
-        /// <param name="updateImmediate"></param>
+        /// <param name="block">buffer which to render this memory block on</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="area">Area to copy from source to the block</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
-        public static Rectangle CopyTo(this ICopyable source, IWritable block, int dstX, int dstY, Rectangle area, bool updateImmediate = true) =>
-            source.CopyTo(block, dstX, dstY, area.X, area.Y, area.Width, area.Height, updateImmediate);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rectangle CopyTo(this ICopyable source, IBlockable block, int dstX, int dstY, Rectangle area, DrawCommand command = 0) =>
+            source.CopyTo(block, dstX, dstY, area.X, area.Y, area.Width, area.Height, command);
 
         /// <summary>
         /// 
@@ -2763,10 +3085,11 @@ namespace MnM.GWS
         /// <param name="source"></param>
         /// <param name="block"></param>
         /// <param name="area"></param>
-        /// <param name="updateImmediate"></param>
+        /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
-        public static Rectangle CopyTo(this ICopyable source, IWritable block, Rectangle area, bool updateImmediate = true) =>
-            source.CopyTo(block, area.X, area.Y, area.X, area.Y, area.Width, area.Height, updateImmediate);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rectangle CopyTo(this ICopyable source, IBlockable block, Rectangle area, DrawCommand command = 0) =>
+            source.CopyTo(block, area.X, area.Y, area.X, area.Y, area.Width, area.Height, command);
         #endregion
 
         #region INVALIDATE
@@ -2776,49 +3099,388 @@ namespace MnM.GWS
         /// <param name="updatable"></param>
         /// <param name="area">Area to invalidate.</param>
         /// <param name="updateImmediate"></param>
-        public static void Invalidate(this IUpdatable updatable, Rectangle area, bool updateImmediate = true) =>
-            updatable.Invalidate(area.X, area.Y, area.Width, area.Height, updateImmediate);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Invalidate(this IUpdatable updatable, Rectangle area) =>
+            updatable.Invalidate(area.X, area.Y, area.Width, area.Height);
+        #endregion
+
+        #region CLEAR
+        /// <summary>
+        /// Clears data blocks covered by area specified by x, y, width and height paramters.
+        /// </summary>
+        /// <param name="command">A command to control clearing operation.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Clear(this IWritable block, DrawCommand command = 0) =>
+            block.Clear(0, 0, block.Width, block.Height, command);
+        #endregion
+
+        #region ROTATE & FLIP
+        /// <summary>
+        /// Source: https://www.drdobbs.com/architecture-and-design/fast-bitmap-rotation-and-scaling/184416337
+        /// Returns a rotated and scalled memory block of this object alongwith size of it.
+        /// </summary>
+        /// <param name="rotation">Angle of rotation to apply.</param>
+        /// <param name="antiAliased">If true copy is antialised version of this object otherwise not.</param>
+        /// <param name="scale">Scale to apply.</param>
+        /// <returns>Rotated and scalled copy of this object.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Size RotateAndScale(this IBlockable source, out IntPtr data, Rotation rotation, bool antiAliased = true, float scale = 1)
+        {
+            if(source is IScalable)
+            {
+                return ((IScalable)source).RotateAndScale(out data, rotation, antiAliased, scale);
+            }
+            int dstW = source.Width;
+            int dstH = source.Height;
+            int dstLen = source.Length;
+
+            Size size = new Size(dstW, dstH);
+            if (scale <= 0) scale = 1;
+            int srcW = dstW;
+            int srcH = dstH;
+            int srcLen = dstLen;
+            int* src;
+
+            int* dst;
+            fixed (int* p = new int[dstW * dstH])
+                dst = p;
+            data = IntPtr.Zero;
+
+            if (!rotation && scale == 1)
+            {
+                if (source is IPixels)
+                {
+                    Blocks.Copy((int*)((IPixels)source).Source, 0, dst, 0, dstW, true);
+                    data = (IntPtr)dst;
+                }
+                else if(source is ICopyable)
+                {
+                    data = (IntPtr)dst;
+                    ((ICopyable)source).CopyTo(0, 0, srcW, srcH, data, dstLen, dstW, 0, 0, 0);
+                }
+                return size;
+            }
+
+            fixed (int* p = new int[srcW * srcH])
+                src = p;
+          
+            if (source is IPixels)
+            {
+                Blocks.Copy((int*)((IPixels)source).Source, 0, src, 0, srcW, true);
+            }
+            else if (source is ICopyable)
+            {
+                ((ICopyable)source).CopyTo(0, 0, srcW, srcH, (IntPtr)src, srcLen, srcW, 0, 0, 0);
+            }
+            else
+            {
+                data = IntPtr.Zero;
+                return Size.Empty;
+            }
+            int srcCx = srcW / 2;
+            int srcCy = srcH / 2;
+
+            int dstCx = dstW / 2;
+            int dstCy = dstH / 2;
+
+            bool intCalculation = !antiAliased;
+
+            float dstXf = 0;
+            float dstYf = 0;
+            int dstXi = 0;
+            int dstYi = 0;
+            float x3 = 0, y3 = 0;
+            int x0 = 0, y0 = 0, xi = 0, yi = 0;
+            int color = 0;
+
+            int Sini = rotation.Sini;
+            int Cosi = rotation.Cosi;
+
+            float Sin = rotation.Sin;
+            float Cos = rotation.Cos;
+
+            if (scale != 1)
+            {
+                Sin *= 1f / scale;
+                Cos *= 1f / scale;
+
+                Sini = (Sin * Angles.Big).Round();
+                Cosi = (Cos * Angles.Big).Round();
+            }
+
+            if (intCalculation)
+            {
+                dstXi = -(dstCx * Cosi + dstCy * Sini);
+                dstYi = -(dstCx * -Sini + dstCy * Cosi);
+            }
+            else
+            {
+                dstXf = srcCx - (dstCx * Cos + dstCy * Sin);
+                dstYf = srcCy - (dstCx * -Sin + dstCy * Cos);
+            }
+
+            for (int j = 0; j < dstH; j++)
+            {
+                if (intCalculation)
+                {
+                    xi = dstXi;
+                    yi = dstYi;
+                }
+                else
+                {
+                    x3 = dstXf;
+                    y3 = dstYf;
+                }
+
+                int* pDst = dst + (dstW * j);
+
+                for (int i = 0; i < dstW; i++)
+                {
+                    if (intCalculation)
+                    {
+                        x0 = srcCx + (xi >> Angles.BigExp);
+                        y0 = srcCy + (yi >> Angles.BigExp);
+                    }
+                    else
+                    {
+                        x0 = (int)x3;
+                        y0 = (int)y3;
+                    }
+
+                    if (x0 < 0 || y0 < 0 || x0 >= srcW || y0 >= srcH)
+                    {
+                        pDst++;
+                        goto horizotalIncrement;
+                    }
+
+                    var index = x0 + (y0 * srcW);
+
+                    if (intCalculation || (x0 - x3 == 0 && y3 - y0 == 0))
+                    {
+                        color = src[index];
+                        if (color == 0)
+                            color = *pDst;
+                        goto assignColor;
+                    }
+                    float Dx = x3 - x0;
+                    float Dy = y3 - y0;
+
+                    #region BI-LINEAR INTERPOLATION
+                    uint rb, ag, c3 = 0, c4 = 0;
+                    int n = index + srcW;
+                    bool only2 = (n >= srcLen || n + 1 >= srcLen);
+
+                    uint c1 = (uint)src[index++];
+                    uint c2 = (uint)src[index];
+                    if (!only2)
+                    {
+                        c3 = (uint)src[n++];
+                        c4 = (uint)src[n];
+                    }
+                    if (c1 == 0 || c1 == GWS.Colors.Transparent)
+                        c1 = GWS.Colors.White;
+                    if (c2 == 0 || c2 == GWS.Colors.Transparent)
+                        c2 = GWS.Colors.White;
+
+                    if (c3 == 0 || c3 == GWS.Colors.Transparent)
+                        c3 = GWS.Colors.White;
+                    if (c4 == 0 || c4 == GWS.Colors.Transparent)
+                        c4 = GWS.Colors.White;
+
+                    uint alpha = (uint)(Dx * 255);
+                    uint invAlpha = 255 - alpha;
+
+                    if (alpha == 255)
+                        c1 = c2;
+
+                    else if (alpha != 0)
+                    {
+                        rb = ((invAlpha * (c1 & GWS.Colors.RBMASK)) + (alpha * (c2 & GWS.Colors.RBMASK))) >> 8;
+                        ag = (invAlpha * ((c1 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c2 & GWS.Colors.GMASK) >> 8)));
+                        c1 = ((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+                    }
+                    if (only2)
+                    {
+                        color = (int)c1;
+                        goto assignColor;
+                    }
+
+                    if (alpha == 255)
+                        c3 = c4;
+                    else if (alpha != 0)
+                    {
+                        rb = ((invAlpha * (c3 & GWS.Colors.RBMASK)) + (alpha * (c4 & GWS.Colors.RBMASK))) >> 8;
+                        ag = (invAlpha * ((c3 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c4 & GWS.Colors.GMASK) >> 8)));
+                        c3 = ((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+                    }
+
+                    alpha = (uint)(Dy * 255);
+                    invAlpha = 255 - alpha;
+
+                    if (alpha == 255)
+                        color = (int)c3;
+                    else if (alpha != 0)
+                    {
+                        rb = ((invAlpha * (c1 & GWS.Colors.RBMASK)) + (alpha * (c3 & GWS.Colors.RBMASK))) >> 8;
+                        ag = (invAlpha * ((c1 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c3 & GWS.Colors.GMASK) >> 8)));
+                        color = (int)((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+                    }
+                    else
+                        color = (int)c1;
+                    #endregion
+
+                    assignColor:
+                    *pDst++ = color;
+
+                horizotalIncrement:
+                    #region HORIZONTAL INCREMENT
+                    if (intCalculation)
+                    {
+                        xi += Cosi;
+                        yi -= Sini;
+                    }
+                    else
+                    {
+                        x3 += Cos;
+                        y3 -= Sin;
+                    }
+                    #endregion
+                }
+
+                #region VERTICAL INCREMENT
+                if (intCalculation)
+                {
+                    dstXi += Sini;
+                    dstYi += Cosi;
+                }
+                else
+                {
+                    dstXf += Sin;
+                    dstYf += Cos;
+                }
+                #endregion
+            }
+            data = (IntPtr)dst;
+            return size;
+        }
+
+        /// <summary>
+        /// Returns a flipped version of this object alogwith size of it.
+        /// </summary>
+        /// <param name="flipMode"></param>
+        /// <returns>Flipped copy of this object.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Size Flip(this IBlockable source, out IntPtr data, Flip flipMode)
+        {
+            if (source is IScalable)
+            {
+                return ((IScalable)source).Flip(out data, flipMode);
+            }
+            int dstW = source.Width;
+            int dstH = source.Height;
+            int dstLen = source.Length;
+
+            int srcW = dstW;
+            int srcH = dstH;
+            int srcLen = dstLen;
+            int* src;
+
+            int* dst;
+            fixed (int* p = new int[dstW * dstH])
+                dst = p;
+            data = IntPtr.Zero;
+
+            fixed (int* p = new int[srcW * srcH])
+                src = p;
+            if (source is IPixels)
+            {
+                Blocks.Copy((int*)((IPixels)source).Source, 0, src, 0, srcW, true);
+            }
+            else if (source is ICopyable)
+            {
+                ((ICopyable)source).CopyTo(0, 0, srcW, srcH, (IntPtr)src, srcLen, srcW, 0, 0, 0);
+            }
+            else
+            {
+                data = IntPtr.Zero;
+                return Size.Empty;
+            }
+            int i = 0;
+            if (flipMode == GWS.Flip.Horizontal)
+            {
+                for (var y = srcH - 1; y >= 0; y--)
+                {
+                    for (var x = 0; x < srcW; x++)
+                    {
+                        var srcInd = y * srcW + x;
+                        dst[i] = src[srcInd];
+                        i++;
+                    }
+                }
+            }
+            else
+            {
+                for (var y = 0; y < srcH; y++)
+                {
+                    for (var x = srcW - 1; x >= 0; x--)
+                    {
+                        var srcInd = y * srcW + x;
+                        dst[i] = src[srcInd];
+                        i++;
+                    }
+                }
+            }
+
+            if (flipMode == GWS.Flip.Vertical)
+                Numbers.Swap(ref srcW, ref srcH);
+            data = (IntPtr)dst;
+            return new Size(srcW, srcH);
+        }
         #endregion
     }
     partial class Renderer
     {
         #region RENDER CIRCLE OR ELLIPSE
-        static void RenderCircleOrEllipse(this IBuffer buffer, float x, float y, float width, float height,
-            IReadContext context = null)
+        static void RenderCircleOrEllipse(this IWritable buffer, float x, float y, float width, float height,
+            IContext context = null)
         {
             if (buffer == null)
                 return;
-            var curve = Factory.newCurve(x, y, width, height, 0, 0, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
-
+            var Settings = buffer.GetSettings(context, "Ellipse".NewID(false));
+            var curve = Factory.newCurve(x, y, width, height, 0, 0, CurveType.Full, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
-        static void RenderCircleOrEllipse(this IBuffer buffer, VectorF first, VectorF second, VectorF third, IReadContext context = null,
+        static void RenderCircleOrEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, IContext context = null,
             CurveType type = CurveType.Full)
         {
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Arc).Exclude(CurveType.Pie).Exclude(CurveType.ClosedArc);
             type = type.Include(CurveType.Full);
-            var curve = Factory.newCurve(first, second, third, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var Settings = buffer.GetSettings(context, "Ellipse".NewID(false));
+            var curve = Factory.newCurve(first, second, third, type, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
-        static void RenderCircleOrEllipse(this IBuffer buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
-            IReadContext context = null, CurveType type = CurveType.Full)
+        static void RenderCircleOrEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
+            IContext context = null, CurveType type = CurveType.Full)
         {
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Arc).Exclude(CurveType.Pie).Exclude(CurveType.ClosedArc);
             type = type.Include(CurveType.Full);
-            var curve = Factory.newCurve(first, second, third, fourth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var Settings = buffer.GetSettings(context, "Ellipse".NewID(false));
+            var curve = Factory.newCurve(first, second, third, fourth, type, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
-        static void RenderCircleOrEllipse(this IBuffer buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth,
-            IReadContext context = null)
+        static void RenderCircleOrEllipse(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth, VectorF fifth,
+            IContext context = null)
         {
             if (buffer == null)
                 return;
-            ICurve curve = Factory.newCurve(first, second, third, fourth, fifth, CurveType.Full, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var Settings = buffer.GetSettings(context, "Ellipse".NewID(false));
+            ICurve curve = Factory.newCurve(first, second, third, fourth, fifth, CurveType.Full, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
         #endregion
@@ -2837,15 +3499,17 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IBuffer buffer, float x, float y, float width, float height,
-            float startAngle, float endAngle, IReadContext context = null, CurveType type = CurveType.Pie)
+        static void RenderArcOrPie(this IWritable buffer, float x, float y, float width, float height,
+            float startAngle, float endAngle, IContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
                 return;
 
             type = type.Exclude(CurveType.Full);
+            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
+            var Settings = buffer.GetSettings(context, name.NewID(false));
 
-            var curve = Factory.newCurve(x, y, width, height, startAngle, endAngle, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(x, y, width, height, startAngle, endAngle, type, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -2859,13 +3523,15 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, IReadContext context = null, CurveType type = CurveType.Pie)
+        static void RenderArcOrPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, IContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Full);
+            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
+            var Settings = buffer.GetSettings(context, name.NewID(false));
 
-            var curve = Factory.newCurve(p1, p2, p3, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            var curve = Factory.newCurve(p1, p2, p3, type, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -2880,12 +3546,14 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IBuffer buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IReadContext context = null, CurveType type = CurveType.Pie)
+        static void RenderArcOrPie(this IWritable buffer, VectorF p1, VectorF p2, VectorF p3, VectorF p4, IContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Full);
-            var curve = Factory.newCurve(p1, p2, p3, p4, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
+            var Settings = buffer.GetSettings(context, name.NewID(false));
+            var curve = Factory.newCurve(p1, p2, p3, p4, type, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
 
@@ -2901,12 +3569,14 @@ namespace MnM.GWS
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        static void RenderArcOrPie(this IBuffer buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
-            VectorF fifth, IReadContext context = null, CurveType type = CurveType.Pie)
+        static void RenderArcOrPie(this IWritable buffer, VectorF first, VectorF second, VectorF third, VectorF fourth,
+            VectorF fifth, IContext context = null, CurveType type = CurveType.Pie)
         {
             if (buffer == null)
                 return;
-            var curve = Factory.newCurve(first, second, third, fourth, fifth, type, buffer.Settings.Rotation, buffer.Settings.Scale);
+            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
+            var Settings = buffer.GetSettings(context, name.NewID(false));
+            var curve = Factory.newCurve(first, second, third, fourth, fifth, type, Settings.Rotation, Settings.Scale);
             DrawCurve(buffer, curve, context);
         }
         #endregion
@@ -2920,8 +3590,8 @@ namespace MnM.GWS
         /// <param name="type">BezierType enum determines the type of bezier i.e Cubic - group of 4 points or multiple(group of 4 or 7 or 10 so on...)</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the bezier</param>
-        static void RenderBezier(this IBuffer buffer, IEnumerable<float> pts, BezierType type = BezierType.Cubic,
-            IReadContext context = null)
+        static void RenderBezier(this IWritable buffer, IEnumerable<float> pts, BezierType type = BezierType.Cubic,
+            IContext context = null)
         {
             if (buffer == null)
                 return;
@@ -2944,7 +3614,7 @@ namespace MnM.GWS
         /// <param name="y3">Y corodinate of the third point</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the traingle</param>
-        static void RenderTriangle(this IBuffer buffer, float x1, float y1, float x2, float y2, float x3, float y3, IReadContext context)
+        static void RenderTriangle(this IWritable buffer, float x1, float y1, float x2, float y2, float x3, float y3, IContext context)
         {
             if (buffer == null)
                 return;
@@ -2961,7 +3631,7 @@ namespace MnM.GWS
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon an each group of two subsequent values in polypoints forms a point x,y</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the polygon</param>
-        static void RenderPolygon(this IBuffer buffer, IEnumerable<float> polyPoints, IReadContext context)
+        static void RenderPolygon(this IWritable buffer, IEnumerable<float> polyPoints, IContext context)
         {
             if (buffer == null)
                 return;
@@ -2982,7 +3652,7 @@ namespace MnM.GWS
         /// <param name="height">Height the rectangle</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rectangle</param>
-        static void RenderRectangle(this IBuffer buffer, float x, float y, float width, float height, IReadContext context)
+        static void RenderRectangle(this IWritable buffer, float x, float y, float width, float height, IContext context)
         {
             if (buffer == null)
                 return;
@@ -3003,8 +3673,8 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
         /// <param name="angle">Angle to apply rotation while rendering the rounded box</param>
-        static void RenderRoundedBox(this IBuffer buffer, float x, float y, float width, float height, float cornerRadius,
-            IReadContext context)
+        static void RenderRoundedBox(this IWritable buffer, float x, float y, float width, float height, float cornerRadius,
+            IContext context)
         {
             if (buffer == null)
                 return;
@@ -3026,7 +3696,7 @@ namespace MnM.GWS
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="deviation">If not zero, it replaces the value of width parameter</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        static void RenderRhombus(this IBuffer buffer, float x, float y, float width, float height, float? deviation, IReadContext context) =>
+        static void RenderRhombus(this IWritable buffer, float x, float y, float width, float height, float? deviation, IContext context) =>
             RenderRectangle(buffer, x, y, (deviation ?? width), height, context);
 
         /// <summary>
@@ -3038,7 +3708,7 @@ namespace MnM.GWS
         /// <param name="third">Third point</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        static void RenderRhombus(this IBuffer buffer, VectorF first, VectorF second, VectorF third, IReadContext context)
+        static void RenderRhombus(this IWritable buffer, VectorF first, VectorF second, VectorF third, IContext context)
         {
             var rhombus = Factory.newTetragon(first, second, third);
             buffer.Render(rhombus, context);
@@ -3054,11 +3724,12 @@ namespace MnM.GWS
         /// <param name="deviation">A deviation from a base line to form a parallel line to construct a trapezium</param>
         /// <param name="skeyBy">A change in parallel line size to tilt the trapezium</param>
         /// <param name="context">A pen context which to create a buffer pen from</param>
-        static void RenderTrapezium(this IBuffer buffer, ILine baseLine, float deviation, float skeyBy, IReadContext context)
+        static void RenderTrapezium(this IWritable buffer, ILine baseLine, float deviation, float skeyBy, IContext context)
         {
             if (buffer == null)
                 return;
-            ITetragon trapezium = Factory.newTetragon(baseLine, deviation, buffer.Settings.StrokeMode, skeyBy);
+            var Settings = buffer.GetSettings(context, "Trapezium".NewID(false));
+            ITetragon trapezium = Factory.newTetragon(baseLine, deviation, Settings.StrokeMode, skeyBy);
             buffer.Render(trapezium, context);
         }
         #endregion
@@ -3074,7 +3745,7 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CreateAction(this ICollection<VectorF> list, out PixelAction<float> action)
         {
-            action = (val1, axis, horizontal) =>
+            action = (val1, axis, horizontal, cmd) =>
             {
                 list.Add(new VectorF(val1, axis, horizontal));
             };
@@ -3088,7 +3759,7 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CreateAction(this ICollection<Vector> list, out PixelAction<int> action)
         {
-            action = (val1, axis, horizontal) =>
+            action = (val1, axis, horizontal, cmd) =>
             {
                 list.Add(new Vector(val1, axis, horizontal));
             };
@@ -3132,7 +3803,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         /// If current stroke value is other than 0, it results in a rendering of a trapezium instead of the line</param>
-        public static void Process(this ILine line, PixelAction<float> action, LineCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
+        public static void Process(this ILine line, PixelAction<float> action, DrawCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (line == null || !line.Valid)
                 return;
@@ -3146,7 +3817,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         /// If current stroke is other than 0, it results in a rendering of a trapezium instead of the line</param>
-        public static void Process(this ILine line, PixelAction<int> action, LineCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
+        public static void Process(this ILine line, PixelAction<int> action, DrawCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (line == null || !line.Valid)
                 return;
@@ -3162,7 +3833,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A Vector action delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(int x1, int y1, int x2, int y2, VectorAction<int> action, LineCommand lineCommand, Size clip = default(Size))
+        public static void ProcessLine(int x1, int y1, int x2, int y2, VectorAction<int> action, DrawCommand lineCommand, Size clip = default(Size))
         {
             ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand, 0, clip);
         }
@@ -3176,7 +3847,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A Vector action delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(float x1, float y1, float x2, float y2, VectorAction<float> action, LineCommand lineCommand, Size clip = default(Size))
+        public static void ProcessLine(float x1, float y1, float x2, float y2, VectorAction<float> action, DrawCommand lineCommand, Size clip = default(Size))
         {
             ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand, 0, clip);
         }
@@ -3190,7 +3861,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Process(this IEnumerable<ILine> lines, PixelAction<float> action, LineCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
+        public static void Process(this IEnumerable<ILine> lines, PixelAction<float> action, DrawCommand lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (lines == null || skip == SlopeType.Both)
                 return;
@@ -3267,38 +3938,37 @@ namespace MnM.GWS
         /// <param name="Action">A FillAction delegate which has routine to do something with the axial scan line information provided.</param>
         /// <param name="drawOutLines">>If true, border around filled area will get drawn.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessTriangle(VectorF p1, VectorF p2, VectorF p3, FillAction<float> Action, IDrawSettings Settings, bool drawOutLines = true)
+        public static void ProcessTriangle(this IPolyFill polyFill, VectorF p1, VectorF p2, VectorF p3, FillAction<float> Action,
+            FillMode fillMode, DrawCommand drawCommand, bool drawOutLines = true)
         {
-            bool drawOutLinesOnly = Settings.FillMode == FillMode.DrawOutLine;
+            bool drawOutLinesOnly = fillMode == FillMode.DrawOutLine;
             drawOutLines = drawOutLines || drawOutLinesOnly;
             SlopeType steep = drawOutLinesOnly ? 0 : SlopeType.Steep;
 
             if (drawOutLines)
             {
                 var pixelAction = Action.ToPixelAction();
-                ProcessLine(p1.X, p1.Y, p2.X, p2.Y, pixelAction, Settings.LineCommand, steep);
-                ProcessLine(p2.X, p2.Y, p3.X, p3.Y, pixelAction, Settings.LineCommand, steep);
-                ProcessLine(p3.X, p3.Y, p1.X, p1.Y, pixelAction, Settings.LineCommand, steep);
+                ProcessLine(p1.X, p1.Y, p2.X, p2.Y, pixelAction, drawCommand, steep);
+                ProcessLine(p2.X, p2.Y, p3.X, p3.Y, pixelAction, drawCommand, steep);
+                ProcessLine(p3.X, p3.Y, p1.X, p1.Y, pixelAction, drawCommand, steep);
             }
 
             if (drawOutLinesOnly)
                 return;
 
+            Vectors.MinMax(polyFill.Clip, out _, out float minY, out _, out float maxY, p1, p2, p3);
+            polyFill.Command |= DrawCommand.IgnoreAutoCalculatedFillPatten;
 
-            Vectors.MinMax(Settings.Clip, out _, out float minY, out _, out float maxY, p1, p2, p3);
-            using (var polyFill = Factory.newPolyFill())
-            {
-                Settings.BrushCommand |= BrushCommand.IgnoreAutoCalculatedFillPatten;
+            polyFill.Begin(minY.Round(), (int)maxY + 1);
+            polyFill.Command |= DrawCommand.OddEvenPolyFill;
 
-                polyFill.Begin(minY.Round(), (int)maxY + 1, Settings.FillCommand | FillCommand.OddEvenPolyFill);
-                ScanLine(p1.X, p1.Y, p2.X, p2.Y, true, polyFill.ScanAction);
-                ScanLine(p2.X, p2.Y, p3.X, p3.Y, true, polyFill.ScanAction);
-                ScanLine(p3.X, p3.Y, p1.X, p1.Y, true, polyFill.ScanAction);
+            ScanLine(p1.X, p1.Y, p2.X, p2.Y, true, polyFill.ScanAction);
+            ScanLine(p2.X, p2.Y, p3.X, p3.Y, true, polyFill.ScanAction);
+            ScanLine(p3.X, p3.Y, p1.X, p1.Y, true, polyFill.ScanAction);
 
-                polyFill.Fill(Action, Settings.LineCommand);
-                polyFill.End();
-                Settings.BrushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
-            }
+            polyFill.Fill(Action);
+            polyFill.End();
+            polyFill.Command &= ~DrawCommand.IgnoreAutoCalculatedFillPatten;
         }
         #endregion
 
@@ -3313,41 +3983,39 @@ namespace MnM.GWS
         /// <param name="Action">A FillAction delegate which has routine to do something with the axial scan line information provided.</param>
         /// <param name="drawOutLines">>If true, border around filled area will get drawn.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessQuardilateral(VectorF p1, VectorF p2, VectorF p3, VectorF p4, FillAction<float> Action, IDrawSettings Settings, bool drawOutLines = true)
+        public static void ProcessQuardilateral(this IPolyFill polyFill, VectorF p1, VectorF p2, VectorF p3, VectorF p4,
+            FillAction<float> Action, FillMode fillMode, bool drawOutLines = true)
         {
-            bool drawOutLinesOnly = Settings.FillMode == FillMode.DrawOutLine;
+            bool drawOutLinesOnly = fillMode == FillMode.DrawOutLine;
             drawOutLines = drawOutLines || drawOutLinesOnly;
             SlopeType steep = drawOutLinesOnly ? 0 : SlopeType.Steep;
+            var fillCommand = polyFill.Command;
+            var clip = polyFill.Clip;
 
             if (drawOutLines)
             {
                 var pixelAction = Action.ToPixelAction();
-                ProcessLine(p1.X, p1.Y, p2.X, p2.Y, pixelAction, Settings.LineCommand, steep);
-                ProcessLine(p3.X, p3.Y, p4.X, p4.Y, pixelAction, Settings.LineCommand, steep);
-                ProcessLine(p1.X, p1.Y, p3.X, p3.Y, pixelAction, Settings.LineCommand, steep);
-                ProcessLine(p2.X, p2.Y, p4.X, p4.Y, pixelAction, Settings.LineCommand, steep);
+                ProcessLine(p1.X, p1.Y, p2.X, p2.Y, pixelAction, fillCommand, steep);
+                ProcessLine(p3.X, p3.Y, p4.X, p4.Y, pixelAction, fillCommand, steep);
+                ProcessLine(p1.X, p1.Y, p3.X, p3.Y, pixelAction, fillCommand, steep);
+                ProcessLine(p2.X, p2.Y, p4.X, p4.Y, pixelAction, fillCommand, steep);
             }
 
             if (drawOutLinesOnly)
                 return;
 
-            Vectors.MinMax(Settings.Clip, out float minX, out float minY, out float maxX, out float maxY, p1, p2, p3, p4);
+            Vectors.MinMax(clip, out float minX, out float minY, out float maxX, out float maxY, p1, p2, p3, p4);
 
-            using (var PolyFill = Factory.newPolyFill())
-            {
-                Settings.BrushCommand |= BrushCommand.IgnoreAutoCalculatedFillPatten;
-                PolyFill.Begin(minY.Round(), (int)maxY + 1, Settings.FillCommand | FillCommand.OddEvenPolyFill);
+            polyFill.Begin(minY.Round(), (int)maxY + 1);
 
-                ScanLine(p1.X, p1.Y, p2.X, p2.Y, true, PolyFill.ScanAction);
-                ScanLine(p4.X, p4.Y, p3.X, p3.Y, true, PolyFill.ScanAction);
+            ScanLine(p1.X, p1.Y, p2.X, p2.Y, true, polyFill.ScanAction);
+            ScanLine(p4.X, p4.Y, p3.X, p3.Y, true, polyFill.ScanAction);
 
-                ScanLine(p1.X, p1.Y, p3.X, p3.Y, true, PolyFill.ScanAction);
-                ScanLine(p2.X, p2.Y, p4.X, p4.Y, true, PolyFill.ScanAction);
+            ScanLine(p1.X, p1.Y, p3.X, p3.Y, true, polyFill.ScanAction);
+            ScanLine(p2.X, p2.Y, p4.X, p4.Y, true, polyFill.ScanAction);
 
-                PolyFill.Fill(Action, Settings.LineCommand);
-                PolyFill.End();
-                Settings.BrushCommand &= ~BrushCommand.IgnoreAutoCalculatedFillPatten;
-            }
+            polyFill.Fill(Action);
+            polyFill.End();
         }
         #endregion
 
@@ -3361,10 +4029,11 @@ namespace MnM.GWS
         /// <param name="Action">A FillAction delegate which has routine to do something with the axial scan line information provided.</param>
         /// <param name="drawOutLines">>If true, border around filled area will get drawn.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessRhombus(VectorF p1, VectorF p2, VectorF p3, FillAction<float> Action, IDrawSettings Settings, bool drawOutLines = true)
+        public static void ProcessRhombus(this IPolyFill polyFill, VectorF p1, VectorF p2, VectorF p3,
+            FillAction<float> Action, FillMode fillMode, bool drawOutLines = true)
         {
             var p4 = Vectors.FourthPointOfRhombus(p1, p2, p3);
-            ProcessQuardilateral(p1, p2, p3, p4, Action, Settings, drawOutLines);
+            polyFill.ProcessQuardilateral(p1, p2, p3, p4, Action, fillMode, drawOutLines);
         }
         #endregion
 
@@ -3375,54 +4044,49 @@ namespace MnM.GWS
         /// <param name="conic">Conic object to process.</param>
         /// <param name="action">A FillAction delegate which has routine to do something with the axial scan line information provided.</param>
         /// <param name="forDrawingOnly">If true, only ends point of axial line will be drawn otherwise full line.</param>
-        public static void Process(this IConic conic, FillAction<float> action, IDrawSettings Settings, bool forDrawingOnly)
+        public static void ProcessConic(this IPolyFill polyFill, IConic conic, FillAction<float> action, float Stroke, bool forDrawingOnly)
         {
             if (action == null)
                 return;
             CurveType type = CurveType.Full;
             if (conic is ICurve)
-            {
-                type = (conic as ICurve).Type;
-            }
+                type = ((ICurve)conic).Type;
 
             bool Full = !(type.HasFlag(CurveType.Arc) || type.HasFlag(CurveType.Pie));
 
-            if (Settings.Stroke == 0 && type.HasFlag(CurveType.Arc))
+            if (Stroke == 0 && type.HasFlag(CurveType.Arc))
                 forDrawingOnly = true;
+            var fillCommand = polyFill.Command;
 
-            Settings.FillCommand |= FillCommand.DrawEndsOnly;
-            Settings.FillCommand |= FillCommand.FillSinglePointLine;
+            polyFill.Command |= DrawCommand.DrawEndsOnly;
+            polyFill.Command |= DrawCommand.FillSinglePointLine;
 
-            using (var PolyFill = Factory.newPolyFill())
+            int i;
+            int a1, a2;
+            //polyFill.FillCommand = fillCommand;
+            i = conic.GetBoundary(false, true);
+            while (i >= 0)
             {
-                int i;
-                int a1, a2;
-                PolyFill.FillCommand = Settings.FillCommand;
-                i = conic.GetBoundary(false, true);
-                while (i >= 0)
-                {
-                    var list = conic.GetDataAt(i, false, true, out a1, out a2);
-                    PolyFill.FillLine(list[0], a1, false, action);
-                    PolyFill.FillLine(list[1], a2, false, action);
-                    i -= 1;
-                }
-
-                if (!forDrawingOnly)
-                    Settings.FillCommand &= ~FillCommand.DrawEndsOnly;
-
-                Settings.FillCommand &= ~FillCommand.DrawLineOnly;
-                PolyFill.FillCommand = Settings.FillCommand;
-
-                i = conic.GetBoundary(true, forDrawingOnly);
-
-                while (i >= 0)
-                {
-                    var list = conic.GetDataAt(i, true, forDrawingOnly, out a1, out a2);
-                    PolyFill.FillLine(list[0], a1, true, action);
-                    PolyFill.FillLine(list[1], a2, true, action);
-                    i -= 1;
-                }
+                var list = conic.GetDataAt(i, false, true, out a1, out a2);
+                polyFill.FillLine(list[0], a1, false, action);
+                polyFill.FillLine(list[1], a2, false, action);
+                i -= 1;
             }
+
+            if (!forDrawingOnly)
+                polyFill.Command &= ~DrawCommand.DrawEndsOnly;
+
+            polyFill.Command &= ~DrawCommand.DrawLineOnly;
+            i = conic.GetBoundary(true, forDrawingOnly);
+
+            while (i >= 0)
+            {
+                var list = conic.GetDataAt(i, true, forDrawingOnly, out a1, out a2);
+                polyFill.FillLine(list[0], a1, true, action);
+                polyFill.FillLine(list[1], a2, true, action);
+                i -= 1;
+            }
+
             if (!Full && conic is ICurve)
             {
                 var lines = (conic as ICurve).GetClosingLines();
@@ -3430,7 +4094,7 @@ namespace MnM.GWS
                 {
                     var paction = action.ToPixelAction();
                     foreach (var line in lines)
-                        Process(line, paction, Settings.LineCommand);
+                        Process(line, paction, polyFill.Command);
                 }
             }
         }
@@ -3445,17 +4109,23 @@ namespace MnM.GWS
         /// <param name="Inner">Inner perimeter of shape.</param>
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using breshenham line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessWith(this IList<ILine> Outer, IList<ILine> Inner, IDrawSettings Settings, FillAction<float> action)
+        public static void ProcessWith(this IList<ILine> Outer, IList<ILine> Inner, FillAction<float> action,
+            FillMode fillMode, DrawCommand fillCommand, Size clip)
         {
             var length = Math.Min(Outer.Count, Inner.Count);
             VectorF p1, p2, p3, p4;
-            for (int i = 0; i < length; i++)
+            using (var polyFill = Factory.newPolyFill())
             {
-                p1 = new VectorF(Outer[i].X1, Outer[i].Y1);
-                p2 = new VectorF(Outer[i].X2, Outer[i].Y2);
-                p3 = new VectorF(Inner[i].X1, Inner[i].Y1);
-                p4 = new VectorF(Inner[i].X2, Inner[i].Y2);
-                ProcessQuardilateral(p1, p2, p3, p4, action, Settings, false);
+                polyFill.Command = fillCommand | DrawCommand.OddEvenPolyFill | DrawCommand.Outlininig;
+                polyFill.Clip = clip;
+                for (int i = 0; i < length; i++)
+                {
+                    p1 = new VectorF(Outer[i].X1, Outer[i].Y1);
+                    p2 = new VectorF(Outer[i].X2, Outer[i].Y2);
+                    p3 = new VectorF(Inner[i].X1, Inner[i].Y1);
+                    p4 = new VectorF(Inner[i].X2, Inner[i].Y2);
+                    polyFill.ProcessQuardilateral(p1, p2, p3, p4, action, fillMode, false);
+                }
             }
         }
         #endregion
@@ -3541,9 +4211,10 @@ namespace MnM.GWS
         /// <param name="antiAliased">If true copy is antialised version of this object otherwise not.</param>
         /// <param name="scale">Scale to apply.</param>
         /// <returns>Rotated and scalled copy of this object.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ISurface RotateAndScale(this IScalable buffer, Rotation angle, bool antiAliased = true, float scale = 1)
         {
-            var sz = buffer.RotateAndScale(out int[] data, angle, antiAliased, scale);
+            var sz = buffer.RotateAndScale(out IntPtr data, angle, antiAliased, scale);
             return Factory.newSurface(data, sz.Width, sz.Height);
         }
         #endregion
@@ -3554,9 +4225,10 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="flipMode"></param>
         /// <returns>Flipped copy of this object.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ISurface Flip(this IScalable buffer, Flip flipMode)
         {
-            var sz = buffer.Flip(out int[] data, flipMode);
+            var sz = buffer.Flip(out IntPtr data, flipMode);
             return Factory.newSurface(data, sz.Width, sz.Height);
         }
         #endregion

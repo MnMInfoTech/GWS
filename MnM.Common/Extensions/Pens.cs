@@ -203,24 +203,29 @@ namespace MnM.GWS
             GradientInactiveCaption = Instance.ToPen(Rgba.GradientInactiveCaption);
             MenuBar = Instance.ToPen(Rgba.MenuBar);
             MenuHighlight = Instance.ToPen(Rgba.MenuHighlight);
+
             DisabledPen = Silver;
+            BackgroundPen = Black;
+            ForegroundPen = White;
+            HoverBackgroundPen = ActiveCaption;
+            HoverForegroundPen = MidnightBlue;
         }
         #endregion
 
         #region TO PEN
-        public static IPen ToPen(this IReadContext context, int? w = null, int? h = null)
+        public static IReadable ToPen(this IPenContext context, int? w = null, int? h = null)
         {
             return Instance.ToPen(context, w, h);
         }
         #endregion
 
         #region COUNT
-        public static int CountOf<T>() where T : IPen
+        public static int CountOf<T>() where T : IReadable
         {
             return Instance.CountOf<T>();
         }
 
-        public static int CountOf<T>(Predicate<T> condition) where T : IPen
+        public static int CountOf<T>(Predicate<T> condition) where T : IReadable
         {
             return Instance.CountOf(condition);
         }
@@ -234,21 +239,21 @@ namespace MnM.GWS
         #endregion
 
         #region REPLACE
-        public static void Replace(IPen obj)
+        public static void Replace(IReadable obj)
         {
             Instance.Replace(obj);
         }
         #endregion
 
         #region ADD
-        public static U Add<U>(U obj) where U : IPen
+        public static U Add<U>(U obj) where U : IReadable
         {
             return Instance.Add(obj);
         }
         #endregion
 
         #region REMOVE
-        public static bool Remove(IPen obj)
+        public static bool Remove(IReadable obj)
         {
             return Instance.Remove(obj);
         }
@@ -260,49 +265,49 @@ namespace MnM.GWS
         #endregion
 
         #region GET
-        public static U Get<U>(string key) where U : IPen
+        public static U Get<U>(string key) where U : IReadable
         {
             return Instance.Get<U>(key);
         }
 
-        public static IPen Get(string key)
+        public static IReadable Get(string key)
         {
             return Instance.Get(key);
         }
 
-        public static bool Get<U>(string key, out U obj) where U : IPen
+        public static bool Get<U>(string key, out U obj) where U : IReadable
         {
             return Instance.Get(key, out obj);
         }
 
-        public static bool Get(string key, out IPen obj)
+        public static bool Get(string key, out IReadable obj)
         {
             return Instance.Get(key, out obj);
         }
 
-        public static U Get<U>(Predicate<U> condition) where U : IPen
+        public static U Get<U>(Predicate<U> condition) where U : IReadable
         {
             return Instance.Get(condition);
         }
 
-        public static IPen Get(Predicate<IPen> condition)
+        public static IReadable Get(Predicate<IReadable> condition)
         {
             return Instance.Get(condition);
         }
         #endregion
 
         #region GET ALL
-        public static IEnumerable<U> GetAll<U>(Predicate<U> condition) where U : IPen
+        public static IEnumerable<U> GetAll<U>(Predicate<U> condition) where U : IReadable
         {
             return Instance.GetAll(condition);
         }
 
-        public static IEnumerable<IPen> GetAll(Predicate<IPen> condition)
+        public static IEnumerable<IReadable> GetAll(Predicate<IReadable> condition)
         {
             return Instance.GetAll(condition);
         }
 
-        public static IEnumerable<IPen> GetAll()
+        public static IEnumerable<IReadable> GetAll()
         {
             foreach (var item in Instance)
                 yield return item;
@@ -311,7 +316,7 @@ namespace MnM.GWS
 
         public static void Dispose()
         {
-            Instance.Dispose();
+            Instance?.Dispose();
             Instance = null;
         }
     }
@@ -319,186 +324,206 @@ namespace MnM.GWS
     static partial class Pens
     {
         #region PREDEFINED PENS
-        public static IPen Empty { get; private set; }
-        public static IPen ActiveBorder { get; private set; }
-        public static IPen ActiveCaption { get; private set; }
-        public static IPen ActiveCaptionText { get; private set; }
-        public static IPen AppWorkspace { get; private set; }
-        public static IPen Control { get; private set; }
-        public static IPen ControlDark { get; private set; }
-        public static IPen ControlDarkDark { get; private set; }
-        public static IPen ControlLight { get; private set; }
-        public static IPen ControlLightLight { get; private set; }
-        public static IPen ControlText { get; private set; }
-        public static IPen Desktop { get; private set; }
-        public static IPen GrayText { get; private set; }
-        public static IPen Highlight { get; private set; }
-        public static IPen HighlightText { get; private set; }
-        public static IPen HotTrack { get; private set; }
-        public static IPen InactiveBorder { get; private set; }
-        public static IPen InactiveCaption { get; private set; }
-        public static IPen InactiveCaptionText { get; private set; }
-        public static IPen Info { get; private set; }
-        public static IPen InfoText { get; private set; }
-        public static IPen Menu { get; private set; }
-        public static IPen MenuText { get; private set; }
-        public static IPen ScrollBar { get; private set; }
-        public static IPen Window { get; private set; }
-        public static IPen WindowFrame { get; private set; }
-        public static IPen WindowText { get; private set; }
-        public static IPen Transparent { get; private set; }
-        public static IPen AliceBlue { get; private set; }
-        public static IPen AntiqueWhite { get; private set; }
-        public static IPen Aqua { get; private set; }
-        public static IPen Aquamarine { get; private set; }
-        public static IPen Azure { get; private set; }
-        public static IPen Beige { get; private set; }
-        public static IPen Bisque { get; private set; }
-        public static IPen Black { get; private set; }
-        public static IPen BlanchedAlmond { get; private set; }
-        public static IPen Blue { get; private set; }
-        public static IPen BlueViolet { get; private set; }
-        public static IPen Brown { get; private set; }
-        public static IPen BurlyWood { get; private set; }
-        public static IPen CadetBlue { get; private set; }
-        public static IPen Chartreuse { get; private set; }
-        public static IPen Chocolate { get; private set; }
-        public static IPen Coral { get; private set; }
-        public static IPen CornflowerBlue { get; private set; }
-        public static IPen Cornsilk { get; private set; }
-        public static IPen Crimson { get; private set; }
-        public static IPen Cyan { get; private set; }
-        public static IPen DarkBlue { get; private set; }
-        public static IPen DarkCyan { get; private set; }
-        public static IPen DarkGoldenrod { get; private set; }
-        public static IPen DarkGray { get; private set; }
-        public static IPen DarkGreen { get; private set; }
-        public static IPen DarkKhaki { get; private set; }
-        public static IPen DarkMagenta { get; private set; }
-        public static IPen DarkOliveGreen { get; private set; }
-        public static IPen DarkOrange { get; private set; }
-        public static IPen DarkOrchid { get; private set; }
-        public static IPen DarkRed { get; private set; }
-        public static IPen DarkSalmon { get; private set; }
-        public static IPen DarkSeaGreen { get; private set; }
-        public static IPen DarkSlateBlue { get; private set; }
-        public static IPen DarkSlateGray { get; private set; }
-        public static IPen DarkTurquoise { get; private set; }
-        public static IPen DarkViolet { get; private set; }
-        public static IPen DeepPink { get; private set; }
-        public static IPen DeepSkyBlue { get; private set; }
-        public static IPen DimGray { get; private set; }
-        public static IPen DodgerBlue { get; private set; }
-        public static IPen Firebrick { get; private set; }
-        public static IPen FloralWhite { get; private set; }
-        public static IPen ForestGreen { get; private set; }
-        public static IPen Fuchsia { get; private set; }
-        public static IPen Gainsboro { get; private set; }
-        public static IPen GhostWhite { get; private set; }
-        public static IPen Gold { get; private set; }
-        public static IPen Goldenrod { get; private set; }
-        public static IPen Gray { get; private set; }
-        public static IPen Green { get; private set; }
-        public static IPen GreenYellow { get; private set; }
-        public static IPen Honeydew { get; private set; }
-        public static IPen HotPink { get; private set; }
-        public static IPen IndianRed { get; private set; }
-        public static IPen Indigo { get; private set; }
-        public static IPen Ivory { get; private set; }
-        public static IPen Khaki { get; private set; }
-        public static IPen Lavender { get; private set; }
-        public static IPen LavenderBlush { get; private set; }
-        public static IPen LawnGreen { get; private set; }
-        public static IPen LemonChiffon { get; private set; }
-        public static IPen LightBlue { get; private set; }
-        public static IPen LightCoral { get; private set; }
-        public static IPen LightCyan { get; private set; }
-        public static IPen LightGoldenrodYellow { get; private set; }
-        public static IPen LightGray { get; private set; }
-        public static IPen LightGreen { get; private set; }
-        public static IPen LightPink { get; private set; }
-        public static IPen LightSalmon { get; private set; }
-        public static IPen LightSeaGreen { get; private set; }
-        public static IPen LightSkyBlue { get; private set; }
-        public static IPen LightSlateGray { get; private set; }
-        public static IPen LightSteelBlue { get; private set; }
-        public static IPen LightYellow { get; private set; }
-        public static IPen Lime { get; private set; }
-        public static IPen LimeGreen { get; private set; }
-        public static IPen Linen { get; private set; }
-        public static IPen Magenta { get; private set; }
-        public static IPen Maroon { get; private set; }
-        public static IPen MediumAquamarine { get; private set; }
-        public static IPen MediumBlue { get; private set; }
-        public static IPen MediumOrchid { get; private set; }
-        public static IPen MediumPurple { get; private set; }
-        public static IPen MediumSeaGreen { get; private set; }
-        public static IPen MediumSlateBlue { get; private set; }
-        public static IPen MediumSpringGreen { get; private set; }
-        public static IPen MediumTurquoise { get; private set; }
-        public static IPen MediumVioletRed { get; private set; }
-        public static IPen MidnightBlue { get; private set; }
-        public static IPen MintCream { get; private set; }
-        public static IPen MistyRose { get; private set; }
-        public static IPen Moccasin { get; private set; }
-        public static IPen NavajoWhite { get; private set; }
-        public static IPen Navy { get; private set; }
-        public static IPen OldLace { get; private set; }
-        public static IPen Olive { get; private set; }
-        public static IPen OliveDrab { get; private set; }
-        public static IPen Orange { get; private set; }
-        public static IPen OrangeRed { get; private set; }
-        public static IPen Orchid { get; private set; }
-        public static IPen PaleGoldenrod { get; private set; }
-        public static IPen PaleGreen { get; private set; }
-        public static IPen PaleTurquoise { get; private set; }
-        public static IPen PaleVioletRed { get; private set; }
-        public static IPen PapayaWhip { get; private set; }
-        public static IPen PeachPuff { get; private set; }
-        public static IPen Peru { get; private set; }
-        public static IPen Pink { get; private set; }
-        public static IPen Plum { get; private set; }
-        public static IPen PowderBlue { get; private set; }
-        public static IPen Purple { get; private set; }
-        public static IPen Red { get; private set; }
-        public static IPen RosyBrown { get; private set; }
-        public static IPen RoyalBlue { get; private set; }
-        public static IPen SaddleBrown { get; private set; }
-        public static IPen Salmon { get; private set; }
-        public static IPen SandyBrown { get; private set; }
-        public static IPen SeaGreen { get; private set; }
-        public static IPen SeaShell { get; private set; }
-        public static IPen Sienna { get; private set; }
-        public static IPen Silver { get; private set; }
-        public static IPen SkyBlue { get; private set; }
-        public static IPen SlateBlue { get; private set; }
-        public static IPen SlateGray { get; private set; }
-        public static IPen Snow { get; private set; }
-        public static IPen SpringGreen { get; private set; }
-        public static IPen SteelBlue { get; private set; }
-        public static IPen Tan { get; private set; }
-        public static IPen Teal { get; private set; }
-        public static IPen Thistle { get; private set; }
-        public static IPen Tomato { get; private set; }
-        public static IPen Turquoise { get; private set; }
-        public static IPen Violet { get; private set; }
-        public static IPen Wheat { get; private set; }
-        public static IPen White { get; private set; }
-        public static IPen WhiteSmoke { get; private set; }
-        public static IPen Yellow { get; private set; }
-        public static IPen YellowGreen { get; private set; }
-        public static IPen ButtonFace { get; private set; }
-        public static IPen ButtonHighlight { get; private set; }
-        public static IPen ButtonShadow { get; private set; }
-        public static IPen GradientActiveCaption { get; private set; }
-        public static IPen GradientInactiveCaption { get; private set; }
-        public static IPen MenuBar { get; private set; }
-        public static IPen MenuHighlight { get; private set; }
+        public static IReadable Empty { get; private set; }
+        public static IReadable ActiveBorder { get; private set; }
+        public static IReadable ActiveCaption { get; private set; }
+        public static IReadable ActiveCaptionText { get; private set; }
+        public static IReadable AppWorkspace { get; private set; }
+        public static IReadable Control { get; private set; }
+        public static IReadable ControlDark { get; private set; }
+        public static IReadable ControlDarkDark { get; private set; }
+        public static IReadable ControlLight { get; private set; }
+        public static IReadable ControlLightLight { get; private set; }
+        public static IReadable ControlText { get; private set; }
+        public static IReadable Desktop { get; private set; }
+        public static IReadable GrayText { get; private set; }
+        public static IReadable Highlight { get; private set; }
+        public static IReadable HighlightText { get; private set; }
+        public static IReadable HotTrack { get; private set; }
+        public static IReadable InactiveBorder { get; private set; }
+        public static IReadable InactiveCaption { get; private set; }
+        public static IReadable InactiveCaptionText { get; private set; }
+        public static IReadable Info { get; private set; }
+        public static IReadable InfoText { get; private set; }
+        public static IReadable Menu { get; private set; }
+        public static IReadable MenuText { get; private set; }
+        public static IReadable ScrollBar { get; private set; }
+        public static IReadable Window { get; private set; }
+        public static IReadable WindowFrame { get; private set; }
+        public static IReadable WindowText { get; private set; }
+        public static IReadable Transparent { get; private set; }
+        public static IReadable AliceBlue { get; private set; }
+        public static IReadable AntiqueWhite { get; private set; }
+        public static IReadable Aqua { get; private set; }
+        public static IReadable Aquamarine { get; private set; }
+        public static IReadable Azure { get; private set; }
+        public static IReadable Beige { get; private set; }
+        public static IReadable Bisque { get; private set; }
+        public static IReadable Black { get; private set; }
+        public static IReadable BlanchedAlmond { get; private set; }
+        public static IReadable Blue { get; private set; }
+        public static IReadable BlueViolet { get; private set; }
+        public static IReadable Brown { get; private set; }
+        public static IReadable BurlyWood { get; private set; }
+        public static IReadable CadetBlue { get; private set; }
+        public static IReadable Chartreuse { get; private set; }
+        public static IReadable Chocolate { get; private set; }
+        public static IReadable Coral { get; private set; }
+        public static IReadable CornflowerBlue { get; private set; }
+        public static IReadable Cornsilk { get; private set; }
+        public static IReadable Crimson { get; private set; }
+        public static IReadable Cyan { get; private set; }
+        public static IReadable DarkBlue { get; private set; }
+        public static IReadable DarkCyan { get; private set; }
+        public static IReadable DarkGoldenrod { get; private set; }
+        public static IReadable DarkGray { get; private set; }
+        public static IReadable DarkGreen { get; private set; }
+        public static IReadable DarkKhaki { get; private set; }
+        public static IReadable DarkMagenta { get; private set; }
+        public static IReadable DarkOliveGreen { get; private set; }
+        public static IReadable DarkOrange { get; private set; }
+        public static IReadable DarkOrchid { get; private set; }
+        public static IReadable DarkRed { get; private set; }
+        public static IReadable DarkSalmon { get; private set; }
+        public static IReadable DarkSeaGreen { get; private set; }
+        public static IReadable DarkSlateBlue { get; private set; }
+        public static IReadable DarkSlateGray { get; private set; }
+        public static IReadable DarkTurquoise { get; private set; }
+        public static IReadable DarkViolet { get; private set; }
+        public static IReadable DeepPink { get; private set; }
+        public static IReadable DeepSkyBlue { get; private set; }
+        public static IReadable DimGray { get; private set; }
+        public static IReadable DodgerBlue { get; private set; }
+        public static IReadable Firebrick { get; private set; }
+        public static IReadable FloralWhite { get; private set; }
+        public static IReadable ForestGreen { get; private set; }
+        public static IReadable Fuchsia { get; private set; }
+        public static IReadable Gainsboro { get; private set; }
+        public static IReadable GhostWhite { get; private set; }
+        public static IReadable Gold { get; private set; }
+        public static IReadable Goldenrod { get; private set; }
+        public static IReadable Gray { get; private set; }
+        public static IReadable Green { get; private set; }
+        public static IReadable GreenYellow { get; private set; }
+        public static IReadable Honeydew { get; private set; }
+        public static IReadable HotPink { get; private set; }
+        public static IReadable IndianRed { get; private set; }
+        public static IReadable Indigo { get; private set; }
+        public static IReadable Ivory { get; private set; }
+        public static IReadable Khaki { get; private set; }
+        public static IReadable Lavender { get; private set; }
+        public static IReadable LavenderBlush { get; private set; }
+        public static IReadable LawnGreen { get; private set; }
+        public static IReadable LemonChiffon { get; private set; }
+        public static IReadable LightBlue { get; private set; }
+        public static IReadable LightCoral { get; private set; }
+        public static IReadable LightCyan { get; private set; }
+        public static IReadable LightGoldenrodYellow { get; private set; }
+        public static IReadable LightGray { get; private set; }
+        public static IReadable LightGreen { get; private set; }
+        public static IReadable LightPink { get; private set; }
+        public static IReadable LightSalmon { get; private set; }
+        public static IReadable LightSeaGreen { get; private set; }
+        public static IReadable LightSkyBlue { get; private set; }
+        public static IReadable LightSlateGray { get; private set; }
+        public static IReadable LightSteelBlue { get; private set; }
+        public static IReadable LightYellow { get; private set; }
+        public static IReadable Lime { get; private set; }
+        public static IReadable LimeGreen { get; private set; }
+        public static IReadable Linen { get; private set; }
+        public static IReadable Magenta { get; private set; }
+        public static IReadable Maroon { get; private set; }
+        public static IReadable MediumAquamarine { get; private set; }
+        public static IReadable MediumBlue { get; private set; }
+        public static IReadable MediumOrchid { get; private set; }
+        public static IReadable MediumPurple { get; private set; }
+        public static IReadable MediumSeaGreen { get; private set; }
+        public static IReadable MediumSlateBlue { get; private set; }
+        public static IReadable MediumSpringGreen { get; private set; }
+        public static IReadable MediumTurquoise { get; private set; }
+        public static IReadable MediumVioletRed { get; private set; }
+        public static IReadable MidnightBlue { get; private set; }
+        public static IReadable MintCream { get; private set; }
+        public static IReadable MistyRose { get; private set; }
+        public static IReadable Moccasin { get; private set; }
+        public static IReadable NavajoWhite { get; private set; }
+        public static IReadable Navy { get; private set; }
+        public static IReadable OldLace { get; private set; }
+        public static IReadable Olive { get; private set; }
+        public static IReadable OliveDrab { get; private set; }
+        public static IReadable Orange { get; private set; }
+        public static IReadable OrangeRed { get; private set; }
+        public static IReadable Orchid { get; private set; }
+        public static IReadable PaleGoldenrod { get; private set; }
+        public static IReadable PaleGreen { get; private set; }
+        public static IReadable PaleTurquoise { get; private set; }
+        public static IReadable PaleVioletRed { get; private set; }
+        public static IReadable PapayaWhip { get; private set; }
+        public static IReadable PeachPuff { get; private set; }
+        public static IReadable Peru { get; private set; }
+        public static IReadable Pink { get; private set; }
+        public static IReadable Plum { get; private set; }
+        public static IReadable PowderBlue { get; private set; }
+        public static IReadable Purple { get; private set; }
+        public static IReadable Red { get; private set; }
+        public static IReadable RosyBrown { get; private set; }
+        public static IReadable RoyalBlue { get; private set; }
+        public static IReadable SaddleBrown { get; private set; }
+        public static IReadable Salmon { get; private set; }
+        public static IReadable SandyBrown { get; private set; }
+        public static IReadable SeaGreen { get; private set; }
+        public static IReadable SeaShell { get; private set; }
+        public static IReadable Sienna { get; private set; }
+        public static IReadable Silver { get; private set; }
+        public static IReadable SkyBlue { get; private set; }
+        public static IReadable SlateBlue { get; private set; }
+        public static IReadable SlateGray { get; private set; }
+        public static IReadable Snow { get; private set; }
+        public static IReadable SpringGreen { get; private set; }
+        public static IReadable SteelBlue { get; private set; }
+        public static IReadable Tan { get; private set; }
+        public static IReadable Teal { get; private set; }
+        public static IReadable Thistle { get; private set; }
+        public static IReadable Tomato { get; private set; }
+        public static IReadable Turquoise { get; private set; }
+        public static IReadable Violet { get; private set; }
+        public static IReadable Wheat { get; private set; }
+        public static IReadable White { get; private set; }
+        public static IReadable WhiteSmoke { get; private set; }
+        public static IReadable Yellow { get; private set; }
+        public static IReadable YellowGreen { get; private set; }
+        public static IReadable ButtonFace { get; private set; }
+        public static IReadable ButtonHighlight { get; private set; }
+        public static IReadable ButtonShadow { get; private set; }
+        public static IReadable GradientActiveCaption { get; private set; }
+        public static IReadable GradientInactiveCaption { get; private set; }
+        public static IReadable MenuBar { get; private set; }
+        public static IReadable MenuHighlight { get; private set; }
 
         /// <summary>
-        /// Retrieves a default disabled pen available GWS.
+        /// Retrieves a default disabled pen available in GWS.
         /// </summary>
-        public static IPen DisabledPen { get; private set; }
+        public static IReadable DisabledPen { get; private set; }
+
+        /// <summary>
+        /// Retrieves a default background pen available in GWS.
+        /// </summary>
+        public static IReadable BackgroundPen { get; private set; }
+
+        /// <summary>
+        /// Retrieves a default foreground pen available in GWS.
+        /// </summary>
+        public static IReadable ForegroundPen { get; private set; }
+
+        /// <summary>
+        /// Retrieves a default hover background pen available in GWS.
+        /// </summary>
+        public static IReadable HoverBackgroundPen { get; private set; }
+
+        /// <summary>
+        /// Retrieves a default hover foreground pen available in GWS.
+        /// </summary>
+        public static IReadable HoverForegroundPen { get; private set; }
         #endregion
     }
 #endif

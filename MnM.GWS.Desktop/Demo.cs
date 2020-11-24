@@ -11,18 +11,16 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
-using MnM.GWS;
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using static MnM.GWS.Application;
 
 namespace MnM.GWS.Desktop
 {
+#if NATIVE
     public partial class Demo : Form, IShowable, IHideable
     {
         #region VARIABLES
@@ -37,10 +35,11 @@ namespace MnM.GWS.Desktop
         ISurface Original;
         static Font ptFont = new System.Drawing.Font("Verdana", 10);
         static Demo instance;
-        static MsWindow Window;
+        static IForm Window;
         System.Drawing.Font MsFont;
         System.Drawing.Font dfMsFont = new Font("Tahoma", 12);
         System.Drawing.Brush MsBrush;
+        IRenderInfo Settings = Factory.newRenderInfo(null);
         #endregion
 
         #region CONSTRUCTORS
@@ -48,7 +47,7 @@ namespace MnM.GWS.Desktop
         {
             InitializeComponent();
 
-            Window = new MsWindow();
+            Window = Factory.newForm();
             Load += this.OnLoad;
         }
         #endregion
@@ -98,7 +97,7 @@ namespace MnM.GWS.Desktop
             var copts = Enum.GetValues(typeof(CurveType));
             foreach (var item in copts)
             {
-                lstCurveOption.Items.Add(item);
+                chkLstCurveOption.Items.Add(item);
             }
 
             var zrotdir = Enum.GetValues(typeof(MnM.GWS.SkewType));
@@ -107,12 +106,12 @@ namespace MnM.GWS.Desktop
                 cmbZRotateDirection.Items.Add(item);
             }
 
-            var lnPatterns = Enum.GetValues(typeof(MnM.GWS.LineCommand));
-            foreach (var item in lnPatterns)
-            {
-                cmbLinePattern.Items.Add(item);
-            }
-            cmbLinePattern.SelectedIndex = 0;
+            chkLstLinePattern.Items.Add(DrawCommand.None);
+            chkLstLinePattern.Items.Add(DrawCommand.Breshenham);
+            chkLstLinePattern.Items.Add(DrawCommand.Dot);
+            chkLstLinePattern.Items.Add(DrawCommand.Dash);
+            chkLstLinePattern.Items.Add(DrawCommand.DashDotDash);
+            chkLstLinePattern.SelectedIndex = 0;
 
             cmbBezier.Items.Add(new KeyValuePair<string, BezierType>("Cubic", BezierType.Cubic));
             cmbBezier.Items.Add(new KeyValuePair<string, BezierType>("Quadratic", BezierType.Quadratric));
@@ -173,7 +172,7 @@ namespace MnM.GWS.Desktop
                 MsDisplay.Screen.Refresh(cmbShape.Text + "", SetAngle());
                 MsMethod = null;
             }
-            Window.Clear();
+            Window.Clear(DrawCommand.SuspendUpdate);
 
             if (GwsMethod != null)
             {
@@ -182,9 +181,7 @@ namespace MnM.GWS.Desktop
             }
             if (Original != null)
             {
-                Window.Settings.DrawCommand|= DrawCommand.BatchUpdate;
                 Window.DrawImage(Original, 0, 0);
-                Window.Settings.DrawCommand = 0;
             }
         }
         #endregion
@@ -193,7 +190,7 @@ namespace MnM.GWS.Desktop
         private void ChangeShape(object sender, System.EventArgs e)
         {
             //txtPts.Clear();
-            Window.Clear(updateImmediate: true);
+            Window.Clear();
             pnlArcS.Visible = false;
             pnlArcE.Visible = false;
             pnlBezier.Visible = false;
@@ -327,13 +324,13 @@ namespace MnM.GWS.Desktop
             cmbGradient.SelectedIndexChanged += Draw;
             cmbStroke.SelectedIndexChanged += Draw;
             cmbStrokeMode.SelectedIndexChanged += Draw;
-            cmbLinePattern.SelectedIndexChanged += Draw;
+            chkLstLinePattern.SelectedIndexChanged += Draw;
             cmbZRotateDirection.SelectedIndexChanged += Draw;
-            lstCurveOption.ItemCheck += CurveOptionCheck;
 
+            chkLstCurveOption.ItemCheck += CurveOptionCheck;
+            chkLstLinePattern.ItemCheck += LineOptionCheck;
 
             chkCenter.Click += ShapeCenterCheck;
-            chkAntialised.CheckedChanged += Draw;
             chkCompare.CheckedChanged += ShowCompareForm;
             chkOddEvenStroking.CheckedChanged += Draw;
             chkImageOperation.CheckedChanged += (s, e) =>
@@ -356,8 +353,22 @@ namespace MnM.GWS.Desktop
         }
         void BindGwsDisplay()
         {
-            Window.MouseMove += ShowCoordinates;
-            Window.MouseUp += DrawCoordinates;
+            Window.EventPushed += Window_EventPushed;
+        }
+
+        private void Window_EventPushed(object sender, IEventInfo e)
+        {
+            switch (e.Type)
+            {
+                case GwsEvent.MOUSEBUTTONUP:
+                    DrawCoordinates(this, e.Args as IMouseEventArgs);
+                    break;
+                case GwsEvent.MOUSEWHEEL:
+                    ShowCoordinates(this, e.Args as IMouseEventArgs);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void SelectFont(object sender, System.EventArgs e)
@@ -460,7 +471,7 @@ namespace MnM.GWS.Desktop
         {
             GwsMethod = null;
             txtPts.Clear();
-            Window.Clear(updateImmediate: true);
+            Window.Clear();
         }
         private void SaveGraphics(object sender, System.EventArgs e)
         {
@@ -477,20 +488,27 @@ namespace MnM.GWS.Desktop
 
             if (e.NewValue == CheckState.Unchecked)
             {
-                curveType &= ~(CurveType)lstCurveOption.Items[e.Index];
+                curveType &= ~(CurveType)chkLstCurveOption.Items[e.Index];
                 Draw(this, e);
                 return;
             }
             if (e.NewValue == CheckState.Checked)
             {
-                curveType |= (CurveType)lstCurveOption.Items[e.Index];
+                curveType |= (CurveType)chkLstCurveOption.Items[e.Index];
             }
             else
             {
-                curveType &= ~(CurveType)lstCurveOption.Items[e.Index];
+                curveType &= ~(CurveType)chkLstCurveOption.Items[e.Index];
             }
             Draw(this, e);
         }
+        private void LineOptionCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (e.Index == -1)
+                return;
+            Draw(this, e);
+        }
+
         private void SelectTextureBrush(object sender, System.EventArgs e)
         {
             if (textureBrush != null)
@@ -510,11 +528,11 @@ namespace MnM.GWS.Desktop
             textureBrush = null;
             Draw(sender, e);
         }
-        private void ShowCoordinates(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void ShowCoordinates(object sender, IMouseEventArgs e)
         {
             Text = e.X + "," + e.Y + ",";
         }
-        private void DrawCoordinates(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void DrawCoordinates(object sender, IMouseEventArgs e)
         {
             txtPts.Text += "," + e.X + "," + e.Y;
             Window.DrawRectangle(e.X, e.Y, 2, 2, Rgba.Red);
@@ -532,21 +550,18 @@ namespace MnM.GWS.Desktop
         unsafe void SetGwsMethod()
         {
             var Canvas = Window;
-            var Settings = Window.Settings;
 
             if (chkImageOperation.Checked)
             {
                 if ((numRotate.Value != 0 && numRotate.Value != 360 && numRotate.Value != 360) || numScale.Value != 0)
                 {
                     Original = (Canvas as ICloneable).Clone() as ISurface;
-                    var sz = Canvas.RotateAndScale(out int[] data,
-                        new Rotation((float)numRotate.Value), chkAntialised.Checked, (float)numScale.Value);
-                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0);
+                    var sz = Canvas.RotateAndScale(out IntPtr data,
+                        new Rotation((float)numRotate.Value), chkCenter.Checked, (float)numScale.Value);
+                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height);
                     return;
                 }
             }
-
-            IReadContext context;
 
             if (textureBrush == null)
             {
@@ -564,31 +579,41 @@ namespace MnM.GWS.Desktop
                     fStyle = new BrushStyle(grad, Rgba.Silver);
                 }
 
-                context = fStyle;
+                Settings.Foreground = fStyle;
             }
             else
-                context = textureBrush;
+                Settings.Foreground = textureBrush;
 
+#if Advanced
             if (chkInvertBrush.Checked)
-                Settings.BrushCommand |= BrushCommand.InvertRotation;
+                Settings.Command |= DrawCommand.InvertBrushRotation;
             else
-                Settings.BrushCommand &= ~BrushCommand.InvertRotation;
-
+                Settings.Command &= ~DrawCommand.InvertBrushRotation;
+#endif
             Settings.Scale = new VectorF((float)numScale.Value);
-            Settings.LineCommand = (LineCommand)cmbLinePattern.SelectedItem;
+
+            for (int i = 0; i < chkLstLinePattern.Items.Count; i++)
+            {
+                if (chkLstLinePattern.GetItemChecked(i))
+                {
+                    Settings.Command |= (DrawCommand)chkLstLinePattern.Items[i];
+                }
+                else
+                {
+                    Settings.Command &= ~(DrawCommand)chkLstLinePattern.Items[i];
+                }
+            }
             var strokeMode = (StrokeMode)cmbStrokeMode.SelectedIndex;
             GwsMethod = null;
             var stroke = (float)numStroke.Value;
             Settings.FillMode = pse;
             Settings.Stroke = stroke;
             Settings.StrokeMode = strokeMode;
-            if (!chkAntialised.Checked)
-                Settings.LineCommand |= LineCommand.Breshenham;
 
             if (chkOddEvenStroking.Checked)
-                Settings.BrushCommand |= BrushCommand.KeepFillRuleForStroking;
+                Settings.Command |= DrawCommand.KeepFillRuleForStroking;
             else
-                Settings.BrushCommand &= ~BrushCommand.KeepFillRuleForStroking;
+                Settings.Command &= ~DrawCommand.KeepFillRuleForStroking;
 
             TextDrawStyle ds = new TextDrawStyle();
             var font = gwsFont ?? Factory.SystemFont;
@@ -601,7 +626,7 @@ namespace MnM.GWS.Desktop
                         System.Windows.Forms.MessageBox.Show("Please provide 2 coordinates to create a line by clicking 2 points on GWS picture box!");
                         return;
                     }
-                    GwsMethod = () => Canvas.DrawLines(context , true, drawPoints);
+                    GwsMethod = () => Canvas.DrawLines(Settings, true, drawPoints);
                     break;
                 case "Trapezium":
                     if (drawPoints == null || drawPoints.Length < 4)
@@ -611,17 +636,17 @@ namespace MnM.GWS.Desktop
                     }
                     GwsMethod = () => Canvas.DrawTrapezium(
                         new float[] {drawPoints[0], drawPoints[1], drawPoints[2], drawPoints[3],
-                                (float) numSize.Value, (float)numSizeDiff.Value}, context);
+                                (float) numSize.Value, (float)numSizeDiff.Value}, Settings);
                     break;
 
                 case "Circle":
                     if (drawPoints?.Length >= 4)
                     {
                         GwsMethod = () => Canvas.DrawCircle(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), context);
+                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), Settings);
                     }
                     else
-                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, w, context);
+                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, w, Settings);
 
                     break;
                 case "Ellipse":
@@ -633,7 +658,7 @@ namespace MnM.GWS.Desktop
                             new VectorF(drawPoints[2], drawPoints[3]),
                             new VectorF(drawPoints[4], drawPoints[5]),
                             new VectorF(drawPoints[6], drawPoints[7]),
-                            new VectorF(drawPoints[8], drawPoints[9]), context);
+                            new VectorF(drawPoints[8], drawPoints[9]), Settings);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
@@ -641,40 +666,40 @@ namespace MnM.GWS.Desktop
                             new VectorF(drawPoints[0], drawPoints[1]),
                             new VectorF(drawPoints[2], drawPoints[3]),
                             new VectorF(drawPoints[4], drawPoints[5]),
-                            new VectorF(drawPoints[6], drawPoints[7]), type: curveType,context: context);
+                            new VectorF(drawPoints[6], drawPoints[7]), type: curveType, context: Settings);
                     }
                     else if (drawPoints?.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawEllipse(
                             new VectorF(drawPoints[0], drawPoints[1]),
                             new VectorF(drawPoints[2], drawPoints[3]),
-                            new VectorF(drawPoints[4], drawPoints[5]), type: curveType, context: context);
+                            new VectorF(drawPoints[4], drawPoints[5]), type: curveType, context: Settings);
                     }
 
                     else
-                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, h, context);
+                        GwsMethod = () => Canvas.DrawEllipse(x, y, w, h, Settings);
                     break;
                 case "Arc":
                     if (drawPoints?.Length >= 10)
                     {
                         GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), context, curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), Settings, curveType);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
                         GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), context, curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), Settings, curveType);
                     }
 
                     else if (drawPoints?.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), context, curveType);
+                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), Settings, curveType);
                     }
                     else
-                        GwsMethod = () => Canvas.DrawArc(x, y, w, h, startA, endA, context, curveType);
+                        GwsMethod = () => Canvas.DrawArc(x, y, w, h, startA, endA, Settings, curveType);
 
                     break;
                 case "Pie":
@@ -682,43 +707,43 @@ namespace MnM.GWS.Desktop
                     {
                         GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), context, curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), Settings, curveType);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
                         GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
                             new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), context, curveType);
+                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), Settings, curveType);
                     }
 
                     else if (drawPoints?.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), context, curveType);
+                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), Settings, curveType);
                     }
                     else
-                        GwsMethod = () => Canvas.DrawPie(x, y, w, h, startA, endA, context, curveType);
+                        GwsMethod = () => Canvas.DrawPie(x, y, w, h, startA, endA, Settings, curveType);
 
                     break;
                 case "Square":
-                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, w, context);
+                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, w, Settings);
                     break;
                 case "Rectangle":
-                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h, context);
+                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h, Settings);
                     break;
 
                 case "RoundedArea":
-                    GwsMethod = () => Canvas.DrawRoundedBox(x, y, w, h, (float)numCornerRadius.Value , context);
+                    GwsMethod = () => Canvas.DrawRoundedBox(x, y, w, h, (float)numCornerRadius.Value, Settings);
                     break;
 
                 case "Rhombus":
                     if (drawPoints != null && drawPoints.Length >= 6)
                     {
                         GwsMethod = () => Canvas.DrawRhombus(drawPoints[0], drawPoints[1],
-                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5], context);
+                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5], Settings);
                         break;
                     }
-                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h, context);
+                    GwsMethod = () => Canvas.DrawRectangle(x, y, w, h, Settings);
 
                     break;
                 case "Triangle":
@@ -728,13 +753,13 @@ namespace MnM.GWS.Desktop
                         return;
                     }
                     GwsMethod = () => Canvas.DrawTriangle(drawPoints[0], drawPoints[1],
-                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5], context);
+                        drawPoints[2], drawPoints[3], drawPoints[4], drawPoints[5], Settings);
                     break;
 
                 case "Polygon":
                     if (drawPoints == null)
                         return;
-                    GwsMethod = () => Canvas.DrawPolygon(context, drawPoints.Select(p => p + 0f).ToArray());
+                    GwsMethod = () => Canvas.DrawPolygon(Settings, drawPoints.Select(p => p + 0f).ToArray());
                     break;
                 case "Bezier":
                     var type = cmbBezier.SelectedIndex != -1 ?
@@ -743,7 +768,7 @@ namespace MnM.GWS.Desktop
                     {
                         if (drawPoints == null || drawPoints.Length < 6)
                             return;
-                        GwsMethod = () => Canvas.DrawBezier(type, context, drawPoints.Select(p => (float)p).ToArray());
+                        GwsMethod = () => Canvas.DrawBezier(type, Settings, drawPoints.Select(p => (float)p).ToArray());
                     }
                     else
                     {
@@ -752,11 +777,11 @@ namespace MnM.GWS.Desktop
                             System.Windows.Forms.MessageBox.Show("Please provide at least 3 coordinates to create a bezier by clicking 3 points on GWS picture box!");
                             return;
                         }
-                        GwsMethod = () => Canvas.DrawBezier(type, context, drawPoints.Select(p => (float)p).ToArray());
+                        GwsMethod = () => Canvas.DrawBezier(type, Settings, drawPoints.Select(p => (float)p).ToArray());
                     }
                     break;
                 case "Glyphs":
-                    GwsMethod = () => Canvas.DrawText(font, 130, 130 + font.Size, txtPts.Text, context, drawStyle: ds);
+                    GwsMethod = () => Canvas.DrawText(font, 130, 130 + font.Size, txtPts.Text, Settings, drawStyle: ds);
                     break;
             }
         }
@@ -777,7 +802,7 @@ namespace MnM.GWS.Desktop
             startA = (float)numArcS.Value;
             endA = (float)numArcE.Value;
 
-            Window.Settings.Rotation = SetAngle();
+            Settings.Rotation = SetAngle();
 
             //get the GWS gradient fill mode 
 
@@ -895,7 +920,7 @@ namespace MnM.GWS.Desktop
         {
             MsMethod = null;
             var stroke = (float)numStroke.Value;
-            MsDisplay.Screen.Canvas.SmoothingMode = chkAntialised.Checked ?
+            MsDisplay.Screen.Canvas.SmoothingMode = !Settings.Command.HasFlag(DrawCommand.Breshenham) ?
                 SmoothingMode.AntiAlias : SmoothingMode.Default;
 
             if (textureBrush == null)
@@ -933,7 +958,7 @@ namespace MnM.GWS.Desktop
             else
             {
                 MsBrush = new TextureBrush(new Bitmap(textureBrush.Width,
-                    textureBrush.Height, textureBrush.Width * 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb, textureBrush.Pixels));
+                    textureBrush.Height, textureBrush.Width * 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb, textureBrush.Source));
             }
             switch (cmbShape.Text)
             {
@@ -1093,7 +1118,7 @@ namespace MnM.GWS.Desktop
             this.numFontSize = new System.Windows.Forms.NumericUpDown();
             this.btnOpenFont = new System.Windows.Forms.Button();
             this.grpArcPie = new System.Windows.Forms.GroupBox();
-            this.lstCurveOption = new System.Windows.Forms.CheckedListBox();
+            this.chkLstCurveOption = new System.Windows.Forms.CheckedListBox();
             this.cmbShape = new System.Windows.Forms.ComboBox();
             this.numStroke = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -1110,7 +1135,6 @@ namespace MnM.GWS.Desktop
             this.grpPts = new System.Windows.Forms.GroupBox();
             this.btnPlot = new System.Windows.Forms.Button();
             this.txtPts = new System.Windows.Forms.TextBox();
-            this.chkAntialised = new System.Windows.Forms.CheckBox();
             this.btnDraw = new System.Windows.Forms.Button();
             this.chkCompare = new System.Windows.Forms.CheckBox();
             this.chkInvertBrush = new System.Windows.Forms.CheckBox();
@@ -1126,7 +1150,7 @@ namespace MnM.GWS.Desktop
             this.label14 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.cmbZRotateDirection = new System.Windows.Forms.ComboBox();
-            this.cmbLinePattern = new System.Windows.Forms.ComboBox();
+            this.chkLstLinePattern = new System.Windows.Forms.CheckedListBox();
 
             ((System.ComponentModel.ISupportInitialize)(this.numRotate)).BeginInit();
             this.grpXY.SuspendLayout();
@@ -1658,7 +1682,7 @@ namespace MnM.GWS.Desktop
             // 
             // grpArcPie
             // 
-            this.grpArcPie.Controls.Add(this.lstCurveOption);
+            this.grpArcPie.Controls.Add(this.chkLstCurveOption);
             this.grpArcPie.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpArcPie.ForeColor = System.Drawing.SystemColors.Control;
             this.grpArcPie.Location = new System.Drawing.Point(4, 201);
@@ -1671,14 +1695,14 @@ namespace MnM.GWS.Desktop
             // 
             // lstCurveOption
             // 
-            this.lstCurveOption.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.lstCurveOption.CheckOnClick = true;
-            this.lstCurveOption.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstCurveOption.FormattingEnabled = true;
-            this.lstCurveOption.Location = new System.Drawing.Point(6, 22);
-            this.lstCurveOption.Name = "lstCurveOption";
-            this.lstCurveOption.Size = new System.Drawing.Size(178, 49);
-            this.lstCurveOption.TabIndex = 72;
+            this.chkLstCurveOption.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.chkLstCurveOption.CheckOnClick = true;
+            this.chkLstCurveOption.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkLstCurveOption.FormattingEnabled = true;
+            this.chkLstCurveOption.Location = new System.Drawing.Point(6, 22);
+            this.chkLstCurveOption.Name = "lstCurveOption";
+            this.chkLstCurveOption.Size = new System.Drawing.Size(178, 49);
+            this.chkLstCurveOption.TabIndex = 72;
             // 
             // cmbShape
             // 
@@ -1714,7 +1738,7 @@ namespace MnM.GWS.Desktop
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.cmbLinePattern);
+            this.groupBox1.Controls.Add(this.chkLstLinePattern);
             this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.chkOddEvenStroking);
             this.groupBox1.Controls.Add(this.numStroke);
@@ -1885,20 +1909,7 @@ namespace MnM.GWS.Desktop
             this.txtPts.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtPts.Size = new System.Drawing.Size(408, 103);
             this.txtPts.TabIndex = 12;
-            // 
-            // chkAntialised
-            // 
-            this.chkAntialised.AutoSize = true;
-            this.chkAntialised.Checked = true;
-            this.chkAntialised.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAntialised.Font = new System.Drawing.Font("Book Antiqua", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkAntialised.ForeColor = System.Drawing.Color.Lime;
-            this.chkAntialised.Location = new System.Drawing.Point(309, 7);
-            this.chkAntialised.Name = "chkAntialised";
-            this.chkAntialised.Size = new System.Drawing.Size(113, 23);
-            this.chkAntialised.TabIndex = 121;
-            this.chkAntialised.Text = "AntiAliased";
-            this.chkAntialised.UseVisualStyleBackColor = true;
+
             // 
             // btnDraw
             // 
@@ -2086,15 +2097,14 @@ namespace MnM.GWS.Desktop
             // 
             // cmbLinePattern
             // 
-            this.cmbLinePattern.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.cmbLinePattern.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbLinePattern.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmbLinePattern.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmbLinePattern.FormattingEnabled = true;
-            this.cmbLinePattern.Location = new System.Drawing.Point(144, 102);
-            this.cmbLinePattern.Name = "cmbLinePattern";
-            this.cmbLinePattern.Size = new System.Drawing.Size(81, 23);
-            this.cmbLinePattern.TabIndex = 135;
+            this.chkLstLinePattern.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.chkLstLinePattern.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkLstLinePattern.FormattingEnabled = true;
+            this.chkLstLinePattern.Location = new System.Drawing.Point(140, 102);
+            this.chkLstLinePattern.Name = "cmbLinePattern";
+            this.chkLstLinePattern.Size = new System.Drawing.Size(90, 80);
+            this.chkLstLinePattern.TabIndex = 135;
+            this.chkLstLinePattern.CheckOnClick = true;
             // 
             // Form2
             // 
@@ -2116,7 +2126,6 @@ namespace MnM.GWS.Desktop
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.grpPts);
-            this.Controls.Add(this.chkAntialised);
             this.Controls.Add(this.btnDraw);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Location = new System.Drawing.Point(100, 200);
@@ -2177,13 +2186,12 @@ namespace MnM.GWS.Desktop
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnTextureBrush;
 
-        private System.Windows.Forms.CheckBox chkAntialised;
         private System.Windows.Forms.CheckBox chkCenter;
         private System.Windows.Forms.CheckBox chkCompare;
         private System.Windows.Forms.CheckBox chkImageOperation;
         private System.Windows.Forms.CheckBox chkInvertBrush;
         private System.Windows.Forms.CheckBox chkOddEvenStroking;
-        private System.Windows.Forms.CheckedListBox lstCurveOption;
+        private System.Windows.Forms.CheckedListBox chkLstCurveOption;
 
         private System.Windows.Forms.ComboBox cmbBezier;
         private System.Windows.Forms.ComboBox cmbGradient;
@@ -2191,7 +2199,7 @@ namespace MnM.GWS.Desktop
         private System.Windows.Forms.ComboBox cmbStroke;
         private System.Windows.Forms.ComboBox cmbStrokeMode;
         private System.Windows.Forms.ComboBox cmbZRotateDirection;
-        private System.Windows.Forms.ComboBox cmbLinePattern;
+        private System.Windows.Forms.CheckedListBox chkLstLinePattern;
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox grpArcPie;
@@ -2254,4 +2262,5 @@ namespace MnM.GWS.Desktop
 
         #endregion
     }
+#endif
 }

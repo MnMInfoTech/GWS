@@ -9,9 +9,37 @@ namespace MnM.GWS
     using System;
     using System.Collections.Generic;
 
-    #region IREADABLE
-    public interface IReadable : IID, ISize, IReadContext
+    #region ILENGTH
+    public interface ILength
     {
+        /// <summary>
+        /// Length of this memory block.
+        /// </summary>
+        int Length { get; }
+    }
+    #endregion
+
+    #region IBLOCKABLE
+    /// <summary>
+    /// Represents an object which can be represent a memory block.
+    /// </summary>
+    public interface IBlockable : ISize, ILength
+    { }
+    #endregion
+
+    #region IMIXABLE-BLOCK
+    public unsafe interface IMixableBlock : IBlockable
+    {
+        int* Pixels(bool ForegroundBuffer = true);
+        byte* AlphaValues(bool ForegroundBuffer = true);
+    }
+    #endregion
+
+    #region IREADABLE
+    public interface IReadable : IBlockable, IPenContext, IID, ICopyable
+    {
+        bool Invert { get; set; }
+
         /// <summary>
         /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
         /// </summary>
@@ -30,29 +58,43 @@ namespace MnM.GWS
         /// <param name="pixels">Resultant memory block.</param>
         /// <param name="srcIndex">Location in the resultant memory block from where reading shoud start.</param>
         /// <param name="length">Length up to which the block should be read.</param>
-        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length);
+        unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int* pixels, out int srcIndex, out int length);
     }
     #endregion
 
     #region IWRITEABLE
-    /// <summary>
-    /// Represents smallest writable memory block object.
-    /// </summary>
-    public interface IWritable: IUpdatable
+    public interface IWritable : IBlockable, ICopyable, IClearable
+#if Advanced
+        , IElementFinder, IClippable
+#endif
     {
-        #region PROPERTIES
         /// <summary>
-        /// Length of this memory block.
+        /// Gets curretly invalidated area of this object.
         /// </summary>
-        int Length { get; }
+        Rectangle InvalidatedArea { get; }
+
+#if Advanced
+        /// <summary>
+        /// Gets readable Target associated with this object;
+        /// </summary>
+        IReadable Target { get; }
+#endif
 
         /// <summary>
-        /// Gets whether currently antialising is on or off.
+        /// Renders any element on the given path. This renderer has a built-in support for the following kind of elements:
+        /// 1. ICustomDrawable
+        /// 2. IShape
+        /// 3. IFigurable
+        /// 4. ISelfDrawable - (Pro version).
+        /// 5. IAreaDrawable.
+        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
+        /// Once you have handled it return true otherwise false.
         /// </summary>
-        bool Antialiased { get; }
-        #endregion
+        /// <param name="Renderable">Renderable object which is to be rendered</param>
+        /// <param name="anyContext">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
+        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
+        void Render(IRenderable Renderable, IContext anyContext = null);
 
-        #region WRITE PIXEL
         /// <summary>
         /// Writes pixel to this block at given axial position using specified color.
         /// </summary>
@@ -61,15 +103,13 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
-        #endregion
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, DrawCommand drawCommand);
 
-        #region WRITE LINE
         /// <summary>
         /// Writes line to the this block at given position specified by x and y parameters by reading specified source
         /// starting from give source index upto the length specified.
         /// </summary>
-        /// <param name="source">Source memory block to copy data from.</param>
+        /// <param name="pixels">Source memory block to copy data from.</param>
         /// <param name="srcIndex">Location in source memory block from which copy should begin.</param>
         /// <param name="srcW">Width of source memory block.</param>
         /// <param name="length">Length up to which source should be read for writing.</param>
@@ -77,8 +117,8 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the location where writing begins.</param>
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
-        #endregion
+        unsafe void WriteLine(int* pixels, int srcIndex, int srcW, int length, bool horizontal,
+            int x, int y, float? Alpha, byte* imageAlphas, DrawCommand drawCommand);
     }
     #endregion
 
@@ -101,7 +141,22 @@ namespace MnM.GWS
         /// </summary>
         /// <returns></returns>
         IEnumerable<VectorF> Figure();
-    } 
+    }
+    #endregion
+
+    #region ICUTOMDRAWABLE
+    public interface ICustomDrawable: IRenderable
+    {
+        /// <summary>
+        /// Draws itself to the buffer by creating readable pen from the given context.
+        /// If the context itself is pen and if it needs to be changed then this is possible by
+        /// Calling GetPen method in renderer and then using it in renderer.
+        /// </summary>
+        /// <param name="buffer">Buffer to draw this object to.</param>
+        /// <param name="Settings">A valid Settings to control drawing.</param>
+        /// <returns>True if sucessfull otherwise false.</returns>
+        bool Draw(IWritable buffer, IRenderInfo Settings);
+    }
     #endregion
 
     #region IDRAWABLE
@@ -110,18 +165,8 @@ namespace MnM.GWS
     /// A smalll entities like point or entities which requires special drawing routine for example ISLine
     /// Inherit this interface if your shape/element is special in terms of drawing routine.
     /// </summary>
-    public interface IDrawable : IRenderable, IFigurable
-    {
-        /// <summary>
-        /// Draws itself to the buffer by creating readable pen from the given context.
-        /// If the context itself is pen and if it needs to be changed then this is possible by
-        /// Calling SetPen method in renderer and then using current pen in renderer through 
-        /// CurrentPen property.
-        /// </summary>
-        /// <param name="buffer">Buffer to draw this object to.</param>
-        /// <param name="readContext">Read context to create a valid pen to draw on buffer.</param>
-        bool Draw(IBuffer buffer, IReadContext readContext, out IPen Pen);
-    }
+    public interface IDrawable : ICustomDrawable, IFigurable
+    { }
     #endregion
 
     #region ISELF-DRAWABLE
@@ -130,12 +175,29 @@ namespace MnM.GWS
     /// A smalll entities like point or entities which requires special drawing routine for example ISLine
     /// Inherit this interface if your shape/element is special in terms of drawing routine.
     /// </summary>
-    public interface ISelfDrawable : IRenderable, IForeground
+    public interface ISelfDrawable : IRenderable, IForeground, IBackground
     {
+        /// <summary>
+        /// Gets or sets type of background shape of this object.
+        /// </summary>
+        BackgroundType BackgroundType { get; set; }
+
         /// <summary>
         /// Gets or sets Parent window this object belongs to.
         /// </summary>
-        IBuffer Window { get; set; }
+        IWritable Window { get; set; }
+
+        /// <summary>
+        /// Gets dedicated settings object associated with this control.
+        /// </summary>
+#if Advanced
+        IRenderInfo2
+#else
+        IRenderInfo 
+#endif
+            Settings
+        { get; }
+
 
         /// <summary>
         /// Draws itself to the buffer by creating readable pen from the given context.
@@ -143,45 +205,88 @@ namespace MnM.GWS
         /// Calling SetPen method in renderer and then using current pen in renderer through 
         /// CurrentPen property.
         /// </summary>
-        bool Draw();
+        void Draw();
     }
     #endregion
 
-    #region IOBJECTDRAWER
-    public interface IObjectDrawer
+    #region IAREADRAWABLE
+    public interface IAreaDrawable: ICustomDrawable
     {
-        /// <summary>
-        /// Indicates GWS that from now on children of composite control are being drawn or not.
-        /// </summary>
-        bool DrawingChildrenNow { set; }
-
-        /// <summary>
-        /// Indicates GWS that from now on composite control is being drawn or not.
-        /// </summary>
-        bool DrawingObject { set; }
-
-        /// <summary>
-        /// Tells GWS an id of composite cotrol being drawn.
-        /// </summary>
-        string ObjectID { set; }
+        Rectangle CopyArea { get; set; }
     }
     #endregion
 
-    #region IHOSTABLE
-    /// <summary>
-    /// Represents an object which is dependent on parent window to exist.
-    /// </summary>
-    public interface IHostable : ISelfDrawable, IBounds, IPoint, ISize, IRecognizable, IBackground, IRefreshable
+    #region IOBJECTDRAWARE
+    public interface IObjectAware
     {
         /// <summary>
-        /// Gets or sets type of background draw while drawing background.
+        /// Tells this object that a control is being drawn now.
         /// </summary>
-        BackgroundType BackgroundType { get; set; }
+        ISelfDrawable Control { get;
+#if Advanced
+            set;
+#endif
+        }
+    }
+    #endregion
+
+    #region IBACKGROUND
+    public interface IBackground
+    {
+        /// <summary>
+        /// Sets background for this object.
+        /// </summary>
+        IPenContext Background { set; }
 
         /// <summary>
-        /// Gets bounds of this object.
+        /// Gets current background pen of this object.
         /// </summary>
-        new Rectangle Bounds { get; }
+        IReadable BackgroundPen { get; }
+    }
+    #endregion
+
+    #region IFOREGROUND
+    public interface IForeground
+    {
+        /// <summary>
+        /// Sets foreground for this object.
+        /// </summary>
+        IPenContext Foreground { set; }
+
+        /// <summary>
+        /// Gets current foreground pen of this object.
+        /// </summary>
+        IReadable ForegroundPen { get; }
+    }
+    #endregion
+
+    #region IHOVER-BACKGROUND
+    public interface IHoverBackground
+    {
+        /// <summary>
+        /// Sets background for this object.
+        /// </summary>
+        IPenContext HoverBackground { set; }
+
+        /// <summary>
+        /// Gets current background pen of this object.
+        /// </summary>
+        IReadable HoverBackgroundPen { get; }
+    }
+    #endregion
+
+    #region IHOVR-FOREGROUND
+    public interface IHoverForeground
+    {
+        /// <summary>
+        /// Sets hovering foreground for this object.
+        /// </summary>
+        IPenContext HoverForeground { set; }
+
+        /// <summary>
+        /// Gets current foreground pen of this object.
+        /// </summary>
+        IReadable HoverForegroundPen { get; }
     }
     #endregion
 
@@ -304,31 +409,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IPOPUPABLE
-    public interface IPopupable : IHostable, IShowable2, IHideable
-    {
-        /// <summary>
-        /// True if this popup is visible.
-        /// </summary>
-        bool Visible { get; }
-
-        /// <summary>
-        /// Gets the bounds of this object.
-        /// </summary>
-        new Rectangle Bounds { get; }
-    }
-    #endregion
-
-    #region IWIPEABLE
-    /// <summary>
-    /// Represents an object which can be drawn and then wiped off completely restoring the state of screen
-    /// exactly the same before it was drawn.
-    /// Use this interface only for object for which you know drawn area before hand.
-    /// </summary>
-    public interface IWipeable : IPopupable
-    { }
-    #endregion
-
     #region IAUTOSIZABLE
     /// <summary>
     /// Represents an object which size can be set to be fitting its content.
@@ -353,7 +433,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets an area to restrict write operations.
         /// </summary>
-        Rectangle ClipRect { get; set; }
+        Rectangle ClipRectangle { get; set; }
     }
     #endregion
 
@@ -363,20 +443,12 @@ namespace MnM.GWS
         /// <summary>
         /// Clears data blocks covered by area specified by x, y, width and height paramters.
         /// </summary>
-        /// <param name="updateImmediate">If true, scrreen will immediately get updated otherwise marked for later update.</param>
-        /// <returns></returns>
-        Rectangle Clear(bool updateImmediate = false);
-
-        /// <summary>
-        /// Clears data blocks covered by area specified by x, y, width and height paramters.
-        /// </summary>
         /// <param name="x">Left most corner of region which is to be cleared.</param>
         /// <param name="y">Top most corner of region which is to be cleared.</param>
         /// <param name="width">Width of region which is to be cleared.</param>
         /// <param name="height">Height of region which is to be cleared.</param>
-        /// <param name="updateImmediate">If true, scrreen will immediately get updated otherwise marked for later update.</param>
-        /// <returns></returns>
-        Rectangle Clear(int x, int y, int width, int height, bool updateImmediate = false);
+        /// <param name="command">A command to control clearing operation.</param>
+        void Clear(int x, int y, int width, int height, DrawCommand command = 0);
     }
     #endregion
 
@@ -394,13 +466,12 @@ namespace MnM.GWS
         /// <param name="y">Top most corner of region which is to be updated.</param>
         /// <param name="width">Width of region which is to be updated.</param>
         /// <param name="height">Height of region which is to be updated.</param>
-        /// <param name="updateImmediate">If true, Update method will immediately be called and screen will get updated otherwise not.</param>
-        void Invalidate(int x, int y, int width, int height, bool updateImmediate = false);
+        void Invalidate(int x, int y, int width, int height);
 
         /// <summary>
         /// Updates invalidated area on screen.
         /// </summary>
-        void Update();
+        void Update(DrawCommand command = DrawCommand.None);
     }
     #endregion
 
@@ -408,26 +479,8 @@ namespace MnM.GWS
     /// <summary>
     /// Specifies copyable memory block with certain size and length.
     /// </summary>
-    public interface ICopyable : ISize
+    public interface ICopyable : IBlockable
     {
-        /// <summary>
-        /// Length of an inner 1D memory block.
-        /// </summary>
-        int Length { get; }
-
-        /// <summary>
-        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
-        /// </summary>
-        /// <param name="block">buffer which to render this memory block on</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        Rectangle CopyTo(IWritable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true);
-
         /// <summary>
         /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
         /// </summary>
@@ -440,29 +493,23 @@ namespace MnM.GWS
         /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line</param>
         /// <param name="dstX">Specifies the X coordinate where the paste operation should commence</param>
         /// <param name="dstY">specifies the Y coordinate from where the paste operation should commence</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
-        unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY);
-    }
-    #endregion
+        unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY,
+            DrawCommand command = 0);
 
-    #region ICOPIER
-    /// <summary>
-    /// Represents an object with capbility to read and copy data from copyable memory block.
-    /// </summary>
-    public interface ICopier
-    {
         /// <summary>
-        /// Uploads a data block specified by srcX, srcY, srcW and srcH parameters from copyable memory block at given location specified by dstX and dstY.
+        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
         /// </summary>
-        /// <param name="source">Source from which data to be uploaded.</param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="srcX">X co-ordinate of source area to upload.</param>
-        /// <param name="srcY">Y co-ordinate of source area to upload.</param>
-        /// <param name="srcW">Width of source area to upload.</param>
-        /// <param name="srcH">Height of source area to upload.</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
+        /// <param name="block">buffer which to render this memory block on</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
+        Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
     }
     #endregion
 
@@ -478,23 +525,6 @@ namespace MnM.GWS
         /// <param name="y">Y coordinate to search for</param>
         /// <returns></returns>
         IRenderable FindElement(int x, int y);
-    }
-    #endregion
-
-    #region IDRAW-CONTROLLER
-    public interface IDrawController
-    {
-#if Advanced
-        /// <summary>
-        /// Gets settings object to set rendering parameters.
-        /// </summary>
-        IDrawSettings2 Settings { get; }
-#else
-        /// <summary>
-        /// Gets settings object to set rendering parameters.
-        /// </summary>
-        IDrawSettings Settings { get; }
-#endif
     }
     #endregion
 
@@ -523,14 +553,14 @@ namespace MnM.GWS
         /// <param name="antiAliased">If true copy is antialised version of this object otherwise not.</param>
         /// <param name="scale">Scale to apply.</param>
         /// <returns>Rotated and scalled copy of this object.</returns>
-        Size RotateAndScale(out int[] Data, Rotation angle, bool antiAliased = true, float scale = 1);
+        Size RotateAndScale(out IntPtr Data, Rotation angle, bool antiAliased = true, float scale = 1);
 
         /// <summary>
         /// Returns a flipped version of this object alogwith size of it.
         /// </summary>
         /// <param name="flipMode"></param>
         /// <returns>Flipped copy of this object.</returns>
-        Size Flip(out int[] Data, Flip flipMode);
+        Size Flip(out IntPtr Data, Flip flipMode);
     }
     #endregion
 

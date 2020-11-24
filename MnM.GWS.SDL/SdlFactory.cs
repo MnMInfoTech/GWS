@@ -26,7 +26,7 @@ namespace MnM.GWS
         internal const int MaxAxisCount = 10;
         internal const int MaxDPadCount = 2;
         static readonly OS os;
-        public static new readonly IWindowFactory Instance = new SdlFactory();
+        public static readonly new IWindowFactory Instance = new SdlFactory();
         #endregion
 
         #region CONSTRUCTORS
@@ -101,7 +101,7 @@ namespace MnM.GWS
             return false;
         }
         #endregion
-
+         
         #region PROPERTIES
         public IScreens AvailableScreens
         {
@@ -131,9 +131,9 @@ namespace MnM.GWS
         #endregion
 
         #region TEXTURE
-        public ITexture newTexture(IHost window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null) =>
+        public virtual ITexture newTexture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null) =>
             new SdlTexture(window, w, h, isPrimary, null, textureAccess);
-        public ITexture newTexture(IHost window, ICopyable info, bool isPrimary = false, TextureAccess? textureAccess = null) =>
+        public virtual ITexture newTexture(IRenderWindow window, ICopyable info, bool isPrimary = false, TextureAccess? textureAccess = null) =>
             new SdlTexture(window, info, isPrimary, null, textureAccess);
         #endregion
 
@@ -141,7 +141,7 @@ namespace MnM.GWS
         public IWindow newWindow(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null, RendererFlags? renderFlags = null) =>
             new SdlWindow(title, width, height, x, y, flags, display, renderFlags);
-        public IWindow newWindow(IWindowControl control) =>
+        public IWindow newWindow(IExternalWindow control) =>
             new SdlWindow(control);
         public int GetWindowID(IntPtr window) =>
             WindowID(window);

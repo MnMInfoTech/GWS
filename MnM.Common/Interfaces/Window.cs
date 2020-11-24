@@ -7,7 +7,23 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
+    #region ICONTEXT
+    /// <summary>
+    /// This is a marker interface which represents an object which can be converted to GWS Entity.
+    /// </summary>
+    public interface IContext
+    { }
+    #endregion
+
 #if (GWS || Window)
+    #region IPENCONTEXT
+    /// <summary>
+    /// This is a marker interface which represents an object which can be converted to a buffer pen.
+    /// </summary>
+    public interface IPenContext: IContext
+    { }
+    #endregion
+
     #region IELEMENT
     /// <summary>
     /// Represents an object which has a place in GWS object eco system.
@@ -31,37 +47,45 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public interface IRenderTarget : ISize, IDisposed, ICopier, IBasicDrawInfo2, IWritable
+    public interface IRenderTarget : ISize, IUpdatable, IDisposed, ICopyable, IBlockable
+#if Advanced
+        , IReadable, IWritable
+#endif
+    {
+        void UpdateScreen(Rectangle rc);
+    }
+    #endregion
+
+    #region IEXTERNAL-WINDOW
+    public interface IExternalWindow : IRenderTarget, IEventPusher, IHandle
     { }
     #endregion
 
     #region IRENDER-WINDOW
-    public interface IRenderWindow : ISize, IDisposed, ICopier, ICopyable, IHandle, IResizable, IUpdatable
+    public interface IRenderWindow : ISize, IDisposed, ICopyable, IHandle, IResizable, IUpdatable
+#if Advanced
+    , IMixableBlock
+#endif
     {
         RendererFlags RendererFlags { get; }
     }
     #endregion
 
-    #region IWINDOW-CONTROL
-    public interface IWindowControl : IRenderTarget, IBuffer, IClearable,
-        IShowable, IHideable, IUpdatable, IHandle, IEventPusher
-    { }
-    #endregion
-
     #region IFORM
-    public interface IForm : IWindowControl, IRenderSession, IContainer, IScalable, IDrawController
+    public interface IForm : IRenderTarget, IResizable, IShowable, IHideable, 
+        IHandle, IEventPusher, IBackground, IWritable
 #if Advanced
-        , IObjectDrawer
+        , IContainer
 #endif
     { }
-    #endregion
+#endregion
 
     #region IHOST
-    public interface IHost : IRenderWindow, IBuffer, IClearable, IRenderSession, 
-        IContainer, IScalable, IShowable, IHideable, IUpdatable, IRecognizable, 
-        IEventPusher, IRefreshable,  IFocusable, IDisposable, IMinimalEvents
+    public interface IHost : IRenderWindow, ISurface, IContainer, 
+        IShowable, IHideable, IUpdatable, IRecognizable, IEventPusher, 
+        IRefreshable,  IFocusable, IDisposable, IMinimalEvents
 #if Advanced
-       , IEvents , IObjectDrawer
+       , IEvents 
 #endif
     {
         /// <summary>

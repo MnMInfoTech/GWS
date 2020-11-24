@@ -161,7 +161,7 @@ namespace MnM.GWS
         /// <summary>
         /// Underlying surface object to draw.
         /// </summary>
-        IBuffer Surface { get; }
+        ISurface Surface { get; }
     }
     #endregion
 
@@ -281,25 +281,6 @@ namespace MnM.GWS
         float Delta { get; }
     }
     #endregion
-
-#if Advanced
-    #region IMOUSE DRAG
-    public interface IMouseDrag
-    {
-        bool IsMouseDragging { get; }
-    }
-    #endregion
-
-    #region ISimplePopupItemEventArgs
-    public interface ISimplePopupItemEventArgs : IEventArgs
-    {
-        ISimplePopupItem Item { get; set; }
-        int Index { get; set; }
-    }
-    #endregion
-
-#endif
-
 #endif
 
 #if (GWS || Window)

@@ -60,7 +60,7 @@ namespace MnM
     namespace GWS
     {
         [StructLayout(LayoutKind.Sequential)]
-        unsafe struct SurfaceInfo
+        public struct SdlSurfaceInfo
         {
             #region VARIABLES
             public uint Flags;

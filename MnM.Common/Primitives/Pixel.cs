@@ -13,13 +13,15 @@ namespace MnM.GWS.Advanced
         #region VARIABLES
         public int Color;
         public int X, Y;
+        public byte Alpha;
         #endregion
 
-        public Pixel(int x, int y, int color)
+        public Pixel(int x, int y, int color, byte alpha)
         {
             X = x;
             Y = y;
             Color = color;
+            Alpha = alpha;
         }
     }
 #endif

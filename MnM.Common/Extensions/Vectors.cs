@@ -14,6 +14,8 @@ namespace MnM.GWS
         static readonly Collection<int> Slopes;
         public const int BigExp = 20;
         public const int Big = (1 << BigExp);
+        public const int LOffset = 1;
+        //public const int SOffset = LOffset * 2;
         #endregion
 
         #region CONSTRUCTOR
@@ -34,7 +36,7 @@ namespace MnM.GWS
             x = X;
             y = Y;
 
-            if (scaleX == 1 && scaleY == 1)
+            if (scaleX == 1 && scaleY == 1 || scaleX == 0 && scaleX == 0)
                 return;
 
             if (scaleX != 1)
@@ -59,7 +61,7 @@ namespace MnM.GWS
             x = X;
             y = Y;
 
-            if (scaleX == 1 && scaleY == 1)
+            if (scaleX == 1 && scaleY == 1 || scaleX == 0 && scaleX == 0)
                 return;
 
 
@@ -317,6 +319,17 @@ namespace MnM.GWS
         {
             x = horizontal ? val : axis;
             y = horizontal ? axis : val;
+        }
+        #endregion
+
+        #region REMOVE INFLATION
+        public static Rectangle RemoveInflation(Rectangle value)
+        {
+            var x = value.X + LOffset;
+            var y = value.Y + LOffset;
+            var r = value.Right - LOffset;
+            var b = value.Bottom - LOffset;
+            return Rectangle.FromLTRB(x, y, r, b);
         }
         #endregion
     }

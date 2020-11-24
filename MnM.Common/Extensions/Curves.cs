@@ -891,8 +891,8 @@ namespace MnM.GWS
 
             for (x0 = 0, y0 = b, sigma = 2 * b2 + a2 * (1 - 2 * b); b2 * x0 <= a2 * y0; x0++)
             {
-                action(xc + x0, yc + y0, true, xc - x0);
-                action(xc + x0, yc - y0, true, xc - x0);
+                action(xc + x0, yc + y0, true, xc - x0, null, 0);
+                action(xc + x0, yc - y0, true, xc - x0, null, 0);
 
                 if (sigma >= 0)
                 {
@@ -904,8 +904,8 @@ namespace MnM.GWS
 
             for (x0 = a, y0 = 0, sigma = 2 * a2 + b2 * (1 - 2 * a); a2 * y0 <= b2 * x0; y0++)
             {
-                action(xc + x0, yc + y0, true, xc - x0);
-                action(xc + x0, yc - y0, true, xc - x0);
+                action(xc + x0, yc + y0, true, xc - x0, null, 0);
+                action(xc + x0, yc - y0, true, xc - x0, null, 0);
 
                 if (sigma >= 0)
                 {
@@ -1124,7 +1124,7 @@ namespace MnM.GWS
         /// <summary>
         /// Very fast ellipse drawing function by Michael "h4tt3n" Nissen version 4.0 March 2010
         /// </summary>
-        public static void NissenEllipse(int x, int y, int width, int height, Rotation angle, PixelAction<float> action, LineCommand lineCommand = 0)
+        public static void NissenEllipse(int x, int y, int width, int height, Rotation angle, PixelAction<float> action, DrawCommand lineCommand = 0)
         {
             //These constants decide the graphic quality of the ellipse
             const int face_length = 6;  //approx.face length in pixels
@@ -1172,7 +1172,7 @@ namespace MnM.GWS
         #endregion
 
         #region GWS FAST ELLIPSE
-        public static void GwsEllipse(int x, int y, int width, int height, Rotation angle, PixelAction<float> action, LineCommand lineCommand = 0)
+        public static void GwsEllipse(int x, int y, int width, int height, Rotation angle, PixelAction<float> action, DrawCommand lineCommand = 0)
         {
             float x1 = 1f, y1 = 0f, x2 = 0, y2 = 0, lbx = 0, lby = 0, rbx = 0,
                 rby = 0, ltx = 0, lty = 0, rtx = 0, rty = 0, lbx1 = 0, lby1 = 0,

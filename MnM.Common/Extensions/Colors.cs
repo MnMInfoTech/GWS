@@ -411,7 +411,7 @@ namespace MnM.GWS
                 return new int[] { c };
             }
 
-            var data = new int[repeat];
+            var data = new int[repeat + 1];
             if (invert) c ^= 0xffffff;
 
             fixed (int* d = data)

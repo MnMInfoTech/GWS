@@ -55,13 +55,13 @@ namespace MnM.GWS
                 base(title, width, height, x, y, flags, display, renderFlags)
             { }
 
-            public SdlWindow(IWindowControl control) :
+            public SdlWindow(IExternalWindow control) :
                 base(control)
             { }
 
             protected sealed override bool Initialize(string title = null, int? width = null, int? height = null,
                 int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
-                IWindowControl externalWindow = null,  RendererFlags? renderFlags = null)
+                IExternalWindow externalWindow = null,  RendererFlags? renderFlags = null)
             {
                 sound = Factory.newWavPlayer();
                 mouseState.SetIsConnected(true);
@@ -139,13 +139,6 @@ namespace MnM.GWS
                     Valid = false;
                     return false;
                 }
-            }
-            #endregion
-
-            #region SET PRIMARY BUFFER AND TEXTURE
-            protected override void GetTexture(out IRenderTarget texture)
-            {
-                texture = Factory.newTexture(this, isPrimary: true);
             }
             #endregion
 
@@ -828,7 +821,6 @@ namespace MnM.GWS
             }
 
             #endregion
-
         }
 #if AllHidden
     }

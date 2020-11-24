@@ -24,68 +24,63 @@ namespace MnM.GWS
         public abstract IObjCollection Objects { get; }
         public int Width => Bounds.Width;
         public int Height => Bounds.Height;
-        public virtual IReadContext Background
+        public IPenContext Background
         {
-            get => Buffer.Background;
-            set
-            {
-                    Buffer.Background = value;
-            }
+            set => Buffer.Background = value;
         }
-        public virtual IReadContext Foreground
-        {
-            get => (Buffer as IForeground)?.Foreground;
-            set
-            {
-                if (Buffer is IForeground)
-                    (Buffer as IForeground).Foreground = value;
-            }
-        }
+        public IReadable BackgroundPen =>
+            Buffer.BackgroundPen;
+        public bool IsContainer =>
+            true;
         public abstract IntPtr Handle { get; }
         public abstract Rectangle Bounds { get; }
         public abstract bool Focused { get; }
-        protected abstract IBuffer Buffer { get; }
-        int ICopyable.Length => Buffer.Length;
-        public bool Antialiased 
-        {
+        public Rectangle InvalidatedArea =>
+            Buffer.InvalidatedArea;
 
-            get => Buffer.Antialiased;
-            set { }
-        }
-        public
+        protected abstract ISurface Buffer { get; }
 #if Advanced
-            IDrawSettings2
-#else
-            IDrawSettings 
+        public Rectangle ClipRectangle
+        {
+            get => Buffer.ClipRectangle;
+            set => Buffer.ClipRectangle = value;
+        }
+        public bool Clipped => Buffer.Clipped;
 #endif
-            Settings =>
-            Buffer.Settings;
+        #endregion
+
+        #region RENDER
+        public void Render(IRenderable Renderable, IContext anyContext = null) =>
+            Buffer.Render(Renderable, anyContext);
         #endregion
 
         #region UPDATE - INVALIDATE
-        public virtual void Update() =>
-            (Buffer as IUpdatable)?.Update();
-        public virtual void Invalidate(int x, int y, int width, int height, bool updateImmedaite = false) =>
-            Buffer.Invalidate(x, y, width, height, updateImmedaite);
-        #endregion
-
-        #region COPY FROM
-        public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
+        public virtual void Update(DrawCommand command = 0) =>
+            Buffer.Update(command);
+        public virtual void Invalidate(int x, int y, int width, int height) =>
+            Buffer.Invalidate(x, y, width, height);
         #endregion
 
         #region COPY TO
-        public virtual Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY)
+        public virtual Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY, DrawCommand command)
         {
             var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY);
+            return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY, command);
         }
 
-        public virtual Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY,
-            int copyW, int copyH, bool updateImmediate = true)
+        public virtual Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY,
+            int copyW, int copyH, DrawCommand command)
         {
             var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height, updateImmediate);
+            return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height, command);
         }
+        #endregion
+
+        #region TO BRUSH
+#if Advanced
+        public ITextureBrush ToBrush(Rectangle? copyArea = null) =>
+            Buffer.ToBrush(copyArea);
+#endif
         #endregion
 
         #region SHOW - HIDE
@@ -105,20 +100,8 @@ namespace MnM.GWS
 
             DrawEventArgs.Surface = this;
             OnPaint(DrawEventArgs);
-            var r = Buffer.Settings.RecentlyDrawn;
-            if (r)
-                Buffer.Invalidate(r.X, r.Y, r.Width, r.Height, true);
-        }
-        #endregion
-
-        #region CLEAR
-        public virtual Rectangle Clear(bool updateImmediate = false)
-        {
-            return (Buffer as IClearable)?.Clear(updateImmediate) ?? Rectangle.Empty;
-        }
-        public virtual Rectangle Clear(int x, int y, int width, int height, bool updateImmediate = false)
-        {
-            return (Buffer as IClearable)?.Clear(x, y, width, height, updateImmediate)?? Rectangle.Empty;
+            Buffer.Invalidate(0, 0, Width, Height);
+            Buffer.Update();
         }
         #endregion
 
@@ -379,85 +362,54 @@ namespace MnM.GWS
             Restored?.Invoke(this, e);
         #endregion
 
+        #region BUFFER EVENTS
+#if Advanced
+        protected virtual void OnBackgroundChanged(IEventArgs e)
+        {
+            BackgroundChanged?.Invoke(this, e);
+        }
+        public event EventHandler<IEventArgs> BackgroundChanged;
+#endif
+        #endregion
+
         #region DISPOSE
         public virtual void Dispose()
         {
             IsDisposed = true;
             Objects?.Dispose();
-            (Buffer as IDisposable)?.Dispose();
+            (Buffer as IDisposable).Dispose();
         }
         #endregion
-
     }
     partial class _Host
     {
         #region IBUFFER
-        int IWritable.Length =>
+        int ILength.Length =>
             Buffer.Length;
-        int IBuffer.Length =>
-            Buffer.Length;
-
-        bool IWritable.Antialiased =>
-            Buffer.Antialiased;
 #if Advanced
-
-        bool IObjectDrawer.DrawingChildrenNow
+        unsafe int* IMixableBlock.Pixels(bool ForegroundBuffer) =>
+            Buffer.Pixels(ForegroundBuffer);
+        unsafe byte* IMixableBlock.AlphaValues(bool ForegroundBuffer) =>
+            Buffer.AlphaValues(ForegroundBuffer);
+        ISelfDrawable IObjectAware.Control
         {
-            set => Buffer.DrawingChildrenNow = value;
+            get => Buffer.Control;
+            set => Buffer.Control = value;
         }
-        bool IObjectDrawer.DrawingObject
-        {
-            set => Buffer.DrawingObject = value;
-        }
-        string IObjectDrawer.ObjectID
-        {
-            set => Buffer.ObjectID = value;
-        }
-        unsafe byte* IBuffer.SourceAlphas
-        {
-            set => Buffer.SourceAlphas = value;
-        }
+        IReadable IWritable.Target =>
+            Buffer.Target;
 #endif
-        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha) =>
-           Buffer.WritePixel(val, axis, horizontal, color, Alpha);
+        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, DrawCommand command) =>
+           Buffer.WritePixel(val, axis, horizontal, color, Alpha, command);
 
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha) =>
-            Buffer.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha);
+            int x, int y, float? Alpha, byte* imageAlphas, DrawCommand command) =>
+            Buffer.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command);
 
-        public Size RotateAndScale(out int[] Data, Rotation angle, bool antiAliased = true, float scale = 1)
-        {
-            if (Buffer is IScalable)
-            {
-                return ((IScalable)Buffer).RotateAndScale(out Data, angle, antiAliased, scale);
-            }
-            Data = new int[0];
-            return Size.Empty;
-        }
-        public Size Flip(out int[] Data, Flip flipMode)
-        {
-            if (Buffer is IScalable)
-            {
-                return ((IScalable)Buffer).Flip(out Data, flipMode);
-            }
-            Data = new int[0];
-            return Size.Empty;
-        }
-
-        void IRenderSession.Begin(IRenderable renderable, out IPen pen)
-        {
-            pen = null;
-            (Buffer as IRenderSession)?.Begin(renderable, out pen);
-        }
-        void IRenderSession.End(IRenderable renderable, IPen pen) =>
-            (Buffer as IRenderSession)?.End(renderable, pen);
-
-        IPen IBuffer.Render(IShape shape, IReadContext readContext) =>
-            Buffer.Render(shape, readContext);
-
+        void IClearable.Clear(int x, int y, int width, int height, DrawCommand command) =>
+            Buffer.Clear(x, y, width, height, command);
         object ICloneable.Clone() =>
             Buffer.Clone();
         #endregion
-
     }
 }

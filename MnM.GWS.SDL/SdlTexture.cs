@@ -5,6 +5,7 @@
 
 #if Window
 using System;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
@@ -19,6 +20,7 @@ namespace MnM.GWS
             #region VARIABLES
             protected IntPtr Renderer;
             BlendMode mode;
+            const byte o = 0;
             #endregion
 
             #region CONSTRUCTORS
@@ -54,14 +56,66 @@ namespace MnM.GWS
             }
             #endregion
 
-            #region LOCK - UNLOCK
-            protected override void Lock(IntPtr texture, IntPtr rect, out IntPtr textureData, out int texturePitch)
+            #region COPY FROM
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override unsafe void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
             {
-                SdlFactory.LockTexture(texture, rect, out textureData, out texturePitch);
+                var dstRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
+                IntPtr textureData;
+                int lockedLength;
+                Lock(dstRC, out textureData, out lockedLength);
+                if (source is ICopyable)
+                {
+                   ((ICopyable) source).CopyTo(copyX, copyY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0);
+                }
+                else if(source is IPixels)
+                {
+                    int* src = (int*)(((IPixels)source).Source);
+                    int* dst = (int*)textureData;
+                    BlockCopy action = (srcIndex, dstIndex, copyLength, x, y) => Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength);
+                    Blocks.CopyBlock2(copyX, copyY, copyW, copyH, source.Length, source.Width, source.Height, 0, 0, width, lockedLength, action);
+                }
+                Unlock();
+                if (updateImmediate)
+                    Upload(dstRC);
             }
-            protected override void Unlock(IntPtr texture)
+            #endregion
+
+            #region LOCK - UNLOCK
+            Rectangle Lock(Rectangle copyRc, out IntPtr textureData, out int lockedLength)
             {
-                SdlFactory.UnlockTexture(texture);
+                if (locked)
+                    Unlock();
+
+                textureData = IntPtr.Zero;
+                lockedLength = 0;
+                int texturePitch;
+                Rectangle lockedArea;
+
+                if (copyRc == null)
+                {
+                    SdlFactory.LockTexture(Handle, IntPtr.Zero, out textureData, out texturePitch);
+                    lockedArea = new Rectangle(0, 0, Width, Height);
+                }
+                else
+                {
+                    lockedArea = Rects.CompitibleRc(Width, Height, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height);
+                    if (copyRc.Width == 0 || copyRc.Height == 0)
+                        return Rectangle.Empty;
+                    var copyHandle = new Rectangle(copyRc).ToPtr();
+                    SdlFactory.LockTexture(Handle, copyHandle, out textureData, out texturePitch);
+                    copyHandle.FreePtr();
+                }
+                locked = true;
+                lockedLength = lockedArea.Height * texturePitch;
+                return lockedArea;
+            }
+            void Unlock()
+            {
+                if (!locked)
+                    return;
+                SdlFactory.UnlockTexture(Handle);
+                locked = false;
             }
             #endregion
 
@@ -72,10 +126,10 @@ namespace MnM.GWS
                 SdlFactory.SetRenderTarget(Renderer, IntPtr.Zero);
             #endregion
 
-            #region COPY TO RENDERER
-            protected override void CopyToRenderer(IntPtr texture, Rectangle sourceRc, Rectangle destRc)
+            #region UPLOAD
+            public override void Upload(Rectangle area)
             {
-                SdlFactory.RenderCopyTexture(Renderer, texture, sourceRc, destRc);
+                SdlFactory.RenderCopyTexture(Renderer, Handle, area, area);
                 SdlFactory.UpdateRenderer(Renderer);
             }
             #endregion

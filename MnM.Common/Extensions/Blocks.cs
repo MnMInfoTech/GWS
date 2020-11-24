@@ -79,7 +79,7 @@ namespace MnM.GWS
             }
             return new Rectangle(dstX, dstY, copyW, i);
         }
-#endif
+       
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyBlock2(int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
             int dstX, int dstY, int dstW, int dstLen, BlockCopy action)
@@ -142,6 +142,7 @@ namespace MnM.GWS
                 ++i;
             }
         }
+#endif
         #endregion
 
         #region COPY MEMORY
@@ -240,16 +241,7 @@ namespace MnM.GWS
             }
         }
 
-
         public static void Copy<T>(T[] source, ref T[] destination, int length)
-        {
-            if (length > source.Length)
-                length = source.Length;
-            if (destination == null || length < destination.Length)
-                destination = new T[length];
-            Array.Copy(source, destination, length);
-        }
-        public static void CopyTo<T>(this T[] source, ref T[] destination, int length)
         {
             if (length > source.Length)
                 length = source.Length;
@@ -363,7 +355,7 @@ namespace MnM.GWS
         #endregion
 
         #region DUPLICATE
-        public static void Mirror(this int[] data, int w, int h, Position mirror)
+        public static void Mirror<T>(this T[] data, int w, int h, Position mirror)
         {
             int srcIdx, dstIdx;
             var hh = h / 2;

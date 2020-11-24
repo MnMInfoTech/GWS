@@ -16,7 +16,7 @@ namespace MnM.GWS
         #region VARIABLES
         bool isDisposed;
         #endregion
-         
+
         #region COLOR
         public virtual Rgba newColor(byte r, byte g, byte b, byte a = 255) =>
             new Rgba(r, g, b, a);
@@ -37,17 +37,38 @@ namespace MnM.GWS
         public abstract ICanvas newCanvas(IRenderTarget window);
         #endregion
 
+        #region RENDER TARGET
+#if Window
+        public abstract IRenderTarget newRenderTarget(IRenderWindow window);
+#endif
+        #endregion
+
+        #region FORM
+#if NATIVE
+        public abstract IForm newForm(int x, int y, int w, int h);
+#endif
+        #endregion
+
         #region OBJECT COLLECTION
-        public abstract IObjCollection newObjectCollection(IBuffer buffer);
+        public abstract IObjCollection newObjectCollection(IWritable buffer);
         #endregion
 
         #region BUFFER COLLECTION
 #if Advanced
         public abstract IBufferCollection newBufferCollection();
         public abstract IBufferCollection newBufferCollection(int capacity);
-        public abstract IBufferCollection newBufferCollection(ICanvas primary);
+        public abstract IBufferCollection newBufferCollection(ISurface primary);
 #endif
-#endregion
+        #endregion
+
+        #region RENDER INFO
+#if Advanced
+        public abstract IRenderInfo2 newRenderInfo(string shapeID);
+#else
+        public virtual IRenderInfo newRenderInfo(string shapeID) =>
+            new RenderInfo(shapeID);
+#endif
+        #endregion
 
         #region POLY FILL
         public virtual IPolyFill newPolyFill() =>
@@ -58,10 +79,10 @@ namespace MnM.GWS
         public abstract IBrush newBrush(BrushStyle style, int width, int height);
         public abstract ITextureBrush newBrush(IntPtr data, int width, int height);
 
-        public virtual IPen newPen(int color) =>
+        public virtual IReadable newPen(int color) =>
             Pen.CreateInstance(color);
 
-        public abstract IPen ToPen(IReadContext context, int? w = null, int? h = null);
+        public abstract IReadable ToPen(IPenContext context, int? w = null, int? h = null);
         #endregion
 
         #region FONT - GLYPH - GLYPHSLOT - TEXT - RENDERER
@@ -69,7 +90,7 @@ namespace MnM.GWS
         #endregion
 
         #region IMAGE PROCESSOR
-        public virtual IImageProcessor newImageProcessor() => 
+        public virtual IImageProcessor newImageProcessor() =>
             new StbImageProcessor();
         #endregion
 
@@ -82,7 +103,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets currently attached Pen store in GWS.
         /// </summary>
-        public virtual IPens newPenStore() => 
+        public virtual IPens newPenStore() =>
             new Store(this);
         #endregion
 
@@ -171,7 +192,7 @@ namespace MnM.GWS
             {
                 Instance = factory;
             }
-            public override IPen ToPen(IReadContext context, int? w = null, int? h = null) =>
+            public override IReadable ToPen(IPenContext context, int? w = null, int? h = null) =>
                 Instance.ToPen(context, w, h);
 
             protected override bool IsDisposed => Instance.isDisposed;

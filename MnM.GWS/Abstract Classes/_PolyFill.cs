@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
@@ -10,8 +11,9 @@ namespace MnM.GWS
     {
         #region VARIABLES
         VectorF ActivePoint;
-        FillCommand command;
-        protected bool Sorting, EndsOnly, FillSinglePoint, CheckCloseness;
+        protected DrawCommand drawCommand;
+        protected Size clip;
+        protected bool Sorting, FillSinglePoint, EndsOnly;
         #endregion
 
         #region PROPERTIES
@@ -19,25 +21,29 @@ namespace MnM.GWS
         public int MaxY { get; protected set; }
         public int MinX { get; set; }
         public int MaxX { get; set; }
-        public FillCommand FillCommand
+        public DrawCommand Command
         {
-            get => command;
+            get => drawCommand;
             set
             {
-                command = value;
-                Sorting = !value.HasFlag(FillCommand.NoSorting);
-                EndsOnly = value.HasFlag(FillCommand.DrawEndsOnly);
-                FillSinglePoint = value.HasFlag(FillCommand.FillSinglePointLine);
-                CheckCloseness = value.HasFlag(FillCommand.CheckForCloseness);
+                drawCommand = value;
+                Sorting = !value.HasFlag(DrawCommand.NoSorting);
+                FillSinglePoint = value.HasFlag(DrawCommand.FillSinglePointLine);
+                EndsOnly = value.HasFlag(DrawCommand.DrawEndsOnly);
             }
         }
-        public PixelAction<float> ScanAction => NotifyScanResult;
+        public Size Clip 
+        {
+            get => clip;
+            set => clip = value;
+        }
+        public PixelAction<float> ScanAction =>
+            NotifyScanResult;
         #endregion
 
         #region BEGIN
-        public virtual void Begin(int y, int bottom, FillCommand command)
+        public virtual void Begin(int y, int bottom)
         {
-            FillCommand = command;
             Numbers.Order(ref y, ref bottom);
             MinY = y;
             MaxY = bottom;
@@ -46,14 +52,13 @@ namespace MnM.GWS
         #endregion
 
         #region FILL
-        public abstract void Fill(FillAction<float> fillAction, LineCommand lineCommand = 0);
-        public abstract void Fill(IBuffer buffer, IReadable pen, LineCommand lineCommand = 0);
+        public abstract void Fill(FillAction<float> fillAction);
         #endregion
 
         #region END
         public virtual void End()
         {
-            command = 0;
+            drawCommand = 0;
             MinY = 0;
             MaxY = 0;
             MinX = MaxX = 0;
@@ -62,7 +67,6 @@ namespace MnM.GWS
 
         #region FILL LINE
         public abstract void FillLine(ICollection<float> data, int axis, bool horizontal, FillAction<float> action, float? alpha = null);
-        public abstract void FillLine(IBuffer buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null);
         #endregion
 
         #region SCAN
@@ -83,7 +87,7 @@ namespace MnM.GWS
         #endregion
 
         #region NOTIFY SCAN
-        protected abstract void NotifyScanResult(float value, int axis, bool horizontal);
+        protected abstract void NotifyScanResult(float value, int axis, bool horizontal, DrawCommand command);
         #endregion
 
         #region DISPOSE

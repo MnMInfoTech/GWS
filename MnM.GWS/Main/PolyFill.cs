@@ -2,10 +2,6 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-/* Licensed under the MIT/X11 license.
-* Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
-* This notice may not be removed from any source distribution.
-* See license.txt for detailed licensing details. */
 
 using System;
 using System.Collections.Generic;
@@ -29,9 +25,9 @@ namespace MnM.GWS
             #endregion
 
             #region BEGIN - END
-            public override void Begin(int y, int bottom, FillCommand command)
+            public override void Begin(int y, int bottom)
             {
-                base.Begin(y, bottom, command);
+                base.Begin(y, bottom);
                 Results = new Collection<float>[MaxY - MinY + 4];
                 points = new Collection<VectorF>(Results.Length);
             }
@@ -44,7 +40,7 @@ namespace MnM.GWS
             #endregion
 
             #region FILL
-            public override void Fill(FillAction<float> fillAction, LineCommand lineCommand = 0)
+            public override void Fill(FillAction<float> fillAction)
             {
                 if (fillAction == null)
                     return;
@@ -55,30 +51,12 @@ namespace MnM.GWS
                     for (int i = 1; i < points.Count; i++)
                     {
                         Scan(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y);
-                        Renderer.ProcessLine(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y, pixelAction, lineCommand);
+                        Renderer.ProcessLine(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y, pixelAction, drawCommand);
                     }
                 }
 
                 for (int i = MinY; i < MaxY; i++)
                     FillLine(Results[i - MinY], i, true, fillAction);
-            }
-            public override void Fill(IBuffer buffer, IReadable pen, LineCommand lineCommand = 0)
-            {
-                if (buffer == null)
-                    return;
-                buffer.Settings.FillCommand = FillCommand;
-                if (points != null)
-                {
-                    buffer.CreateAction(pen, out PixelAction<float> pixelAction);
-                    for (int i = 1; i < points.Count; i++)
-                    {
-                        Scan(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y);
-                        Renderer.ProcessLine(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y, pixelAction, lineCommand);
-                    }
-                }
-
-                for (int i = MinY; i < MaxY; i++)
-                    FillLine(buffer, pen, Results[i - MinY], i, true);
             }
             #endregion
 
@@ -94,13 +72,13 @@ namespace MnM.GWS
                 if (collection.Length == 1)
                 {
                     if (FillSinglePoint)
-                        action(collection[0], axis, horizontal, collection[0], alpha);
+                        action(collection[0], axis, horizontal, collection[0], alpha, drawCommand);
                     return;
                 }
 
                 if (collection.Length == 2)
                 {
-                    action(collection[0], axis, horizontal, collection[1], alpha);
+                    action(collection[0], axis, horizontal, collection[1], alpha, drawCommand);
                     return;
                 }
 
@@ -109,55 +87,10 @@ namespace MnM.GWS
                 if (Sorting)
                     Array.Sort(collection);
 
-                bool endsOnly = EndsOnly;
-
                 for (int i = 1; i < collection.Length; i++)
                 {
-                    action(collection[i - 1], axis, horizontal, collection[i], alpha);
-                    if (endsOnly)
-                        continue;
-                    if (Even)
-                        ++i;
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override void FillLine(IBuffer buffer, IReadable pen, ICollection<float> data, int axis, bool horizontal, float? alpha = null)
-            {
-                if (data == null || data.Count == 0)
-                    return;
-
-                var collection = data.ToArray();
-
-                if (collection.Length == 1)
-                {
-                    if (FillSinglePoint) 
-                    {
-                        int iVal = (int)collection[0];
-                        int x = horizontal ? iVal : axis;
-                        int y = horizontal ? axis : iVal;
-                        buffer.WritePixel(collection[0], axis, horizontal, pen.ReadPixel(x, y));
-                    }
-                    return;
-                }
-
-                if (collection.Length == 2)
-                {
-                    buffer.WriteLine(collection[0], collection[1], axis, horizontal, pen, alpha);
-                    return;
-                }
-
-                var Even = collection.Length % 2 == 0;
-
-                if (Sorting)
-                    Array.Sort(collection);
-
-                bool endsOnly = EndsOnly;
-
-                for (int i = 1; i < collection.Length; i++)
-                {
-                    buffer.WriteLine(collection[i-1], collection[i], axis, horizontal, pen, alpha);
-                    if (endsOnly)
+                    action(collection[i - 1], axis, horizontal, collection[i], alpha, drawCommand);
+                    if (EndsOnly)
                         continue;
                     if (Even)
                         ++i;
@@ -267,7 +200,7 @@ namespace MnM.GWS
             #endregion
 
             #region NOTIFY SCAN RESULT
-            protected override void NotifyScanResult(float value, int axis, bool horizontal)
+            protected override void NotifyScanResult(float value, int axis, bool horizontal, DrawCommand command)
             {
                 Numbers.Confine(MinX, MaxX, ref value);
 

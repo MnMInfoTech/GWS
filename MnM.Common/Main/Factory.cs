@@ -10,8 +10,9 @@ namespace MnM.GWS
 {
     public static partial class Factory
     {
+        const int formX = 602, formY = 200, formW = 404, formH = 506;
+
         #region INSTANCE VARIABLE
-        internal static bool IsClosing;
         readonly static string sysFontpath;
 
 #if (Window)
@@ -280,6 +281,26 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region RENDER TARGET
+#if Window
+        public static IRenderTarget newRenderTarget(IRenderWindow window) =>
+            Instance.newRenderTarget(window);
+#endif
+        #endregion
+
+        #region FORM
+#if NATIVE
+        public static IForm newForm(int x, int y, int w, int h) =>
+            Instance.newForm(x, y, w, h);
+
+        public static IForm newForm() =>
+            Instance.newForm(formX, formY, formW, formH);
+
+        public static IForm newForm(int formW, int formH) =>
+            Instance.newForm(formX, formY, formW, formH);
+#endif
+        #endregion
+
         #region BRUSH - PEN
         /// <summary>
         /// Creates a new brush of certain width and height using specified fill style.
@@ -310,7 +331,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static IPen newPen(Rgba rgba)
+        public static IReadable newPen(Rgba rgba)
         {
             return Instance.newPen(rgba.Color);
         }
@@ -320,7 +341,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static IPen newPen(IColor rgba)
+        public static IReadable newPen(IColor rgba)
         {
             return Instance.newPen(rgba.Color);
         }
@@ -329,7 +350,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static IPen newPen(int color)
+        public static IReadable newPen(int color)
         {
             return Instance.newPen(color);
         }
@@ -341,7 +362,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">Parent buffer block.</param>
         /// <returns></returns>
-        public static IObjCollection newObjectCollection(ICanvas buffer)
+        public static IObjCollection newObjectCollection(IWritable buffer)
         {
             return Instance.newObjectCollection(buffer);
         }
@@ -363,7 +384,7 @@ namespace MnM.GWS
         /// If no null value is provided then ChangePrimary method will not be able to change the primary buffer value.
         /// As we have already provided dedicated primary buffer here.</param>
         /// <returns>IBufferCollection</returns>
-        public static IBufferCollection newBufferCollection(ICanvas primary) =>
+        public static IBufferCollection newBufferCollection(ISurface primary) =>
             Instance.newBufferCollection(primary);
 
         /// <summary>
@@ -374,7 +395,17 @@ namespace MnM.GWS
         public static IBufferCollection newBufferCollection(int capacity) =>
             Instance.newBufferCollection(capacity);
 #endif
-#endregion
+        #endregion
+
+        #region RENDER INFO
+        public static
+#if Advanced
+        IRenderInfo2
+#else
+        IRenderInfo
+#endif
+        newRenderInfo(string shapeID) => Instance.newRenderInfo(shapeID);
+        #endregion
 
         #region POLY FILL
         /// <summary>
@@ -1346,7 +1377,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="externalWindow">External window</param>
         /// <returns></returns>
-        public static IWindow newWindow(IWindowControl externalWindow)
+        public static IWindow newWindow(IExternalWindow externalWindow)
         {
             return Instance.newWindow(externalWindow);
         }

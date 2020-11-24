@@ -43,7 +43,7 @@ namespace MnM.GWS
     /// <param name="val">Value i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
     /// <param name="axis">Axis i.e. Y co-ordinate if horizontal is true otherwise X co-ordinate.</param>
     /// <param name="horizontal">Axial direction i.e. if true horizontal otherwise vertical</param>
-    public delegate void PixelAction<T>(T val, int axis, bool horizontal);
+    public delegate void PixelAction<T>(T val, int axis, bool horizontal, DrawCommand command);
 
     /// <summary>
     /// Provides pixel information to process further for variety of purposes.
@@ -61,6 +61,9 @@ namespace MnM.GWS
     /// <param name="horizontal">Axial direction i.e. if true horizontal otherwise vertical</param>
     /// <param name="val2">Value2 i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
     /// <param name="userData">Any data supplied by user.</param>
-    public delegate void FillAction<T>(T val1, int axis, bool horizontal, T val2, float? userData = null);
+    /// <param name="command">Fill command to control aspects of filling line.</param>
+    /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+    /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+    public delegate void FillAction<T>(T val1, int axis, bool horizontal, T val2, float? userData, DrawCommand command);
 #endif
 }

@@ -505,7 +505,7 @@ namespace MnM.GWS
                     Data = new Collection<AxisLine>(25);
                 Data.Clear();
                 var data = Data;
-                FillAction<int> action = (val1, axis, horizontal, val2, alpha) =>
+                FillAction<int> action = (val1, axis, horizontal, val2, alpha, cmd) =>
                 {
                     data.Add(new AxisLine(val1, val2, axis, horizontal, alpha));
                 };
@@ -531,37 +531,40 @@ namespace MnM.GWS
             #endregion
 
             #region DRAW
-            public override bool Draw(IBuffer buffer, IReadContext readContext, out IPen Pen)
+            public override bool Draw(IWritable buffer, IRenderInfo Settings)
             {
-                Pen = null;
                 if (Character == ' ')
                     return true;
 
-                if (readContext is IPen)
-                    Pen = readContext as IPen;
-                else
-                {
-                    Pen = buffer.Settings.GetPen(this, readContext);
-                }
-                if ((buffer.Settings.Rotation) || buffer.Settings.Scale.HasScale)
-                   DataInitialized =  RotateAndScale(buffer.Settings);
+                if ((Settings.Rotation) || Settings.Scale.HasScale)
+                    DataInitialized = RotateAndScale(Settings);
 
                 if (!DataInitialized)
                     SetData();
 
                 var x = X;
                 var y = Y;
-                buffer.Settings.FillCommand |= FillCommand.DrawLineOnly;
-                var aa = !buffer.Settings.LineCommand.HasFlag(LineCommand.Breshenham);
+                Settings.Command |= DrawCommand.DrawLineOnly;
+                var aa = !((Settings.Command & DrawCommand.Breshenham) == DrawCommand.Breshenham);
+                var offx = Settings.X;
+                var offy = Settings.Y;
+                var cmd = Settings.Command;
+
+                IReadable Pen;
+
+                if (Settings.Foreground is IReadable)
+                    Pen = (IReadable)Settings.Foreground;
+                else
+                    Pen = buffer.GetPen(this, Settings);
 
                 if (aa)
                 {
                     foreach (var item in Data)
                     {
                         if (item.Horizontal)
-                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, item.Alpha);
+                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, item.Alpha, cmd, offx, offy);
                         else
-                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, item.Alpha);
+                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, item.Alpha, cmd, offx, offy);
                     }
                 }
                 else
@@ -569,9 +572,9 @@ namespace MnM.GWS
                     foreach (var item in Data)
                     {
                         if (item.Horizontal)
-                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, null);
+                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, null, cmd, offx, offy);
                         else
-                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, null);
+                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, null, cmd, offx, offy);
                     }
                 }
                 return true;
@@ -580,7 +583,7 @@ namespace MnM.GWS
 
             #region ROTATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected abstract bool RotateAndScale(IDrawSettings Settings);
+            protected abstract bool RotateAndScale(IRenderInfo Settings);
             #endregion
 
             public override IEnumerable<VectorF> Figure() => null;
@@ -837,7 +840,7 @@ namespace MnM.GWS
                 if (len == 0)
                     return;
                 Angles.Rotate180(x, y, ih, out x, out y);
-                action(x, y, true, x + len, alpha);
+                action(x, y, true, x + len, alpha, 0);
             }
             void RenderScanline(int scanline, float x1, float y1, float x2, float y2)
             {

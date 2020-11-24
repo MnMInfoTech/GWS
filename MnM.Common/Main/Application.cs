@@ -25,7 +25,6 @@ namespace MnM.GWS
         #region EVENT STORAGE
 #if Window
         static volatile bool EventsRunning = false;
-        static bool HaltTimer = false;
 #endif
 
         #endregion
@@ -163,20 +162,16 @@ namespace MnM.GWS
                     break;
                 IEvent e = null;
 
-                Timers.RunTimers();
+                Timers.Run();
 
                 while (Factory.PollEvent(out e))
                 {
                     if (GetWindow(e.ID, out IEventProcessor window))
                     {
                         if (!window.ProcessEvent(e))
-                        {
-                            HaltTimer = false;
                             continue;
-                        }
                     }
                 }
-
             }
             Quit();
         }

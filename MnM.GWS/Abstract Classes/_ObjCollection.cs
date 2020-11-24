@@ -10,12 +10,12 @@ namespace MnM.GWS
     public abstract partial class _ObjCollection: _ObjDictionary<IRenderable, string>, IObjCollection
     {
         #region VARIABLES
-        public readonly IBuffer Parent;
+        protected readonly IWritable Parent;
         protected bool isDisposed;
         #endregion
 
         #region CONSTRUCTORS
-        public _ObjCollection(IBuffer buffer)
+        public _ObjCollection(IWritable buffer)
         {
             Parent = buffer;
             ID = "ObjectCollection".NewID();
@@ -28,9 +28,9 @@ namespace MnM.GWS
 
         public
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
         this[IRenderable shape] => GetInfo(shape?.ID);
         public string ID { get; protected set; }
@@ -39,9 +39,9 @@ namespace MnM.GWS
         public IEnumerable<IRenderable> Items => objects;
         public abstract
 #if Advanced
-            IEnumerable<IDrawInfo2>
+            IEnumerable<IRenderInfo2>
 #else
-            IEnumerable<IDrawInfo>
+            IEnumerable<IRenderInfo>
 #endif
             InfoItems
         { get; }
@@ -49,14 +49,19 @@ namespace MnM.GWS
 
         #region IS DRAW POSSIBLE
         protected bool IsDrawPossible(IRenderable shape) =>
-           Parent != null && Parent.Settings.ShapeID != shape.ID;
+           Parent != null;
+        #endregion
+
+        #region IS ADDABLE
+        protected virtual bool IsAddable(IRenderable shape) =>
+            shape != null && shape.ID != null;
         #endregion
 
         #region ADD SHAPE
-        public T Add<T>(T Shape, IReadContext context)
+        public T Add<T>(T Shape, IContext context)
             where T : IRenderable
         {
-            if (Shape == null|| Shape.ID == null || Shape is IWipeable)
+            if (!IsAddable(Shape))
                 return Shape;
 
             AddMode = !Contains(Shape);
@@ -65,18 +70,8 @@ namespace MnM.GWS
                 var info = NewDrawInfo(Shape);
                 AddInternal(Shape, info);
             }
-            
-            if(Shape is IFigurable)
-                Parent.Render((IFigurable)Shape, context);
-           
-            else if(Shape is ISelfDrawable)
-            {
-                var obj = ((ISelfDrawable)Shape);
-                if (obj.Foreground == null && context != null)
-                    obj.Foreground = context;
-                else
-                    obj.Draw();
-            }
+
+            Parent.Render(Shape, context);
             AddMode = false;
             return Shape;
         }
@@ -84,9 +79,9 @@ namespace MnM.GWS
             Add<T>(Shape, null);
 
 #if Advanced
-        protected abstract void AddInternal(IRenderable Shape, IDrawInfo2 info);
+        protected abstract void AddInternal(IRenderable Shape, IRenderInfo2 info);
 #else
-        protected abstract void AddInternal(IRenderable Shape, IDrawInfo info);
+        protected abstract void AddInternal(IRenderable Shape, IRenderInfo info);
 #endif
         public void AddRange<T>(IEnumerable<T> controls) where T: IRenderable
         {
@@ -110,9 +105,9 @@ namespace MnM.GWS
         protected abstract bool RemoveInternal
             (
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             info);
         #endregion
@@ -128,24 +123,24 @@ namespace MnM.GWS
         protected abstract
 
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
         newDrawInfo(IRenderable shape);
         public abstract
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             GetInfo(string Shape);
 
         public
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             NewDrawInfo(IRenderable Shape)
         {
@@ -158,9 +153,9 @@ namespace MnM.GWS
         }
         public
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
         NewDrawInfo(string shapeID)
         {
@@ -181,8 +176,7 @@ namespace MnM.GWS
             if (Parent == null || !Contains(shape))
                 return;
 
-            if(shape is IFigurable)
-                Parent.Render((IFigurable)shape);
+            Parent.Render(shape);
 
             var info = GetInfo(shape.ID);
             SetCurrentPage(info, true);
@@ -193,12 +187,7 @@ namespace MnM.GWS
                 if (i == null)
                     continue;
                 if (IsDrawable(i, info))
-                {
-                    if (item is IFigurable)
-                        Parent.Render((IFigurable)item);
-                    else if (item is ISelfDrawable)
-                        ((ISelfDrawable)item).Draw();
-                }
+                    Parent.Render(item);
             }
         }
         #endregion
@@ -206,22 +195,22 @@ namespace MnM.GWS
         #region SET CURRENT PAGE
         protected abstract void SetCurrentPage(
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             info, bool silent);
         protected abstract bool IsDrawable(
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             item,
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-        IDrawInfo
+        IRenderInfo
 #endif
             compareWith);
         #endregion
@@ -233,31 +222,31 @@ namespace MnM.GWS
         #region QUERY
         public abstract IEnumerable<T> Query<T>(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition) where T : IRenderable;
         public abstract IList<IDrawnInfo> QueryDraw(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition);
 
         public abstract T QueryFirst<T>(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition) where T : IRenderable;
         public abstract IDrawnInfo QueryFirstDraw(Predicate<
 #if Advanced
-            IDrawInfo2
+            IRenderInfo2
 #else
-            IDrawInfo
+            IRenderInfo
 #endif
             > condition);
         #endregion

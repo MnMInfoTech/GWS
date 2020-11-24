@@ -75,6 +75,22 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region RENDER TARGET
+        public override IRenderTarget newRenderTarget(IRenderWindow window)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IRenderTarget"));
+        }
+        #endregion
+
+        #region IFORM
+#if NATIVE
+        public override IForm newForm(int x, int y, int w, int h)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IForm"));
+        }
+#endif
+        #endregion
+
         #region BRUSH
         public override IBrush newBrush(BrushStyle style, int width, int height)
         {
@@ -87,14 +103,14 @@ namespace MnM.GWS
         #endregion
 
         #region TO PEN
-        public override IPen ToPen(IReadContext context, int? w = null, int? h = null)
+        public override IReadable ToPen(IPenContext context, int? w = null, int? h = null)
         {
             throw new NotImplementedException(string.Format(goforStandard, "ISurface, ICanvas, IBrush, IObjCollection"));
         }
         #endregion
 
         #region OBJECT COLLECTION
-        public override IObjCollection newObjectCollection(IBuffer buffer)
+        public override IObjCollection newObjectCollection(IWritable buffer)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
         }
@@ -216,4 +232,4 @@ namespace MnM.GWS
         #endregion
     }
 #endif
-}
+    }

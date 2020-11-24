@@ -13,7 +13,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which provides a certain list of colors to form a spectrum using a specified stop positions.
     /// </summary>
-    public partial class BrushStyle : IEquatable<BrushStyle>, ICloneable, IReadContext, IReadOnlyList<int>
+    public partial class BrushStyle : IEquatable<BrushStyle>, ICloneable, IPenContext, IReadOnlyList<int>
     {
         #region VARIABLES   
         /// <summary>

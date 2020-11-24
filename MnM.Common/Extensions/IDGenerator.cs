@@ -17,16 +17,22 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="objType">Type name</param>
         /// <returns></returns>
-        public static string NewID(this string objType)
+        public static string NewID(this string objType, bool increment = true)
         {
             if (objType == null)
                 return null;
-            if (!newIDs.ContainsKey(objType))
+            if (!newIDs.ContainsKey(objType)) 
                 newIDs.Add(objType, 0);
-
-            var newID = ++newIDs[objType];
-            newIDs[objType] = newID;
-            return objType + newID;
+            int newID;
+            if (increment)
+                newID = ++newIDs[objType];
+            else
+                newID = newIDs[objType];
+            if (increment)
+                newIDs[objType] = newID;
+            else
+                ++newID;
+            return objType + (newID);
         }
 
         /// <summary>
@@ -49,12 +55,12 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="objType">Type of object unique id is sought for</param>
         /// <returns>New ID</returns>
-        public static string NewID(this Type objType)
+        public static string NewID(this Type objType, bool increment = true)
         {
             if (objType == null)
                 return null;
 
-            return NewID(objType.FullName);
+            return NewID(objType.FullName, increment);
         }
 
         /// <summary>
@@ -62,11 +68,11 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="objType">Class name usually</param>
         /// <returns>New ID</returns>
-        public static string NewID(this object o)
+        public static string NewID(this object o, bool increment = true)
         {
             if (o == null)
                 return null;
-            return NewID(o.GetType());
+            return NewID(o.GetType(), increment);
         }
         #endregion
 

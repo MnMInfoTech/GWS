@@ -10,16 +10,20 @@ namespace MnM.GWS
     public abstract partial class _Window : _Host, IWindow
     {
         #region VARIABLES
+        readonly ICanvas Primary;
+        ISurface Current;
+
         protected bool previousCursorVisible = true;
         protected bool cursorVisible;
         protected readonly IRenderTarget UnderlyingWindow;
         bool firstShow;
-        protected readonly ICanvas Primary;
         readonly DrawEventArgs DrawEventArgs = new DrawEventArgs();
         readonly EventInfo Event = new EventInfo();
         protected Rectangle bounds;
         protected bool focused;
-        IWindowControl Control;
+        IExternalWindow Control;
+        IObjCollection Controls;
+
 #if Advanced
         IBufferCollection Buffers;
 #endif
@@ -30,23 +34,14 @@ namespace MnM.GWS
         {
             bounds = new Rectangle(0, 0, width, height);
         }
-        protected _Window(IWindowControl control) :
+        protected _Window(IExternalWindow control) :
             this(control.Width, control.Height)
         {
             if (!Initialize(externalWindow: control))
                 throw new Exception("Window could not be initialized!");
             Control = control;
             UnderlyingWindow = Control;
-            Primary = Factory.newCanvas(UnderlyingWindow);
-
-#if Advanced
-            Buffers = Factory.newBufferCollection(Primary);
-            Buffers.BufferChanged += BufferIsChanged;
-#endif
-            GwsWindowFlags = 0;
-            WindowID = Factory.GetWindowID(Handle);
-            Name = "Window" + WindowID;
-            this.Register();
+            Initialize(out Primary, null);
         }
         protected _Window(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
@@ -55,12 +50,22 @@ namespace MnM.GWS
         {
             if (!Initialize(title, width, height, x, y, flags, display, renderFlags: renderFlags))
                 throw new Exception("Window could not be initialized!");
+           
+            UnderlyingWindow = Factory.newRenderTarget(this);
+            Initialize(out Primary, flags);
+        }
 
-            GetTexture(out UnderlyingWindow);
-            Primary = Factory.newCanvas(UnderlyingWindow);
+        protected abstract bool Initialize(string title = null, int? width = null, int? height = null,
+            int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
+            IExternalWindow externalWindow = null, RendererFlags? renderFlags = null);
 
+        void Initialize(out ICanvas Canvas, GwsWindowFlags? flags)
+        {
+            Canvas = Factory.newCanvas(UnderlyingWindow);
+            Controls = Canvas.Objects;
+            Current = Canvas;
 #if Advanced
-            Buffers = Factory.newBufferCollection(Primary);
+            Buffers = Factory.newBufferCollection(Canvas);
             Buffers.BufferChanged += BufferIsChanged;
 #endif
             GwsWindowFlags = flags ?? 0;
@@ -70,37 +75,11 @@ namespace MnM.GWS
             Name = "Window" + WindowID;
             this.Register();
         }
-
-        protected abstract bool Initialize(string title = null, int? width = null, int? height = null,
-            int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
-            IWindowControl externalWindow = null, RendererFlags? renderFlags = null);
-
-        protected abstract void GetTexture(out IRenderTarget texture);
         #endregion
 
         #region PROPERTIES
-        protected sealed override IBuffer Buffer
-        {
-            get
-            {
-#if Advanced
-                if (Buffers.BufferIndex != -1)
-                    return Buffers.Current;
-#endif
-                return Primary;
-            }
-        }
-        public sealed override IObjCollection Objects
-        {
-            get
-            {
-#if Advanced
-                if (Buffers.BufferIndex != -1)
-                    return Buffers.Current.Objects;
-#endif
-                return Primary.Objects;
-            }
-        }
+        protected sealed override ISurface Buffer => Current;
+        public sealed override IObjCollection Objects => Controls;
 #if Advanced
         public int BufferCount => Buffers.BufferCount;
         public int BufferIndex => Buffers.BufferIndex;
@@ -129,13 +108,6 @@ namespace MnM.GWS
         public abstract ISound Sound { get; }
         public abstract bool Visible { get; set; }
         public abstract bool Enabled { get; set; }
-        #endregion
-
-        #region COPY FROM
-        public override void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true)
-        {
-            UnderlyingWindow?.CopyFrom(source, dstX, dstY, srcX, srcY, srcW, srcH, updateImmediate);
-        }
         #endregion
 
         #region SHOW - HIDE
@@ -244,8 +216,8 @@ namespace MnM.GWS
 
 #if Advanced
         #region ADD - REMOVE BUFFER
-        public int AddBuffer() =>
-            Buffers.AddBuffer();
+        public int AddBuffer(bool Canvas = false) =>
+            Buffers.AddBuffer(Canvas);
         public void RemoveBuffer(int index) =>
             Buffers.RemoveBuffers();
         #endregion
@@ -271,11 +243,23 @@ namespace MnM.GWS
         #region BUFFER CHANGE
         void BufferIsChanged(object sender, IEventArgs e)
         {
-            UnderlyingWindow.CopyFrom(this, 0, 0, Width, Height);
+            UnderlyingWindow.Invalidate(0, 0, Width, Height);
+            UnderlyingWindow.Update();
+            //UnderlyingWindow.CopyFrom(this, 0, 0, Width, Height);
             OnBufferChanged(e);
+            if (Buffers.Current is IContainer)
+                Controls = ((IContainer)Buffers.Current).Objects;
+            else
+                Controls = Primary.Objects;
+            Current = Buffers.Current;
         }
         protected virtual void OnBufferChanged(IEventArgs e) =>
             BufferChanged?.Invoke(this, e);
+        #endregion
+
+        #region BACKGROUND CHANGED
+        private void BackgroundIsChanged(object sender, IEventArgs e) =>
+            OnBackgroundChanged(e);
         #endregion
 #endif
 
@@ -335,7 +319,6 @@ namespace MnM.GWS
         }
         protected override void OnFirstShown(IEventArgs e)
         {
-            UnderlyingWindow.CopyFrom(Buffer, 0, 0, Width, Height);
             Refresh();
             base.OnFirstShown(e);
         }

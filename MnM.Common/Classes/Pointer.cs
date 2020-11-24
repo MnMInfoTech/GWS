@@ -11,9 +11,11 @@ namespace MnM.GWS
     public class Pointer : IIntPtr
     {
         GCHandle handle;
+        IntPtr objPtr;
         public Pointer(object target)
         {
             handle = GCHandle.Alloc(target);
+            objPtr = GCHandle.ToIntPtr(handle);
         }
         ~Pointer()
         {
@@ -21,8 +23,7 @@ namespace MnM.GWS
                 handle.Free();
         }
 
-        public IntPtr Handle => 
-            GCHandle.ToIntPtr(handle);
+        public IntPtr Handle => objPtr;
 
         public void Dispose()
         {

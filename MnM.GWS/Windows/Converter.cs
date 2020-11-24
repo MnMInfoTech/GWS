@@ -12,7 +12,7 @@ namespace MnM.GWS
             result = default(T);
 
             #region IMAGE
-            if (t.IsAssignableFrom(typeof(ICopyable)) || t.IsAssignableFrom(typeof(IBuffer)))
+            if (t.IsAssignableFrom(typeof(ICopyable)) || t.IsAssignableFrom(typeof(ISurface)))
             {
                 byte[] bytes = Convert.FromBase64String(expression);
 

@@ -4,6 +4,7 @@
 * See license.txt for detailed licensing details. */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace MnM.GWS
@@ -11,9 +12,15 @@ namespace MnM.GWS
     public static class Timers
     {
         static readonly Dictionary<string, ITimer> timers = new Dictionary<string, ITimer>(4);
+        static BackgroundWorker worker = new BackgroundWorker();
+        public static bool Halt;
 
-        #region RUN TIMERS
-        public static void RunTimers()
+        static Timers()
+        {
+            worker.DoWork += Worker_DoWork;
+        }
+
+        private static void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             if (timers.Count > 0)
             {
@@ -21,6 +28,13 @@ namespace MnM.GWS
                 foreach (var t in timers)
                     t.FireEvent();
             }
+        }
+        #region RUN TIMERS
+        public static void Run()
+        {
+            if (worker.IsBusy)
+                return;
+            worker.RunWorkerAsync();
         }
         #endregion
 

@@ -12,6 +12,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Bridge.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Demo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MsDisplay.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MsWindow.cs" />
   </ItemGroup>
 </Project>

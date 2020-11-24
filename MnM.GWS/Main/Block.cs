@@ -8,368 +8,441 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed class Block : IBlock
-    {
-        #region VARIABLES
-        int width, height, length;
+    //public sealed class Block : IImage
+    //{
+    //    #region VARIABLES
+    //    int[] Data;
+    //    bool IsResizing;
+    //    readonly HashSet<int> DrawnIndices = new HashSet<int>();
+    //    const byte o = 0;
+    //    #endregion
 
-        int[] Data;
-        bool AntiAliased;
-        bool Distinct;
-        bool Opaque, Back, SkipPenBackground;
-        IPen BkgPen;
-        LineCommand lineCommand;
-        DrawCommand drawCommand;
+    //    #region CONSTRUCTORS
+    //    public Block(int w, int h)
+    //    {
+    //        Width = w;
+    //        Height = h;
+    //        Length = w * h;
+    //        Data = new int[Length];
+    //    }
+    //    public Block(int[] data, int w, int h)
+    //    {
+    //        Width = w;
+    //        Height = h;
+    //        Length = w * h;
+    //        Data = data;
+    //    }
+    //    public unsafe Block(IntPtr data, int w, int h):
+    //        this(w, h)
+    //    {
+    //        int* src = (int*)data;
+    //        fixed (int* dst = Data)
+    //            Blocks.Copy(src, 0, dst, 0, Length);
+    //    }
+    //    public unsafe Block(byte[] data, int w, int h):
+    //        this(w /4, h)
+    //    {
+    //        byte* dst = (byte*)Source;
+    //        fixed(byte* src = data)
+    //            Blocks.Copy(src, 0, dst, 0, Length);
+    //    }
+    //    #endregion
 
-        readonly HashSet<int> DrawnIndices = new HashSet<int>();
-        const byte o = 0;
-        #endregion
+    //    #region PROPERTIES
+    //    public int Width { get; private set; }
+    //    public int Height { get; private set; }
+    //    public int Length { get; private set; }
+    //    public unsafe IntPtr Source
+    //    {
+    //        get
+    //        {
+    //            fixed (int* d = Data)
+    //                return (IntPtr)d;
+    //        }
+    //    }
+    //    public Size Clip
+    //    {
+    //        get => new Size(Width, Height);
+    //        set { }
+    //    }
+    //    #endregion
 
-        #region CONSTRUCTORS
-        public Block(int w, int h)
-        {
-            width = w;
-            height = h;
-            length = w * h;
-            Data = new int[length];
-        }
-        #endregion
+    //    #region BLEND
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    int Blend(int dstColor, int srcColor, byte alpha)
+    //    {
+    //        if (alpha == 255)
+    //            return srcColor;
 
-        #region PROPERTIES
-        public int Width => width;
-        public int Height => height;
-        public int Length => length;
-        bool IWritable.Antialiased => AntiAliased;
-        public IReadContext Background
-        {
-            get => BkgPen;
-            set
-            {
-                if (value == null)
-                {
-                    (BkgPen as IDisposable)?.Dispose();
-                    BkgPen = null;
-                    return;
-                }
-                BkgPen = value.ToPen(Width, Height);
-            }
-        }
-        public LineCommand LineCommand
-        {
-            get => lineCommand;
-            set
-            {
-                lineCommand = value;
-                AntiAliased = !LineCommand.HasFlag(LineCommand.Breshenham);
-                var distinct = LineCommand.HasFlag(LineCommand.Distinct);
-                if (distinct != !Distinct)
-                    DrawnIndices.Clear();
-                Distinct = distinct;
-            }
-        }
-        public DrawCommand DrawCommand
-        {
-            get => drawCommand;
-            set
-            {
-                drawCommand = value;
-                Opaque = Back = false;
-                Opaque = value.HasFlag(DrawCommand.Opaque);
-                Back = !Opaque && value.HasFlag(DrawCommand.Back);
-            }
-        }
-        unsafe int* source
-        {
-            get
-            {
-                fixed (int* d = Data)
-                    return d;
-            }
-        }
-        #endregion
+    //        //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+    //        uint C1 = (uint)dstColor;
+    //        uint C2 = (uint)srcColor;
+    //        uint invAlpha = 255 - (uint)alpha;
+    //        uint RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
+    //        uint AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
+    //        int color = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
+    //        return color;
+    //    }
+    //    #endregion
 
-        #region BLEND
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        int Blend(int dstColor, int srcColor, byte alpha)
-        {
-            if (alpha == 255)
-                return srcColor;
+    //    #region WRITE PIXEL
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public void WritePixel(int val, int axis, bool horizontal, int srcColor, float? Alpha, DrawCommand command)
+    //    {
+    //        bool Opaque = command.HasFlag(DrawCommand.Opaque);
+    //        if (IsResizing ||( srcColor == 0 && !Opaque))
+    //            return;
 
-            //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
-            uint C1 = (uint)dstColor;
-            uint C2 = (uint)srcColor;
-            uint invAlpha = 255 - (uint)alpha;
-            uint RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
-            uint AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
-            int color = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
-            return color;
-        }
-        #endregion
+    //        int i;
+    //        int x = horizontal ? val : axis;
+    //        int y = horizontal ? axis : val;
 
-        #region WRITE PIXEL
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void WritePixel(int val, int axis, bool horizontal, int srcColor, float? Alpha)
-        {
-            if (srcColor == 0 && !Opaque)
-                return;
+    //        if (x < 0 || y < 0 || x >= Width || y >= Height)
+    //            return;
 
-            int i;
-            int x = horizontal ? val : axis;
-            int y = horizontal ? axis : val;
+    //        i = x + y * Width;
+    //        int dc = Data[i];
 
-            if (x < 0 || y < 0 || x >= width || y >= height)
-                return;
+    //        bool Back = command.HasFlag(DrawCommand.Backdrop);
 
-            i = x + y * width;
-            int dc = Data[i];
+    //        if (Back && dc != 0)
+    //            return;
 
-            if (Back && dc != 0)
-                return;
+    //        bool Distinct = command.HasFlag(DrawCommand.Distinct);
 
-            if (Distinct)
-            {
-                if (DrawnIndices.Contains(i))
-                    return;
-                DrawnIndices.Add(i);
-            }
-            byte alpha;
+    //        if (Distinct)
+    //        {
+    //            if (DrawnIndices.Contains(i))
+    //                return;
+    //            DrawnIndices.Add(i);
+    //        }
+    //        byte alpha;
 
-            float delta = Alpha ?? Colors.Alphas[(byte)((srcColor >> Colors.AShift) & 0xFF)];
-            alpha = (byte)(delta * 255);
+    //        float delta = Alpha ?? Colors.Alphas[(byte)((srcColor >> Colors.AShift) & 0xFF)];
+    //        alpha = (byte)(delta * 255);
 
-            if (alpha == 0)
-                return;
+    //        if (alpha == 0)
+    //            return;
 
-            if (alpha != 255)
-            {
-                if (dc == 0)
-                    dc = BkgPen?.ReadPixel(x, y) ?? 0;
+    //        if (alpha != 255)
+    //        {
+    //            srcColor = Blend(dc, srcColor, alpha);
+    //        }
+    //        Data[i] = srcColor;
+    //    }
+    //    #endregion
 
-                srcColor = Blend(dc, srcColor, alpha);
-            }
-            Data[i] = srcColor;
-        }
-        #endregion
+    //    #region WRITE LINE
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public unsafe void WriteLine(int* pixels, int srcIndex, int srcW, int copyLength, 
+    //        bool horizontal, int x, int y, float? Alpha, byte[] imageAlphas, DrawCommand command)
+    //    {
+    //        #region VARAIBLE INITIALIZATION
+    //        if (IsResizing || copyLength <= 0)
+    //            return;
 
-        #region WRITE LINE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void WriteLine(int* src, int srcIndex, int srcW, int copyLength, bool horizontal, int x, int y, float? Alpha)
-        {
-            #region VARAIBLE INITIALIZATION
-            if (copyLength <= 0)
-                return;
+    //        int* dst;
+    //        fixed (int* d = Data)
+    //            dst = d;
+    //        int dstIndex = x + y * Width;
+    //        int dplus = horizontal ? 1 : Width;
+    //        int splus = horizontal || srcW == copyLength ? 1 : srcW;
+    //        int last = dstIndex + dplus * copyLength;
+    //        int j = srcIndex;
 
-            int* dst = source;
-            int dstIndex = x + y * width;
-            int dplus = horizontal ? 1 : width;
-            int splus = horizontal || srcW == copyLength ? 1 : srcW;
-            int last = dstIndex + dplus * copyLength;
-            int j = srcIndex;
+    //        int px = x;
+    //        int py = y;
+    //        int ix = horizontal ? 1 : 0;
+    //        int iy = horizontal ? 0 : 1;
 
-            int px = x;
-            int py = y;
-            int ix = horizontal ? 1 : 0;
-            int iy = horizontal ? 0 : 1;
-            bool hasBkg = BkgPen != null;
+    //        int dc, sc;
+    //        var NoBlend = Alpha == null;
+    //        byte alpha = !NoBlend ? (byte)(Alpha.Value * 255) : o;
+    //        bool Opaque = command.HasFlag(DrawCommand.Opaque);
+    //        bool Back = command.HasFlag(DrawCommand.Backdrop);
+    //        #endregion
 
-            int dc, sc;
-            var NoBlend = Alpha == null;
-            byte alpha = !NoBlend ? (byte)(Alpha.Value * 255) : o;
-            #endregion
+    //        #region WRITING LINE
+    //        for (int i = dstIndex; i < last; i += dplus, j += splus, px += ix, py += iy)
+    //        {
+    //            if (i >= Length) break;
 
-            #region WRITING LINE
-            for (int i = dstIndex; i < last; i += dplus, j += splus, px += ix, py += iy)
-            {
-                if (i >= length) break;
+    //            dc = dst[i];
+    //            sc = pixels[j];
 
-                dc = dst[i];
-                sc = src[j];
+    //            if (sc == 0 && dc == 0)
+    //                continue;
 
-                if (sc == 0 && dc == 0)
-                    continue;
+    //            if (sc == 0)
+    //            {
+    //                if (Opaque)
+    //                    dst[i] = sc;
+    //                continue;
+    //            }
 
-                if (sc == 0)
-                {
-                    if (Opaque)
-                        dst[i] = sc;
-                    continue;
-                }
+    //            if (Back && dc != 0)
+    //                continue;
 
-                if (Back && dc != 0)
-                    continue;
+    //            if (!NoBlend && alpha < 2)
+    //                continue;
 
-                if (!NoBlend && alpha < 2)
-                    continue;
+    //            if (NoBlend || alpha == 255)
+    //            {
+    //                dst[i] = sc;
+    //                continue;
+    //            }
+    //            dst[i] = Blend(dc, sc, alpha);
+    //            continue;
+    //        }
+    //        #endregion
 
-                if (NoBlend || alpha == 255)
-                {
-                    dst[i] = sc;
-                    continue;
-                }
+    //        int w = horizontal ? copyLength : 1;
+    //        int h = horizontal ? 1 : copyLength;
+    //    }
+    //    #endregion
 
-                if (dc == 0 && hasBkg)
-                    dc = BkgPen.ReadPixel(px, py);
+    //    #region COPY TO
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int dstLen, int dstW, int dstX, int dstY, DrawCommand command)
+    //    {
+    //        int* dst = (int*)dest;
+    //        int srcLen = Length;
+    //        int srcW = Width;
+    //        int srcH = Height;
+    //        int sc;
+    //        int* src;
+    //        fixed (int* s = Data)
+    //            src = s;
 
-                dst[i] = Blend(dc, sc, alpha);
-                continue;
-            }
-            #endregion
+    //        var copy = Rects.CompitibleRc(srcW, srcH, copyX, copyY, copyW, copyH);
 
-            int w = horizontal ? copyLength : 1;
-            int h = horizontal ? 1 : copyLength;
-        }
-        #endregion
+    //        copyW = copy.Width;
+    //        copyH = copy.Height;
+    //        copyX = copy.X;
+    //        copyY = copy.Y;
 
-        #region COPY TO
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int dstLen, int dstW, int dstX, int dstY)
-        {
-            bool hasBkgPen = BkgPen != null;
-            bool withBackgroundPixels = hasBkgPen && !SkipPenBackground;
+    //        if (copyX < 0)
+    //        {
+    //            copyW += copyX;
+    //            copyX = 0;
+    //        }
+    //        if (copyY < 0)
+    //        {
+    //            copyH += copyY;
+    //            copyY = 0;
+    //        }
+    //        var srcIndex = copyX + copyY * srcW;
 
-            int bkgIndex = 0;
-            int bkgLen = 0;
-            int* dst = (int*)dest;
-            int srcLen = Length;
-            int srcW = Width;
-            int srcH = Height;
-            int[] bkg;
-            int sc, bk;
-            int* src = source;
-            var copy = Rects.CompitibleRc(srcW, srcH, copyX, copyY, copyW, copyH);
+    //        if (dstX < 0)
+    //            dstX = 0;
+    //        if (dstY < 0)
+    //            dstY = 0;
 
-            copyW = copy.Width;
-            copyH = copy.Height;
-            copyX = copy.X;
-            copyY = copy.Y;
+    //        var dstIndex = dstX + dstY * dstW;
 
-            if (copyX < 0)
-            {
-                copyW += copyX;
-                copyX = 0;
-            }
-            if (copyY < 0)
-            {
-                copyH += copyY;
-                copyY = 0;
-            }
-            var srcIndex = copyX + copyY * srcW;
+    //        if (copyW > srcW)
+    //            copyW = srcW;
+    //        if (copyH > srcH)
+    //            copyH = srcH;
 
-            if (dstX < 0)
-                dstX = 0;
-            if (dstY < 0)
-                dstY = 0;
+    //        if (srcIndex + copyW >= srcLen)
+    //            copyW -= (srcIndex + copyW - srcLen);
 
-            var dstIndex = dstX + dstY * dstW;
+    //        if (copyW <= 0)
+    //            return Rectangle.Empty;
 
-            if (copyW > srcW)
-                copyW = srcW;
-            if (copyH > srcH)
-                copyH = srcH;
+    //        if (dstIndex + copyW >= dstLen)
+    //            copyW -= (dstIndex + copyW - dstLen);
 
-            if (srcIndex + copyW >= srcLen)
-                copyW -= (srcIndex + copyW - srcLen);
+    //        if (copyW <= 0)
+    //            return Rectangle.Empty;
 
-            if (copyW <= 0)
-                return Rectangle.Empty;
+    //        int i = 0;
+    //        int x = copyX;
+    //        int y = copyY;
+    //        int r = copyX + copyW;
 
-            if (dstIndex + copyW >= dstLen)
-                copyW -= (dstIndex + copyW - dstLen);
+    //        while (i < copyH)
+    //        {
+    //            if (srcIndex + copyW >= srcLen)
+    //                copyW -= (srcIndex + copyW - srcLen);
+    //            if (copyW <= 0)
+    //                break;
 
-            if (copyW <= 0)
-                return Rectangle.Empty;
+    //            if (dstIndex + copyW >= dstLen)
+    //                copyW -= (dstIndex + copyW - dstLen);
 
-            int i = 0;
-            int x = copyX;
-            int y = copyY;
-            int r = copyX + copyW;
+    //            if (copyW <= 0)
+    //                break;
 
-            while (i < copyH)
-            {
-                if (srcIndex + copyW >= srcLen)
-                    copyW -= (srcIndex + copyW - srcLen);
-                if (copyW <= 0)
-                    break;
+    //            int didx = dstIndex;
+    //            int sidx = srcIndex;
 
-                if (dstIndex + copyW >= dstLen)
-                    copyW -= (dstIndex + copyW - dstLen);
+    //            for (int j = didx; j < didx + copyW; j++, sidx++)
+    //            {
+    //                sc = src[sidx];
+    //                if (sc == 0)
+    //                    continue;
+    //                dst[j] = sc;
+    //            }
+    //            srcIndex += srcW;
+    //            dstIndex += dstW;
+    //            ++i;
+    //        }
+    //        var result = new Rectangle(dstX, dstY, copyW, i);
+    //        return result;
+    //    }
 
-                if (copyW <= 0)
-                    break;
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public unsafe Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
+    //    {
+    //        if (block is IPixels)
+    //        {
+    //            return CopyTo(copyX, copyY, copyW, copyH, ((IImage)block).Source, block.Length, block.Width, destX, destY, command);
+    //        }
 
-                int didx = dstIndex;
-                int sidx = srcIndex;
+    //        if (!(block is IWritable))
+    //            return Rectangle.Empty;
 
-                if (withBackgroundPixels)
-                {
-                    BkgPen.ReadLine(x, r, copyY + i, true, out bkg, out bkgIndex, out bkgLen);
-                    for (int j = didx; j < didx + copyW; j++, sidx++, bkgIndex++)
-                    {
-                        sc = src[sidx];
-                        bk = bkg[bkgIndex];
-                        if (sc == 0)
-                            sc = bk;
-                        dst[j] = sc;
-                    }
-                }
-                else
-                {
-                    bk = 0;
-                    for (int j = didx; j < didx + copyW; j++, sidx++)
-                    {
-                        sc = src[sidx];
-                        dst[j] = sc;
-                    }
-                }
-                srcIndex += srcW;
-                dstIndex += dstW;
-                ++i;
-            }
-            var result = new Rectangle(dstX, dstY, copyW, i);
-            return result;
-        }
+    //        var surface = (IWritable)block;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
-        {
-            var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
-            Rectangle dstRc;
-            var x = copy.X;
-            var y = copy.Y;
-            copyW = copy.Width;
+    //        var copy = Rects.CompitibleRc(Width, Height, copyX, copyY, copyW, copyH);
+    //        Rectangle dstRc;
+    //        var x = copy.X;
+    //        var y = copy.Y;
+    //        copyW = copy.Width;
 
-            var b = y + copy.Height;
-            if (y < 0)
-            {
-                b += y;
-                y = 0;
-            }
-            int srcLen = length;
-            int srcIndex = x + y * width;
-            int srcW = width;
-            var dy = destY;
-            int* src = source;
+    //        var b = y + copy.Height;
+    //        if (y < 0)
+    //        {
+    //            b += y;
+    //            y = 0;
+    //        }
+    //        int srcLen = Length;
+    //        int srcIndex = x + y * Width;
+    //        int srcW = Width;
+    //        var dy = destY;
+    //        int* dst;
+    //        fixed (int* d = Data)
+    //            dst = d;
+    //        for (int j = y; j <= b; j++)
+    //        {
+    //            surface.WriteLine(dst, srcIndex, srcW, copyW, true, destX, dy++, null, null, command);
+    //            srcIndex += srcW;
+    //            if (srcIndex >= srcLen)
+    //                break;
+    //        }
+    //        dstRc = new Rectangle(destX, destY, copyW, dy - destY);
 
-            for (int j = y; j <= b; j++)
-            {
-                block.WriteLine(src, srcIndex, srcW, copyW, true, destX, dy++, null);
-                srcIndex += srcW;
-                if (srcIndex >= srcLen)
-                    break;
-            }
-            dstRc = new Rectangle(destX, destY, copyW, dy - destY);
+    //        if (dstRc && block is IUpdatable)
+    //        {
+    //            var updatable = (IUpdatable)surface;
+    //            updatable.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height);
+    //            updatable.Update(command);
+    //        }
 
-            if (dstRc)
-                block.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height, updateImmediate);
+    //        return dstRc;
+    //    }
+    //    #endregion
 
-            return dstRc;
-        }
-        #endregion
+    //    #region DRAW IMAGE
+    //    public unsafe void DrawImage(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
+    //    {
+    //        var copy = Rects.CompitibleRc(Width, Height, copyX, copyY, copyW, copyH);
+    //        var Opaque = command.HasFlag(DrawCommand.Opaque);
 
-        #region INVALIDATE
-        public void Invalidate(int x, int y, int width, int height, bool updateImmediate = false) { }
-        public void Update() { }
-        #endregion
-    }
+    //        var x = copy.X;
+    //        var y = copy.Y;
+    //        copyW = copy.Width;
 
+    //        var b = y + copy.Height;
+    //        if (y < 0)
+    //        {
+    //            b += y;
+    //            y = 0;
+    //        }
+    //        int* src = (int*)source;
+    //        int srcLen = Length;
+    //        int srcIndex = x + y * Width;
+    //        var dy = dstY;
+    //        int* dst;
+    //        fixed (int* d = Data)
+    //            dst = d;
+    //        int dstIndex = dstX + dstY * Width;
+    //        int sidx, didx;
+
+    //        for (int j = y; j <= b; j++)
+    //        {
+    //            sidx = srcIndex;
+    //            didx = dstIndex;
+    //            for (int i = 0; i < copyW; i++)
+    //            {
+    //                int color = src[sidx++];
+    //                if (color == 0 && !Opaque)
+    //                    continue;
+    //                dst[didx++] = color;
+    //            }
+    //            srcIndex += srcW;
+    //            dstIndex += Width;
+    //            if (srcIndex >= srcLen)
+    //                break;
+    //        }
+    //    }
+    //    #endregion
+
+    //    #region INVALIDATE - UPDATE
+    //    public void Invalidate(int x, int y, int width, int height) { }
+    //    public void Update() { }
+    //    #endregion
+
+    //    #region RESIZE
+    //    public void Resize(int? width = null, int? height = null)
+    //    {
+    //        if ((width == null && height == null) || 
+    //            (width == this.Width && height == this.Height))
+    //            return;
+    //        var w = width ?? this.Width;
+    //        var h = height ?? this.Height;
+    //        IsResizing = true;
+    //        Data = Data.ResizedData(w, h, this.Width, this.Height);
+    //        this.Width = w;
+    //        this.Height = h;
+    //        Length = w * h;
+    //        IsResizing = false;
+    //    }
+    //    #endregion
+
+    //    #region CLONE
+    //    public object Clone()
+    //    {
+    //        var image = new Block(Width, Height);
+    //        Array.Copy(Data, image.Data, Length);
+    //        return image;
+    //    }
+    //    #endregion
+
+    //    #region DISPOSE
+    //    public void Dispose()
+    //    {
+    //        Data = null;
+    //        Width = Height = Length = 0;
+    //    }
+
+    //    public bool IsContainer { get; }
+    //    bool IWritable.IsResizing { get; }
+    //    public bool IsDrawingChild { get; set; }
+    //    public string ShapeID { get; set; }
+    //    public Rectangle RecentlyDrawn { get; }
+
+    //    public unsafe void WriteLine(int* pixels, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha, byte* imageAlphas, DrawCommand drawCommand)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public void WriteShape(IShape shape, IRenderInfo Settings)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //    #endregion
+    //}
 }

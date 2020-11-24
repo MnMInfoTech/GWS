@@ -36,7 +36,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns>Returns the LineDraw enum used to decide how line is drawn.</returns>
-        LineCommand GetLineDraw(string Name);
+        DrawCommand GetLineDraw(string Name);
 
         /// <summary>
         /// Gets lien skip information for outer and inner parameters.
@@ -149,9 +149,6 @@ namespace MnM.GWS
     public interface ITetragon : IShape
     {
         QuadType Type { get; }
-#if Advanced
-        bool Contains(float x, float y);
-#endif
     }
 
     /// <summary>

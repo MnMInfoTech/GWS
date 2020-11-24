@@ -7,7 +7,7 @@ using System;
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    public struct Rgba : IReadContext, IColor
+    public struct Rgba : IPenContext, IColor
     {
         #region VARAIBLES
         /// <summary>

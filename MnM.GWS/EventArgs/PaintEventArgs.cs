@@ -8,10 +8,10 @@ namespace MnM.GWS
 {
     public class DrawEventArgs : EventArgs, IDrawEventArgs
     {
-        public IBuffer Surface { get; internal set; }
+        public ISurface Surface { get; internal set; }
         internal DrawEventArgs() { }
 
-        public DrawEventArgs(IBuffer graphics)
+        public DrawEventArgs(ISurface graphics)
         {
             Surface = graphics;
         }

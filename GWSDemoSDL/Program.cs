@@ -19,6 +19,7 @@ namespace Test
         static ITextureBrush textureBrush;
         static int X, Y;
         static IFont tahoma;
+        static RenderInfo Settings = new RenderInfo();
         static void Main()
         {
             //frame = true;
@@ -44,8 +45,8 @@ namespace Test
             window.MouseUp += Window_MouseUp;
             window.MouseMove += Window_MouseMove;
             window.Background = moonfs;
-            window.Settings.Foreground = rg;
-            IReadContext brush = null;
+
+            IPenContext brush = null;
             var Path = window.Objects;
             //Renderer.Settings.InvertBrushColor = true;
             //window.InvertColor = true;
@@ -57,10 +58,9 @@ namespace Test
             Path.Add(Factory.newCurve(600, 10, 300, 400));
             //Renderer.Settings.InvertBrushColor = false;
 
-            window.Settings.Stroke = 23;
-            window.Settings.FillMode = FillMode.FillOutLine;
+            Settings.Stroke = 23;
+            Settings.FillMode = FillMode.FillOutLine;
 
-            window.Settings.FreezeSettings = true;
             Path.Add(Factory.newBezier(158, 181, 174, 348, 350, 363, 541, 145));
 
             Path.Add(Factory.newTetragon(425, 480, 650, 690, 190), rg1);
@@ -72,8 +72,6 @@ namespace Test
             Path.Add(Factory.newTriangle(20, 300, 200, 350, 200, 467));
 
             Path.Add(Factory.newCurve(100, 500, 300, 200, 55, 300, CurveType.Pie));
-            window.Settings.FreezeSettings = false;
-            window.Settings.CopySettings(null);
             window.Show();
             
             //w1.Show();
@@ -95,7 +93,7 @@ namespace Test
 
         private static void Window_Load(object sender, IEventArgs e)
         {
-            var timer = new SysTimer(50);
+            var timer = new Timer(50);
             //timer.Interval = 50;
             //var img = Factory.newSurface(300, 300);
             //img.Foreground = rg;
@@ -146,13 +144,13 @@ namespace Test
                 Rectangle rc;
                 int x = 0, y = 0;
                 var img = Factory.newSurface(300, 300);
-                img.Settings.Foreground = rg;
-                surface.Settings.DrawCommand = DrawCommand.Back;
+
+                Settings.Command = DrawCommand.Backdrop;
                 img.DrawEllipse(10, 10, 200, 200);
                 surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
                 surface.DrawImage(img, 600, 500, 10, 10, 400, 400);
                 surface.DrawImage(img, 500, 500, 10, 10, 400, 400);
-                surface.Settings.DrawCommand = 0;
+                Settings.Command = 0;
             }
             else if (frame == false)
             {
@@ -255,7 +253,6 @@ namespace Test
             else
             {
                 var img = Factory.newSurface(300, 300);
-                img.Settings.Foreground = rg;
                 img.DrawEllipse(10, 10, 200, 200);
 
                 //surface.DrawMode = DrawMode.Default;

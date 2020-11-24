@@ -53,6 +53,11 @@ namespace MnM.GWS
             public int Width => w;
             public int Height => h;
             public int Length => w * h;
+            public bool Invert
+            {
+                get => Inversion;
+                set => Inversion = value;
+            }
             #endregion
 
             #region READ PIXEL
@@ -66,11 +71,11 @@ namespace MnM.GWS
 
             #region READLINE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length)
+            public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int* src, out int srcIndex, out int length)
             {
-                pixels = new int[0];
+                int[] pixels = new int[0];
                 srcIndex = 0;
-
+                
                 if (!Numbers.PositiveLength(ref start, ref end, out length))
                     goto mks;
                 int c = color;
@@ -83,15 +88,18 @@ namespace MnM.GWS
                 {
                     for (int i = 0; i < length; i++)
                         d[i] = c;
+                    src = d;
                 }
                 return;
             mks:
                 length = 0;
+                fixed (int* p = pixels)
+                    src = p;
             }
             #endregion
 
             #region COPY TO
-            public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY)
+            public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY, DrawCommand command)
             {
                 var data = color.Repeat(copyW * copyH + 1);
                 var dst = (int*)destination;
@@ -105,9 +113,20 @@ namespace MnM.GWS
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe Rectangle CopyTo(IWritable destination, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
+            public unsafe Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
             {
-                Rectangle destRc = Rectangle.Empty;
+                Rectangle dstRc = Rectangle.Empty;
+                if (block is IPixels)
+                {
+                    dstRc = CopyTo(copyX, copyY, copyW, copyH, ((IPixels)block).Source, block.Length, block.Width, destX, destY, command);
+                    goto Update;
+                }
+
+                if (!(block is IWritable))
+                    return dstRc;
+
+                var surface = (IWritable)block;
+
                 Rectangle copy = new Rectangle(copyX, copyY, copyW, copyH);
 
                 var x = copy.X;
@@ -122,23 +141,28 @@ namespace MnM.GWS
                     b += y;
                     y = 0;
                 }
-                int destLen = destination.Length;
+                int destLen = surface.Length;
                 var dy = destY;
                 int srcIndex, copylen;
 
                 int i = 0;
                 while (y < b)
                 {
-                    ReadLine(x, r, y, true, out int[] source, out srcIndex, out copylen);
-                    fixed (int* src = source)
-                        destination.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null);
+                    ReadLine(x, r, y, true, out int* src, out srcIndex, out copylen);
+                    surface.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null, null, command);
                     ++i;
                     ++y;
                 }
-                destRc = new Rectangle(destX, destY, copyW, i);
-                if (destRc)
-                    destination.Invalidate(destRc.X, destRc.Y, destRc.Width, destRc.Height, updateImmediate);
-                return destRc;
+                dstRc = new Rectangle(destX, destY, copyW, i);
+                
+            Update:
+                if (dstRc && block is IUpdatable)
+                {
+                    var updatable = (IUpdatable)block;
+                    updatable.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height);
+                    updatable.Update(command);
+                }
+                return dstRc;
             }
             #endregion
 
@@ -171,9 +195,9 @@ namespace MnM.GWS
                 if (flushMode)
                     goto Flush;
 
-                if (settings is IDrawInfo)
+                if (settings is IRenderInfo)
                 {
-                    var Settings = settings as IDrawInfo;
+                    var Settings = settings as IRenderInfo;
                     var bounds = Settings.Bounds;
 
                     X = bounds.X;
@@ -182,14 +206,16 @@ namespace MnM.GWS
                     h = bounds.Height;
                     R = bounds.Right;
                     B = bounds.Bottom;
-                    Inversion = Settings.BrushCommand.HasFlag(BrushCommand.InvertColor);
+#if Advanced
+                    Inversion = Settings.Command.HasFlag(DrawCommand.InvertBrushColor);
+#endif
                 }
                 return;
             Flush:
                 X = Y = R = B = w = h = 0;
                 Inversion = false;
             }
-            #endregion
+#endregion
         }
 #if AllHidden
     }

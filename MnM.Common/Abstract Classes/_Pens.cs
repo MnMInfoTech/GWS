@@ -8,12 +8,12 @@ using System.Collections.Generic;
 namespace MnM.GWS
 {
 #if (GWS || Window)
-    public abstract class _Pens : _ObjDictionary<IPen, string>, IPens
+    public abstract class _Pens : _ObjDictionary<IReadable, string>, IPens
     {
-        readonly Dictionary<string, IPen> items =
-            new Dictionary<string, IPen>(4);
+        readonly Dictionary<string, IReadable> items =
+            new Dictionary<string, IReadable>(4);
 
-        public sealed override IPen this[string key]
+        public sealed override IReadable this[string key]
         {
             get
             {
@@ -22,7 +22,7 @@ namespace MnM.GWS
                 return items[key];
             }
         }
-        protected sealed override IEnumerable<IPen> objects =>
+        protected sealed override IEnumerable<IReadable> objects =>
             items.Values;
 
         public sealed override bool Contains(string key)
@@ -54,7 +54,7 @@ namespace MnM.GWS
             foreach (var item in objects)
                 (item as IDisposable)?.Dispose();
         }
-        public abstract IPen ToPen(IReadContext context, int? w = null, int? h = null);
+        public abstract IReadable ToPen(IPenContext context, int? w = null, int? h = null);
     }
 #endif
 }

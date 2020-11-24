@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
@@ -10,32 +11,96 @@ namespace MnM.GWS
     public abstract class _Surface : ISurface
     {
         #region VARIABLES
+        /// <summary>
+        /// Indicates if this object is a container of shapes or not. i.e it implements IContainer interface or not.
+        /// </summary>
         protected readonly bool IsContainer;
+
+        /// <summary>
+        /// Indicates if this object is a canvas or not.
+        /// </summary>
+        protected readonly bool IsCanvas;
+
+        /// <summary>
+        /// Indicates if this object is currently being resized or not.
+        /// </summary>
+        protected volatile bool IsResizing;
+
+        /// <summary>
+        /// Gets or sets a flag to determine if a child control is being rendered or not.
+        /// </summary>
+        protected volatile bool IsDrawingChild;
+
+        /// <summary>
+        /// ID of the shape currently is being rendered.
+        /// </summary>
+        protected volatile string ShapeID;
+
+        /// <summary>
+        /// ID of this object.
+        /// </summary>
+        protected string id;
+
         protected int width, height, length;
         protected bool isDisposed;
 
-        protected bool AntiAliased;
-        protected bool CheckForCloseness;
-        protected bool LineOnly;
-        protected bool EndsOnly;
-        protected IPen BkgPen;
+
+        protected volatile IReadable BkgPen;
+        protected volatile IRenderTarget Target;
+
+
+        protected volatile int recentlyDrawnX = int.MaxValue, recentlyDrawnY = int.MaxValue;
+        protected volatile int recentlyDrawnR = 0, recentlyDrawnB = 0;
+
+        protected volatile int minX = int.MaxValue, minY = int.MaxValue;
+        protected volatile int maxX = 0, maxY = 0;
+
+        protected readonly HashSet<int> DrawnIndices = new HashSet<int>();
+
+        protected const byte o = 0;
+
+        protected const int Zero = 0xffffff;
         #endregion
 
-        #region CONTRUCTORS
-        protected _Surface()
+        #region COSTRUCTORS
+        public _Surface(int width, int height, string id = null)
         {
+            this.width = width;
+            this.height = height;
+            length = width * height;
+            this.id = id ?? "Surface".NewID();
+            IsCanvas = this is ICanvas;
             IsContainer = this is IContainer;
+        }
+        public _Surface(IRenderTarget window) :
+            this(window.Width, window.Height)
+        {
+            Target = window;
         }
         #endregion
 
         #region PROPERTIES
-        public string ID { get; protected set; }
+        public string ID => id;
         public int Width => width;
         public int Height => height;
         public int Length => length;
-        public virtual IReadContext Background
+        public bool IsDisposed => isDisposed;
+        public Rectangle InvalidatedArea
         {
-            get => BkgPen ?? Pens.Silver;
+            get
+            {
+                if (maxX == 0 || maxY == 0)
+                    return Rectangle.Empty;
+
+                int x = minX - Vectors.LOffset;
+                int y = minY - Vectors.LOffset;
+                int r = maxX + Vectors.LOffset;
+                int b = maxY + Vectors.LOffset;
+                return Rectangle.FromLTRB(x, y, r, b);
+            }
+        }
+        public IPenContext Background
+        {
             set
             {
                 if (value == null)
@@ -45,71 +110,57 @@ namespace MnM.GWS
                     return;
                 }
                 BkgPen = value.ToPen(width, height);
-                Invalidate(0, 0, width, height);
+
+                if (IsContainer)
+                    Invalidate(0, 0, width, height);
+                OnBackgroundChanged(Factory.EmptyArgs);
             }
         }
-        public bool IsDisposed =>
-            isDisposed;
-        bool IWritable.Antialiased => 
-            AntiAliased;
+        public IReadable BackgroundPen => BkgPen;
+        protected unsafe abstract int* pixels(bool ForegroundBuffer = true);
+        protected unsafe abstract byte* alphas(bool ForegroundBuffer = true);
 
-        public abstract
 #if Advanced
-            IDrawSettings2
-#else
-            IDrawSettings
-#endif
-            Settings
-        { get; }
+        IReadable IWritable.Target => Target;
+        public abstract Rectangle ClipRectangle { get; set; }
+        public abstract bool Clipped { get; }
+        public abstract ISelfDrawable Control { get; set; }
 
-        protected abstract unsafe int* source { get; }
-#if Advanced
-        public abstract bool DrawingChildrenNow { set; }
-        public abstract bool DrawingObject { set; }
-        public abstract string ObjectID { set; }
-        public unsafe abstract byte* SourceAlphas { set; }
-#endif
-        #endregion
+        unsafe int* IMixableBlock.Pixels(bool ForegroundBuffer) =>
+            pixels(ForegroundBuffer);
 
-        #region BEGIN - END
-        public abstract void Begin(IRenderable renderable, out IPen pen);
-        public abstract void End(IRenderable renderable, IPen pen);
+        unsafe byte* IMixableBlock.AlphaValues(bool ForegroundBuffer) =>
+            alphas(ForegroundBuffer);
+#endif
         #endregion
 
         #region RENDER
-        public abstract IPen Render(IShape shape, IReadContext readContext);
-        #endregion
-
-        #region BLEND
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected int Blend(int dstColor, int srcColor, byte alpha)
-        {
-            if (alpha == 255)
-                return srcColor;
-
-            //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
-            uint C1 = (uint)dstColor;
-            uint C2 = (uint)srcColor;
-            uint invAlpha = 255 - (uint)alpha;
-            uint RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
-            uint AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
-            int color = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
-            return color;
-        }
+        public abstract void Render(IRenderable Renderable, IContext anyContext = null);
         #endregion
 
         #region WRITE PIXEL
-        public abstract void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha);
+        public abstract void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, DrawCommand drawCommand);
         #endregion
 
         #region WRITE LINE
-        public abstract unsafe void WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha);
+        public abstract unsafe void WriteLine(int* pixels, int srcIndex, int srcW, int length, bool horizontal,
+            int x, int y, float? Alpha, byte* imageAlphas, DrawCommand drawCommand);
         #endregion
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual unsafe Rectangle CopyTo(IWritable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
+        public unsafe Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH,
+            DrawCommand command = 0)
         {
+            if (block is IPixels)
+            {
+                return CopyTo(copyX, copyY, copyW, copyH, ((IPixels)block).Source, block.Length, block.Width, destX, destY, command);
+            }
+
+            if (!(block is IWritable))
+                return Rectangle.Empty;
+
+            var surface = (IWritable)block;
             var copy = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
 
             Rectangle dstRc;
@@ -127,27 +178,153 @@ namespace MnM.GWS
             int srcIndex = x + y * width;
             int srcW = width;
             var dy = destY;
-            int* src = source;
+
+            bool Foregroundbuffer = true;
+#if Advanced
+            bool SwapOrder = (command & DrawCommand.SwapZOrder) == DrawCommand.SwapZOrder;
+            bool BackgroundBuffer = (command & DrawCommand.BackgroundBuffer) == DrawCommand.BackgroundBuffer;
+            Foregroundbuffer = BackgroundBuffer && !SwapOrder || !BackgroundBuffer && SwapOrder;
+#endif
+            int* pixels = this.pixels(Foregroundbuffer);
+            byte* alphas = this.alphas(Foregroundbuffer);
 
             for (int j = y; j <= b; j++)
             {
-                block.WriteLine(src, srcIndex, srcW, copyW, true, destX, dy++, null);
+                surface.WriteLine(pixels, srcIndex, srcW, copyW, true, destX, dy++, null, alphas, command);
                 srcIndex += srcW;
                 if (srcIndex >= srcLen)
                     break;
             }
             dstRc = new Rectangle(destX, destY, copyW, dy - destY);
 
-            if (dstRc)
-                block.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height, updateImmediate);
-
+            if (dstRc && block is IUpdatable)
+            {
+                var updatable = (IUpdatable)surface;
+                updatable.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height);
+                updatable.Update(command);
+            }
             return dstRc;
         }
-        public abstract Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY);
+
+        public abstract Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, DrawCommand command = DrawCommand.None);
         #endregion
 
-        #region INVALIDATE
-        public abstract void Invalidate(int x, int y, int width, int height, bool updateImmediate = false);
+        #region RESIZE
+        public abstract void Resize(int? width = null, int? height = null);
+        #endregion
+
+        #region CLEAR
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void Clear(int x, int y, int width, int height, DrawCommand command = 0);
+        #endregion
+
+        #region INVALIDATE - UPDATE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Invalidate(int x, int y, int w, int h)
+        {
+            if (x < recentlyDrawnX)
+                recentlyDrawnX = x;
+            if (y < recentlyDrawnY)
+                recentlyDrawnY = y;
+
+            if (x + w > recentlyDrawnR)
+                recentlyDrawnR = x + w;
+            if (y + h > recentlyDrawnB)
+                recentlyDrawnB = y + h;
+
+            if (x < minX)
+                minX = x;
+            if (y < minY)
+                minY = y;
+
+            if (x + w > maxX)
+                maxX = x + w;
+            if (h + y > maxY)
+                maxY = h + y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void Update(DrawCommand command = 0)
+        {
+            bool SuspendUpdate = (command & DrawCommand.SuspendUpdate) == DrawCommand.SuspendUpdate;
+            int x = minX - Vectors.LOffset;
+            int y = minY - Vectors.LOffset;
+            if (x < 0)
+                x = 0;
+            if (y < 0)
+                y = 0;
+            int r = maxX + Vectors.LOffset;
+            int b = maxY + Vectors.LOffset;
+
+            if (!SuspendUpdate)
+            {
+                minX = minY = int.MaxValue;
+                maxX = maxY = 0;
+            }
+
+            if (r != 0 && b != 0)
+            {
+                Target?.Invalidate(x, y, r - x, b - y);
+                if (!SuspendUpdate)
+                    Target?.Update(command);
+            }
+
+            recentlyDrawnX = recentlyDrawnY = int.MaxValue;
+            recentlyDrawnR = recentlyDrawnB = 0;
+        }
+        #endregion
+
+        #region CLONE
+        public object Clone()
+        {
+            var surface = EmptyInstance(width, height);
+            surface.width = width;
+            surface.height = height;
+
+            if (BkgPen is ICloneable)
+                surface.BkgPen = ((ICloneable)BkgPen).Clone() as IReadable;
+
+            surface.Target = Target;
+            surface.recentlyDrawnX = recentlyDrawnX;
+            surface.recentlyDrawnY = recentlyDrawnY;
+            surface.recentlyDrawnR = recentlyDrawnR;
+            surface.recentlyDrawnB = recentlyDrawnB;
+            CopyToClone(surface);
+            return surface;
+        }
+        protected abstract _Surface EmptyInstance(int width, int height);
+        protected virtual void CopyToClone(_Surface surface) { }
+        #endregion
+
+        #region BLEND
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected int Blend(int dstColor, int srcColor, byte alpha, bool invert = false)
+        {
+            if (alpha == 255)
+                return srcColor;
+
+            //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+            uint C1 = (uint)dstColor;
+            uint C2 = (uint)srcColor;
+            uint invAlpha = 255 - (uint)alpha;
+            uint RB = ((invAlpha * (C1 & GWS.Colors.RBMASK)) + (alpha * (C2 & GWS.Colors.RBMASK))) >> 8;
+            uint AG = (invAlpha * ((C1 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((C2 & GWS.Colors.GMASK) >> 8)));
+            int color = (int)((RB & GWS.Colors.RBMASK) | (AG & GWS.Colors.AGMASK));
+            if (invert)
+                color = color ^ 0xffffff;
+            return color;
+        }
+        #endregion
+
+        #region EVENTS
+        protected virtual void OnBackgroundChanged(IEventArgs e)
+        {
+            Target?.Invalidate(0, 0, Width, Height);
+            Target?.Update();
+            BackgroundChanged?.Invoke(this, e);
+        }
+        public virtual event EventHandler<IEventArgs> BackgroundChanged;
         #endregion
 
         #region FIND ELEMENT
@@ -156,297 +333,10 @@ namespace MnM.GWS
 #endif
         #endregion
 
+        #region TO BRUSH
 #if Advanced
-        #region COPY FROM
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void CopyFrom(ICopyable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
-        #endregion
+        public abstract ITextureBrush ToBrush(Rectangle? copyArea = null);
 #endif
-        #region CLONE
-        public object Clone()
-        {
-            var surface = EmptyInstance(width, height);
-            surface.width = width;
-            surface.height = height;
-            surface.Settings.CopySettings(Settings);
-
-            if (BkgPen != null)
-                surface.BkgPen = BkgPen?.Clone() as IPen;
-
-            CopyToClone(surface);
-            return surface;
-        }
-        protected abstract _Surface EmptyInstance(int width, int height);
-        protected virtual void CopyToClone(_Surface buffer) { }
-        #endregion
-
-        #region ROTATE 
-        /// <summary>
-        /// Source: https://www.drdobbs.com/architecture-and-design/fast-bitmap-rotation-and-scaling/184416337
-        /// </summary>
-        /// <param name="rotation"></param>
-        /// <param name="antiAliased"></param>
-        public unsafe Size RotateAndScale(out int[] result, Rotation rotation, bool antiAliased, float scale = 1f)
-        {
-            Size size = new Size(width, height);
-            if (scale <= 0) scale = 1;
-            int dstW = width;
-            int dstH = height;
-            int srcW = width;
-            int srcH = height;
-            int* src = source;
-            int srcLen = length;
-
-            result = new int[dstW * dstH];
-            fixed (int* dst = result)
-            {
-                if (!rotation && scale == 1)
-                {
-                    Blocks.Copy(src, 0, dst, 0, srcLen);
-                    return size;
-                }
-
-                int srcCx = srcW / 2;
-                int srcCy = srcH / 2;
-
-                int dstCx = dstW / 2;
-                int dstCy = dstH / 2;
-
-                bool intCalculation = !antiAliased;
-
-                float dstXf = 0;
-                float dstYf = 0;
-                int dstXi = 0;
-                int dstYi = 0;
-                float x3 = 0, y3 = 0;
-                int x0 = 0, y0 = 0, xi = 0, yi = 0;
-                int color = 0;
-
-                int Sini = rotation.Sini;
-                int Cosi = rotation.Cosi;
-
-                float Sin = rotation.Sin;
-                float Cos = rotation.Cos;
-
-                if (scale != 1)
-                {
-                    Sin *= 1f / scale;
-                    Cos *= 1f / scale;
-
-                    Sini = (Sin * Angles.Big).Round();
-                    Cosi = (Cos * Angles.Big).Round();
-                }
-
-                if (intCalculation)
-                {
-                    dstXi = -(dstCx * Cosi + dstCy * Sini);
-                    dstYi = -(dstCx * -Sini + dstCy * Cosi);
-                }
-                else
-                {
-                    dstXf = srcCx - (dstCx * Cos + dstCy * Sin);
-                    dstYf = srcCy - (dstCx * -Sin + dstCy * Cos);
-                }
-
-                for (int j = 0; j < dstH; j++)
-                {
-                    if (intCalculation)
-                    {
-                        xi = dstXi;
-                        yi = dstYi;
-                    }
-                    else
-                    {
-                        x3 = dstXf;
-                        y3 = dstYf;
-                    }
-
-                    int* pDst = dst + (dstW * j);
-
-                    for (int i = 0; i < dstW; i++)
-                    {
-                        if (intCalculation)
-                        {
-                            x0 = srcCx + (xi >> Angles.BigExp);
-                            y0 = srcCy + (yi >> Angles.BigExp);
-                        }
-                        else
-                        {
-                            x0 = (int)x3;
-                            y0 = (int)y3;
-                        }
-
-                        if (x0 < 0 || y0 < 0 || x0 >= srcW || y0 >= srcH)
-                        {
-                            pDst++;
-                            goto horizotalIncrement;
-                        }
-
-                        var index = x0 + (y0 * srcW);
-
-                        if (intCalculation || (x0 - x3 == 0 && y3 - y0 == 0))
-                        {
-                            color = src[index];
-                            if (color == 0)
-                                color = *pDst;
-                            goto assignColor;
-                        }
-                        float Dx = x3 - x0;
-                        float Dy = y3 - y0;
-
-                        #region BI-LINEAR INTERPOLATION
-                        uint rb, ag, c3 = 0, c4 = 0;
-                        int n = index + srcW;
-                        bool only2 = (n >= srcLen || n + 1 >= srcLen);
-
-                        uint c1 = (uint)src[index++];
-                        uint c2 = (uint)src[index];
-                        if (!only2)
-                        {
-                            c3 = (uint)src[n++];
-                            c4 = (uint)src[n];
-                        }
-                        if (c1 == 0 || c1 == Colors.Transparent)
-                            c1 = Colors.White;
-                        if (c2 == 0 || c2 == Colors.Transparent)
-                            c2 = Colors.White;
-
-                        if (c3 == 0 || c3 == Colors.Transparent)
-                            c3 = Colors.White;
-                        if (c4 == 0 || c4 == Colors.Transparent)
-                            c4 = Colors.White;
-
-                        uint alpha = (uint)(Dx * 255);
-                        uint invAlpha = 255 - alpha;
-
-                        if (alpha == 255)
-                            c1 = c2;
-
-                        else if (alpha != 0)
-                        {
-                            rb = ((invAlpha * (c1 & Colors.RBMASK)) + (alpha * (c2 & Colors.RBMASK))) >> 8;
-                            ag = (invAlpha * ((c1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c2 & Colors.GMASK) >> 8)));
-                            c1 = ((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
-                        }
-                        if (only2)
-                        {
-                            color = (int)c1;
-                            goto assignColor;
-                        }
-
-                        if (alpha == 255)
-                            c3 = c4;
-                        else if (alpha != 0)
-                        {
-                            rb = ((invAlpha * (c3 & Colors.RBMASK)) + (alpha * (c4 & Colors.RBMASK))) >> 8;
-                            ag = (invAlpha * ((c3 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c4 & Colors.GMASK) >> 8)));
-                            c3 = ((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
-                        }
-
-                        alpha = (uint)(Dy * 255);
-                        invAlpha = 255 - alpha;
-
-                        if (alpha == 255)
-                            color = (int)c3;
-                        else if (alpha != 0)
-                        {
-                            rb = ((invAlpha * (c1 & Colors.RBMASK)) + (alpha * (c3 & Colors.RBMASK))) >> 8;
-                            ag = (invAlpha * ((c1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c3 & Colors.GMASK) >> 8)));
-                            color = (int)((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
-                        }
-                        else
-                            color = (int)c1;
-                        #endregion
-
-                        assignColor:
-                        *pDst++ = color;
-
-                    horizotalIncrement:
-                        #region HORIZONTAL INCREMENT
-                        if (intCalculation)
-                        {
-                            xi += Cosi;
-                            yi -= Sini;
-                        }
-                        else
-                        {
-                            x3 += Cos;
-                            y3 -= Sin;
-                        }
-                        #endregion
-                    }
-
-                    #region VERTICAL INCREMENT
-                    if (intCalculation)
-                    {
-                        dstXi += Sini;
-                        dstYi += Cosi;
-                    }
-                    else
-                    {
-                        dstXf += Sin;
-                        dstYf += Cos;
-                    }
-                    #endregion
-                }
-            }
-            return size;
-        }
-        #endregion
-
-        #region FLIP
-        public unsafe Size Flip(out int[] result, Flip flipMode)
-        {
-            int dstW = width;
-            int dstH = height;
-            int srcW = width;
-            int srcH = height;
-            int* src = source;
-            int srcLen = length;
-            result = new int[srcW * srcH];
-
-            int i = 0;
-
-            if (flipMode == GWS.Flip.Horizontal)
-            {
-                for (var y = srcH - 1; y >= 0; y--)
-                {
-                    for (var x = 0; x < srcW; x++)
-                    {
-                        var srcInd = y * srcW + x;
-                        result[i] = src[srcInd];
-                        i++;
-                    }
-                }
-            }
-            else
-            {
-                for (var y = 0; y < srcH; y++)
-                {
-                    for (var x = srcW - 1; x >= 0; x--)
-                    {
-                        var srcInd = y * srcW + x;
-                        result[i] = src[srcInd];
-                        i++;
-                    }
-                }
-            }
-            if (flipMode == GWS.Flip.Vertical)
-                Numbers.Swap(ref srcW, ref srcH);
-
-            return new Size(srcW, srcH);
-        }
-        #endregion
-
-        #region CLEAR
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Rectangle Clear(bool updateImmediate = false) =>
-            Clear(0, 0, width, height, updateImmediate);
-        public abstract Rectangle Clear(int x, int y, int width, int height, bool updateImmediate = false);
-        #endregion
-
-        #region UPDATE
-        public abstract void Update();
         #endregion
 
         #region DISPOSE
@@ -454,6 +344,7 @@ namespace MnM.GWS
         {
             isDisposed = true;
             (BkgPen as IDisposable)?.Dispose();
+            BkgPen = null;
         }
         #endregion
     }

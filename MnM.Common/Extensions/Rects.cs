@@ -870,8 +870,18 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Expand(this RectangleF r) =>
-           new Rectangle((int)r.X, (int)r.Y, r.Width.Ceiling(), r.Height.Ceiling());
+        public static Rectangle Expand(this RectangleF r, int offSet = 0) =>
+           new Rectangle((int)r.X - offSet, (int)r.Y - offSet, r.Width.Ceiling() + offSet, r.Height.Ceiling() + offSet);
+
+        /// <summary>
+        /// Converts IRectngleF to IRectangle.
+        /// Converts contained rectangle with floating point dimensions to integer dimensions by rounding down the (x,y) of the top left corner 
+        /// and rounding up the Height and Width.
+        /// </summary>
+        /// <param name="r">IRectangleF to convert</param>
+        /// <returns>New IRectangle with integer dimensions.</returns>
+        public static Rectangle Expand(this Rectangle r, int offSet = 0) =>
+           new Rectangle((int)r.X - offSet, (int)r.Y - offSet, r.Width + offSet, r.Height + offSet);
         #endregion
 
         #region CENTER
@@ -981,6 +991,11 @@ namespace MnM.GWS
             Clamp(rect, max.Width, max.Height);
         public static RectangleF Clamp(this RectangleF rect, float width, float height)
         {
+            if (width == 0)
+                width = rect.Width;
+            if (height == 0)
+                height = rect.Height;
+
             var x = Math.Max(rect.X, 0);
             var y = Math.Max(rect.Y, 0);
             var w = Math.Max(rect.Width, 0);
@@ -995,6 +1010,11 @@ namespace MnM.GWS
             Clamp(rect, max.Width, max.Height);
         public static Rectangle Clamp(this Rectangle rect, int width, int height)
         {
+            if (width == 0)
+                width = rect.Width;
+            if (height == 0)
+                height = rect.Height;
+
             var x = Math.Max(rect.X, 0);
             var y = Math.Max(rect.Y, 0);
             var w = Math.Max(rect.Width, 0);
@@ -1020,6 +1040,46 @@ namespace MnM.GWS
                 y = 0;
             return Rectangle.FromLTRB(x, y, r, b);
         }
+
+        public static Rectangle Inflate(this Rectangle rect, int xUnit, int yUnit, int rUnit, int bUnit)
+        {
+            var x = rect.X - xUnit;
+            var y = rect.Y - yUnit;
+            int r = rect.Right + rUnit;
+            int b = rect.Bottom + bUnit;
+            if (x < 0)
+                x = 0;
+            if (y < 0)
+                y = 0;
+            return Rectangle.FromLTRB(x, y, r, b);
+        }
+
+        public static RectangleF Inflate(this RectangleF rect, int xUnit, int yUnit)
+        {
+            var x = rect.X - xUnit;
+            var y = rect.Y - yUnit;
+            var r = rect.Right + xUnit;
+            var b = rect.Bottom + yUnit;
+            if (x < 0)
+                x = 0;
+            if (y < 0)
+                y = 0;
+            return RectangleF.FromLTRB(x, y, r, b);
+        }
+
+        public static RectangleF Inflate(this RectangleF rect, int xUnit, int yUnit, int rUnit, int bUnit)
+        {
+            var x = rect.X - xUnit;
+            var y = rect.Y - yUnit;
+            var r = rect.Right + rUnit;
+            var b = rect.Bottom + bUnit;
+            if (x < 0)
+                x = 0;
+            if (y < 0)
+                y = 0;
+            return RectangleF.FromLTRB(x, y, r, b);
+        }
+
         #endregion
     }
 #endif
