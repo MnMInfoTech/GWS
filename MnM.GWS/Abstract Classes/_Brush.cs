@@ -137,9 +137,7 @@ namespace MnM.GWS
         #endregion
 
         #region RESIZE
-#if Advanced
         public abstract void Resize(int? width = null, int? height = null);
-#endif
         #endregion
 
         #region COPY SETTINGS

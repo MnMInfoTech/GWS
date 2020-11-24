@@ -88,20 +88,14 @@ namespace MnM.GWS
     /// <summary>
     /// Represents a brush with certain fill style and gradient for drawin a shape on screen.
     /// </summary>
-    public interface IBrush : IPen, ISettings, IDisposable, ICloneable2
-#if Advanced
-        , IResizable
-#endif
+    public interface IBrush : IPen, ISettings, IDisposable, ICloneable2, IResizable
     {
         BrushStyle Style { get; }
     }
     #endregion
 
     #region ITEXTURE-BRUSH
-    public interface ITextureBrush : IPen, ISettings, IDisposable, ICloneable2, IPixels
-#if Advanced
-        , IResizable
-#endif
+    public interface ITextureBrush : IPen, ISettings, IDisposable, ICloneable2, IPixels , IResizable
     { }
     #endregion
 
