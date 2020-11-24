@@ -11,7 +11,7 @@ namespace MnM.GWS
 #if GWS || Window
     #region DRAW COMMAND
     [Flags]
-    public enum DrawCommand: ulong
+    public enum DrawCommand : ulong
     {
         /// <summary>
         /// Discard all changes made to the command and set it to previous value
@@ -31,103 +31,93 @@ namespace MnM.GWS
         Backdrop = 0x2,
 
         /// <summary>
-        /// Uploads data directly on screen (which of course temporary in nature) bypassing the internal buffer completely.
-        /// </summary>
-        DirectOnScreen = 0x4,
-
-        /// <summary>
         /// Tells GWS to invert color pixel before it is displayed.
         /// </summary>
-        InvertCanvasColor = 0x8,
+        InvertCanvasColor = 0x4,
 
         /// <summary>
         /// Overwrite destination pixel only if it is non transparent.
         /// </summary>
-        Masking = 0x10,
+        Masking = 0x8,
 
         /// <summary>
         /// Excludes Backgroud Pen pixels from rendering on screen.
         /// </summary>
-        SkipPenBackground = 0x20,
-
-        /// <summary>
-        /// Calculates the rendering area but does not draw shape.
-        /// </summary>
-        Calculate = 0x40,
+        SkipPenBackground = 0x10,
 
         /// <summary>
         /// Exclusively uses breshenham algorithm with integer arithmetic and no anti-aliasing.  
         /// </summary>
-        Breshenham = 0x80,
+        Breshenham = 0x20,
 
         /// <summary>
         /// Sets renderer's Distinct property true to prevent any pixel in the line being redrawn.
         /// </summary>
-        Distinct = 0x100,
+        Distinct = 0x40,
 
         /// <summary>
         /// A gap of one pixel will be left after each drawn pixel.
         /// </summary>
-        Dot = 0x200,
+        Dot = 0x80,
 
         /// <summary>
         /// A gap of two pixel will be left after each pair of two drawn pixel.
         /// </summary>
-        Dash = 0x400,
+        Dash = 0x100,
 
         /// <summary>
         /// A gap of one pixel will be left after the first two drawn pixel.
         /// And then next two pixels will be drawn normally.
         /// This pattern gets repeated susequently.
         /// </summary>
-        DashDotDash = 0x800,
+        DashDotDash = 0x200,
 
         /// <summary>
         /// Keeps current fill rule active to fill out-lines.
         /// </summary>
-        KeepFillRuleForStroking = 0x1000,
+        KeepFillRuleForStroking = 0x400,
 
         /// <summary>
         /// Ignores auto calculated FillPattern based on other settings such as fill mode, stroke mode etc.
         /// </summary>
-        IgnoreAutoCalculatedFillPatten = 0x2000,
+        IgnoreAutoCalculatedFillPatten = 0x800,
 
         /// <summary>
         /// Tells GWS to use Odd-Even rule for polygon filling.
         /// </summary>
-        OddEven = 0x4000,
+        OddEven = 0x1000,
 
         /// <summary>
         /// Polygon drawing using line sequence match rule.
         /// </summary>
-        Outlininig = 0x8000,
+        Outlininig = 0x2000,
 
         /// <summary>
         /// Tells GWS it it has to draw ends points of a scan line and skip the portion in between from drawing.
         /// </summary>
-        DrawEndsOnly = 0x10000,
+        DrawEndsOnly = 0x4000,
 
         /// <summary>
         /// Draws middle part only skip end pixels.
         /// </summary>
-        DrawLineOnly = 0x20000,
+        DrawLineOnly = 0x8000,
 
         /// <summary>
         /// Tells GWS if scan line fragments is to be drawn without sorting it first. 
         /// Use this only if you have already sorted the scan line! 
         /// If that is not the case then it can give unexpected result.
         /// </summary>
-        NoSorting = 0x40000,
+        NoSorting = 0x10000,
 
         /// <summary>
         /// Skips draw if end points are close enough.
         /// </summary>
-        CheckForCloseness = 0x80000,
+        CheckForCloseness = 0x20000,
 
         /// <summary>
         /// If axial line has onlt one endpoint and this flag exists, the point gets filled otherwise not.
         /// </summary>
-        FillSinglePointLine = 0x100000,
+        FillSinglePointLine = 0x40000,
 
         /// <summary>
         /// Standard Odd-Even rule polygon filling. floating start and end points will be rounded to next integer.
@@ -144,103 +134,113 @@ namespace MnM.GWS
         /// <summary>
         /// Tells GWS to Suspend immediate update of screen instead to mark area for later update. Use this option carefully.
         /// </summary>
-        SuspendUpdate = 0x2000000000,
+        SuspendUpdate = 0x80000,
+
+        /// <summary>
+        /// Prevents auto-sizing of brush according to the size of shape being rendered.
+        /// </summary>
+        NoBrushAutoSizing = 0x100000,
+
+        /// <summary>
+        /// Prevents auto-location match of brush according to the location of shape being rendered.
+        /// </summary>
+        NoBrushAutoPositioning = 0x200000,
+
+        /// <summary>
+        /// Tells GWS to take exact position of writing co-ordinates and read pixel from the brush at exact same position.
+        /// </summary>
+        BrushFollowCanvas = 0x400000,
+
+        /// <summary>
+        /// Inverts brush color before applying it to canvas.
+        /// </summary>
+        InvertBrushColor = 0x800000,
+
+        /// <summary>
+        /// Inverts the rotation angle of the brush in opposite direction then that of shape rotation.
+        /// </summary>
+        InvertBrushRotation = 0x1000000,
+
+        /// <summary>
+        /// Calculates the rendering area but does not draw shape.
+        /// </summary>
+        Calculate = 0x2000000,
+
+        /// <summary>
+        /// Uploads data directly on screen (which of course temporary in nature) bypassing the internal buffer completely.
+        /// </summary>
+        DirectOnScreen = 0x4000000,
 
 #if Advanced
         /// <summary>
         /// Tells GWS to apply animation.
         /// </summary>
-        Animate = DirectOnScreen | 0x200000,
+        Animate = DirectOnScreen | 0x8000000,
 
         /// <summary>
         /// Erases specified shape from the memory block. Advanced version only.
         /// </summary>
-        EraseControl = 0x400000,
+        EraseControl = 0x10000000,
 
         /// <summary>
         /// Removes specified shape from the collection and memory block. Advanced version only.
         /// </summary>
-        RemoveControl = EraseControl | 0x800000,
+        RemoveControl = EraseControl | 0x20000000,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
         /// </summary>
-        RestoreControl = 0x1000000,
+        RestoreControl = 0x40000000,
 
         /// <summary>
         /// Tells GWS to render shape in disabled state.
         /// </summary>
-        DisableControl = 0x2000000,
+        DisableControl = 0x80000000,
 
         /// <summary>
         /// Tells GWS that this control is in invisible state.
         /// </summary>
-        InvisibleControl = 0x4000000,
+        InvisibleControl = 0x100000000,
 
         /// <summary>
         /// Gets or sets a flag to determine that rendering of shape is done i backdrop mode or not.
         /// </summary>
-        BackgroundBuffer = 0x8000000,
+        BackgroundBuffer = 0x200000000,
 
         /// <summary>
         /// Pushes drawing of added controls to background and brings background to the front.
         /// </summary>
-        SwapZOrder = 0x10000000,
+        SwapZOrder = 0x400000000,
 
         /// <summary>
         /// Excludes everything drawn on background buffer for rendering on screen. 
         /// </summary>
-        SkipBackgroundDraw = 0x20000000,
+        SkipBackgroundDraw = 0x800000000,
 
         /// <summary>
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. 
         /// </summary>
-        SkipForegroundDraw = 0x40000000,
-
-        /// <summary>
-        /// Prevents auto-sizing of brush according to the size of shape being rendered.
-        /// </summary>
-        NoBrushAutoSizing = 0x80000000,
-
-        /// <summary>
-        /// Prevents auto-location match of brush according to the location of shape being rendered.
-        /// </summary>
-        NoBrushAutoPositioning = 0x100000000,
-
-        /// <summary>
-        /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
-        /// </summary>
-        NoBrushQualityLoss = 0x200000000,
-
-        /// <summary>
-        /// Tells GWS to take exact position of writing co-ordinates and read pixel from the brush at exact same position.
-        /// </summary>
-        BrushFollowCanvas = 0x400000000,
-
-        /// <summary>
-        /// Inverts brush color before applying it to canvas.
-        /// </summary>
-        InvertBrushColor = 0x800000000,
-
-        /// <summary>
-        /// Inverts the rotation angle of the brush in opposite direction then that of shape rotation.
-        /// </summary>
-        InvertBrushRotation = 0x1000000000,
+        SkipForegroundDraw = 0x1000000000,
 
         /// <summary>
         /// Tells GWS that shape is being rendered with hovereffect.
         /// </summary>
-        HoverEffect = 0x4000000000,
+        HoverEffect = 0x2000000000,
 
         /// <summary>
         /// Tells GWS that child control is being rendered as a part of complex parent control rendering.
         /// </summary>
-        DrawingObjectForeground = 0x8000000000,
+        DrawingObjectForeground = 0x4000000000,
 
         /// <summary>
         /// Tells GWS that background shape of control is being rendered as a part of complex control rendering.
         /// </summary>
-        DrawingObjectBackground = 0x10000000000,
+        DrawingObjectBackground = 0x8000000000,
+
+        /// <summary>
+        /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
+        /// </summary>
+        NoBrushQualityLoss = 0x10000000000,
 #endif
     }
     #endregion
