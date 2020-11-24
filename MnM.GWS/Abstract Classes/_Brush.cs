@@ -56,7 +56,8 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int destLen, int destW, int destX, int destY, DrawCommand command)
+        public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int destLen, 
+            int destW, int destX, int destY, DrawCommand command = DrawCommand.Opaque)
         {
             int length;
             int* dst = (int*)dest;
@@ -79,7 +80,7 @@ namespace MnM.GWS
                 ReadLine(x, r, y, true, out int* src, out int srcIndex, out length);
                 if (destIndex + length >= destLen)
                     break;
-                Blocks.Copy(src, srcIndex, dst, destIndex, length);
+                Blocks.Copy(src, srcIndex, dst, destIndex, length, command);
                 destIndex += destW;
                 ++i;
                 ++y;
@@ -88,7 +89,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
+        public unsafe Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = DrawCommand.Opaque)
         {
             if (block is IPixels)
             {

@@ -108,7 +108,7 @@ namespace MnM.GWS
                     int* src = source;
                     return Blocks.CopyBlock(0, 0, copyW, copyH, data.Length, copyW, copyH, destX, destY, destW, destLen,
                          (srcIndex, dstIndex, w, x, y) =>
-                         Blocks.Copy(src, srcIndex, dst, dstIndex, w));
+                         Blocks.Copy(src, srcIndex, dst, dstIndex, w, command));
                 }
             }
 

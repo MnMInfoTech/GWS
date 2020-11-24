@@ -3151,13 +3151,13 @@ namespace MnM.GWS
             {
                 if (source is IPixels)
                 {
-                    Blocks.Copy((int*)((IPixels)source).Source, 0, dst, 0, dstW, true);
+                    Blocks.Copy((int*)((IPixels)source).Source, 0, dst, 0, dstW, DrawCommand.Opaque);
                     data = (IntPtr)dst;
                 }
                 else if(source is ICopyable)
                 {
                     data = (IntPtr)dst;
-                    ((ICopyable)source).CopyTo(0, 0, srcW, srcH, data, dstLen, dstW, 0, 0, 0);
+                    ((ICopyable)source).CopyTo(0, 0, srcW, srcH, data, dstLen, dstW, 0, 0, DrawCommand.Opaque);
                 }
                 return size;
             }
@@ -3167,7 +3167,7 @@ namespace MnM.GWS
           
             if (source is IPixels)
             {
-                Blocks.Copy((int*)((IPixels)source).Source, 0, src, 0, srcW, true);
+                Blocks.Copy((int*)((IPixels)source).Source, 0, src, 0, srcW, DrawCommand.Opaque);
             }
             else if (source is ICopyable)
             {
@@ -3395,7 +3395,7 @@ namespace MnM.GWS
                 src = p;
             if (source is IPixels)
             {
-                Blocks.Copy((int*)((IPixels)source).Source, 0, src, 0, srcW, true);
+                Blocks.Copy((int*)((IPixels)source).Source, 0, src, 0, srcW,  DrawCommand.Opaque);
             }
             else if (source is ICopyable)
             {

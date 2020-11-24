@@ -154,11 +154,13 @@ namespace MnM.GWS
         /// <param name="dstIndex">Index in destination where paste operation should start</param>
         /// <param name="length">Length of pixels to be copied</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length, 
-            bool opaque = true)
+        public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length, DrawCommand command = DrawCommand.Opaque)
         {
             src += srcIndex;
             dst += dstIndex;
+            bool opaque = (command & DrawCommand.Opaque) == DrawCommand.Opaque;
+            bool back = (command & DrawCommand.Backdrop) == DrawCommand.Backdrop;
+
             if (opaque)
             {
                 for (int i = 0; i < length; i++)
@@ -169,6 +171,8 @@ namespace MnM.GWS
                 for (int i = 0; i < length; i++)
                 {
                     if (*src == 0)
+                        continue;
+                    if (back && *dst != 0)
                         continue;
                     *dst++ = *src++;
                 }
@@ -184,12 +188,15 @@ namespace MnM.GWS
         /// <param name="length">Length of pixels to be copied</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
-            bool opaque, int dstCounter, int srcCounter)
+            int dstCounter, int srcCounter, DrawCommand command = DrawCommand.Opaque)
         {
             if (dstCounter == 0)
                 dstCounter = 1;
             if (srcCounter == 0)
                 srcCounter = 1;
+            bool opaque = (command & DrawCommand.Opaque) == DrawCommand.Opaque;
+            bool back = (command & DrawCommand.Backdrop) == DrawCommand.Backdrop;
+
             if (opaque)
             {
                 for (int i = 0; i < length; i++)
@@ -204,6 +211,8 @@ namespace MnM.GWS
                 for (int i = 0; i < length; i++)
                 {
                     if (src[srcIndex] == 0)
+                        continue;
+                    if (back && dst[dstIndex] != 0)
                         continue;
                     dst[dstIndex] = src[srcIndex];
                     dstIndex += dstCounter;
@@ -220,9 +229,10 @@ namespace MnM.GWS
         /// <param name="dstIndex">Index in destination where paste operation should start</param>
         /// <param name="length">Length of pixels to be copied</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length,
-            bool opaque = true)
+        public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length, DrawCommand command = DrawCommand.Opaque)
         {
+            bool opaque = (command & DrawCommand.Opaque) == DrawCommand.Opaque;
+            bool back = (command & DrawCommand.Backdrop) == DrawCommand.Backdrop;
             src += srcIndex;
             dst += dstIndex;
             if (opaque)
@@ -235,6 +245,8 @@ namespace MnM.GWS
                 for (int i = 0; i < length; i++)
                 {
                     if (*src == 0)
+                        continue;
+                    if (back && *dst == 0)
                         continue;
                     *dst++ = *src++;
                 }
