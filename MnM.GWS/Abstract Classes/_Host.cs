@@ -408,6 +408,10 @@ namespace MnM.GWS
 
         void IClearable.Clear(int x, int y, int width, int height, DrawCommand command) =>
             Buffer.Clear(x, y, width, height, command);
+
+        void IReceiver.Receive(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command) =>
+            Buffer.Receive(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command);
+
         object ICloneable.Clone() =>
             Buffer.Clone();
         #endregion

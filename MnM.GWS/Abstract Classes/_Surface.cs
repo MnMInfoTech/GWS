@@ -215,6 +215,46 @@ namespace MnM.GWS
             int dstLen, int dstW, int dstX, int dstY, DrawCommand command = DrawCommand.None);
         #endregion
 
+        #region RECEIVE
+        public virtual unsafe void Receive(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, 
+            DrawCommand command = DrawCommand.None)
+        {
+            var copy = Rects.CompitibleRc(srcW, srcH, copyX, copyY, copyW, copyH);
+            copyX = copy.X;
+            copyY = copy.Y;
+            copyW = copy.Width;
+            copyH = copy.Height;
+
+            var dstRc = Rects.CompitibleRc(width, height, dstX, dstY, copyW, copyH);
+            dstX = dstRc.X;
+            dstY = dstRc.Y;
+            var y = dstY;
+
+            var b = y + copyH;
+            if (y < 0)
+            {
+                b += y;
+                y = 0;
+            }
+            int* src = (int*)source;
+            int srcLen = srcW * srcH;
+
+            int srcIndex = copyX + copyY * srcW;
+            var dy = y;
+
+            for (int j = y; j <= b; j++)
+            {
+                WriteLine(src, srcIndex, srcW, copyW, true, dstX, j, null, null, command);
+                srcIndex += srcW;
+                if (srcIndex >= srcLen)
+                    break;
+                ++dy;
+            }
+            Invalidate(dstX, dstY, copyW, dy - dstY);
+            Update(command);
+        }
+        #endregion
+
         #region RESIZE
         public abstract void Resize(int? width = null, int? height = null);
         #endregion
