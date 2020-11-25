@@ -149,12 +149,17 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH,
+        public unsafe Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH,
             DrawCommand command = 0)
         {
+            if (Target != null && (command & DrawCommand.DirectOnScreen) == DrawCommand.DirectOnScreen)
+            {
+                return Target.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, command);
+            }
+
             if (block is IPixels)
             {
-                return CopyTo(copyX, copyY, copyW, copyH, ((IPixels)block).Source, block.Length, block.Width, destX, destY, command);
+                return CopyTo(copyX, copyY, copyW, copyH, ((IPixels)block).Source, block.Length, block.Width, dstX, dstY, command);
             }
 
             if (!(block is IWritable))
@@ -177,7 +182,7 @@ namespace MnM.GWS
             int srcLen = length;
             int srcIndex = x + y * width;
             int srcW = width;
-            var dy = destY;
+            var dy = dstY;
 
             bool Foregroundbuffer = true;
 #if Advanced
@@ -190,12 +195,12 @@ namespace MnM.GWS
 
             for (int j = y; j <= b; j++)
             {
-                surface.WriteLine(pixels, srcIndex, srcW, copyW, true, destX, dy++, null, alphas, command);
+                surface.WriteLine(pixels, srcIndex, srcW, copyW, true, dstX, dy++, null, alphas, command);
                 srcIndex += srcW;
                 if (srcIndex >= srcLen)
                     break;
             }
-            dstRc = new Rectangle(destX, destY, copyW, dy - destY);
+            dstRc = new Rectangle(dstX, dstY, copyW, dy - dstY);
 
             if (dstRc && block is IUpdatable)
             {

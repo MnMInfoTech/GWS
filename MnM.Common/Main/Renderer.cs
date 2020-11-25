@@ -1551,7 +1551,7 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            buffer.Render((IDrawable)line, context);
+            buffer.Render(line, context);
         }
 
 
@@ -4063,7 +4063,7 @@ namespace MnM.GWS
 
             int i;
             int a1, a2;
-            //polyFill.FillCommand = fillCommand;
+
             i = conic.GetBoundary(false, true);
             while (i >= 0)
             {
