@@ -304,8 +304,8 @@ namespace MnM.GWS
         /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true);
+        /// <param name="command">Draw command to to control copy task</param>
+        void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
 
         /// <summary>
         /// Uploads a portion of this texture specified by rectangle area to the screen.

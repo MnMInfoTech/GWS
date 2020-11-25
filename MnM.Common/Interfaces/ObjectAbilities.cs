@@ -63,7 +63,7 @@ namespace MnM.GWS
     #endregion
 
     #region IWRITEABLE
-    public interface IWritable : IBlockable, ICopyable, IClearable
+    public interface IWritable : IBlockable, ICopyable, IClearable, IReceiver
 #if Advanced
         , IElementFinder, IClippable
 #endif
@@ -206,6 +206,14 @@ namespace MnM.GWS
         /// CurrentPen property.
         /// </summary>
         void Draw();
+
+        /// <summary>
+        /// Returs current pen appropriated according to the current state of object.
+        /// </summary>
+        /// <returns>IPen</returns>
+        /// <param name="Settings">Render settings to be used to get th pen. </param>
+        /// <returns>IReadable - Pen</returns>
+        IReadable GetPen(IRenderInfo Settings);
     }
     #endregion
 
@@ -510,6 +518,27 @@ namespace MnM.GWS
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="command">Draw command to control the copy operation.</param>
         Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
+    }
+    #endregion
+
+    #region IRECEIVABLE
+    public interface IReceiver: IBlockable
+    {
+        /// <summary>
+        /// Copies portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
+        /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy</param>
+        /// <param name="command">Draw command to to control copy task</param>
+        void Receive(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
     }
     #endregion
 

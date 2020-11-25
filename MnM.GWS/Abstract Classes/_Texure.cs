@@ -63,7 +63,7 @@ namespace MnM.GWS
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void CopyFrom(IBlockable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, bool updateImmediate = true);
+        public abstract void CopyFrom(IBlockable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, DrawCommand command = 0);
         #endregion
        
         #region BIND - UNBIND

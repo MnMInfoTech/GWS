@@ -185,6 +185,8 @@ namespace MnM.GWS
     {
         string Text { get; }
         Rectangle Bounds { get; }
+
+        Rectangle DrawnBounds { get; set; }
     }
     #endregion
 #endif
