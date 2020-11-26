@@ -104,7 +104,7 @@ namespace MnM.GWS
             get => Bounds; 
             set => Bounds = value;
         }
-        Rectangle IRenderInfo.RecentlyDrawn
+        Rectangle IRecentlyDrawn.RecentlyDrawn
         {
             get => RecentlyDrawn;
             set => RecentlyDrawn = value;

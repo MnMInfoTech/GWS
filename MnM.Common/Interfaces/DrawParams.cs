@@ -22,6 +22,16 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IRECENTLYDRAWN
+    public interface IRecentlyDrawn
+    {
+        /// <summary>
+        /// Gets recently drawn area since last rendering operation.
+        /// </summary>
+        Rectangle RecentlyDrawn { get; set; }
+    }
+    #endregion
+
     #region IPOLYDRAW INFO
     public interface IPolyInfo
     {
@@ -42,7 +52,7 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public interface IRenderInfo : IPolyInfo, IOffset, IRotatable, ISettings, IContext
+    public interface IRenderInfo : IPolyInfo, IOffset, IRotatable, ISettings, IContext, IRecentlyDrawn
     {
         /// <summary>
         /// Gets ID of current reader (IBufferPen) associated with current rendering process.
@@ -93,11 +103,6 @@ namespace MnM.GWS
         /// Gets bounds of current shape associated with current rendering process.
         /// </summary>
         Rectangle Bounds { get; set; }
-
-        /// <summary>
-        /// Gets recently drawn area since last rendering operation.
-        /// </summary>
-        Rectangle RecentlyDrawn { get; set; }
 
         /// <summary>
         /// Gets or sets the supplied foreground context to be used for rendering.
