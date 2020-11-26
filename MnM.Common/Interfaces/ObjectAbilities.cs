@@ -170,8 +170,19 @@ namespace MnM.GWS
     #endregion
 
     #region IDRAW
-    public interface IDraw
+    public interface IDrawable2: IRenderable
     {
+        /// <summary>
+        /// Gets dedicated settings object associated with this control.
+        /// </summary>
+#if Advanced
+        IRenderInfo2
+#else
+        IRenderInfo 
+#endif
+            Settings
+        { get; }
+
         /// <summary>
         /// Draws itself to the buffer by creating readable pen from the given context.
         /// If the context itself is pen and if it needs to be changed then this is possible by
@@ -190,37 +201,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ISELF-DRAWABLE
-    /// <summary>
-    /// An object which can be drawable to a given pixel target such as surface with a given pixel source.
-    /// A smalll entities like point or entities which requires special drawing routine for example ISLine
-    /// Inherit this interface if your shape/element is special in terms of drawing routine.
-    /// </summary>
-    public interface ISelfDrawable : IRenderable, IDraw, IForeground, IBackground
-    {
-        /// <summary>
-        /// Gets or sets type of background shape of this object.
-        /// </summary>
-        BackgroundType BackgroundType { get; set; }
-
-        /// <summary>
-        /// Gets or sets Parent window this object belongs to.
-        /// </summary>
-        IWritable Window { get; set; }
-
-        /// <summary>
-        /// Gets dedicated settings object associated with this control.
-        /// </summary>
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo 
-#endif
-            Settings
-        { get; }
-    }
-    #endregion
-
     #region IAREADRAWABLE
     public interface IAreaDrawable: ICustomDrawable
     {
@@ -234,7 +214,7 @@ namespace MnM.GWS
         /// <summary>
         /// Tells this object that a control is being drawn now.
         /// </summary>
-        ISelfDrawable Control { get;
+        IDrawable2 Control { get;
 #if Advanced
             set;
 #endif

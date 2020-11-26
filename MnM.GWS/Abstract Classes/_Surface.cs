@@ -124,7 +124,7 @@ namespace MnM.GWS
         IReadable IWritable.Target => Target;
         public abstract Rectangle ClipRectangle { get; set; }
         public abstract bool Clipped { get; }
-        public abstract ISelfDrawable Control { get; set; }
+        public abstract IDrawable2 Control { get; set; }
 
         unsafe int* IMixableBlock.Pixels(bool ForegroundBuffer) =>
             pixels(ForegroundBuffer);

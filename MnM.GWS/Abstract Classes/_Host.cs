@@ -391,7 +391,7 @@ namespace MnM.GWS
             Buffer.Pixels(ForegroundBuffer);
         unsafe byte* IMixableBlock.AlphaValues(bool ForegroundBuffer) =>
             Buffer.AlphaValues(ForegroundBuffer);
-        ISelfDrawable IObjectAware.Control
+        IDrawable2 IObjectAware.Control
         {
             get => Buffer.Control;
             set => Buffer.Control = value;
