@@ -2806,7 +2806,7 @@ namespace MnM.GWS
             int Y = rc.Y;
             int W = rc.Width;
             int H = rc.Height;
-            var Settings = info ?? new RenderInfo("FocusRect");
+            var Settings = info ?? Factory.newRenderInfo("FocusRect");
             Settings.CopySettings(null, true);
             info.FillMode = FillMode.DrawOutLine;
             info.Command = DrawCommand.Dot | DrawCommand.InvertCanvasColor

@@ -62,12 +62,13 @@ namespace MnM.GWS
         #endregion
 
         #region RENDER INFO
+        public abstract
 #if Advanced
-        public abstract IRenderInfo2 newRenderInfo(string shapeID);
+            IRenderInfo2 
 #else
-        public virtual IRenderInfo newRenderInfo(string shapeID) =>
-            new RenderInfo(shapeID);
+            IRenderInfo
 #endif
+            newRenderInfo(string shapeID);
         #endregion
 
         #region POLY FILL

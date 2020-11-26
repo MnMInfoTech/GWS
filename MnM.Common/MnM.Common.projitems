@@ -17,7 +17,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PairKV.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Pens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\ArrayT.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\RenderInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\CollectionT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Notifier.cs" />
