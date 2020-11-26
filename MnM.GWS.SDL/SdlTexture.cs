@@ -58,7 +58,7 @@ namespace MnM.GWS
 
             #region COPY FROM
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override unsafe void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, bool updateImmediate = true)
+            public override unsafe void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
             {
                 var dstRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
                 IntPtr textureData;
@@ -76,7 +76,7 @@ namespace MnM.GWS
                     Blocks.CopyBlock2(copyX, copyY, copyW, copyH, source.Length, source.Width, source.Height, 0, 0, width, lockedLength, action);
                 }
                 Unlock();
-                if (updateImmediate)
+                if((command & DrawCommand.SuspendUpdate)!= DrawCommand.SuspendUpdate)
                     Upload(dstRC);
             }
             #endregion

@@ -40,7 +40,7 @@ namespace MnM.GWS
             this(window, source.Width, source.Height, isPrimary, pixelFormat, textureAccess)
         {
             var rc = this.CompitibleRc(0, 0, source.Width, source.Height);
-            CopyFrom(source, 0, 0, rc.X, rc.Y, rc.Width, rc.Height, false);
+            CopyFrom(source, 0, 0, rc.X, rc.Y, rc.Width, rc.Height, DrawCommand.SuspendUpdate);
         }
         #endregion
 

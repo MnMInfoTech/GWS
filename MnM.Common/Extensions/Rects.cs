@@ -882,6 +882,16 @@ namespace MnM.GWS
         /// <returns>New IRectangle with integer dimensions.</returns>
         public static Rectangle Expand(this Rectangle r, int offSet = 0) =>
            new Rectangle((int)r.X - offSet, (int)r.Y - offSet, r.Width + offSet, r.Height + offSet);
+
+        /// <summary>
+        /// Converts IRectngleF to IRectangle.
+        /// Converts contained rectangle with floating point dimensions to integer dimensions by rounding down the (x,y) of the top left corner 
+        /// and rounding up the Height and Width.
+        /// </summary>
+        /// <param name="r">IRectangleF to convert</param>
+        /// <returns>New IRectangle with integer dimensions.</returns>
+        public static Rectangle Expand(this Rectangle r, int offsetX = 0, int offsetY = 0, int offsetW = 0, int offsetH = 0) =>
+           new Rectangle(r.X - offsetX,  r.Y - offsetY, r.Width + offsetW, r.Height + offsetH);
         #endregion
 
         #region CENTER

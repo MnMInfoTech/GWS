@@ -1279,32 +1279,8 @@ namespace MnM.GWS
             }
             else if (block is IWritable)
             {
-                IWritable writable = (IWritable)block;
-                var copy = Rects.CompitibleRc(writable.Width, writable.Height, copyX, copyY, copyW, copyH);
-
-                var x = copy.X;
-                var y = copy.Y;
-                copyW = copy.Width;
-
-                var b = y + copy.Height;
-                if (y < 0)
-                {
-                    b += y;
-                    y = 0;
-                }
-                int* src = (int*)source;
-                int srcLen = writable.Length;
-                int srcIndex = x + y * writable.Width;
-                var dy = dstY;
-
-                for (int j = y; j <= b; j++)
-                {
-                    writable.WriteLine(src, srcIndex, srcW, copyW, true, dstX, j, null, null, command);
-                    srcIndex += srcW;
-                    if (srcIndex >= srcLen)
-                        break;
-                }
-                dstRc = new Rectangle(dstX, dstY, copyW, dy - dstY);
+                ((IWritable)block).Receive(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command);
+                return;
             }
             else
             {
