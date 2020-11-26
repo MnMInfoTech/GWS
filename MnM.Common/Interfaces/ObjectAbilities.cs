@@ -169,13 +169,34 @@ namespace MnM.GWS
     { }
     #endregion
 
+    #region IDRAW
+    public interface IDraw
+    {
+        /// <summary>
+        /// Draws itself to the buffer by creating readable pen from the given context.
+        /// If the context itself is pen and if it needs to be changed then this is possible by
+        /// Calling SetPen method in renderer and then using current pen in renderer through 
+        /// CurrentPen property.
+        /// </summary>
+        void Draw();
+
+        /// <summary>
+        /// Returs current pen appropriated according to the current state of object.
+        /// </summary>
+        /// <returns>IPen</returns>
+        /// <param name="Settings">Render settings to be used to get th pen. </param>
+        /// <returns>IReadable - Pen</returns>
+        IReadable GetPen(IRenderInfo Settings);
+    }
+    #endregion
+
     #region ISELF-DRAWABLE
     /// <summary>
     /// An object which can be drawable to a given pixel target such as surface with a given pixel source.
     /// A smalll entities like point or entities which requires special drawing routine for example ISLine
     /// Inherit this interface if your shape/element is special in terms of drawing routine.
     /// </summary>
-    public interface ISelfDrawable : IRenderable, IForeground, IBackground
+    public interface ISelfDrawable : IRenderable, IDraw, IForeground, IBackground
     {
         /// <summary>
         /// Gets or sets type of background shape of this object.
@@ -197,23 +218,6 @@ namespace MnM.GWS
 #endif
             Settings
         { get; }
-
-
-        /// <summary>
-        /// Draws itself to the buffer by creating readable pen from the given context.
-        /// If the context itself is pen and if it needs to be changed then this is possible by
-        /// Calling SetPen method in renderer and then using current pen in renderer through 
-        /// CurrentPen property.
-        /// </summary>
-        void Draw();
-
-        /// <summary>
-        /// Returs current pen appropriated according to the current state of object.
-        /// </summary>
-        /// <returns>IPen</returns>
-        /// <param name="Settings">Render settings to be used to get th pen. </param>
-        /// <returns>IReadable - Pen</returns>
-        IReadable GetPen(IRenderInfo Settings);
     }
     #endregion
 
