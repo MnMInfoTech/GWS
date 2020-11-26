@@ -82,13 +82,20 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region IFORM
+        #region FORM
 #if NATIVE
         public override IForm newForm(int x, int y, int w, int h)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IForm"));
         }
 #endif
+        #endregion
+
+        #region RENDER INFO
+        public override IRenderInfo newRenderInfo(string shapeID)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IRenderInfo"));
+        }
         #endregion
 
         #region BRUSH
