@@ -52,7 +52,7 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public interface IRenderInfo : IPolyInfo, IOffset, IRotatable, ISettings, IContext, IRecentlyDrawn
+    public interface IRenderInfo : IPolyInfo, IOffset, IRotatable, ISettings, IContext
     {
         /// <summary>
         /// Gets ID of current reader (IBufferPen) associated with current rendering process.

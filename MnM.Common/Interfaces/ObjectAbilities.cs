@@ -125,7 +125,7 @@ namespace MnM.GWS
     #region IRENDERABLE
     /// <summary>
     ///Marker interface -  Represents an object which has a unique ID and can be rendered on screen.
-    public interface IRenderable : IID, IBoundsF
+    public interface IRenderable : IID, IBoundsF, IRecentlyDrawn
     { }
     #endregion
 

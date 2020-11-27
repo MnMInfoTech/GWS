@@ -181,10 +181,9 @@ namespace MnM.GWS
 
 #if Advanced
     #region ISIMPLE-POPUP-ITEM
-    public interface ISimplePopupItem: IVisible, IRecentlyDrawn
+    public interface ISimplePopupItem: IVisible
     {
         string Text { get; }
-        Rectangle Bounds { get; }
     }
     #endregion
 #endif

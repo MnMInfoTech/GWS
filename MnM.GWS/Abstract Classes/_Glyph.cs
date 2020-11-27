@@ -23,6 +23,7 @@ namespace MnM.GWS
         public abstract int Y { get; set; }
         public string ID { get; private set; }
         RectangleF IBoundsF.Bounds => Bounds;
+        public Rectangle RecentlyDrawn { get; set; }
         #endregion
 
         #region DRAW

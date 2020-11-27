@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Renderable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Surface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Block.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
