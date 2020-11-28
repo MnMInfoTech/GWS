@@ -613,6 +613,7 @@ namespace MnM.GWS
             multiplier = Math.Min(multiplier, 8);
             var points = new Collection<VectorF>(Source.Count * multiplier);
             GetBezierPoints(multiplier, type, ref points, Source, pickFromLastPoint);
+            points.RemoveLast();
             return points;
         }
         #endregion

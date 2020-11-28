@@ -125,7 +125,7 @@ namespace MnM.GWS
     #region IRENDERABLE
     /// <summary>
     ///Marker interface -  Represents an object which has a unique ID and can be rendered on screen.
-    public interface IRenderable : IID, IBoundsF, IRecentlyDrawn
+    public interface IRenderable : IID, IBoundsF
     { }
     #endregion
 
@@ -683,6 +683,28 @@ namespace MnM.GWS
     public interface ICloneable2 : ICloneable
     {
         object Clone(int width, int height);
+    }
+    #endregion
+
+    #region IITEMIZED
+    public interface IItemized
+    {
+        /// <summary>
+        /// Gets child item at given index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>Item as given index in current page. Returns null if this object does not have children.</returns>
+        IRenderable GetItem(int index);
+    }
+
+    public interface IItemized<T> : IItemized where T: IRenderable
+    {
+        /// <summary>
+        /// Gets child item at given index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>Item as given index in current page. Returns null if this object does not have children.</returns>
+        new T GetItem(int index);
     }
     #endregion
 #endif

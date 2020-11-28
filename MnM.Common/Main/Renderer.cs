@@ -561,7 +561,6 @@ namespace MnM.GWS
             IRenderInfo
 #endif
             Settings = null;
-            Rectangle? ExistingRc = null;
 
             if (buffer is IContainer)
             {
@@ -569,7 +568,6 @@ namespace MnM.GWS
                 if (Controls.Contains(shapeID))
                 {
                     Settings = Controls.GetInfo(shapeID);
-                    ExistingRc = Settings.RecentlyDrawn;
                 }
             }
             if (Settings == null)
@@ -595,8 +593,6 @@ namespace MnM.GWS
             if (context is ISettable && context != Settings)
             {
                 Settings.CopySettings((ISettable)context);
-                if (ExistingRc != null)
-                    Settings.RecentlyDrawn = ExistingRc.Value;
             }
 
             Settings.Clip = new Size(buffer.Width, buffer.Height);
@@ -918,20 +914,26 @@ namespace MnM.GWS
             var EndsOnly = drawCommand.HasFlag(DrawCommand.DrawEndsOnly);
             var CalculateOnly = drawCommand.HasFlag(DrawCommand.Calculate);
             var Antialiased = !drawCommand.HasFlag(DrawCommand.Breshenham);
-            if (!LineOnly)
+            var OutLiniing = !drawCommand.HasFlag(DrawCommand.Outlininig);
+
+            if (!LineOnly && !OutLiniing)
             {
+                if (OutLiniing)
+                    goto FillLine;
+
                 buffer.WritePixel(start, axis, horizontal, pen, dstOffsetX, dstOffsetY, drawCommand);
 
                 if (IsPoint)
                     return;
                 buffer.WritePixel(end, axis, horizontal, pen, dstOffsetX, dstOffsetY, drawCommand);
             }
-
+            FillLine:
             if (CheckForCloseness)
                 NotSoClose = (End - (int)start) > 1;
 
             int copyLength;
 
+           
             if (NotSoClose && !IsPoint && !EndsOnly)
             {
                 copyLength = End - Start;
