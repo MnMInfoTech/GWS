@@ -8,6 +8,7 @@ namespace MnM.GWS
 #if (GWS || Window)
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     public static class Curves
     {
@@ -261,7 +262,45 @@ namespace MnM.GWS
             var x4 = cx + rx * ecos;
             var y4 = cy + ry * esin;
 
-            return Enumerables.ToIEnumerable(x1, y1, x2, y2, x3, y3, x4, y4).ToPoints();
+            var array = new VectorF[4];
+            array[0] = new VectorF(x1, y1);
+            array[1] = new VectorF(x2, y2);
+            array[2] = new VectorF(x3, y3);
+            array[3] = new VectorF(x4, y4);
+            return array;
+        }
+        #endregion
+
+        #region GET BEZIER ARC POINTS
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IList<VectorF> GetBezierArcPoints(float x, float y, float w, float h, float StartAngle, float EndAngle,
+            Rotation rotation = default(Rotation), bool IsArc = true)
+        {
+            Collection<VectorF> points = new Collection<VectorF>(100);
+            var Rx = w / 2f;
+            var Ry = h / 2f;
+
+            if (EndAngle > 179)
+            {
+                var pts = GetBezier4Points(x, y, Rx, Ry, StartAngle, 179);
+                GetBezierPoints(4, ref points, pts);
+                pts = (GetBezier4Points(x, y, Rx, Ry, 179, EndAngle));
+                GetBezierPoints(4, ref points, pts);
+            }
+            else
+            {
+                var pts = GetBezier4Points(x, y, Rx, Ry, StartAngle, EndAngle);
+                GetBezierPoints(4, ref points, pts);
+            }
+            IList<VectorF> Points = points;
+
+            if (rotation)
+                Points = points.Rotate(rotation);
+
+            if (!IsArc)
+                Points.Insert(0, new VectorF(x + Rx, y + Ry));
+
+            return Points;
         }
         #endregion
 
@@ -419,7 +458,7 @@ namespace MnM.GWS
         /// <param name="i"></param>
         /// <param name="t"></param>
         /// <returns></returns>
-        static float Bernstein(int n, int i, double t)
+        static float Bernstein(int n, int i, float t)
         {
             float basis;
             float ti; /* t^i */
@@ -457,18 +496,18 @@ namespace MnM.GWS
             var cpts = dataPoints.Count * multiplier;
             int npts = (dataPoints.Count) / 2;
             int icount, jcount;
-            double step, t;
+            float step, t;
             var _pts = new float[cpts * 2];
 
             icount = 0;
             t = 0;
-            step = 1.0 / (cpts - 1);
+            step = 1f / (cpts - 1);
             fixed (float* p = _pts)
             {
                 for (var i = 0; i != cpts; i++)
                 {
-                    if ((1.0 - t) < 5e-6)
-                        t = 1.0;
+                    if ((1f - t) < 5e-6)
+                        t = 1f;
 
                     jcount = 0;
                     p[icount] = 0.0f;
@@ -610,7 +649,7 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Collection<VectorF> GetBezierPoints(int multiplier, BezierType type, IList<VectorF> Source, bool pickFromLastPoint = true)
         {
-            multiplier = Math.Min(multiplier, 8);
+            multiplier = Math.Max(multiplier, 4);
             var points = new Collection<VectorF>(Source.Count * multiplier);
             GetBezierPoints(multiplier, type, ref points, Source, pickFromLastPoint);
             points.RemoveLast();
@@ -878,7 +917,7 @@ namespace MnM.GWS
                 sigma += a2 * (4 * y0 + 6);
             }
         }
-        public static void BresenhamEllipse(int x, int y, int w, int h, FillAction<int> action)
+        public static void BresenhamEllipse(int x, int y, int w, int h, FillAction action)
         {
             int a = w / 2;
             int b = h / 2;
@@ -922,22 +961,24 @@ namespace MnM.GWS
         public static IList<VectorF> RoundedBoxPoints(float x, float y, float width, float height, float cornerRadius)
         {
             cornerRadius = Math.Min(cornerRadius, Math.Min(width / 2, height / 2) - 1);
+            var r = x + width;
+            var b = y + height;
 
             VectorF p1 = new VectorF(x, y + cornerRadius);
             VectorF p2 = new VectorF(x, y);
             VectorF p3 = new VectorF(x + cornerRadius, y);
+            
+            VectorF p4 = new VectorF(r - cornerRadius, y);
+            VectorF p5 = new VectorF(r, y);
+            VectorF p6 = new VectorF(r, y + cornerRadius);
 
-            VectorF p4 = new VectorF(x + width - cornerRadius, y);
-            VectorF p5 = new VectorF(x + width, y);
-            VectorF p6 = new VectorF(x + width, y + cornerRadius);
+            VectorF p7 = new VectorF(r, b - cornerRadius);
+            VectorF p8 = new VectorF(r, b);
+            VectorF p9 = new VectorF(r - cornerRadius, b);
 
-            VectorF p7 = new VectorF(x + width, y + height - cornerRadius);
-            VectorF p8 = new VectorF(x + width, y + height);
-            VectorF p9 = new VectorF(x + width - cornerRadius, y + height);
-
-            VectorF p10 = new VectorF(x + cornerRadius, y + height);
-            VectorF p11 = new VectorF(x, y + height);
-            VectorF p12 = new VectorF(x, y + height - cornerRadius);
+            VectorF p10 = new VectorF(x + cornerRadius, b);
+            VectorF p11 = new VectorF(x, b);
+            VectorF p12 = new VectorF(x, b - cornerRadius);
 
             var source = new VectorF[] { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12 };
 
@@ -974,11 +1015,11 @@ namespace MnM.GWS
         #region EFFECTIVE ROTATION
         public static Rotation EffectiveRotation(this IConic conic, out float width, out float height)
         {
-            var rotation = conic.Rotation is Rotation? 
-                (Rotation) conic.Rotation: new Rotation(conic.Rotation);
+            var rotation = conic.Rotation? 
+                conic.Rotation: Rotation.Empty;
             var degree = rotation.Degree;
-            width = conic.Bounds.Width;
-            height = conic.Bounds.Height;
+            width = conic.Width;
+            height = conic.Height;
             bool a45to90 = degree >= 45 && degree < 90;
             bool a90to135 = degree >= 90 && degree < 135;
             bool a225to270 = degree >= 225 && degree < 270;
@@ -1125,7 +1166,7 @@ namespace MnM.GWS
         /// <summary>
         /// Very fast ellipse drawing function by Michael "h4tt3n" Nissen version 4.0 March 2010
         /// </summary>
-        public static void NissenEllipse(int x, int y, int width, int height, Rotation angle, PixelAction<float> action, DrawCommand lineCommand = 0)
+        public static void NissenEllipse(int x, int y, int width, int height, Rotation angle, PixelAction action, Command lineCommand = 0)
         {
             //These constants decide the graphic quality of the ellipse
             const int face_length = 6;  //approx.face length in pixels
@@ -1173,7 +1214,7 @@ namespace MnM.GWS
         #endregion
 
         #region GWS FAST ELLIPSE
-        public static void GwsEllipse(int x, int y, int width, int height, Rotation angle, PixelAction<float> action, DrawCommand lineCommand = 0)
+        public static void GwsEllipse(int x, int y, int width, int height, Rotation angle, PixelAction action, Command lineCommand = 0)
         {
             float x1 = 1f, y1 = 0f, x2 = 0, y2 = 0, lbx = 0, lby = 0, rbx = 0,
                 rby = 0, ltx = 0, lty = 0, rtx = 0, rty = 0, lbx1 = 0, lby1 = 0,
@@ -1260,7 +1301,8 @@ namespace MnM.GWS
             float end = curve.Full ? 0 : curve.EndAngle;
 
             //get stroked areas.
-            curve.Bounds.GetStrokeAreas(out RectangleF outer, out RectangleF inner, stroke, mode);
+            var Bounds = new RectangleF(curve.X, curve.Y, curve.Width, curve.Height);
+            Bounds.GetStrokeAreas(out RectangleF outer, out RectangleF inner, stroke, mode);
             if (stroke < 0)
                 Numbers.Swap(ref outer, ref inner);
 
@@ -1270,7 +1312,7 @@ namespace MnM.GWS
             if (fill != FillMode.Outer)
             {
                 //if inner bounds is not equal to curve bounds get inner curve.
-                if (inner != curve.Bounds)
+                if (inner != Bounds)
                 {
                     IConic innerConic = Factory.newConic(curve.Rotation, inner.X, inner.Y, inner.Width, inner.Height);
                     VectorF[] pieTriangle = curve.Full ? null : innerConic.GetPieTriangle(curve.Type, start, end, childCenter);
@@ -1283,7 +1325,7 @@ namespace MnM.GWS
                     return innerCurve;
             }
             //if outer bounds is not equal to curve bounds get outer curve.
-            if (outer != curve.Bounds)
+            if (outer != Bounds)
             {
                 var outerConic = Factory.newConic(curve.Rotation, outer.X, outer.Y, outer.Width, outer.Height);
                 VectorF[] pieTriangle = curve.Full ? null : outerConic.GetPieTriangle(curve.Type, start, end, mainCenter);

@@ -8,109 +8,6 @@ using System.IO;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
-
-    #region IPIXELS
-    public interface IPixels : IBlockable
-    {
-        IntPtr Source { get; }
-    }
-    #endregion
-
-    #region IBLOCK
-    public interface IBlock : IID, IWritable, ICopyable, ICloneable, IResizable, IDisposable
-    { }
-#endregion
-
-    #region IIMAGE
-    /// <summary>
-    /// Represents smallest writable and copiable memory block object.
-    /// </summary>
-    public interface IImage : IBlock, IPixels, IAreaDrawable
-    {
-    }
-    #endregion
-
-    #region ISURFACE
-    /// <summary>
-    /// Represents writable and copiable memory block object which can also render shapes.
-    /// </summary>
-    public interface ISurface : IBlock, IUpdatable, IBackground, IDisposable
-#if Advanced
-       , IBrushSource, IMixableBlock, IObjectAware
-#endif
-    { }
-    #endregion
-
-    #region ICANVAS
-    public interface ICanvas : ISurface, IContainer, IRefreshable
-    {
-#if Advanced
-        /// <summary>
-        /// Gets or sets a flag to indicate if this object supports back ground buffer.
-        /// </summary>
-        //bool SupportsBackBuffer { get; set; }
-#endif
-    }
-    #endregion
-
-    #region IPEN
-    /// <summary>
-    /// Represents an object from which memory can be read.
-    /// </summary>
-    public interface IPen : IReadable, ICopyable, ICloneable
-    {
-        /// <summary>
-        /// Type this pen currently represents.
-        /// </summary>
-        int Type { get; }
-    }
-    #endregion
-
-    #region IANIMATED-GIF-FRAME
-    /// <summary>
-    /// Represents an object which holds animeted GIF image information.
-    /// </summary>
-    public interface IAnimatedGifFrame
-    {        /// <summary>
-             /// Data of the image in byte array.
-             /// </summary>
-        byte[] Data { get; }
-
-        /// <summary>
-        /// Delay unit to be used to change a frame.
-        /// </summary>
-        int Delay { get; }
-    }
-    #endregion
-
-    #region IBRUSH
-    /// <summary>
-    /// Represents a brush with certain fill style and gradient for drawin a shape on screen.
-    /// </summary>
-    public interface IBrush : IPen, ISettings, IDisposable, ICloneable2, IResizable
-    {
-        BrushStyle Style { get; }
-    }
-    #endregion
-
-    #region ITEXTURE-BRUSH
-    public interface ITextureBrush : IPen, ISettings, IDisposable, ICloneable2, IPixels , IResizable
-    { }
-    #endregion
-
-    #region IBRUSHSOURCE
-    public interface IBrushSource
-    {
-        /// <summary>
-        /// Creates appropriate texture brush from this object.
-        /// </summary>
-        /// <param name="copyArea"></param>
-        /// <returns></returns>
-        ITextureBrush ToBrush(Rectangle? copyArea = null);
-    }
-    #endregion
-
     #region IMAGE PROCESSOR
     /// <summary>
     /// Represents an object to facilitate image data processing. GWS uses default image reader derived from STBImage. 
@@ -164,13 +61,130 @@ namespace MnM.GWS
         /// <param name="quality">Resolution quality of the tageted image file</param>
         void Write(IntPtr pixels, int width, int height, int len, int pitch, Stream dest, ImageFormat format, int quality = 50);
     }
+
+    #region IANIMATED-GIF-FRAME
+    /// <summary>
+    /// Represents an object which holds animeted GIF image information.
+    /// </summary>
+    public interface IAnimatedGifFrame
+    {       /// <summary>
+            /// Data of the image in byte array.
+            /// </summary>
+        byte[] Data { get; }
+
+        /// <summary>
+        /// Delay unit to be used to change a frame.
+        /// </summary>
+        int Delay { get; }
+    }
+    #endregion
     #endregion
 
-    #region IPENS
-    public interface IPens : IObjDictionary<IReadable>, IAttachment
+    #region IPENCONTEXT
+    /// <summary>
+    /// This is a marker interface which represents an object which can be converted to a buffer pen.
+    /// </summary>
+    public interface IPenContext : IContext
+    { }
+    #endregion
+
+    #region IPIXELS
+    public interface IPixels : IBlockable
     {
-        IReadable ToPen(IPenContext context, int? w = null, int? h = null);
+        IntPtr Source { get; }
     }
+    #endregion
+
+    #region IDATA
+    public interface IImageData : IBlockable
+    {
+        /// <summary>
+        /// Gets or sets a flag to determine if background buffer support is activated or not.
+        /// </summary>
+        bool SupportBackgroundBuffer { get; set; }
+
+        /// <summary>
+        /// Gets Internally stored pixels and alpha values for entire memory block.
+        /// </summary>
+        /// <param name="Pixels">Memory block representing color pixels.</param>
+        /// <param name="Alphas">Memory block representing alpha values of border pixels.</param>
+        void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false);
+    }
+    #endregion
+
+#if (GWS || Window)
+
+    #region IIMAGE
+    public partial interface IImage : IWritable, ICopyable, IRenderable, IDisposed
+    {
+        /// <summary>
+        /// Copies consolidated data to target destination. Very useful for mixing 2 images.
+        /// Where this image serves as foreground image and backBuffer serves as background image. 
+        /// </summary>
+        /// <param name="copyX"></param>
+        /// <param name="copyY"></param>
+        /// <param name="copyW"></param>
+        /// <param name="copyH"></param>
+        /// <param name="destination"></param>
+        /// <param name="dstLen"></param>
+        /// <param name="dstW"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="backBuffer"></param>
+        /// <param name="Command"></param>
+        /// <param name="Pen"></param>
+        /// <param name="shapeID"></param>
+        /// <returns></returns>
+        IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null, string shapeID = null);
+    }
+    #endregion
+
+    #region ISURFACE
+    /// <summary>
+    /// Represents writable and copiable memory block object which can also render shapes.
+    /// </summary>
+    public partial interface ISurface : IImage, IClearable, IPastable, ICloneable, IResizable
+    { }
+    #endregion
+
+    #region ICANVAS
+    public partial interface ICanvas : IImage, IClearable, IPastable, ICloneable, IResizable,
+        IRenderable, IContainer, IUpdatable, IRefreshable
+    { }
+    #endregion
+
+    #region IPEN
+    /// <summary>
+    /// Represents an object from which memory can be read.
+    /// </summary>
+    public interface IPen : IReadable, ICopyable, ICloneable
+    {
+        /// <summary>
+        /// Type this pen currently represents.
+        /// </summary>
+        int Type { get; }
+    }
+    #endregion
+
+    #region IBRUSH
+    /// <summary>
+    /// Represents a brush with certain fill style and gradient for drawin a shape on screen.
+    /// </summary>
+    public partial interface IBrush : IPen, ISettingsReceiver, IDisposable, ICloneable2, IResizable
+    {
+        BrushStyle Style { get; }
+    }
+    #endregion
+
+    #region ITEXTURE-BRUSH
+    public partial interface ITextureBrush : IPen, ISettingsReceiver, IDisposable, ICloneable2, IPixels, IResizable
+    { }
+    #endregion
+
+    #region IFIXED-PEN
+    public interface IFixedBrush : IReadable, IDisposable, IBackgroundPen
+    { }
     #endregion
 
     #region IPOLYFILL
@@ -179,7 +193,7 @@ namespace MnM.GWS
     /// </summary>
     public interface IPolyFill : IPolyInfo, IDisposable
     {
-        #region PROPERTIES
+    #region PROPERTIES
         /// <summary>
         /// Far top boundary to which filling must be confined.
         /// </summary>
@@ -205,10 +219,10 @@ namespace MnM.GWS
         /// <summary>
         /// A Scan action delegate to record line pixels to be processed for scan line filling.
         /// </summary>
-        PixelAction<float> ScanAction { get; }
-        #endregion
+        PixelAction ScanAction { get; }
+    #endregion
 
-        #region BEGIN
+    #region BEGIN
         /// <summary>
         /// Sets this object for filling operation.
         /// </summary>
@@ -216,25 +230,25 @@ namespace MnM.GWS
         /// <param name="bottom">Far bottom boundary where filling should be considered upto</param>
         /// <param name="fillPattern">Fill pattern to be used to perform scan line filling</param>
         void Begin(int y, int bottom);
-        #endregion
+    #endregion
 
-        #region FILL
+    #region FILL
         /// <summary>
         /// Performs horizontal scan line filling using specified action.
         /// </summary>
         /// <param name="fillAction">Action to be used for filling.</param>
         /// <param name="lineCommand">Line command to be used to draw end pixels</param>
-        void Fill(FillAction<float> fillAction);
-        #endregion
+        void Fill(FillAction fillAction);
+    #endregion
 
-        #region END
+    #region END
         /// <summary>
         /// Ends current fill operation and resets internal data.
         /// </summary>
         void End();
-        #endregion
+    #endregion
 
-        #region SCAN
+    #region SCAN
         /// <summary>
         /// Scans a line using standard line algorithm between two points of a line segment using specified action.
         /// Line will be scanned horizontally i.e. from y1 to y2 taking rounded values of both,
@@ -264,9 +278,9 @@ namespace MnM.GWS
         /// <param name="Points"></param>
         /// <param name="Contours"></param>
         void Scan(IList<VectorF> Points, IList<int> Contours = null);
-        #endregion
+    #endregion
 
-        #region FILL LINE
+    #region FILL LINE
         /// <summary>
         /// Fills an axial fragmented scan line - using odd - even fill rule exclusively.
         /// </summary>
@@ -275,8 +289,8 @@ namespace MnM.GWS
         /// <param name="horizontal">If true, line should be scanned from top to bottom otherwise left to right</param>
         /// <param name="action">A FillAction delegate which has routine to do something with the axial information provided.</param>
         /// <param name="alpha">Alha factor to apply to whole line if supplied at all.</param>
-        void FillLine(ICollection<float> data, int axis, bool horizontal, FillAction<float> action, float? alpha = null);
-        #endregion
+        void FillLine(ICollection<float> data, int axis, bool horizontal, FillAction action, float? alpha = null);
+    #endregion
     }
     #endregion
 
@@ -286,12 +300,8 @@ namespace MnM.GWS
 namespace MnM.GWS
 {
 #if Window && GWS
-    #region IWINDOW-SURFACE
-    public interface IWindowSurface : IWritable, IRenderTarget { }
-    #endregion
-
     #region ITEXTURE
-    public interface ITexture : ISize, IResizable, IDisposable
+    public partial interface ITexture : ISize, IResizable, IDisposable
     {
         /// <summary>
         /// Copies portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
@@ -305,7 +315,7 @@ namespace MnM.GWS
         /// <param name="copyW">Width of area in the source to copy.</param>
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="command">Draw command to to control copy task</param>
-        void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
+        void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command command = 0);
 
         /// <summary>
         /// Uploads a portion of this texture specified by rectangle area to the screen.

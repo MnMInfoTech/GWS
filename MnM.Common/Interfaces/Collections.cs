@@ -1062,19 +1062,20 @@ namespace MnM.GWS
         /// <summary>
         /// Adds a shape object to this collection.
         /// </summary>
-        /// <typeparam name="T">A shape object to be added of type specifie by TShape</typeparam>
-        /// <param name="context">The drawing context for the shape i.e a pen or color or a brush or even an another graphics or buffer object from which a data can be read.</param>
+        /// <typeparam name="T">A shape object to be added of type specifie by T</typeparam>
+        /// <param name="settings">The settings context for the shape.</param>
         /// <returns>Returns the same Shape object which is added . 
         /// this lets user to pass something like new shape(....) and then used it further more.
-        /// for example: var ellipse = Add(Factory.newEllipse(10,10,100,200), Colour.Red, null, null);
-        /// </returns>
-        U Add<U>(U shape, IContext context) where U : T;
+        /// </returns></returns>
+        U Add<U>(U shape, ISettings settings, bool? suspendUpdate = null) where U : T;
 
         /// <summary>
-        /// Add object to collection (if allowed).
+        /// 
         /// </summary>
-        /// <param name="item">Object to add to collection.</param>
-        U Add<U>(U item) where U : T;
+        /// <typeparam name="U">A shape object to be added of type specifie by T</typeparam>
+        /// <param name="shape"></param>
+        /// <returns></returns>
+        U Add<U>(U shape) where U : T;
 
         /// <summary>
         /// Adds a shape objects to this collection.
@@ -1099,9 +1100,6 @@ namespace MnM.GWS
     /// Object containing a collection of objects of type IRenderable.
     /// </summary>
     public partial interface IObjCollection : IObjCollection<IRenderable>, IID
-#if Advanced
-        , IEventPusher
-#endif
     {
         #region PROPERTIES
         /// <summary>
@@ -1109,13 +1107,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="shape">The element for which the drawing information is sought for</param>
         /// <returns></returns>
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            this[IRenderable shape]
-        { get; }
+        ISettings this[IRenderable shape] { get; }
 
         /// <summary>
         /// Indicates if the collection is currently adding an element or not.
@@ -1129,13 +1121,10 @@ namespace MnM.GWS
         /// </summary>
         IEnumerable<IRenderable> Items { get; }
 
-#if Advanced
-        IEnumerable<IRenderInfo2>
-#else
-        IEnumerable<IRenderInfo>
-#endif
-            InfoItems
-        { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        IEnumerable<ISettings> InfoItems { get; }
         #endregion
 
         #region METHODS
@@ -1148,40 +1137,11 @@ namespace MnM.GWS
         void Refresh(IRenderable shape);
 
         /// <summary>
-        /// Creates a new drawing information object for a given element after it is added in this collection to hold the current drawing information.
-        /// </summary>
-        /// <param name="shape">Element - which draw information is sought for.</param>
-        /// <returns></returns>
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            NewDrawInfo(IRenderable shape);
-
-        /// <summary>
-        /// Creates a new drawing information object for an element which has given ID after it is added in this collection to hold the current drawing information.
-        /// </summary>
-        /// <param name="shapeID">ID of an element - which drawing information object is sought for.</param>
-        /// <returns>IDrawInfo object.</returns>
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            NewDrawInfo(string shapeID);
-
-        /// <summary>
         /// Returs an existing drawing information object for a given element after it is added in this collection to hold the current drawing information.
         /// </summary>
-        /// <param name="shape">Element - which draw information is sought for.</param>
+        /// <param name="shape">Shape for which render information is sought.</param>
         /// <returns></returns>
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo
-#endif
-        GetInfo(string shape);
+        ISettings GetInfo(IRenderable shape);
 
         /// <summary>
         /// Removes an element wchich has given ID from this collection if it exist.
@@ -1201,26 +1161,7 @@ namespace MnM.GWS
         /// <typeparam name="T">Type of IRenderable.</typeparam>
         /// <param name="condition">Condition to be satisfied.</param>
         /// <returns></returns>
-        IEnumerable<T> Query<T>(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition) where T : IRenderable;
-
-        /// <summary>
-        /// Gets all drawn information in this colleciton satisfying given condition.
-        /// </summary>
-        /// <param name="condition">Condition to be satisfied.</param>
-        /// <returns></returns>
-        IList<IDrawnInfo> QueryDraw(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition);
+        IEnumerable<IRenderable> Query(Predicate<ISettings> condition = null);
 
         /// <summary>
         /// Gets the first element in this colleciton satisfying given condition.
@@ -1228,27 +1169,21 @@ namespace MnM.GWS
         /// <typeparam name="T">Type of IRenderable.</typeparam>
         /// <param name="condition">Condition to be satisfied.</param>
         /// <returns></returns>
-        T QueryFirst<T>(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition) where T : IRenderable;
+        IRenderable QueryFirst(Predicate<ISettings> condition = null);
+
+        /// <summary>
+        /// Gets all drawn information in this colleciton satisfying given condition.
+        /// </summary>
+        /// <param name="condition">Condition to be satisfied.</param>
+        /// <returns></returns>
+        IEnumerable<IShape> QueryDraw(Predicate<ISettings> condition = null);
 
         /// <summary>
         /// Gets drawn information of first element in this colleciton satisfying given condition.
         /// </summary>
         /// <param name="condition">Condition to be satisfied.</param>
         /// <returns></returns>
-        IDrawnInfo QueryFirstDraw(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition);
-
+        IShape QueryFirstDraw(Predicate<ISettings> condition = null);
         #endregion
     }
     #endregion
@@ -1257,7 +1192,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which holds a control collection to maintain its child controls.
     /// </summary>
-    public interface IContainer
+    public interface IContainer: IRefreshable
     {
         /// <summary>
         /// A collection that keeps all child controls to be maintained.
@@ -1317,18 +1252,18 @@ namespace MnM.GWS
         void RemoveBuffers();
     }
 
-    public interface IBufferCollection : IBuffers, IEnumerable<ISurface>, IDisposable
+    public interface IBufferCollection : IBuffers, IEnumerable<ICanvas>, IDisposable
     {
         /// <summary>
         /// Gets the active buffer in this collection now.
         /// </summary>
-        ISurface Current { get; }
+        ICanvas Current { get; }
 
         /// <summary>
         /// Lets user to change the primary buffer held in this object. Please note that it is not a part of collection itself.
         /// </summary>
         /// <param name="primary">The buffer intended to be the primary buffer for this collection</param>
-        void ChangePrimary(ISurface primary);
+        void ChangePrimary(ICanvas primary);
 
         /// <summary>
         /// This event gets invoked whenever curret active buffer gets changed.

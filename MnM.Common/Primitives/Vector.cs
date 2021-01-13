@@ -9,7 +9,7 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
     [StructLayout(LayoutKind.Sequential)]
-    public struct Vector : IOffset
+    public struct Vector : IPoint
     {
         #region VARIABLES
         public int X, Y;
@@ -65,8 +65,8 @@ namespace MnM.GWS
         public static Vector UnitX => new Vector(1, 0);
         public static Vector UnitY => new Vector(1, 0);
         public Vector Yx => new Vector(Y, X);
-        int IOffset.X => X;
-        int IOffset.Y => Y;
+        int IPoint.X => X;
+        int IPoint.Y => Y;
         #endregion
 
         #region ASSIGN

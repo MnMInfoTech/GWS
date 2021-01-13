@@ -10,7 +10,7 @@ namespace MnM.GWS
 {
 #if (GWS || Window)
     [StructLayout(LayoutKind.Sequential)]
-    public struct VectorF: IScale
+    public struct VectorF: IScale, IPointF
     {
         #region VARIABLES
         public float X, Y;
@@ -75,6 +75,8 @@ namespace MnM.GWS
         public static VectorF UnitY = new VectorF(0f, 1f);
         float IScale.X => X;
         float IScale.Y => Y;
+        float IPointF.X => X;
+        float IPointF.Y => Y;
         public bool HasScale => (X != 0 || Y != 0);
         #endregion
 

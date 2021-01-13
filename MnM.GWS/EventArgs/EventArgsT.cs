@@ -8,14 +8,14 @@ using System.Text;
 
 namespace MnM.GWS
 {
-    public class EventArgs<T>: EventArgs, IEventArgs<T>
+    public class EventArgs<T> : EventArgs, IEventArgs<T>
     {
         public EventArgs() { }
         public EventArgs(T args)
         {
             Args = args;
         }
-        public T Args { get;   set; }
+        public T Args { get; set; }
     }
     public class EventArgs<T1, T2> : EventArgs<T1>
     {

@@ -10,15 +10,30 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Brush.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Renderable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Surface.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Main\Block.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Form.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Boundary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Main\Pixels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\FixedBrush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Settings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Shape.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Bezier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Box.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\BoxF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Conic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Curve.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Figure.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Glyph.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Glyphs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Line.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Polygon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\RoundedBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Tetragon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Text.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Traingle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows\Converter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Pen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\EventArgsT.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\InvalidateEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\PaintEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\SizeEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ObjCollection.cs" />
@@ -28,7 +43,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Glyph.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Texure.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\PolyFill.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_NativeFont.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Font.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Factory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Sound.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Window.cs" />

@@ -15,11 +15,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_LexiconT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ObjDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PairKV.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Pens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\ArrayT.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\Timer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\CollectionT.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\Notifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Genre.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Genres.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Pointer.cs" />
@@ -39,7 +37,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Matrixs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Windows.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Timers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Buffers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\DrawParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Factories.cs" />
@@ -52,7 +49,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\IDGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Application.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Factory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\APoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AxisLine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\BrushStyle.cs" />

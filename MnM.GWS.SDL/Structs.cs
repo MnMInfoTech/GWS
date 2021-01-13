@@ -68,7 +68,7 @@ namespace MnM
             public int Width;
             public int Height;
             public int Pitch;
-            public IntPtr Pixels;
+            public volatile IntPtr Pixels;
             public IntPtr UserData;
             public int Locked;
             public IntPtr LockData;

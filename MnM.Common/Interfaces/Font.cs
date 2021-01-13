@@ -95,7 +95,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents a glyph object which contains all the information on how a particual character it represents should be drawn on screen.
     /// </summary>
-    public interface IGlyph : IDrawable, ICloneable, IPoint
+    public interface IGlyph : IDrawable, ICloneable, IPoint, ISizeF
     {
         /// <summary>
         /// Gets or sets X co-ordinate of position of this glyph.
@@ -124,7 +124,7 @@ namespace MnM.GWS
     /// Represents information vital to draw a character for a given font.
     /// the information is directly fetched from the font object.
     /// </summary>
-    public interface IGlyphSlot : IBoundsF
+    public interface IGlyphSlot : IRectangleF
     {
         #region PROPERTIES
         /// <summary>
@@ -166,7 +166,7 @@ namespace MnM.GWS
     #endregion
 
     #region IGLYPHS
-    public interface IGlyphs : IDrawable, IEnumerable<IGlyph>, IRecognizable
+    public interface IGlyphs : IDrawable, IEnumerable<IGlyph>, IRecognizable, IRectangleF
     {
         /// <summary>
         /// Gets the child glyph at a given index
@@ -196,7 +196,7 @@ namespace MnM.GWS
         /// <param name="action">the action to render result of the processing</param>
         /// <param name="width">Width of the area to be used for the  processing</param>
         /// <param name="height">Height of the area to be used for the  processing</param>
-        void Process(IList<VectorF> points, IList<int> contours, FillAction<int> action, int width, int height);
+        void Process(IList<VectorF> points, IList<int> contours, FillAction action, int width, int height);
     }
     #endregion
 
@@ -258,7 +258,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets a Buffer image to be drawn to screen.
         /// </summary>
-        IImage Image { get; set; }
+        ISurface Image { get; set; }
 #endif
         /// <summary>
         //  Creates a new instance of this class with the same value as an existing instance.

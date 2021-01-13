@@ -6,18 +6,20 @@ using System;
 
 namespace MnM.GWS
 {
+#if GWS || Window
     public class DrawEventArgs : EventArgs, IDrawEventArgs
     {
-        public ISurface Surface { get; internal set; }
+        public IImage Graphics { get; internal set; }
         internal DrawEventArgs() { }
 
-        public DrawEventArgs(ISurface graphics)
+        public DrawEventArgs(IImage graphics)
         {
-            Surface = graphics;
+            Graphics = graphics;
         }
         void IDisposable.Dispose()
         {
-            Surface = null;
+            Graphics = null;
         }
     }
+#endif
 }

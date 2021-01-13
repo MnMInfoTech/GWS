@@ -40,7 +40,7 @@ namespace MnM.GWS
                 eof = eof
             };
             outBuffer = new byte[1024];
-            DefaultImageBackgroundColor = Rgba.Transparent.Color;
+            DefaultImageBackgroundColor = Colors.Transparent;
         }
         #endregion
 

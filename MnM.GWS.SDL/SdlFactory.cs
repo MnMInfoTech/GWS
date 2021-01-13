@@ -157,11 +157,11 @@ namespace MnM.GWS
         #endregion
 
         #region SAVE AS BITMAP
-        public unsafe bool SaveAsBitmap(ICopyable image, string file)
+        public unsafe bool SaveAsBitmap(IBlockable image, string file, Command command = Command.DirectScreen)
         {
             if (image == null)
                 return false;
-            image.Portion(out IntPtr data);
+            image.CopyTo(out IntPtr data, 0, 0, image.Width, image.Height, command);
             return SaveAsBitmap(data, image.Width, image.Height, file);
         }
         public unsafe bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file)
@@ -215,16 +215,16 @@ namespace MnM.GWS
         #endregion
 
         #region EVENTS
-        public void PushEvent(IEvent e)
+        public override void PushEvent(IEvent e)
         {
             if (!(e is Event))
                 return;
             Event evt = (Event)e;
             PushEventEx(evt);
         }
-        public void PumpEvents() =>
+        public override void PumpEvents() =>
             pumpEvents();
-        public bool PollEvent(out IEvent e)
+        public override bool PollEvent(out IEvent e)
         {
             Event evt;
             var i = PollEventEx(out evt);
@@ -318,6 +318,9 @@ namespace MnM.GWS
         #endregion
 
         #region SURFACE BINDINGS
+        [DllImport(libSDL, EntryPoint = "SDL_LowerBlit", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int CopySurface(IntPtr src, Rectangle srcrect, IntPtr dst, Rectangle dstrect);
+
         [DllImport(libSDL, EntryPoint = "SDL_GetWindowSurface", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal unsafe static extern IntPtr GetWindowSurface(IntPtr window);
 
@@ -326,10 +329,16 @@ namespace MnM.GWS
 
         [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurface", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         static extern int UpdateWindowSurface(IntPtr window,  Rectangle[] rects, int numrects);
-        internal static int UpdateWindowSurface(IntPtr window, params  Rectangle[] rects)
+        internal static int UpdateWindow(IntPtr window, params  Rectangle[] rects)
         {
             return UpdateWindowSurface(window, rects, rects.Length);
         }
+
+        internal static int UpdateWindow(IntPtr window, Rectangle[] rects, int count)
+        {
+            return UpdateWindowSurface(window, rects, count);
+        }
+
 
         [DllImport(libSDL, EntryPoint = "SDL_CreateRGBSurfaceWithFormatFrom", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal unsafe static extern IntPtr CreateSurface(IntPtr pixels, int width, int height, int depth, int pitch, uint format);
@@ -353,6 +362,9 @@ namespace MnM.GWS
         }
         [DllImport(libSDL, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_FreeSurface", ExactSpelling = true)]
         internal static extern void FreeSurface(IntPtr surface);
+
+        [DllImport(libSDL, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_SetClipRect", ExactSpelling = true)]
+        internal static extern int ClipSurface(IntPtr surface, Rectangle rect);
         #endregion
 
         #region TEXTURE BINDINGS
@@ -674,6 +686,9 @@ namespace MnM.GWS
             DestroyWindow(w);
             return formats;
         }
+
+        [DllImport(libSDL, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_Delay", ExactSpelling = true)]
+        internal static extern void Sleep(int ms);
         #endregion
 
         #region SDL GL CONTEXT

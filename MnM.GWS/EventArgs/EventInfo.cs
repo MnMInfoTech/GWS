@@ -9,18 +9,16 @@ namespace MnM.GWS
         public static readonly EventInfo Empty = new EventInfo();
         public EventInfo()
         {
-            Status = EventUseStatus.Unused;
         }
-        public EventInfo(object sender, IEventArgs args, GwsEvent type)
+        public EventInfo(object sender, IEventArgs args, int type)
         {
             Sender = sender;
             Args = args;
             Type = type;
-            Status = EventUseStatus.Unused;
         }
         public object Sender { get; set; }
         public IEventArgs Args { get; set; }
-        public GwsEvent Type { get; set; }
-        public EventUseStatus Status { get; set; }
+        public int Type { get; set; }
+        public bool Handled { get; set; }
     }
 }

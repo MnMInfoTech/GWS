@@ -6,7 +6,93 @@ using System;
 
 namespace MnM.GWS
 {
-#if Texts || GWS || Window 
+    #region IEVENTPUSHER
+    public interface IEventPusher
+    {
+        void PushEvent(IEventInfo e);
+        event EventHandler<IEventInfo> EventPushed;
+    }
+    #endregion
+
+    #region IEVENT INFO
+    public interface IEventInfo
+    {
+        object Sender { get; set; }
+        IEventArgs Args { get; set; }
+        int Type { get; }
+        bool Handled { get; set; }
+    }
+    #endregion
+
+    #region IMOUSEEVENT-ARGS
+    /// <summary>
+    /// Represents an argument object to relay mouse input information.
+    /// </summary>
+    public interface IMouseEventArgs : IInputEventArgs
+    {
+        /// <summary>
+        /// X cor-ordinate of the location of mouse.
+        /// </summary>
+        int X { get; }
+
+        /// <summary>
+        /// Y cor-ordinate of the location of mouse.
+        /// </summary>
+        int Y { get; }
+
+        /// <summary>
+        /// Indicates state of mouse - i.e up or down or hovering or clicked etc.
+        /// </summary>
+        MouseState State { get; }
+
+        /// <summary>
+        /// Indicates which butten is currently in play i.e left, right or middle etc.
+        /// </summary>
+        MouseButton Button { get; }
+
+        /// <summary>
+        /// Indicates numner of clicks 1 for single and 2 for double.
+        /// </summary>
+        int Clicks { get; }
+
+        /// <summary>
+        ///Indicates a signed count of the number of detents the mouse wheel has rotated.   
+        /// </summary>
+        int Delta { get; }
+
+        /// <summary>
+        /// Indicates if mouse is cliecked.
+        /// </summary>
+        bool Clicked { get; }
+
+        /// <summary>
+        /// While dragging, this indicated X co-rdinate of start point of start of dragging.
+        /// </summary>
+        int DragStartX { get; }
+
+        /// <summary>
+        /// While dragging, this indicated Y co-rdinate of start point of start of dragging.
+        /// </summary>
+        int DragStartY { get; }
+
+        /// <summary>
+        /// Deviation of wheel in horizontal axis.
+        /// </summary>
+        int XDelta { get; }
+
+        /// <summary>
+        /// Deviation of wheel in vertical axis.
+        /// </summary>
+        int YDelta { get; }
+    }
+    #endregion
+
+    #region ISIZEEVENT-ARGS
+    public interface ISizeEventArgs : IEventArgs, ISize
+    {
+    }
+    #endregion
+
     #region IKEYPRESSEVENT-ARGS
     /// <summary>
     /// Represents an argument object to relay key press information.
@@ -80,75 +166,13 @@ namespace MnM.GWS
         char[] Characters { get; }
     }
     #endregion
-#endif
 
-#if (GWS || Window) 
-    #region IMOUSEEVENT-ARGS
-    /// <summary>
-    /// Represents an argument object to relay mouse input information.
-    /// </summary>
-    public interface IMouseEventArgs : IInputEventArgs
+#if (GWS || Window)
+    #region IPOPUP-ITEM-EVENTARGS
+    public interface IPopupItemEventArgs : IEventArgs
     {
-        /// <summary>
-        /// X cor-ordinate of the location of mouse.
-        /// </summary>
-        int X { get; }
-
-        /// <summary>
-        /// Y cor-ordinate of the location of mouse.
-        /// </summary>
-        int Y { get; }
-
-        /// <summary>
-        /// Indicates state of mouse - i.e up or down or hovering or clicked etc.
-        /// </summary>
-        MouseState State { get; }
-
-        /// <summary>
-        /// Indicates which butten is currently in play i.e left, right or middle etc.
-        /// </summary>
-        MouseButton Button { get; }
-
-        /// <summary>
-        /// Indicates numner of clicks 1 for single and 2 for double.
-        /// </summary>
-        int Clicks { get; }
-
-        /// <summary>
-        ///Indicates a signed count of the number of detents the mouse wheel has rotated.   
-        /// </summary>
-        int Delta { get; }
-
-        /// <summary>
-        /// Indicates if mouse is cliecked.
-        /// </summary>
-        bool Clicked { get; }
-
-        /// <summary>
-        /// While dragging, this indicated X co-rdinate of start point of start of dragging.
-        /// </summary>
-        int DragStartX { get; }
-
-        /// <summary>
-        /// While dragging, this indicated Y co-rdinate of start point of start of dragging.
-        /// </summary>
-        int DragStartY { get; }
-
-        /// <summary>
-        /// Deviation of wheel in horizontal axis.
-        /// </summary>
-        int XDelta { get; }
-
-        /// <summary>
-        /// Deviation of wheel in vertical axis.
-        /// </summary>
-        int YDelta { get; }
-    }
-    #endregion
-
-    #region ISIZEEVENT-ARGS
-    public interface ISizeEventArgs : IEventArgs, ISize
-    {
+        IPopupItem Item { get; set; }
+        int Index { get; set; }
     }
     #endregion
 
@@ -161,7 +185,7 @@ namespace MnM.GWS
         /// <summary>
         /// Underlying surface object to draw.
         /// </summary>
-        ISurface Surface { get; }
+        IImage Graphics { get; }
     }
     #endregion
 
@@ -309,24 +333,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IEVENTPUSHER
-    public interface IEventPusher
-    {
-        void PushEvent(IEventInfo e);
-        event EventHandler<IEventInfo> EventPushed;
-    }
-    #endregion
-
-    #region IEVENT INFO
-    public interface IEventInfo
-    {
-        object Sender { get; set; }
-        IEventArgs Args { get; set; }
-        GwsEvent Type { get; }
-        EventUseStatus Status { get; set; }
-    }
-    #endregion
-
     #region IMINIMALEVENTS
     public interface IMinimalEvents
     {
@@ -346,17 +352,25 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region EVENTS
-    public interface IEvents
+    #region IMINIMAL-WINDOW-EVENTS
+    public interface IMinimalWindowEvents
     {
-        event EventHandler<IEventArgs> Moved;
         event EventHandler<ICancelEventArgs> LostFocus;
         event EventHandler<IEventArgs> GotFocus;
-        event EventHandler<IKeyEventArgs> PreviewKeyDown;
+        event EventHandler<IEventArgs> Minimized;
+        event EventHandler<IEventArgs> Maximized;
+        event EventHandler<IEventArgs> Restored;
         event EventHandler<IMouseEventArgs> MouseDoubleClick;
         event EventHandler<IEventArgs> VisibleChanged;
         event EventHandler<IEventArgs> FirstShown;
+    }
+    #endregion
 
+    #region EVENTS
+    public interface IEvents: IMinimalWindowEvents
+    {
+        event EventHandler<IEventArgs> Moved;
+        event EventHandler<IKeyEventArgs> PreviewKeyDown;
         event EventHandler<ITouchEventArgs> TouchBegan;
         event EventHandler<ITouchEventArgs> TouchMoved;
         event EventHandler<ITouchEventArgs> TouchEnded;
@@ -368,9 +382,6 @@ namespace MnM.GWS
         event EventHandler<IJoystickAxisEventArgs> JoystickMove;
         event EventHandler<IEventArgs> JoystickConnected;
         event EventHandler<IEventArgs> JoystickDisconnected;
-        event EventHandler<IEventArgs> Minimized;
-        event EventHandler<IEventArgs> Maximized;
-        event EventHandler<IEventArgs> Restored;
     }
     #endregion
 #endif

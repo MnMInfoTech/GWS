@@ -58,7 +58,7 @@ namespace MnM.GWS
 
             #region COPY FROM
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override unsafe void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
+            public override unsafe void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command command)
             {
                 var dstRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
                 IntPtr textureData;
@@ -66,17 +66,18 @@ namespace MnM.GWS
                 Lock(dstRC, out textureData, out lockedLength);
                 if (source is ICopyable)
                 {
-                   ((ICopyable) source).CopyTo(copyX, copyY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0);
+                   ((ICopyable) source).CopyTo(copyX, copyY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0, 0, null);
                 }
                 else if(source is IPixels)
                 {
                     int* src = (int*)(((IPixels)source).Source);
                     int* dst = (int*)textureData;
-                    BlockCopy action = (srcIndex, dstIndex, copyLength, x, y) => Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength);
-                    Blocks.CopyBlock2(copyX, copyY, copyW, copyH, source.Length, source.Width, source.Height, 0, 0, width, lockedLength, action);
+                    BlockCopy action = (srcIndex, dstIndex, copyLength, x, y, cmd) => 
+                    Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength, cmd);
+                    Blocks.CopyBlock(copyX, copyY, copyW, copyH, source.Length, source.Width, source.Height, 0, 0, width, lockedLength, action, command);
                 }
                 Unlock();
-                if((command & DrawCommand.SuspendUpdate)!= DrawCommand.SuspendUpdate)
+                if((command & Command.SuspendUpdate)!= Command.SuspendUpdate)
                     Upload(dstRC);
             }
             #endregion

@@ -80,7 +80,7 @@ namespace MnM.GWS
                     var display = this[(int)i];
                     if (display != null)
                     {
-                        if (display.Bounds.Has(x, y))
+                        if (display.Bounds.Contains(x, y))
                         {
                             return display;
                         }

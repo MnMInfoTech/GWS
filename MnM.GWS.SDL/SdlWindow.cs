@@ -5,6 +5,7 @@
 
 #if Window
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -27,17 +28,14 @@ namespace MnM.GWS
             IntPtr handle;
             int ClickTimeStamp;
             bool disabled, visible;
-            bool resizing;
-            static readonly object Sync = new object();
             WindowFlags windowFlags;
             VectorF scale;
 
             // private Icon icon;
             //RendererFlags renderFlags;
-            Rectangle clip;
             IntPtr sdlCursor = IntPtr.Zero;
             string title;
-            bool firstShow, fullScreen;
+            bool fullScreen;
             bool isSingleThreaded;
             char[] DecodeTextBuffer = new char[32];
             float opacity = 1f;
@@ -46,6 +44,7 @@ namespace MnM.GWS
             WindowBorder windowBorder = WindowBorder.Resizable;
             Size minSize, maxSize;
             bool Valid;
+            bool firstShow;
             #endregion
 
             #region CONSTRUCTORS
@@ -87,43 +86,41 @@ namespace MnM.GWS
                         windowFlags |= WindowFlags.Resizable;
                     //windowFlags |= WindowFlags.Maximized;
 
-                    lock (Sync)
+                    if (externalWindow != null)
                     {
-                        if (externalWindow != null)
+                        handle = SdlFactory.CreateWindowFrom(externalWindow.Handle);
+                    }
+                    else
+                    {
+                        int px = Screen.Bounds.X + x ?? 0;
+                        int py = Screen.Bounds.Y + y ?? 0;
+                        int wd = width ?? defaultWidth;
+                        int ht = height ?? defaultHeight;
+
+                        if (windowFlags.HasFlag(WindowFlags.FullScreen) ||
+                            windowFlags.HasFlag(WindowFlags.FullScreenDesktop) ||
+                            windowFlags.HasFlag(WindowFlags.Maximized))
                         {
-                            handle = SdlFactory.CreateWindowFrom(externalWindow.Handle);
+                            windowFlags = windowFlags & ~WindowFlags.FullScreen;
+                            windowFlags = windowFlags & ~WindowFlags.FullScreenDesktop;
+                            windowFlags = windowFlags & ~WindowFlags.Resizable;
+                            windowFlags = windowFlags & ~WindowFlags.Maximized;
+
+
+                            px = 0; py = 0;
+                            //wd = Screen.Width - 30;
+                            //ht = Screen.Height - 30;
+                            fullScreen = true;
                         }
                         else
                         {
-                            int px = Screen.Bounds.X + x ?? 0;
-                            int py = Screen.Bounds.Y + y ?? 0;
-                            int wd = width ?? defaultWidth;
-                            int ht = height ?? defaultHeight;
-
-                            if (windowFlags.HasFlag(WindowFlags.FullScreen) ||
-                                windowFlags.HasFlag(WindowFlags.FullScreenDesktop) ||
-                                windowFlags.HasFlag(WindowFlags.Maximized))
-                            {
-                                windowFlags = windowFlags & ~WindowFlags.FullScreen;
-                                windowFlags = windowFlags & ~WindowFlags.FullScreenDesktop;
-                                windowFlags = windowFlags & ~WindowFlags.Resizable;
-                                windowFlags = windowFlags & ~WindowFlags.Maximized;
-
-
-                                px = 0; py = 0;
-                                //wd = Screen.Width - 30;
-                                //ht = Screen.Height - 30;
-                                fullScreen = true;
-                            }
-                            else
-                            {
-                                px = (Screen.Bounds.Width - wd) / 2 - px / 2;
-                                py = (Screen.Bounds.Height - ht) / 2 - py / 2;
-                            }
-
-                            handle = SdlFactory.CreateWindow(title, px, py, wd, ht, (int)windowFlags);
+                            px = (Screen.Bounds.Width - wd) / 2 - px / 2;
+                            py = (Screen.Bounds.Height - ht) / 2 - py / 2;
                         }
+
+                        handle = SdlFactory.CreateWindow(title, px, py, wd, ht, (int)windowFlags);
                     }
+
                     Valid = true;
                     visible = windowFlags.HasFlag(WindowFlags.Shown) ? true : false;
 
@@ -171,22 +168,16 @@ namespace MnM.GWS
             {
                 get
                 {
-                    lock (Sync)
-                    {
-                        if (Valid)
-                            return title + "";
-                        return string.Empty;
-                    }
+                    if (Valid)
+                        return title + "";
+                    return string.Empty;
                 }
                 set
                 {
-                    lock (Sync)
+                    if (Valid)
                     {
-                        if (Valid)
-                        {
-                            SdlFactory.SetWindowTitle(Handle, value);
-                            title = value;
-                        }
+                        SdlFactory.SetWindowTitle(Handle, value);
+                        title = value;
                     }
                 }
             }
@@ -205,18 +196,15 @@ namespace MnM.GWS
                 get => cursorVisible;
                 set
                 {
-                    lock (Sync)
+                    if (Valid && value != cursorVisible)
                     {
-                        if (Valid && value != cursorVisible)
-                        {
-                            grabCursor(!value);
-                            cursorVisible = value;
-                        }
+                        grabCursor(!value);
+                        cursorVisible = value;
                     }
                 }
             }
             public override uint PixelFormat => SdlFactory.pixelFormat;
-            public CursorType Cursor { get; private set; }
+            public CursorType Cursor { get; set; }
             public string ToolTipText { get; set; }
             public object Tag { get; set; }
             bool IsBeingClosed { get; set; }
@@ -264,7 +252,7 @@ namespace MnM.GWS
                     return false;
                 if (disabled)
                     return false;
-                return Bounds.Has(p.X, p.Y);
+                return Bounds.Contains(p.X, p.Y);
             }
             public override void BringToFront()
             {
@@ -308,32 +296,33 @@ namespace MnM.GWS
             #endregion
 
             #region SHOW HIDE
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected override void ChangeVisible(bool value)
             {
-                lock (Sync)
+                if (Valid)
                 {
-                    if (Valid)
+                    visible = value;
+
+                    if (value)
                     {
-                        visible = value;
-
-                        if (value)
-                        {
-                            windowFlags |= WindowFlags.Shown;
-                            windowFlags = windowFlags & ~WindowFlags.Hidden;
-                            if (fullScreen)
-                                SdlFactory.MaximizeWindow(Handle);
-                            else
-                                SdlFactory.ShowWindow(Handle);
-
-                            if (!firstShow)
-                                OnLoad(Factory.EmptyArgs);
-                        }
+                        windowFlags |= WindowFlags.Shown;
+                        windowFlags = windowFlags & ~WindowFlags.Hidden;
+                        if (fullScreen)
+                            SdlFactory.MaximizeWindow(Handle);
                         else
+                            SdlFactory.ShowWindow(Handle);
+
+                        if (!firstShow)
                         {
-                            SdlFactory.HideWindow(Handle);
-                            windowFlags |= WindowFlags.Hidden;
-                            windowFlags = windowFlags & ~WindowFlags.Shown;
+                            OnLoad(Factory.EmptyArgs);
+                            firstShow = true;
                         }
+                    }
+                    else
+                    {
+                        SdlFactory.HideWindow(Handle);
+                        windowFlags |= WindowFlags.Hidden;
+                        windowFlags = windowFlags & ~WindowFlags.Shown;
                     }
                 }
                 base.ChangeVisible(value);
@@ -341,22 +330,19 @@ namespace MnM.GWS
             #endregion
 
             #region CLOSE
-            public override void Close()
+            protected override void OnClosed(IEventArgs e)
             {
-                base.Close();
                 Valid = false;
                 sound?.Dispose();
                 if (Handle != IntPtr.Zero)
                 {
                     cursorVisible = true;
-                    lock (Sync)
-                    {
-                        var renderer = SdlFactory.GetRenderer(Handle);
-                        SdlFactory.DestroyRenderer(renderer);
-                        SdlFactory.DestroyWindow(Handle);
-                    }
+                    var renderer = SdlFactory.GetRenderer(Handle);
+                    SdlFactory.DestroyRenderer(renderer);
+                    SdlFactory.DestroyWindow(Handle);
                 }
                 handle = IntPtr.Zero;
+                base.OnClosed(e);
             }
             #endregion
 
@@ -368,10 +354,7 @@ namespace MnM.GWS
 
                 if ((w != Width || h != Height))
                 {
-                    lock (Sync)
-                    {
-                        SdlFactory.SetWindowSize(Handle, w, h);
-                    }
+                    SdlFactory.SetWindowSize(Handle, w, h);
                 }
                 base.Resize(Width, Height);
             }
@@ -415,50 +398,45 @@ namespace MnM.GWS
                 if (windowState == value || !Valid)
                     return;
 
-                lock (Sync)
+                switch (value)
                 {
-                    switch (value)
-                    {
-                        case WindowState.Maximized:
-                            SdlFactory.MaximizeWindow(Handle);
-                            windowState = WindowState.Maximized;
-                            break;
+                    case WindowState.Maximized:
+                        SdlFactory.MaximizeWindow(Handle);
+                        windowState = WindowState.Maximized;
+                        break;
 
-                        case WindowState.Minimized:
-                            SdlFactory.MinimizeWindow(Handle);
-                            windowState = WindowState.Minimized;
-                            break;
+                    case WindowState.Minimized:
+                        SdlFactory.MinimizeWindow(Handle);
+                        windowState = WindowState.Minimized;
+                        break;
 
-                        case WindowState.Normal:
-                            SdlFactory.RestoreWindow(Handle);
-                            break;
-                    }
-                    if (!CursorVisible)
-                        grabCursor(true);
-                    OnWindowStateChanged(Factory.EmptyArgs);
+                    case WindowState.Normal:
+                        SdlFactory.RestoreWindow(Handle);
+                        break;
                 }
+                if (!CursorVisible)
+                    grabCursor(true);
+                OnWindowStateChanged(Factory.EmptyArgs);
+
             }
             public override void ChangeBorder(WindowBorder value)
             {
                 if (WindowBorder == value || !Valid)
                     return;
-                lock (Sync)
+                switch (value)
                 {
-                    switch (value)
-                    {
-                        case WindowBorder.Resizable:
-                            SdlFactory.SetWindowBordered(Handle, true);
-                            windowBorder = WindowBorder.Resizable;
-                            break;
+                    case WindowBorder.Resizable:
+                        SdlFactory.SetWindowBordered(Handle, true);
+                        windowBorder = WindowBorder.Resizable;
+                        break;
 
-                        case WindowBorder.Hidden:
-                            SdlFactory.SetWindowBordered(Handle, false);
-                            windowBorder = WindowBorder.Hidden;
-                            break;
+                    case WindowBorder.Hidden:
+                        SdlFactory.SetWindowBordered(Handle, false);
+                        windowBorder = WindowBorder.Hidden;
+                        break;
 
-                        case WindowBorder.Fixed:
-                            break;
-                    }
+                    case WindowBorder.Fixed:
+                        break;
                 }
                 OnWindowBorderChanged(Factory.EmptyArgs);
             }
@@ -471,13 +449,8 @@ namespace MnM.GWS
                     return;
                 var _x = x ?? X;
                 var _y = y ?? Y;
-
-                lock (Sync)
-                {
-                   bounds = new Rectangle(_x, _y, bounds.Width, bounds.Height);
-                    SdlFactory.SetWindowPosition(Handle, X, Y);
-
-                }
+                bounds = new Rectangle(_x, _y, bounds.Width, bounds.Height);
+                SdlFactory.SetWindowPosition(Handle, X, Y);
             }
             #endregion
 
@@ -686,53 +659,53 @@ namespace MnM.GWS
             {
                 switch (e.Event)
                 {
-                    case WindowEventID.CLOSE:
+                    case WindowEventID.Close:
                         Close();
                         return null;
 
-                    case WindowEventID.ENTER:
+                    case WindowEventID.Enter:
                         return mouseUpArgs;
 
-                    case WindowEventID.LEAVE:
+                    case WindowEventID.Leave:
                         return mouseUpArgs;
 
-                    case WindowEventID.EXPOSED:
+                    case WindowEventID.Exposed:
                         return null;
 
-                    case WindowEventID.FOCUS_GAINED:
+                    case WindowEventID.FocusGained:
                         focused = true;
                         return Factory.EmptyArgs;
 
-                    case WindowEventID.FOCUS_LOST:
+                    case WindowEventID.FocusLost:
                         focused = false;
                         return CancelEventArgs.Empty;
 
-                    case WindowEventID.HIDDEN:
+                    case WindowEventID.Hidden:
                         return Factory.EmptyArgs;
 
-                    case WindowEventID.SHOWN:
+                    case WindowEventID.Shown:
                         return Factory.EmptyArgs;
 
-                    case WindowEventID.MOVED:
+                    case WindowEventID.Moved:
                         SdlFactory.GetWindowPosition(Handle, out int x, out int y);
                         bounds = new Rectangle(x, y, Bounds.Width, Bounds.Height);
                         return Factory.EmptyArgs;
 
-                    case WindowEventID.RESIZED:
+                    case WindowEventID.Resized:
                         var sizeArg = new SizeEventArgs(e.Data1, e.Data2);
                         bounds = new Rectangle(Bounds.X, Bounds.Y, e.Data1,e.Data2);
                         return sizeArg;
-                    case WindowEventID.MAXIMIZED:
+                    case WindowEventID.Maximized:
                         windowState = WindowState.Maximized;
                         //window.Graphics.SyncOnResize(window);
                         return Factory.EmptyArgs;
 
-                    case WindowEventID.MINIMIZED:
+                    case WindowEventID.MiniMized:
                         pWindowState = windowState;
                         windowState = WindowState.Minimized;
                         return Factory.EmptyArgs;
 
-                    case WindowEventID.RESTORED:
+                    case WindowEventID.Restored:
                         windowState = pWindowState;
                         return Factory.EmptyArgs;
                     default:

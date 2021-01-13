@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+   #if (GWS && Window)
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,6 @@ using System.Text;
 namespace MnM.GWS
 {
 
-   #if (GWS && Window)
  public abstract class _Sound : ISound
     {
         public bool Loop { get; set; }
@@ -23,5 +23,5 @@ namespace MnM.GWS
         public abstract void Dispose();
         public abstract void Quit();
     }
-#endif
 }
+#endif

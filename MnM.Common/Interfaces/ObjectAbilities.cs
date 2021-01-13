@@ -2,13 +2,11 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+using System;
+using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if (GWS || Window) 
-    using System;
-    using System.Collections.Generic;
-
     #region ILENGTH
     public interface ILength
     {
@@ -27,11 +25,118 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region IMIXABLE-BLOCK
-    public unsafe interface IMixableBlock : IBlockable
+    #region IRESIZEABLE
+    /// <summary>
+    /// Indicates if an object that can be resized.
+    /// </summary>
+    public interface IResizable
     {
-        int* Pixels(bool ForegroundBuffer = true);
-        byte* AlphaValues(bool ForegroundBuffer = true);
+        /// <summary>
+        /// Resizes an object.
+        /// </summary>
+        /// <param name="newWidth">the new width of the object.If null is passed or nothing is passed the object will keep the original width.</param>
+        /// <param name="newHeight">this new height of object. If null is passed or nothing is passed the object will keep the original height.</param>
+        void Resize(int? newWidth = null, int? newHeight = null);
+    }
+    #endregion
+
+    #region ICLONEABLE2
+    public interface ICloneable2 : ICloneable
+    {
+        object Clone(int width, int height);
+    }
+    public interface ICloneable<T> : ICloneable
+    {
+        new T Clone();
+    }
+    #endregion
+
+    #region IDISPOSABLE
+    public interface IDisposed : IDisposable
+    {
+        /// <summary>
+        /// Indicates whether this object is disposed or not.
+        /// </summary>
+        bool IsDisposed { get; }
+    }
+    #endregion
+
+    #region IROTATION
+    public interface IRotatable : IDrawParams
+    {
+        /// <summary>
+        /// Gets Rotaion object for rotate, skew and transform operations.
+        /// </summary>
+        Rotation Rotation { get; }
+    }
+    #endregion
+
+    #region ISHOWABLE
+    public interface IShowable
+    {
+        /// <summary>
+        /// Shows this object on screen.
+        /// </summary>
+        void Show();
+    }
+    #endregion
+
+#if (GWS || Window)
+
+    #region IRENDERABLE
+    /// <summary>
+    ///Marker interface -  Represents an object which has a unique ID and can be rendered on screen.
+    public interface IRenderable : IID
+    { }
+    #endregion
+
+    #region IFIGURABLE
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IFigurable: IRenderable
+    {
+        /// <summary>
+        /// Converts this object to shape.
+        /// Returns null if this object can not be converted to shape.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<VectorF> Perimeter();
+    }
+    #endregion
+
+    #region IDRAWABLE
+    public interface IDrawable: IRenderable
+    {
+        /// <summary>
+        /// Draws itself to the buffer by creating readable pen from the given context.
+        /// If the context itself is pen and if it needs to be changed then this is possible by
+        /// Calling GetPen method in renderer and then using it in renderer.
+        /// </summary>
+        /// <param name="buffer">Buffer to draw this object to.</param>
+        /// <param name="Settings">A valid Settings to control drawing.</param>
+        /// <returns>True if sucessfull otherwise false.</returns>
+        bool Draw(IWritable buffer, ISettings Settings);
+    }
+    #endregion
+
+    #region IDRAWABLE2
+    public interface IDrawable2 : 
+        IDrawable, IForeground, IBackground, IChild
+    { }
+    #endregion
+
+    #region ISETTINGS-RECEIVER
+    /// <summary>
+    /// Represents an object which supports offset rendering/ reading.
+    /// </summary>
+    public interface ISettingsReceiver : IDrawParams
+    {
+        /// <summary>
+        /// Copies setting from another settings object.
+        /// </summary>
+        /// <param name="settings">Settings object to copy data from. If null then all current settings will be flushed.</param>
+        void Receive(IDrawParams settings, bool flushMode = false);
     }
     #endregion
 
@@ -58,42 +163,19 @@ namespace MnM.GWS
         /// <param name="pixels">Resultant memory block.</param>
         /// <param name="srcIndex">Location in the resultant memory block from where reading shoud start.</param>
         /// <param name="length">Length up to which the block should be read.</param>
-        unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int* pixels, out int srcIndex, out int length);
+        /// <param name="srcAlphas">Resultant alpha values for respective pixels of memory block.
+        /// Unless this object is texture brush and Advanced version this will be null.</param>
+        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, out byte[] srcAlphas);
     }
     #endregion
 
-    #region IWRITEABLE
-    public interface IWritable : IBlockable, ICopyable, IClearable, IReceiver
-#if Advanced
-        , IElementFinder, IClippable
-#endif
+    #region IWRITABLE
+    public interface IWritable : IBlockable
     {
         /// <summary>
-        /// Gets curretly invalidated area of this object.
+        /// Indicates if nothing can be written on this object now.
         /// </summary>
-        Rectangle InvalidatedArea { get; }
-
-#if Advanced
-        /// <summary>
-        /// Gets readable Target associated with this object;
-        /// </summary>
-        IReadable Target { get; }
-#endif
-
-        /// <summary>
-        /// Renders any element on the given path. This renderer has a built-in support for the following kind of elements:
-        /// 1. ICustomDrawable
-        /// 2. IShape
-        /// 3. IFigurable
-        /// 4. ISelfDrawable - (Pro version).
-        /// 5. IAreaDrawable.
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
-        /// Once you have handled it return true otherwise false.
-        /// </summary>
-        /// <param name="Renderable">Renderable object which is to be rendered</param>
-        /// <param name="anyContext">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
-        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        void Render(IRenderable Renderable, IContext anyContext = null);
+        bool CanNotWrite { get; }
 
         /// <summary>
         /// Writes pixel to this block at given axial position using specified color.
@@ -103,13 +185,15 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, DrawCommand drawCommand);
+        /// <param name="Command">Command to control pixel writing.</param>
+        /// <param name="ShapeID">ID of shape which pixel is being written for.</param>
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, string ShapeID, INotifier boundary);
 
         /// <summary>
         /// Writes line to the this block at given position specified by x and y parameters by reading specified source
         /// starting from give source index upto the length specified.
         /// </summary>
-        /// <param name="pixels">Source memory block to copy data from.</param>
+        /// <param name="colors">Source memory block to copy data from.</param>
         /// <param name="srcIndex">Location in source memory block from which copy should begin.</param>
         /// <param name="srcW">Width of source memory block.</param>
         /// <param name="length">Length up to which source should be read for writing.</param>
@@ -117,168 +201,156 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the location where writing begins.</param>
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        unsafe void WriteLine(int* pixels, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, DrawCommand drawCommand);
+        /// <param name="Command">Command to control pixel line writing.</param>
+        /// <param name="ShapeID">ID of shape which pixel line is being written for.</param>
+        unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
+            int x, int y, float? Alpha, byte* imageAlphas, Command Command, string ShapeID, INotifier boundary);
+
+        void ClearIndices();
     }
     #endregion
 
-    #region IRENDERABLE
-    /// <summary>
-    ///Marker interface -  Represents an object which has a unique ID and can be rendered on screen.
-    public interface IRenderable : IID, IBoundsF
-    { }
+    #region INOTIFIER
+    public interface INotifier
+    {
+        /// <summary>
+        /// Incorporates given perimeter specified by x1, y1, x2, y2 parameters.
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        void Notify(int x1, int y1, int x2, int y2);
+    }
     #endregion
 
-    #region IFIGURABLE
+    #region IHIDABLE
+    public interface IHideable
+    {
+        /// <summary>
+        /// Hides this object from screen.
+        /// </summary>
+        void Hide();
+    }
+    #endregion
+
+    #region ICOPYABLE
     /// <summary>
-    /// 
+    /// Specifies copyable memory block with certain size and length.
     /// </summary>
-    public interface IFigurable: IRenderable
+    public interface ICopyable : IBlockable
     {
         /// <summary>
-        /// Converts this object to shape.
-        /// Returns null if this object can not be converted to shape.
+        /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
         /// </summary>
-        /// <returns></returns>
-        IEnumerable<VectorF> Figure();
+        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy</param>
+        /// <param name="destination">Specifies a pointer where the block should get copied</param>
+        /// <param name="dstLen">Specifies the current length of the destination pointer</param>
+        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line</param>
+        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence</param>
+        /// <param name="dstY">specifies the Y coordinate from where the paste operation should commence</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
+        /// <param name="alphaBytes">Alpha channel information(optional).</param>
+        /// <returns>Area covered by this operation.</returns>
+        unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY,
+            Command command, string ShapeID = null);
     }
     #endregion
 
-    #region ICUTOMDRAWABLE
-    public interface ICustomDrawable: IRenderable
+    #region IPASTABLE
+    public interface IPastable : IBlockable
     {
         /// <summary>
-        /// Draws itself to the buffer by creating readable pen from the given context.
-        /// If the context itself is pen and if it needs to be changed then this is possible by
-        /// Calling GetPen method in renderer and then using it in renderer.
+        /// Copies portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
+        /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
         /// </summary>
-        /// <param name="buffer">Buffer to draw this object to.</param>
-        /// <param name="Settings">A valid Settings to control drawing.</param>
-        /// <returns>True if sucessfull otherwise false.</returns>
-        bool Draw(IWritable buffer, IRenderInfo Settings);
+        /// <param name="source"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy</param>
+        /// <param name="Command">Draw command to to control copy task</param>
+        /// <param name="ShapeID">ID of shape which pixels are being received from.</param>
+        /// <param name="alphaBytes">Alpha channel information (optional).</param>
+        IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH,
+            Command Command, string ShapeID, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 
-    #region IDRAWABLE
+    #region ICLEARABLE
+    public interface IClearable
+    {
+        /// <summary>
+        /// Clears data blocks covered by area specified by x, y, width and height paramters.
+        /// </summary>
+        /// <param name="clearX">Left most corner of region which is to be cleared.</param>
+        /// <param name="clearY">Top most corner of region which is to be cleared.</param>
+        /// <param name="clearW">Width of region which is to be cleared.</param>
+        /// <param name="clearH">Height of region which is to be cleared.</param>
+        /// <param name="command">A command to control clearing operation.</param>
+        void Clear(int clearX, int clearY, int clearW, int clearH, Command command = 0);
+    }
+    #endregion
+
+    #region IREFRESHABLE
     /// <summary>
-    /// An object which can be drawable to a given pixel target such as surface with a given pixel source.
-    /// A smalll entities like point or entities which requires special drawing routine for example ISLine
-    /// Inherit this interface if your shape/element is special in terms of drawing routine.
+    /// Represents an object which can be redrawn on any parent window of which it is sort of part of. 
+    /// i.e belonging to the control collection of that window.
     /// </summary>
-    public interface IDrawable : ICustomDrawable, IFigurable
-    { }
-    #endregion
-
-    #region IDRAW
-    public interface IDrawable2: IRenderable
+    public interface IRefreshable
     {
         /// <summary>
-        /// Gets dedicated settings object associated with this control.
+        /// Redraws itself using the drawsettings used when it is first added to the collection of parent window.
         /// </summary>
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo 
-#endif
-            Settings
-        { get; }
-
-        /// <summary>
-        /// Draws itself to the buffer by creating readable pen from the given context.
-        /// If the context itself is pen and if it needs to be changed then this is possible by
-        /// Calling SetPen method in renderer and then using current pen in renderer through 
-        /// CurrentPen property.
-        /// </summary>
-        void Draw();
-
-        /// <summary>
-        /// Returs current pen appropriated according to the current state of object.
-        /// </summary>
-        /// <returns>IPen</returns>
-        /// <param name="Settings">Render settings to be used to get th pen. </param>
-        /// <returns>IReadable - Pen</returns>
-        IReadable GetPen(IRenderInfo Settings);
+        void Refresh();
     }
     #endregion
 
-    #region IAREADRAWABLE
-    public interface IAreaDrawable: ICustomDrawable
+    #region IUPDATABLE
+    /// <summary>
+    /// Represents an object which has a capability to update or invalidate the screen display. For example render window.
+    /// It also supports selective update of certain area invaldated currently.
+    /// </summary>
+    public interface IUpdatable : ISize
     {
-        Rectangle CopyArea { get; set; }
+        /// <summary>
+        /// Updates invalidated area on screen.
+        /// </summary>
+        /// <param name="command">Command to control this Update task.</param>
+        /// <param name="boundary">Area to update.</param>
+        void Update(Command command = 0, IRectangle boundary = null);
     }
     #endregion
 
-    #region IOBJECTDRAWARE
-    public interface IObjectAware
+    #region ITITLE DISPLAYER
+    public interface ITextDisplayer
     {
         /// <summary>
-        /// Tells this object that a control is being drawn now.
+        /// Gets or sets a value displayed in a title bar or area of this object.
         /// </summary>
-        IDrawable2 Control { get;
-#if Advanced
-            set;
-#endif
-        }
+        string Text { get; set; }
     }
     #endregion
 
     #region IBACKGROUND
+    public interface IBackgroundPen
+    {
+        int[] PenData { get; }
+    }
+
     public interface IBackground
     {
         /// <summary>
         /// Sets background for this object.
         /// </summary>
-        IPenContext Background { set; }
-
-        /// <summary>
-        /// Gets current background pen of this object.
-        /// </summary>
-        IReadable BackgroundPen { get; }
-    }
-    #endregion
-
-    #region IFOREGROUND
-    public interface IForeground
-    {
-        /// <summary>
-        /// Sets foreground for this object.
-        /// </summary>
-        IPenContext Foreground { set; }
-
-        /// <summary>
-        /// Gets current foreground pen of this object.
-        /// </summary>
-        IReadable ForegroundPen { get; }
-    }
-    #endregion
-
-    #region IHOVER-BACKGROUND
-    public interface IHoverBackground
-    {
-        /// <summary>
-        /// Sets background for this object.
-        /// </summary>
-        IPenContext HoverBackground { set; }
-
-        /// <summary>
-        /// Gets current background pen of this object.
-        /// </summary>
-        IReadable HoverBackgroundPen { get; }
-    }
-    #endregion
-
-    #region IHOVR-FOREGROUND
-    public interface IHoverForeground
-    {
-        /// <summary>
-        /// Sets hovering foreground for this object.
-        /// </summary>
-        IPenContext HoverForeground { set; }
-
-        /// <summary>
-        /// Gets current foreground pen of this object.
-        /// </summary>
-        IReadable HoverForegroundPen { get; }
+        IPenContext Background { get; set; }
     }
     #endregion
 
@@ -313,16 +385,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ISHOWABLE
-    public interface IShowable
-    {
-        /// <summary>
-        /// Shows this object on screen.
-        /// </summary>
-        void Show();
-    }
-    #endregion
-
     #region ISHOWABLE2
     public interface IShowable2
     {
@@ -330,45 +392,6 @@ namespace MnM.GWS
         /// Shows this object on screen.
         /// </summary>
         void Show(int x, int y);
-    }
-    #endregion
-
-    #region IHIDABLE
-    public interface IHideable
-    {
-        /// <summary>
-        /// Hides this object from screen.
-        /// </summary>
-        void Hide();
-    }
-    #endregion
-
-    #region IRESIZEABLE
-    /// <summary>
-    /// Indicates if an object that can be resized.
-    /// </summary>
-    public interface IResizable
-    {
-        /// <summary>
-        /// Resizes an object.
-        /// </summary>
-        /// <param name="width">the new width of the object.If null is passed or nothing is passed the object will keep the original width.</param>
-        /// <param name="height">this new height of object. If null is passed or nothing is passed the object will keep the original height.</param>
-        void Resize(int? width = null, int? height = null);
-    }
-    #endregion
-
-    #region IREFRESHABLE
-    /// <summary>
-    /// Represents an object which can be redrawn on any parent window of which it is sort of part of. 
-    /// i.e belonging to the control collection of that window.
-    /// </summary>
-    public interface IRefreshable
-    {
-        /// <summary>
-        /// Redraws itself using the drawsettings used when it is first added to the collection of parent window.
-        /// </summary>
-        void Refresh();
     }
     #endregion
 
@@ -425,104 +448,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets an area to restrict write operations.
         /// </summary>
-        Rectangle ClipRectangle { get; set; }
-    }
-    #endregion
-
-    #region ICLEARABLE
-    public interface IClearable
-    {
-        /// <summary>
-        /// Clears data blocks covered by area specified by x, y, width and height paramters.
-        /// </summary>
-        /// <param name="x">Left most corner of region which is to be cleared.</param>
-        /// <param name="y">Top most corner of region which is to be cleared.</param>
-        /// <param name="width">Width of region which is to be cleared.</param>
-        /// <param name="height">Height of region which is to be cleared.</param>
-        /// <param name="command">A command to control clearing operation.</param>
-        void Clear(int x, int y, int width, int height, DrawCommand command = 0);
-    }
-    #endregion
-
-    #region IUPDATABLE
-    /// <summary>
-    /// Represents an object which has a capability to update or invalidate the screen display. For example render window.
-    /// It also supports selective update of certain area invaldated currently.
-    /// </summary>
-    public interface IUpdatable : ISize
-    {
-        /// <summary> 
-        /// Invalidates data blocks covered by area specified by x, y, width and height parameters for later update.
-        /// </summary>
-        /// <param name="x">Left most corner of region which is to be updated.</param>
-        /// <param name="y">Top most corner of region which is to be updated.</param>
-        /// <param name="width">Width of region which is to be updated.</param>
-        /// <param name="height">Height of region which is to be updated.</param>
-        void Invalidate(int x, int y, int width, int height);
-
-        /// <summary>
-        /// Updates invalidated area on screen.
-        /// </summary>
-        void Update(DrawCommand command = DrawCommand.None);
-    }
-    #endregion
-
-    #region ICOPYABLE
-    /// <summary>
-    /// Specifies copyable memory block with certain size and length.
-    /// </summary>
-    public interface ICopyable : IBlockable
-    {
-        /// <summary>
-        /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
-        /// </summary>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="destination">Specifies a pointer where the block should get copied</param>
-        /// <param name="dstLen">Specifies the current length of the destination pointer</param>
-        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line</param>
-        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence</param>
-        /// <param name="dstY">specifies the Y coordinate from where the paste operation should commence</param>
-        /// <param name="command">Draw command to control the copy operation.</param>
-        /// <returns></returns>
-        unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY,
-            DrawCommand command = 0);
-
-        /// <summary>
-        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
-        /// </summary>
-        /// <param name="block">buffer which to render this memory block on</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="command">Draw command to control the copy operation.</param>
-        Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
-    }
-    #endregion
-
-    #region IRECEIVABLE
-    public interface IReceiver: IBlockable
-    {
-        /// <summary>
-        /// Copies portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
-        /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="command">Draw command to to control copy task</param>
-        void Receive(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = 0);
+        IRectangle ClipRectangle { get; set; }
     }
     #endregion
 
@@ -538,21 +464,6 @@ namespace MnM.GWS
         /// <param name="y">Y coordinate to search for</param>
         /// <returns></returns>
         IRenderable FindElement(int x, int y);
-    }
-    #endregion
-
-    #region IROTATABLE
-    /// <summary>
-    /// Represents an object which has an angle of rotation. It must have bounds.
-    /// </summary>
-    public interface IRotatable
-    {
-        /// <summary>
-        /// Angle of rotation by which it has to rotate.
-        /// Angle.Empty can be used to specify no rotation.
-        /// Angle with 0 or 360 degree value are considered an Empty Angle - offers no rotation.
-        /// </summary>
-        Rotation Rotation { get; }
     }
     #endregion
 
@@ -645,7 +556,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets an active object from the perspective of handling user inputs.
         /// </summary>
-        IEventPusher ActiveObject { get; }
+        IEventPusher ActiveObject { get; set; }
 
         /// <summary>
         /// Gets latest element which the mouse last hovered on.
@@ -669,23 +580,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IDISPOSABLE
-    public interface IDisposed
-    {
-        /// <summary>
-        /// Indicates whether this object is disposed or not.
-        /// </summary>
-        bool IsDisposed { get; }
-    }
-    #endregion
-
-    #region ICLONEABLE2
-    public interface ICloneable2 : ICloneable
-    {
-        object Clone(int width, int height);
-    }
-    #endregion
-
     #region IITEMIZED
     public interface IItemized
     {
@@ -705,6 +599,26 @@ namespace MnM.GWS
         /// <param name="index"></param>
         /// <returns>Item as given index in current page. Returns null if this object does not have children.</returns>
         new T GetItem(int index);
+    }
+    #endregion
+
+    #region IWIPEABLE
+    /// <summary>
+    /// Represents an object which can be drawn and then wiped off completely restoring the state of screen
+    /// exactly the same before it was drawn.
+    /// Use this interface only for object for which you know drawn area before hand.
+    /// </summary>
+    public interface IWipeable : IDrawable2, IShowable2, IHideable
+    {
+        /// <summary>
+        /// True if this popup is visible.
+        /// </summary>
+        bool Visible { get; }
+
+        /// <summary>
+        /// Gets the bounds of this object.
+        /// </summary>
+        Rectangle Bounds { get; }
     }
     #endregion
 #endif

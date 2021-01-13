@@ -15,15 +15,31 @@ namespace MnM.GWS
     { }
     #endregion
 
-#if (GWS || Window)
-    #region IPENCONTEXT
-    /// <summary>
-    /// This is a marker interface which represents an object which can be converted to a buffer pen.
-    /// </summary>
-    public interface IPenContext: IContext
+    #region INATIVE-FORM
+    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer
     { }
     #endregion
 
+    #region IRENDER TARGET
+    /// <summary>
+    /// Represents an object which has a capability to receive data from copyable source object.
+    /// </summary>
+    public partial interface IRenderTarget : IID, IClearable, IPastable, IPixels,
+        IResizable, ICopyable, IUpdatable, IBackground, IBackgroundPen, IDisposed
+    {
+        event EventHandler<IEventArgs> BackgroundChanged;
+    }
+    #endregion
+
+    #region INATIVE TARGET
+    public interface INativeTarget : IRenderTarget, IHandle, IDisposable,
+        IRecognizable, IShowable, IHideable, IRefreshable, IResizable, ITextDisplayer
+    {
+        INativeForm Form { set; }
+    }
+    #endregion
+
+#if (GWS || Window)
     #region IELEMENT
     /// <summary>
     /// Represents an object which has a place in GWS object eco system.
@@ -31,72 +47,135 @@ namespace MnM.GWS
     /// A minimum required interface to inherit in order to make your control work in the GWS.
     /// It must have an ID, a name Name and area to work upon.
     /// </summary>
-    public interface IElement : IID, IRenderable, IRecognizable, IBounds, IMinSizable
-#if Advanced
-        , IEventPusher
-#endif
+    public partial interface IElement : IID, IRenderable, IRecognizable, IPoint, ISize, IMinSizable
     {
         /// <summary>
         /// Gets bounds of this object.
         /// </summary>
-        new Rectangle Bounds { get; }
+        Rectangle Bounds { get; }
     }
     #endregion
 
-    #region IRENDERTARGET
+    #region IFORM
     /// <summary>
-    /// Represents an object which has a capability to receive data from copyable source object.
+    /// Represents an object which represents window.
     /// </summary>
-    public interface IRenderTarget : ISize, IUpdatable, IDisposed, ICopyable, IBlockable
-#if Advanced
-        , IReadable, IWritable
-#endif
-    {
-        void UpdateScreen(Rectangle rc);
-    }
-    #endregion
-
-    #region IEXTERNAL-WINDOW
-    public interface IExternalWindow : IRenderTarget, IEventPusher, IHandle
+    public partial interface IForm : INativeForm, IImage, IContainer, IUpdatable, IResizable, IClearable, IPastable, IDisposed,
+        IShowable, IHideable, IRecognizable, IBackground, IMinimalEvents,
+        IMinimalWindowEvents
     { }
     #endregion
 
+    #region IHOST
+    public partial interface IHost : IForm, IRefreshable, IFocusable, IRenderWindow
+    {
+        /// <summary> 
+        /// Gets area of this object.
+        /// </summary> 
+        Rectangle Bounds { get; }
+    }
+    #endregion
+
     #region IRENDER-WINDOW
-    public interface IRenderWindow : ISize, IDisposed, ICopyable, IHandle, IResizable, IUpdatable
-#if Advanced
-    , IMixableBlock
-#endif
+    /// <summary>
+    /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
+    /// </summary>
+    public partial interface IRenderWindow : IHandle, ICopyable, IDisposed
     {
         RendererFlags RendererFlags { get; }
     }
     #endregion
 
-    #region IFORM
-    public interface IForm : IRenderTarget, IResizable, IShowable, IHideable, 
-        IHandle, IEventPusher, IBackground, IWritable
-#if Advanced
-        , IContainer
-#endif
+    #region IEXTERNAL- WINDOW
+    /// <summary>
+    /// Represents an object which is a render target but belongs to external system such as Form.
+    /// </summary>
+    public interface IExternalWindow : IRenderTarget, IEventPusher, IHandle
     { }
-#endregion
+    #endregion
 
-    #region IHOST
-    public interface IHost : IRenderWindow, ISurface, IContainer, 
-        IShowable, IHideable, IUpdatable, IRecognizable, IEventPusher, 
-        IRefreshable,  IFocusable, IDisposable, IMinimalEvents
-#if Advanced
-       , IEvents 
-#endif
+    #region ICHILD
+    public interface IChild : IRenderable
     {
         /// <summary>
-        /// Gets or sets the text of this control.
+        /// Gets or sets Parent window this object belongs to.
         /// </summary>
-        string Text { get; set; }
+        IImage Window { get; set; }
+    }
+    #endregion
+
+    #region IPOPUP-ITEM
+    public interface IPopupItem : IVisible
+    {
+        string Text { get; }
+    }
+    #endregion
+
+    #region IPOPUP
+    public interface IPopup : IElement, IWipeable, ISize,
+        IDisposable, IBackground, IForeground, IHoverBackground,
+        IHoverForeground, IReadOnlyList<IPopupItem>
+    {
+        /// <summary>
+        /// Gets or sets a flag to determine if this popup shoud hide on any item selection.
+        /// </summary>
+        bool HideOnClick { get; set; }
 
         /// <summary>
-        /// Gets area of this object.
-        /// </summary> 
-        Rectangle Bounds { get; }
+        /// Find an item on a given mouse coordinates along with the index it is situated in this popup object.
+        /// </summary>
+        /// <param name="e">Mouse coordinte argmetns</param>
+        /// <param name="item">Item found if at all</param>
+        /// <param name="index">Inde xof an item found</param>
+        /// <returns></returns>
+        bool FindItem(IMouseEventArgs e, out IPopupItem item, out int index);
+
+        /// <summary>
+        /// Fires when a mouse hovers on an item.
+        /// </summary>
+        event EventHandler<IPopupItemEventArgs> Hover;
+
+        /// <summary>
+        /// Fires when a mouse is clicked on an item.
+        /// </summary>
+        event EventHandler<IPopupItemEventArgs> Click;
+    }
+    #endregion
+
+    #region IFOREGROUND
+    public interface IForeground
+    {
+        /// <summary>
+        /// Sets foreground for this object.
+        /// </summary>
+        IPenContext Foreground { get; set; }
+    }
+    #endregion
+
+    #region IHOVER-BACKGROUND
+    public interface IHoverBackground
+    {
+        /// <summary>
+        /// Sets background for this object.
+        /// </summary>
+        IPenContext HoverBackground { get; set; }
+    }
+    #endregion
+
+    #region IHOVR-FOREGROUND
+    public interface IHoverForeground
+    {
+        /// <summary>
+        /// Sets hovering foreground for this object.
+        /// </summary>
+        IPenContext HoverForeground { get; set; }
+    }
+    #endregion
+
+    #region IPOPUP-HOST
+    public interface IPopupHost
+    {
+        IPopup ContextMenu { get; set; }
     }
     #endregion
 #endif
@@ -106,10 +185,7 @@ namespace MnM.GWS
     /// <summary>
     /// Addional properties and methods of Windows that buffers do not have.
     /// </summary>
-    public interface IWindow : IHost, IWindowable, IWindowID, IWindowEvents, IEventProcessor
-#if Advanced
-        , IBuffers
-#endif
+    public partial interface IWindow : IHost, IWindowable, IWindowID, IWindowEvents, IEventProcessor, IBackground
     {
         /// <summary>
         /// Gets the flag this window is created with.

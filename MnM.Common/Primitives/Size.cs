@@ -11,7 +11,7 @@ namespace MnM.GWS
     /// Represents dimension in terms of width and height.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct Size 
+    public struct Size : ISize
     {
         /// <summary>
         /// Value of Width.
@@ -41,6 +41,9 @@ namespace MnM.GWS
         public Size(Rectangle rc) :
             this(rc.Width, rc.Height)
         { }
+
+        int ISize.Width => Width;
+        int ISize.Height => Height;
 
         /// <summary>
         /// Implicity converts given size object to SizeF instance.

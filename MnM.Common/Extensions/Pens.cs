@@ -2,207 +2,193 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-using System;
-using System.Collections.Generic;
 
 namespace MnM.GWS
 {
+
 #if (GWS || Window)
     public static partial class Pens
     {
-        internal static IPens Instance;
-
-        #region ATTACH
-        internal static void Attach(IFactory factory)
-        {
-            if (factory == null)
-                return;
-            Instance = factory.newPenStore();
-        }
-        #endregion
-
         #region RESET
         internal static void Reset()
         {
             Rgba.Reset();
             BrushStyle.Reset();
-            if (Instance == null)
-                return;
-            Empty = Instance.ToPen(Rgba.Empty);
-            ActiveBorder = Instance.ToPen(Rgba.ActiveBorder);
-            ActiveCaption = Instance.ToPen(Rgba.ActiveCaption);
-            ActiveCaptionText = Instance.ToPen(Rgba.ActiveCaptionText);
-            AppWorkspace = Instance.ToPen(Rgba.AppWorkspace);
-            Control = Instance.ToPen(Rgba.Control);
-            ControlDark = Instance.ToPen(Rgba.ControlDark);
-            ControlDarkDark = Instance.ToPen(Rgba.ControlDarkDark);
-            ControlLight = Instance.ToPen(Rgba.ControlLight);
-            ControlLightLight = Instance.ToPen(Rgba.ControlLightLight);
-            ControlText = Instance.ToPen(Rgba.ControlText);
-            Desktop = Instance.ToPen(Rgba.Desktop);
-            GrayText = Instance.ToPen(Rgba.GrayText);
-            Highlight = Instance.ToPen(Rgba.Highlight);
-            HighlightText = Instance.ToPen(Rgba.HighlightText);
-            HotTrack = Instance.ToPen(Rgba.HotTrack);
-            InactiveBorder = Instance.ToPen(Rgba.InactiveBorder);
-            InactiveCaption = Instance.ToPen(Rgba.InactiveCaption);
-            InactiveCaptionText = Instance.ToPen(Rgba.InactiveCaptionText);
-            Info = Instance.ToPen(Rgba.Info);
-            InfoText = Instance.ToPen(Rgba.InfoText);
-            Menu = Instance.ToPen(Rgba.Menu);
-            MenuText = Instance.ToPen(Rgba.MenuText);
-            ScrollBar = Instance.ToPen(Rgba.ScrollBar);
-            Window = Instance.ToPen(Rgba.Window);
-            WindowFrame = Instance.ToPen(Rgba.WindowFrame);
-            WindowText = Instance.ToPen(Rgba.WindowText);
-            Transparent = Instance.ToPen(Rgba.Transparent);
-            AliceBlue = Instance.ToPen(Rgba.AliceBlue);
-            AntiqueWhite = Instance.ToPen(Rgba.AntiqueWhite);
-            Aqua = Instance.ToPen(Rgba.Aqua);
-            Aquamarine = Instance.ToPen(Rgba.Aquamarine);
-            Azure = Instance.ToPen(Rgba.Azure);
-            Beige = Instance.ToPen(Rgba.Beige);
-            Bisque = Instance.ToPen(Rgba.Bisque);
-            Black = Instance.ToPen(Rgba.Black);
-            BlanchedAlmond = Instance.ToPen(Rgba.BlanchedAlmond);
-            Blue = Instance.ToPen(Rgba.Blue);
-            BlueViolet = Instance.ToPen(Rgba.BlueViolet);
-            Brown = Instance.ToPen(Rgba.Brown);
-            BurlyWood = Instance.ToPen(Rgba.BurlyWood);
-            CadetBlue = Instance.ToPen(Rgba.CadetBlue);
-            Chartreuse = Instance.ToPen(Rgba.Chartreuse);
-            Chocolate = Instance.ToPen(Rgba.Chocolate);
-            Coral = Instance.ToPen(Rgba.Coral);
-            CornflowerBlue = Instance.ToPen(Rgba.CornflowerBlue);
-            Cornsilk = Instance.ToPen(Rgba.Cornsilk);
-            Crimson = Instance.ToPen(Rgba.Crimson);
-            Cyan = Instance.ToPen(Rgba.Cyan);
-            DarkBlue = Instance.ToPen(Rgba.DarkBlue);
-            DarkCyan = Instance.ToPen(Rgba.DarkCyan);
-            DarkGoldenrod = Instance.ToPen(Rgba.DarkGoldenrod);
-            DarkGray = Instance.ToPen(Rgba.DarkGray);
-            DarkGreen = Instance.ToPen(Rgba.DarkGreen);
-            DarkKhaki = Instance.ToPen(Rgba.DarkKhaki);
-            DarkMagenta = Instance.ToPen(Rgba.DarkMagenta);
-            DarkOliveGreen = Instance.ToPen(Rgba.DarkOliveGreen);
-            DarkOrange = Instance.ToPen(Rgba.DarkOrange);
-            DarkOrchid = Instance.ToPen(Rgba.DarkOrchid);
-            DarkRed = Instance.ToPen(Rgba.DarkRed);
-            DarkSalmon = Instance.ToPen(Rgba.DarkSalmon);
-            DarkSeaGreen = Instance.ToPen(Rgba.DarkSeaGreen);
-            DarkSlateBlue = Instance.ToPen(Rgba.DarkSlateBlue);
-            DarkSlateGray = Instance.ToPen(Rgba.DarkSlateGray);
-            DarkTurquoise = Instance.ToPen(Rgba.DarkTurquoise);
-            DarkViolet = Instance.ToPen(Rgba.DarkViolet);
-            DeepPink = Instance.ToPen(Rgba.DeepPink);
-            DeepSkyBlue = Instance.ToPen(Rgba.DeepSkyBlue);
-            DimGray = Instance.ToPen(Rgba.DimGray);
-            DodgerBlue = Instance.ToPen(Rgba.DodgerBlue);
-            Firebrick = Instance.ToPen(Rgba.Firebrick);
-            FloralWhite = Instance.ToPen(Rgba.FloralWhite);
-            ForestGreen = Instance.ToPen(Rgba.ForestGreen);
-            Fuchsia = Instance.ToPen(Rgba.Fuchsia);
-            Gainsboro = Instance.ToPen(Rgba.Gainsboro);
-            GhostWhite = Instance.ToPen(Rgba.GhostWhite);
-            Gold = Instance.ToPen(Rgba.Gold);
-            Goldenrod = Instance.ToPen(Rgba.Goldenrod);
-            Gray = Instance.ToPen(Rgba.Gray);
-            Green = Instance.ToPen(Rgba.Green);
-            GreenYellow = Instance.ToPen(Rgba.GreenYellow);
-            Honeydew = Instance.ToPen(Rgba.Honeydew);
-            HotPink = Instance.ToPen(Rgba.HotPink);
-            IndianRed = Instance.ToPen(Rgba.IndianRed);
-            Indigo = Instance.ToPen(Rgba.Indigo);
-            Ivory = Instance.ToPen(Rgba.Ivory);
-            Khaki = Instance.ToPen(Rgba.Khaki);
-            Lavender = Instance.ToPen(Rgba.Lavender);
-            LavenderBlush = Instance.ToPen(Rgba.LavenderBlush);
-            LawnGreen = Instance.ToPen(Rgba.LawnGreen);
-            LemonChiffon = Instance.ToPen(Rgba.LemonChiffon);
-            LightBlue = Instance.ToPen(Rgba.LightBlue);
-            LightCoral = Instance.ToPen(Rgba.LightCoral);
-            LightCyan = Instance.ToPen(Rgba.LightCyan);
-            LightGoldenrodYellow = Instance.ToPen(Rgba.LightGoldenrodYellow);
-            LightGray = Instance.ToPen(Rgba.LightGray);
-            LightGreen = Instance.ToPen(Rgba.LightGreen);
-            LightPink = Instance.ToPen(Rgba.LightPink);
-            LightSalmon = Instance.ToPen(Rgba.LightSalmon);
-            LightSeaGreen = Instance.ToPen(Rgba.LightSeaGreen);
-            LightSkyBlue = Instance.ToPen(Rgba.LightSkyBlue);
-            LightSlateGray = Instance.ToPen(Rgba.LightSlateGray);
-            LightSteelBlue = Instance.ToPen(Rgba.LightSteelBlue);
-            LightYellow = Instance.ToPen(Rgba.LightYellow);
-            Lime = Instance.ToPen(Rgba.Lime);
-            LimeGreen = Instance.ToPen(Rgba.LimeGreen);
-            Linen = Instance.ToPen(Rgba.Linen);
-            Magenta = Instance.ToPen(Rgba.Magenta);
-            Maroon = Instance.ToPen(Rgba.Maroon);
-            MediumAquamarine = Instance.ToPen(Rgba.MediumAquamarine);
-            MediumBlue = Instance.ToPen(Rgba.MediumBlue);
-            MediumOrchid = Instance.ToPen(Rgba.MediumOrchid);
-            MediumPurple = Instance.ToPen(Rgba.MediumPurple);
-            MediumSeaGreen = Instance.ToPen(Rgba.MediumSeaGreen);
-            MediumSlateBlue = Instance.ToPen(Rgba.MediumSlateBlue);
-            MediumSpringGreen = Instance.ToPen(Rgba.MediumSpringGreen);
-            MediumTurquoise = Instance.ToPen(Rgba.MediumTurquoise);
-            MediumVioletRed = Instance.ToPen(Rgba.MediumVioletRed);
-            MidnightBlue = Instance.ToPen(Rgba.MidnightBlue);
-            MintCream = Instance.ToPen(Rgba.MintCream);
-            MistyRose = Instance.ToPen(Rgba.MistyRose);
-            Moccasin = Instance.ToPen(Rgba.Moccasin);
-            NavajoWhite = Instance.ToPen(Rgba.NavajoWhite);
-            Navy = Instance.ToPen(Rgba.Navy);
-            OldLace = Instance.ToPen(Rgba.OldLace);
-            Olive = Instance.ToPen(Rgba.Olive);
-            OliveDrab = Instance.ToPen(Rgba.OliveDrab);
-            Orange = Instance.ToPen(Rgba.Orange);
-            OrangeRed = Instance.ToPen(Rgba.OrangeRed);
-            Orchid = Instance.ToPen(Rgba.Orchid);
-            PaleGoldenrod = Instance.ToPen(Rgba.PaleGoldenrod);
-            PaleGreen = Instance.ToPen(Rgba.PaleGreen);
-            PaleTurquoise = Instance.ToPen(Rgba.PaleTurquoise);
-            PaleVioletRed = Instance.ToPen(Rgba.PaleVioletRed);
-            PapayaWhip = Instance.ToPen(Rgba.PapayaWhip);
-            PeachPuff = Instance.ToPen(Rgba.PeachPuff);
-            Peru = Instance.ToPen(Rgba.Peru);
-            Pink = Instance.ToPen(Rgba.Pink);
-            Plum = Instance.ToPen(Rgba.Plum);
-            PowderBlue = Instance.ToPen(Rgba.PowderBlue);
-            Purple = Instance.ToPen(Rgba.Purple);
-            Red = Instance.ToPen(Rgba.Red);
-            RosyBrown = Instance.ToPen(Rgba.RosyBrown);
-            RoyalBlue = Instance.ToPen(Rgba.RoyalBlue);
-            SaddleBrown = Instance.ToPen(Rgba.SaddleBrown);
-            Salmon = Instance.ToPen(Rgba.Salmon);
-            SandyBrown = Instance.ToPen(Rgba.SandyBrown);
-            SeaGreen = Instance.ToPen(Rgba.SeaGreen);
-            SeaShell = Instance.ToPen(Rgba.SeaShell);
-            Sienna = Instance.ToPen(Rgba.Sienna);
-            Silver = Instance.ToPen(Rgba.Silver);
-            SkyBlue = Instance.ToPen(Rgba.SkyBlue);
-            SlateBlue = Instance.ToPen(Rgba.SlateBlue);
-            SlateGray = Instance.ToPen(Rgba.SlateGray);
-            Snow = Instance.ToPen(Rgba.Snow);
-            SpringGreen = Instance.ToPen(Rgba.SpringGreen);
-            SteelBlue = Instance.ToPen(Rgba.SteelBlue);
-            Tan = Instance.ToPen(Rgba.Tan);
-            Teal = Instance.ToPen(Rgba.Teal);
-            Thistle = Instance.ToPen(Rgba.Thistle);
-            Tomato = Instance.ToPen(Rgba.Tomato);
-            Turquoise = Instance.ToPen(Rgba.Turquoise);
-            Violet = Instance.ToPen(Rgba.Violet);
-            Wheat = Instance.ToPen(Rgba.Wheat);
-            White = Instance.ToPen(Rgba.White);
-            WhiteSmoke = Instance.ToPen(Rgba.WhiteSmoke);
-            Yellow = Instance.ToPen(Rgba.Yellow);
-            YellowGreen = Instance.ToPen(Rgba.YellowGreen);
-            ButtonFace = Instance.ToPen(Rgba.ButtonFace);
-            ButtonHighlight = Instance.ToPen(Rgba.ButtonHighlight);
-            ButtonShadow = Instance.ToPen(Rgba.ButtonShadow);
-            GradientActiveCaption = Instance.ToPen(Rgba.GradientActiveCaption);
-            GradientInactiveCaption = Instance.ToPen(Rgba.GradientInactiveCaption);
-            MenuBar = Instance.ToPen(Rgba.MenuBar);
-            MenuHighlight = Instance.ToPen(Rgba.MenuHighlight);
+            Empty = Factory.ToPen(Rgba.Empty);
+            ActiveBorder = Factory.ToPen(Rgba.ActiveBorder);
+            ActiveCaption = Factory.ToPen(Rgba.ActiveCaption);
+            ActiveCaptionText = Factory.ToPen(Rgba.ActiveCaptionText);
+            AppWorkspace = Factory.ToPen(Rgba.AppWorkspace);
+            Control = Factory.ToPen(Rgba.Control);
+            ControlDark = Factory.ToPen(Rgba.ControlDark);
+            ControlDarkDark = Factory.ToPen(Rgba.ControlDarkDark);
+            ControlLight = Factory.ToPen(Rgba.ControlLight);
+            ControlLightLight = Factory.ToPen(Rgba.ControlLightLight);
+            ControlText = Factory.ToPen(Rgba.ControlText);
+            Desktop = Factory.ToPen(Rgba.Desktop);
+            GrayText = Factory.ToPen(Rgba.GrayText);
+            Highlight = Factory.ToPen(Rgba.Highlight);
+            HighlightText = Factory.ToPen(Rgba.HighlightText);
+            HotTrack = Factory.ToPen(Rgba.HotTrack);
+            InactiveBorder = Factory.ToPen(Rgba.InactiveBorder);
+            InactiveCaption = Factory.ToPen(Rgba.InactiveCaption);
+            InactiveCaptionText = Factory.ToPen(Rgba.InactiveCaptionText);
+            Info = Factory.ToPen(Rgba.Info);
+            InfoText = Factory.ToPen(Rgba.InfoText);
+            Menu = Factory.ToPen(Rgba.Menu);
+            MenuText = Factory.ToPen(Rgba.MenuText);
+            ScrollBar = Factory.ToPen(Rgba.ScrollBar);
+            Window = Factory.ToPen(Rgba.Window);
+            WindowFrame = Factory.ToPen(Rgba.WindowFrame);
+            WindowText = Factory.ToPen(Rgba.WindowText);
+            Transparent = Factory.ToPen(Rgba.Transparent);
+            AliceBlue = Factory.ToPen(Rgba.AliceBlue);
+            AntiqueWhite = Factory.ToPen(Rgba.AntiqueWhite);
+            Aqua = Factory.ToPen(Rgba.Aqua);
+            Aquamarine = Factory.ToPen(Rgba.Aquamarine);
+            Azure = Factory.ToPen(Rgba.Azure);
+            Beige = Factory.ToPen(Rgba.Beige);
+            Bisque = Factory.ToPen(Rgba.Bisque);
+            Black = Factory.ToPen(Rgba.Black);
+            BlanchedAlmond = Factory.ToPen(Rgba.BlanchedAlmond);
+            Blue = Factory.ToPen(Rgba.Blue);
+            BlueViolet = Factory.ToPen(Rgba.BlueViolet);
+            Brown = Factory.ToPen(Rgba.Brown);
+            BurlyWood = Factory.ToPen(Rgba.BurlyWood);
+            CadetBlue = Factory.ToPen(Rgba.CadetBlue);
+            Chartreuse = Factory.ToPen(Rgba.Chartreuse);
+            Chocolate = Factory.ToPen(Rgba.Chocolate);
+            Coral = Factory.ToPen(Rgba.Coral);
+            CornflowerBlue = Factory.ToPen(Rgba.CornflowerBlue);
+            Cornsilk = Factory.ToPen(Rgba.Cornsilk);
+            Crimson = Factory.ToPen(Rgba.Crimson);
+            Cyan = Factory.ToPen(Rgba.Cyan);
+            DarkBlue = Factory.ToPen(Rgba.DarkBlue);
+            DarkCyan = Factory.ToPen(Rgba.DarkCyan);
+            DarkGoldenrod = Factory.ToPen(Rgba.DarkGoldenrod);
+            DarkGray = Factory.ToPen(Rgba.DarkGray);
+            DarkGreen = Factory.ToPen(Rgba.DarkGreen);
+            DarkKhaki = Factory.ToPen(Rgba.DarkKhaki);
+            DarkMagenta = Factory.ToPen(Rgba.DarkMagenta);
+            DarkOliveGreen = Factory.ToPen(Rgba.DarkOliveGreen);
+            DarkOrange = Factory.ToPen(Rgba.DarkOrange);
+            DarkOrchid = Factory.ToPen(Rgba.DarkOrchid);
+            DarkRed = Factory.ToPen(Rgba.DarkRed);
+            DarkSalmon = Factory.ToPen(Rgba.DarkSalmon);
+            DarkSeaGreen = Factory.ToPen(Rgba.DarkSeaGreen);
+            DarkSlateBlue = Factory.ToPen(Rgba.DarkSlateBlue);
+            DarkSlateGray = Factory.ToPen(Rgba.DarkSlateGray);
+            DarkTurquoise = Factory.ToPen(Rgba.DarkTurquoise);
+            DarkViolet = Factory.ToPen(Rgba.DarkViolet);
+            DeepPink = Factory.ToPen(Rgba.DeepPink);
+            DeepSkyBlue = Factory.ToPen(Rgba.DeepSkyBlue);
+            DimGray = Factory.ToPen(Rgba.DimGray);
+            DodgerBlue = Factory.ToPen(Rgba.DodgerBlue);
+            Firebrick = Factory.ToPen(Rgba.Firebrick);
+            FloralWhite = Factory.ToPen(Rgba.FloralWhite);
+            ForestGreen = Factory.ToPen(Rgba.ForestGreen);
+            Fuchsia = Factory.ToPen(Rgba.Fuchsia);
+            Gainsboro = Factory.ToPen(Rgba.Gainsboro);
+            GhostWhite = Factory.ToPen(Rgba.GhostWhite);
+            Gold = Factory.ToPen(Rgba.Gold);
+            Goldenrod = Factory.ToPen(Rgba.Goldenrod);
+            Gray = Factory.ToPen(Rgba.Gray);
+            Green = Factory.ToPen(Rgba.Green);
+            GreenYellow = Factory.ToPen(Rgba.GreenYellow);
+            Honeydew = Factory.ToPen(Rgba.Honeydew);
+            HotPink = Factory.ToPen(Rgba.HotPink);
+            IndianRed = Factory.ToPen(Rgba.IndianRed);
+            Indigo = Factory.ToPen(Rgba.Indigo);
+            Ivory = Factory.ToPen(Rgba.Ivory);
+            Khaki = Factory.ToPen(Rgba.Khaki);
+            Lavender = Factory.ToPen(Rgba.Lavender);
+            LavenderBlush = Factory.ToPen(Rgba.LavenderBlush);
+            LawnGreen = Factory.ToPen(Rgba.LawnGreen);
+            LemonChiffon = Factory.ToPen(Rgba.LemonChiffon);
+            LightBlue = Factory.ToPen(Rgba.LightBlue);
+            LightCoral = Factory.ToPen(Rgba.LightCoral);
+            LightCyan = Factory.ToPen(Rgba.LightCyan);
+            LightGoldenrodYellow = Factory.ToPen(Rgba.LightGoldenrodYellow);
+            LightGray = Factory.ToPen(Rgba.LightGray);
+            LightGreen = Factory.ToPen(Rgba.LightGreen);
+            LightPink = Factory.ToPen(Rgba.LightPink);
+            LightSalmon = Factory.ToPen(Rgba.LightSalmon);
+            LightSeaGreen = Factory.ToPen(Rgba.LightSeaGreen);
+            LightSkyBlue = Factory.ToPen(Rgba.LightSkyBlue);
+            LightSlateGray = Factory.ToPen(Rgba.LightSlateGray);
+            LightSteelBlue = Factory.ToPen(Rgba.LightSteelBlue);
+            LightYellow = Factory.ToPen(Rgba.LightYellow);
+            Lime = Factory.ToPen(Rgba.Lime);
+            LimeGreen = Factory.ToPen(Rgba.LimeGreen);
+            Linen = Factory.ToPen(Rgba.Linen);
+            Magenta = Factory.ToPen(Rgba.Magenta);
+            Maroon = Factory.ToPen(Rgba.Maroon);
+            MediumAquamarine = Factory.ToPen(Rgba.MediumAquamarine);
+            MediumBlue = Factory.ToPen(Rgba.MediumBlue);
+            MediumOrchid = Factory.ToPen(Rgba.MediumOrchid);
+            MediumPurple = Factory.ToPen(Rgba.MediumPurple);
+            MediumSeaGreen = Factory.ToPen(Rgba.MediumSeaGreen);
+            MediumSlateBlue = Factory.ToPen(Rgba.MediumSlateBlue);
+            MediumSpringGreen = Factory.ToPen(Rgba.MediumSpringGreen);
+            MediumTurquoise = Factory.ToPen(Rgba.MediumTurquoise);
+            MediumVioletRed = Factory.ToPen(Rgba.MediumVioletRed);
+            MidnightBlue = Factory.ToPen(Rgba.MidnightBlue);
+            MintCream = Factory.ToPen(Rgba.MintCream);
+            MistyRose = Factory.ToPen(Rgba.MistyRose);
+            Moccasin = Factory.ToPen(Rgba.Moccasin);
+            NavajoWhite = Factory.ToPen(Rgba.NavajoWhite);
+            Navy = Factory.ToPen(Rgba.Navy);
+            OldLace = Factory.ToPen(Rgba.OldLace);
+            Olive = Factory.ToPen(Rgba.Olive);
+            OliveDrab = Factory.ToPen(Rgba.OliveDrab);
+            Orange = Factory.ToPen(Rgba.Orange);
+            OrangeRed = Factory.ToPen(Rgba.OrangeRed);
+            Orchid = Factory.ToPen(Rgba.Orchid);
+            PaleGoldenrod = Factory.ToPen(Rgba.PaleGoldenrod);
+            PaleGreen = Factory.ToPen(Rgba.PaleGreen);
+            PaleTurquoise = Factory.ToPen(Rgba.PaleTurquoise);
+            PaleVioletRed = Factory.ToPen(Rgba.PaleVioletRed);
+            PapayaWhip = Factory.ToPen(Rgba.PapayaWhip);
+            PeachPuff = Factory.ToPen(Rgba.PeachPuff);
+            Peru = Factory.ToPen(Rgba.Peru);
+            Pink = Factory.ToPen(Rgba.Pink);
+            Plum = Factory.ToPen(Rgba.Plum);
+            PowderBlue = Factory.ToPen(Rgba.PowderBlue);
+            Purple = Factory.ToPen(Rgba.Purple);
+            Red = Factory.ToPen(Rgba.Red);
+            RosyBrown = Factory.ToPen(Rgba.RosyBrown);
+            RoyalBlue = Factory.ToPen(Rgba.RoyalBlue);
+            SaddleBrown = Factory.ToPen(Rgba.SaddleBrown);
+            Salmon = Factory.ToPen(Rgba.Salmon);
+            SandyBrown = Factory.ToPen(Rgba.SandyBrown);
+            SeaGreen = Factory.ToPen(Rgba.SeaGreen);
+            SeaShell = Factory.ToPen(Rgba.SeaShell);
+            Sienna = Factory.ToPen(Rgba.Sienna);
+            Silver = Factory.ToPen(Rgba.Silver);
+            SkyBlue = Factory.ToPen(Rgba.SkyBlue);
+            SlateBlue = Factory.ToPen(Rgba.SlateBlue);
+            SlateGray = Factory.ToPen(Rgba.SlateGray);
+            Snow = Factory.ToPen(Rgba.Snow);
+            SpringGreen = Factory.ToPen(Rgba.SpringGreen);
+            SteelBlue = Factory.ToPen(Rgba.SteelBlue);
+            Tan = Factory.ToPen(Rgba.Tan);
+            Teal = Factory.ToPen(Rgba.Teal);
+            Thistle = Factory.ToPen(Rgba.Thistle);
+            Tomato = Factory.ToPen(Rgba.Tomato);
+            Turquoise = Factory.ToPen(Rgba.Turquoise);
+            Violet = Factory.ToPen(Rgba.Violet);
+            Wheat = Factory.ToPen(Rgba.Wheat);
+            White = Factory.ToPen(Rgba.White);
+            WhiteSmoke = Factory.ToPen(Rgba.WhiteSmoke);
+            Yellow = Factory.ToPen(Rgba.Yellow);
+            YellowGreen = Factory.ToPen(Rgba.YellowGreen);
+            ButtonFace = Factory.ToPen(Rgba.ButtonFace);
+            ButtonHighlight = Factory.ToPen(Rgba.ButtonHighlight);
+            ButtonShadow = Factory.ToPen(Rgba.ButtonShadow);
+            GradientActiveCaption = Factory.ToPen(Rgba.GradientActiveCaption);
+            GradientInactiveCaption = Factory.ToPen(Rgba.GradientInactiveCaption);
+            MenuBar = Factory.ToPen(Rgba.MenuBar);
+            MenuHighlight = Factory.ToPen(Rgba.MenuHighlight);
 
             DisabledPen = Silver;
             BackgroundPen = Black;
@@ -212,117 +198,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region TO PEN
-        public static IReadable ToPen(this IPenContext context, int? w = null, int? h = null)
-        {
-            return Instance.ToPen(context, w, h);
-        }
-        #endregion
-
-        #region COUNT
-        public static int CountOf<T>() where T : IReadable
-        {
-            return Instance.CountOf<T>();
-        }
-
-        public static int CountOf<T>(Predicate<T> condition) where T : IReadable
-        {
-            return Instance.CountOf(condition);
-        }
-        #endregion
-
-        #region CONTAINS
-        public static bool Contains(string key)
-        {
-            return Instance.Contains(key);
-        }
-        #endregion
-
-        #region REPLACE
-        public static void Replace(IReadable obj)
-        {
-            Instance.Replace(obj);
-        }
-        #endregion
-
-        #region ADD
-        public static U Add<U>(U obj) where U : IReadable
-        {
-            return Instance.Add(obj);
-        }
-        #endregion
-
-        #region REMOVE
-        public static bool Remove(IReadable obj)
-        {
-            return Instance.Remove(obj);
-        }
-
-        public static bool Remove(string id)
-        {
-            return Instance.Remove(id);
-        }
-        #endregion
-
-        #region GET
-        public static U Get<U>(string key) where U : IReadable
-        {
-            return Instance.Get<U>(key);
-        }
-
-        public static IReadable Get(string key)
-        {
-            return Instance.Get(key);
-        }
-
-        public static bool Get<U>(string key, out U obj) where U : IReadable
-        {
-            return Instance.Get(key, out obj);
-        }
-
-        public static bool Get(string key, out IReadable obj)
-        {
-            return Instance.Get(key, out obj);
-        }
-
-        public static U Get<U>(Predicate<U> condition) where U : IReadable
-        {
-            return Instance.Get(condition);
-        }
-
-        public static IReadable Get(Predicate<IReadable> condition)
-        {
-            return Instance.Get(condition);
-        }
-        #endregion
-
-        #region GET ALL
-        public static IEnumerable<U> GetAll<U>(Predicate<U> condition) where U : IReadable
-        {
-            return Instance.GetAll(condition);
-        }
-
-        public static IEnumerable<IReadable> GetAll(Predicate<IReadable> condition)
-        {
-            return Instance.GetAll(condition);
-        }
-
-        public static IEnumerable<IReadable> GetAll()
-        {
-            foreach (var item in Instance)
-                yield return item;
-        }
-        #endregion
-
-        public static void Dispose()
-        {
-            Instance?.Dispose();
-            Instance = null;
-        }
-    }
-
-    static partial class Pens
-    {
         #region PREDEFINED PENS
         public static IReadable Empty { get; private set; }
         public static IReadable ActiveBorder { get; private set; }

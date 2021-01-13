@@ -113,28 +113,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ISETTABLE
-    /// <summary>
-    /// Marker interface - represents any object which has settings.
-    /// </summary>
-    public interface ISettable
-    { }
-    #endregion
-
-    #region ISETTINGS
-    /// <summary>
-    /// Represents an object which supports offset rendering/ reading.
-    /// </summary>
-    public interface ISettings : ISettable
-    {
-        /// <summary>
-        /// Copies setting from another settings object.
-        /// </summary>
-        /// <param name="settings">Settings object to copy data from. If null then all current settings will be flushed.</param>
-        void CopySettings(ISettable settings, bool flushMode = false);
-    }
-    #endregion
-
     #region IRECOGNIZABLE
     /// <summary>
     /// Represents an object which can be recognized by name in GWS.
@@ -204,7 +182,9 @@ namespace MnM.GWS
         /// <summary>
         /// Gets elapsed time in miliseconds.
         /// </summary>
-        long ElapsedTime { get; set; }
+        uint ElapsedTime { get; }
+
+        Unit Unit { get; }
     }
     #endregion
 
@@ -232,7 +212,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which allowers regualar activitiy on a specific time interval.
     /// </summary>
-    public interface ITimer: IID, IDisposable 
+    public interface ITimerBase : IDisposable
     {
         /// <summary>
         /// Gets or sets interval by which the tick event gets fired.
@@ -240,9 +220,9 @@ namespace MnM.GWS
         int Interval { get; set; }
 
         /// <summary>
-        /// Specifies if timer is due to fire tick event.
+        /// 
         /// </summary>
-        bool Due { get; }
+        bool IsRunning { get; }
 
         /// <summary>
         /// Starts this timer.
@@ -253,21 +233,16 @@ namespace MnM.GWS
         /// Stops this timer.
         /// </summary>
         void Stop();
+    }
 
-        /// <summary>
-        /// Restaart this timer.
-        /// </summary>
-        void Restart();
+    /// <summary>
+    /// Represents an object which allowers regualar activitiy on a specific time interval.
+    /// </summary>
+    public interface ITimer : ITimerBase
+    {
+        Unit Unit { get; set; }
 
-        /// <summary>
-        /// Reset this timer. Sets its interval sum to zero.
-        /// </summary>
-        void Reset();
-
-        /// <summary>
-        /// Forces a tick event to fire.
-        /// </summary>
-        void FireEvent();
+        uint LastReading { get; }
 
         /// <summary>
         /// Tick event which gets invoked by the interval specified.

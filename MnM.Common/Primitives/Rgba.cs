@@ -84,9 +84,6 @@ namespace MnM.GWS
         public Rgba(Rgba c, byte newAlpha) :
             this(c.R, c.G, c.B, newAlpha)
         { }
-        public Rgba(IColor c) :
-            this(c.Color)
-        { }
         public Rgba(Rgba c, float newAlpha) :
             this(c.R, c.G, c.B, (byte)(newAlpha * 255))
         { }
@@ -388,7 +385,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONVERSION OPERATORS
-        public static explicit operator int(Rgba color) =>
+        public static implicit operator int(Rgba color) =>
             color.Color;
 
         public static implicit operator Rgba(int value) =>

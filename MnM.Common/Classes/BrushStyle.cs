@@ -102,18 +102,7 @@ namespace MnM.GWS
         /// <param name="colors">Colors represented by Rgba struct values</param>
         /// <param name="gradient">This determines which gradient style to use</param>
         /// <param name="stops">Colour stops to use while navigating a color spectrum offered by the style</param>
-        public BrushStyle(IColor[] colors, BrushType gradient, IList<int> stops, bool matchSize = true) :
-            this(colors.Select(c => c.Color).ToArray(), (int)gradient, stops, matchSize)
-        { }
-
-
-        /// <summary>
-        /// Creates a new fill style with specified gradient and values of colors to use.
-        /// </summary>
-        /// <param name="colors">Colors represented by Rgba struct values</param>
-        /// <param name="gradient">This determines which gradient style to use</param>
-        /// <param name="stops">Colour stops to use while navigating a color spectrum offered by the style</param>
-        public BrushStyle(Rgba[] colors, int gradient, IList<int> stops, bool matchSize = true) :
+        public BrushStyle(IColor[] colors, int gradient, IList<int> stops, bool matchSize = true) :
             this(colors.Select(c => c.Color).ToArray(), gradient, stops, matchSize)
         { }
 
@@ -127,38 +116,10 @@ namespace MnM.GWS
         { }
 
         /// <summary>
-        /// Creates a new fill style with specified gradient and values of colors to use.
-        /// </summary>
-        /// <param name="gradient">This determines which gradient style to use</param>
-        /// <param name="colors">Colors represented by Rgba struct values</param>
-        public BrushStyle(int gradient, params IColor[] colors) :
-            this(colors.Select(c => c.Color).ToArray(), gradient, null)
-        { }
-
-
-        /// <summary>
-        /// Creates a new fill style with specified gradient and values of colors to use.
-        /// </summary>
-        /// <param name="gradient">This determines which gradient style to use</param>
-        /// <param name="colors">Colors represented by Rgba struct values</param>
-        public BrushStyle(BrushType gradient, params IColor[] colors) :
-            this(colors.Select(c => c.Color).ToArray(), (int)gradient, null)
-        { }
-
-        /// <summary>
         /// Creates a new fill style with specified values of colors to use.
         /// </summary>
         /// <param name="colors">Colors represented by integer values</param>
         public BrushStyle(params int[] values) :
-            this(values, BrushType.Horizontal, null)
-        { }
-
-        /// <summary>
-        /// Creates a new fill style with specified Rgba values of colors to use.
-        /// </summary>
-        /// <param name="gradient">This determines which gradient style to use</param>
-        /// <param name="colors">Colors represented by integer values</param>
-        public BrushStyle(params IColor[] values) :
             this(values, BrushType.Horizontal, null)
         { }
         #endregion

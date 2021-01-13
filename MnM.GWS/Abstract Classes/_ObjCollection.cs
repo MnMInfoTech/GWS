@@ -2,22 +2,28 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+#if GWS || Window
 using System;
 using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-    public abstract partial class _ObjCollection: _ObjDictionary<IRenderable, string>, IObjCollection
+    public abstract partial class _ObjCollection : _ObjDictionary<IRenderable, string>, IObjCollection
     {
         #region VARIABLES
-        protected readonly IWritable Parent;
+        protected readonly IImage Window;
+        protected readonly IElementFinder Finder;
+        protected readonly bool HasElementFinder;
         protected bool isDisposed;
         #endregion
 
         #region CONSTRUCTORS
-        public _ObjCollection(IWritable buffer)
+        public _ObjCollection(IImage buffer)
         {
-            Parent = buffer;
+            Window = buffer;
+            HasElementFinder = buffer is IElementFinder;
+            if (HasElementFinder)
+                Finder = (IElementFinder)buffer;
             ID = "ObjectCollection".NewID();
         }
         #endregion
@@ -26,30 +32,17 @@ namespace MnM.GWS
         protected override bool IsDisposed =>
             isDisposed;
 
-        public
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-        this[IRenderable shape] => GetInfo(shape?.ID);
+        public ISettings this[IRenderable shape] => GetInfo(shape);
         public string ID { get; protected set; }
         public bool AddMode { get; protected set; }
         public abstract int Count { get; }
         public IEnumerable<IRenderable> Items => objects;
-        public abstract
-#if Advanced
-            IEnumerable<IRenderInfo2>
-#else
-            IEnumerable<IRenderInfo>
-#endif
-            InfoItems
-        { get; }
+        public abstract IEnumerable<ISettings> InfoItems { get; }
         #endregion
 
         #region IS DRAW POSSIBLE
         protected bool IsDrawPossible(IRenderable shape) =>
-           Parent != null;
+           Window != null;
         #endregion
 
         #region IS ADDABLE
@@ -58,58 +51,16 @@ namespace MnM.GWS
         #endregion
 
         #region ADD SHAPE
-        public T Add<T>(T Shape, IContext context)
-            where T : IRenderable
-        {
-            if (!IsAddable(Shape))
-                return Shape;
-
-            AddMode = !Contains(Shape);
-            if (AddMode)
-            {
-                var info = NewDrawInfo(Shape);
-                AddInternal(Shape, info);
-            }
-
-            Parent.Render(Shape, context);
-            AddMode = false;
-            return Shape;
-        }
+        public abstract T Add<T>(T Shape, ISettings settings, bool? suspendUpdate = null) where T : IRenderable;
         public sealed override T Add<T>(T Shape) =>
-            Add<T>(Shape, null);
-
-#if Advanced
-        protected abstract void AddInternal(IRenderable Shape, IRenderInfo2 info);
-#else
-        protected abstract void AddInternal(IRenderable Shape, IRenderInfo info);
-#endif
-        public void AddRange<T>(IEnumerable<T> controls) where T: IRenderable
+            Add<T>(Shape, null, true);
+        public void AddRange<T>(IEnumerable<T> controls) where T : IRenderable
         {
             foreach (var item in controls)
             {
                 Add(item);
             }
         }
-        #endregion
-
-        #region REMOVE
-        public sealed override bool Remove(string shapeID)
-        {
-            if (!Contains(shapeID))
-                return false;
-            var info = GetInfo(shapeID);
-            if (!RemoveInternal(info))
-                return false;
-            return true;
-        }
-        protected abstract bool RemoveInternal
-            (
-#if Advanced
-            IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            info);
         #endregion
 
         #region REMOVE ALL
@@ -119,100 +70,35 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region NEW DRAWINFO
-        protected abstract
-
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-        newDrawInfo(IRenderable shape);
-        public abstract
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            GetInfo(string Shape);
-
-        public
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            NewDrawInfo(IRenderable Shape)
-        {
-            if (Contains(Shape.ID))
-                return GetInfo(Shape.ID);
-            if (Shape.ID == null)
-                return null;
-            var info = newDrawInfo(Shape);
-            return info;
-        }
-        public
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-        NewDrawInfo(string shapeID)
-        {
-            if (Contains(shapeID + ""))
-                return GetInfo(shapeID);
-
-            if (shapeID == null)
-                return null;
-            var shape = Get(shapeID);
-            var info = newDrawInfo(shape);
-            return info;
-        }
+        #region GET INFO
+        public abstract ISettings GetInfo(IRenderable Shape);
         #endregion
 
         #region REFRESH
         public virtual void Refresh(IRenderable shape)
         {
-            if (Parent == null || !Contains(shape))
+            if (Window == null || !Contains(shape))
                 return;
+            var info = GetInfo(shape);
 
-            Parent.Render(shape);
+            Window.Render(shape, info);
 
-            var info = GetInfo(shape.ID);
             SetCurrentPage(info, true);
 
             foreach (var item in Items)
             {
-                var i = GetInfo(item.ID);
+                var i = GetInfo(item);
                 if (i == null)
                     continue;
                 if (IsDrawable(i, info))
-                    Parent.Render(item);
+                    Window.Render(item, info);
             }
         }
         #endregion
 
         #region SET CURRENT PAGE
-        protected abstract void SetCurrentPage(
-#if Advanced
-            IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            info, bool silent);
-        protected abstract bool IsDrawable(
-#if Advanced
-            IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            item,
-#if Advanced
-            IRenderInfo2
-#else
-        IRenderInfo
-#endif
-            compareWith);
+        protected abstract void SetCurrentPage(ISettings info, bool silent);
+        protected abstract bool IsDrawable(ISettings item, ISettings compareWith);
         #endregion
 
         #region CLEAR 
@@ -220,35 +106,11 @@ namespace MnM.GWS
         #endregion
 
         #region QUERY
-        public abstract IEnumerable<T> Query<T>(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition) where T : IRenderable;
-        public abstract IList<IDrawnInfo> QueryDraw(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition);
-
-        public abstract T QueryFirst<T>(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition) where T : IRenderable;
-        public abstract IDrawnInfo QueryFirstDraw(Predicate<
-#if Advanced
-            IRenderInfo2
-#else
-            IRenderInfo
-#endif
-            > condition);
+        public abstract IEnumerable<IRenderable> Query(Predicate<ISettings> condition = null);
+        public abstract IEnumerable<IShape> QueryDraw(Predicate<ISettings> condition = null);
+        public abstract IRenderable QueryFirst(Predicate<ISettings> condition = null);
+        public abstract IShape QueryFirstDraw(Predicate<ISettings> condition = null);
         #endregion
     }
 }
+#endif

@@ -3,17 +3,18 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
+#if GWS || Window
 using System.Collections.Generic;
 
 namespace MnM.GWS
 {
     public abstract class _Font : IFont
     {
-        #region Variables
+#region Variables
         protected string id;
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         public string ID
         {
             get
@@ -28,19 +29,20 @@ namespace MnM.GWS
         public abstract IFontInfo Info { get; }
         public abstract int Size { get; set; }
         public abstract bool Kerning { get; }
-        #endregion
+#endregion
 
-        #region GET KERNING
+#region GET KERNING
         public abstract int GetKerning(char previous, char now);
-        #endregion
+#endregion
 
-        #region GET GLYPH
+#region GET GLYPH
         public abstract IGlyph GetGlyph(char character);
-        #endregion
+#endregion
 
-        #region MEASURE GLYPHS
+#region MEASURE GLYPHS
         public abstract void MeasureGlyphs(IList<IGlyph> Glyphs, float destX, float destY,
             out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, ITextStyle drawStyle = null);
-        #endregion
+#endregion
     }
 }
+#endif

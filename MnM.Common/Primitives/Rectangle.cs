@@ -7,14 +7,13 @@ using System.Runtime.InteropServices;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     /// <summary>
     /// Represents a trapezium(as defined in the British English) which has parallel sides equal in length.
     /// Sides are represented in points consist of integer X & Y values.
     /// Also Oppsite sides have an agle of 90 degree between them.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct Rectangle : IEquatable<Rectangle>
+    public struct Rectangle : IRectangle, IEquatable<Rectangle>
     {
         #region VARIABLES
         public int X, Y, Width, Height;
@@ -58,7 +57,7 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to copy bounds from.</param>
-        public Rectangle(Rectangle area) :
+        public Rectangle(IRectangle area) :
             this(area.X, area.Y, area.Width, area.Height)
         { }
 
@@ -66,7 +65,7 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to copy bounds from.</param>
-        public Rectangle(RectangleF area) :
+        public Rectangle(IRectangleF area) :
                 this(area.X, area.Y, area.Width, area.Height)
         { }
 
@@ -75,7 +74,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="xy">Location of the box.</param>
         /// <param name="wh">Size of the box.</param>
-        public Rectangle(VectorF xy, SizeF wh) :
+        public Rectangle(IPointF xy, ISizeF wh) :
             this(xy.X, xy.Y, wh.Width, wh.Height)
         { }
 
@@ -84,7 +83,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="xy">Location of the box.</param>
         /// <param name="wh">Size of the box.</param>
-        public Rectangle(Vector xy, Size wh) :
+        public Rectangle(IPoint xy, ISize wh) :
             this(xy.X, xy.Y, wh.Width, wh.Height)
         { }
 
@@ -158,6 +157,11 @@ namespace MnM.GWS
         /// Y co-ordinate of center of this object.
         /// </summary>
         public int Cy => Y + Height / 2;
+        int IPoint.X => X;
+        int IPoint.Y => Y;
+        int ISize.Width => Width;
+        int ISize.Height => Height;
+        bool IRectangle.Valid => Width != 0 && Height != 0;
         #endregion
 
         #region EQUALITY
@@ -183,6 +187,30 @@ namespace MnM.GWS
         }
         #endregion
 
+#if GWS || Window
+        #region DRAW
+        public void Draw(IWritable buffer, Command command = 0)
+        {
+            PixelAction action;
+            IReadable pen = null;
+            if (buffer is IBackground)
+                pen = ((IBackground)buffer).Background as IReadable;
+            if (pen == null)
+                pen = Pens.Black;
+            var invert = pen.Invert;
+            pen.Invert = true;
+            command |= Command.DirectScreen;
+            var boundary = Factory.newBoundary();
+            buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
+            Renderer.ProcessLine(X, Y, X, Y + Height, action, command);
+            Renderer.ProcessLine(X, Y + Height, X + Width, Y + Height, action, command);
+            Renderer.ProcessLine(X + Width, Y + Height, X + Width, Y, action, command);
+            Renderer.ProcessLine(X + Width, Y, X, Y, action, command);
+            pen.Invert = invert;
+        }
+        #endregion
+#endif
+
         #region OPERATORS
         public static implicit operator bool(Rectangle r) =>
             r.valid != 0;
@@ -194,8 +222,11 @@ namespace MnM.GWS
         {
             return !a.Equals(b);
         }
+
+#if GWS || Window
         public static explicit operator RectangleF(Rectangle r) =>
             new RectangleF(r.X, r.Y, r.Width, r.Height);
+#endif
         #endregion
 
         public override string ToString()
@@ -203,5 +234,4 @@ namespace MnM.GWS
             return string.Format(description, X, Y, Width, Height);
         }
     }
-#endif
 }

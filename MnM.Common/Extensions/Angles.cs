@@ -1028,10 +1028,10 @@ namespace MnM.GWS
             EffectiveCenter(angle, proposedCenter.X, proposedCenter.Y, out Cx, out Cy);
         public static bool EffectiveCenter(this Rotation angle, Vector proposedCenter, out int Cx, out int Cy) =>
             EffectiveCenter(angle, proposedCenter.X, proposedCenter.Y, out Cx, out Cy);
-        public static bool EffectiveCenter(this Rotation angle, RectangleF proposedBounds, out float Cx, out float Cy) =>
-            EffectiveCenter(angle, proposedBounds.Cx, proposedBounds.Cy, out Cx, out Cy);
-        public static bool EffectiveCenter(this Rotation angle, Rectangle proposedBounds, out int Cx, out int Cy) =>
-            EffectiveCenter(angle, proposedBounds.Cx, proposedBounds.Cy, out Cx, out Cy);
+        public static bool EffectiveCenter(this Rotation angle, IRectangleF proposedBounds, out float Cx, out float Cy) =>
+            EffectiveCenter(angle, proposedBounds.X + proposedBounds.Width / 2, proposedBounds.Y + proposedBounds.Height / 2, out Cx, out Cy);
+        public static bool EffectiveCenter(this Rotation angle, IRectangle proposedBounds, out int Cx, out int Cy) =>
+            EffectiveCenter(angle, proposedBounds.X + proposedBounds.Width / 2, proposedBounds.Y + proposedBounds.Height / 2, out Cx, out Cy);
         #endregion
     }
 #endif

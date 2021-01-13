@@ -5,7 +5,6 @@
 
 namespace MnM.GWS
 {
-#if GWS || Window
     using System;
     using System.Runtime.CompilerServices;
 
@@ -24,8 +23,11 @@ namespace MnM.GWS
         public const uint ONEALPHA = 0x01000000;
 
         public const int Transparent = 16777215;
-        public const uint White = 4294967295;
+        public const int White = -1;
         public const int Gray = -8355712;
+        public const int Black = -16777216;
+        public const uint UWhite = unchecked((uint)White);
+        public const int Inversion = 0xffffff;
 
         public readonly static float[] Alphas = new float[]
         {
@@ -287,6 +289,7 @@ namespace MnM.GWS
             1f
         };
         #endregion
+#if GWS || Window
 
         #region CONSTRUCTORS
         static Colors()
@@ -636,13 +639,13 @@ namespace MnM.GWS
             if (alpha == 255)
                 return color2;
 
-            uint c1 = (uint)color1;
-            uint c2 = (uint)color2;
+            uint C1 = (uint)color1;
+            uint C2 = (uint)color2;
             uint invAlpha = 255 - alpha;
-            uint rb = ((invAlpha * (c1 & RBMASK)) + (alpha * (c2 & RBMASK))) >> 8;
-            uint ag = (invAlpha * ((c1 & AGMASK) >> 8)) + (alpha * (ONEALPHA | ((c2 & GMASK) >> 8)));
+            uint RB = ((invAlpha * (C1 & RBMASK)) + (alpha * (C2 & RBMASK))) >> 8;
+            uint AG = (invAlpha * ((C1 & AGMASK) >> 8)) + (alpha * (ONEALPHA | ((C2 & GMASK) >> 8)));
 
-            return (int)((rb & RBMASK) | (ag & AGMASK));
+            return (int)((RB & RBMASK) | (AG & AGMASK));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1171,6 +1174,6 @@ namespace MnM.GWS
             return new Rgba(rx, gx, bx);
         }
         #endregion
-    }
 #endif
+    }
 }

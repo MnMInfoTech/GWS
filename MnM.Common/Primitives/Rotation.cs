@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 
 namespace MnM.GWS
 {
-#if(GWS || Window)
     /// <summary>
     /// Represents rotation object which contains requisite information to rotate an object.
     /// </summary>
@@ -157,7 +156,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Angle object to be copied.</param>
         /// <param name="center">Center of this angle to be.
-        public Rotation(Rotation angle, VectorF center, bool? hasCenter = null, SkewType? skewType = null) :
+        public Rotation(Rotation angle, IPointF center, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, center.X.Round(), center.Y.Round(), hasCenter, skewType)
         { }
 
@@ -166,7 +165,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="center">Center of this angle to be.
-        public Rotation(float angle, VectorF center, bool? hasCenter = null, SkewType? skewType = null) :
+        public Rotation(float angle, IPointF center, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, center.X.Round(), center.Y.Round(), hasCenter, skewType)
         { }
 
@@ -175,7 +174,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="center">Center of this angle to be.
-        public Rotation(float angle, Vector center, bool? hasCenter = null, SkewType? skewType = null) :
+        public Rotation(float angle, IPoint center, bool? hasCenter = null, SkewType? skewType = null) :
             this(angle, center.X, center.Y, hasCenter, skewType)
         { }
 
@@ -184,8 +183,8 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="area">Rectangle of which center will be used as the center of this angle.</param>
-        public Rotation(float angle, RectangleF area, bool? hasCenter = null, SkewType? skewType = null) :
-            this(angle, area.Center().Round(), hasCenter, skewType)
+        public Rotation(float angle, IRectangleF area, bool? hasCenter = null, SkewType? skewType = null) :
+            this(angle, (area.X + area.Width / 2f).Round(), (area.Y + area.Height / 2f).Round(), hasCenter, skewType)
         { }
 
         /// <summary>
@@ -193,8 +192,8 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="angle">Value of angle in degree.</param>
         /// <param name="area"></param>
-        public Rotation(float angle, Rectangle area, bool? hasCenter = null, SkewType? skewType = null) :
-            this(angle, area.Center(), hasCenter, skewType)
+        public Rotation(float angle, IRectangle area, bool? hasCenter = null, SkewType? skewType = null) :
+            this(angle, (area.X + area.Width / 2f).Round(), (area.Y + area.Height / 2f).Round(), hasCenter, skewType)
         { }
         #endregion
 
@@ -242,5 +241,4 @@ namespace MnM.GWS
             return string.Format(tostr, Degree, Cx, Cy);
         }
     }
-#endif
 }

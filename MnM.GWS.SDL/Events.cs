@@ -1657,117 +1657,117 @@ namespace MnM.GWS
                 switch (Type)
                 {
                     case EventType.FIRSTEVENT:
-                        return GwsEvent.FIRSTEVENT;
+                        return GwsEvent.First;
                     case EventType.QUIT:
-                        return GwsEvent.QUIT;
+                        return GwsEvent.Quit;
                     case EventType.WINDOWEVENT:
                         switch (Window.Event)
                         {
-                            case WindowEventID.SHOWN:
-                                return GwsEvent.SHOWN;
-                            case WindowEventID.HIDDEN:
-                                return GwsEvent.HIDDEN;
-                            case WindowEventID.EXPOSED:
-                                return GwsEvent.HIDDEN;
-                            case WindowEventID.MOVED:
-                                return GwsEvent.MOVED;
-                            case WindowEventID.RESIZED:
-                                return GwsEvent.RESIZED;
-                            case WindowEventID.SIZE_CHANGED:
-                                return GwsEvent.SIZE_CHANGED;
-                            case WindowEventID.MINIMIZED:
-                                return GwsEvent.MINIMIZED;
-                            case WindowEventID.MAXIMIZED:
-                                return GwsEvent.MAXIMIZED;
-                            case WindowEventID.RESTORED:
-                                return GwsEvent.RESTORED;
-                            case WindowEventID.ENTER:
-                                return GwsEvent.ENTER;
-                            case WindowEventID.LEAVE:
-                                return GwsEvent.LEAVE;
-                            case WindowEventID.FOCUS_GAINED:
-                                return GwsEvent.FOCUS_GAINED;
-                            case WindowEventID.FOCUS_LOST:
-                                return GwsEvent.FOCUS_LOST;
-                            case WindowEventID.CLOSE:
-                                return GwsEvent.CLOSE;
+                            case WindowEventID.Shown:
+                                return GwsEvent.Shown;
+                            case WindowEventID.Hidden:
+                                return GwsEvent.Hidden;
+                            case WindowEventID.Exposed:
+                                return GwsEvent.Hidden;
+                            case WindowEventID.Moved:
+                                return GwsEvent.Moved;
+                            case WindowEventID.Resized:
+                                return GwsEvent.Resized;
+                            case WindowEventID.SizeChanged:
+                                return GwsEvent.SizeChanged;
+                            case WindowEventID.MiniMized:
+                                return GwsEvent.Minimized;
+                            case WindowEventID.Maximized:
+                                return GwsEvent.Maximized;
+                            case WindowEventID.Restored:
+                                return GwsEvent.Restored;
+                            case WindowEventID.Enter:
+                                return GwsEvent.Enter;
+                            case WindowEventID.Leave:
+                                return GwsEvent.Leave;
+                            case WindowEventID.FocusGained:
+                                return GwsEvent.FocusGained;
+                            case WindowEventID.FocusLost:
+                                return GwsEvent.FocusLost;
+                            case WindowEventID.Close:
+                                return GwsEvent.Close;
                             default:
                                 break;
                         }
-                        return GwsEvent.WINDOWEVENT;
+                        return GwsEvent.WindowEvent;
                     case EventType.SYSWMEVENT:
-                        return GwsEvent.SYSWMEVENT;
+                        return GwsEvent.SysWmEvent;
                     case EventType.KEYDOWN:
-                        return GwsEvent.KEYDOWN;
+                        return GwsEvent.KeyDown;
                     case EventType.KEYUP:
-                        return GwsEvent.KEYUP;
+                        return GwsEvent.KeyUp;
                     case EventType.TEXTEDITING:
                     case EventType.TEXTINPUT:
-                        return GwsEvent.TEXTINPUT;
+                        return GwsEvent.TextInput;
                     case EventType.MOUSEMOTION:
-                        return GwsEvent.MOUSEMOTION;
+                        return GwsEvent.MouseMotion;
                     case EventType.MOUSEBUTTONDOWN:
-                        return GwsEvent.MOUSEBUTTONDOWN;
+                        return GwsEvent.MouseDown;
                     case EventType.MOUSEBUTTONUP:
-                        return GwsEvent.MOUSEBUTTONUP;
+                        return GwsEvent.MouseUp;
                     case EventType.MOUSEWHEEL:
-                        return GwsEvent.MOUSEWHEEL;
+                        return GwsEvent.MouseWheel;
                     case EventType.JOYAXISMOTION:
-                        return GwsEvent.JOYAXISMOTION;
+                        return GwsEvent.JoyAxisMotion;
                     case EventType.JOYBALLMOTION:
-                        return GwsEvent.JOYBALLMOTION;
+                        return GwsEvent.JoyBallMotion;
                     case EventType.JOYHATMOTION:
-                        return GwsEvent.JOYHATMOTION;
+                        return GwsEvent.JoyHatMotion;
                     case EventType.JOYBUTTONDOWN:
-                        return GwsEvent.JOYBUTTONDOWN;
+                        return GwsEvent.JoyButtonDown;
                     case EventType.JOYBUTTONUP:
-                        return GwsEvent.JOYBUTTONUP;
+                        return GwsEvent.JoyButtonUp;
                     case EventType.JOYDEVICEADDED:
-                        return GwsEvent.JOYDEVICEADDED;
+                        return GwsEvent.JoystickAdded;
                     case EventType.JOYDEVICEREMOVED:
-                        return GwsEvent.JOYDEVICEREMOVED;
+                        return GwsEvent.JoystickRemoved;
                     case EventType.CONTROLLERAXISMOTION:
-                        return GwsEvent.CONTROLLERAXISMOTION;
+                        return GwsEvent.ControllerAxisMotion;
                     case EventType.CONTROLLERBUTTONDOWN:
-                        return GwsEvent.CONTROLLERBUTTONDOWN;
+                        return GwsEvent.ControllerButtonDown;
                     case EventType.CONTROLLERBUTTONUP:
-                        return GwsEvent.CONTROLLERBUTTONUP;
+                        return GwsEvent.ControllerButtonUp;
                     case EventType.CONTROLLERDEVICEADDED:
-                        return GwsEvent.CONTROLLERDEVICEADDED;
+                        return GwsEvent.ControllerAdded;
                     case EventType.CONTROLLERDEVICEREMOVED:
-                        return GwsEvent.CONTROLLERDEVICEREMOVED;
+                        return GwsEvent.ControllerRemoved;
                     case EventType.CONTROLLERDEVICEREMAPPED:
-                        return GwsEvent.CONTROLLERDEVICEREMAPPED;
+                        return GwsEvent.ControllerMapped;
                     case EventType.FINGERDOWN:
-                        return GwsEvent.FINGERDOWN;
+                        return GwsEvent.FingerDown;
                     case EventType.FINGERUP:
-                        return GwsEvent.FINGERUP;
+                        return GwsEvent.FingerUp;
                     case EventType.FINGERMOTION:
-                        return GwsEvent.FINGERMOTION;
+                        return GwsEvent.FingerMotion;
                     case EventType.DOLLARGESTURE:
-                        return GwsEvent.DOLLARGESTURE;
+                        return GwsEvent.DollarGesture;
                     case EventType.DOLLARRECORD:
-                        return GwsEvent.DOLLARRECORD;
+                        return GwsEvent.DollarRecord;
                     case EventType.MULTIGESTURE:
-                        return GwsEvent.MULTIGESTURE;
+                        return GwsEvent.MultiGesture;
                     case EventType.CLIPBOARDUPDATE:
-                        return GwsEvent.CLIPBOARDUPDATE;
+                        return GwsEvent.ClipBoardUpdate;
                     case EventType.DROPFILE:
-                        return GwsEvent.DROPFILE;
+                        return GwsEvent.DropFile;
                     case EventType.USEREVENT:
-                        return GwsEvent.USEREVENT;
+                        return GwsEvent.UserEvent;
                     case EventType.LASTEVENT:
                         return GwsEvent.LASTEVENT;
                     case EventType.DROPTEXT:
-                        return GwsEvent.DROPTEXT;
+                        return GwsEvent.DropText;
                     case EventType.DROPBEGIN:
-                        return GwsEvent.DROPBEGIN;
+                        return GwsEvent.DropBegin;
                     case EventType.DROPCOMPLETE:
-                        return GwsEvent.DROPCOMPLETE;
+                        return GwsEvent.DropComplete;
                     case EventType.AUDIODEVICEADDED:
-                        return GwsEvent.AUDIODEVICEADDED;
+                        return GwsEvent.AudioDeviceAdded;
                     case EventType.AUDIODEVICEREMOVED:
-                        return GwsEvent.AUDIODEVICEREMOVED;
+                        return GwsEvent.AudioDeviceRemoved;
                     case EventType.RENDER_TARGETS_RESET:
                     case EventType.RENDER_DEVICE_RESET:
                     default:
@@ -1806,117 +1806,117 @@ namespace MnM.GWS
                 switch (Type)
                 {
                     case EventType.FIRSTEVENT:
-                        return GwsEvent.FIRSTEVENT;
+                        return GwsEvent.First;
                     case EventType.QUIT:
-                        return GwsEvent.QUIT;
+                        return GwsEvent.Quit;
                     case EventType.WINDOWEVENT:
                         switch (Event)
                         {
-                            case WindowEventID.SHOWN:
-                                return GwsEvent.SHOWN;
-                            case WindowEventID.HIDDEN:
-                                return GwsEvent.HIDDEN;
-                            case WindowEventID.EXPOSED:
-                                return GwsEvent.HIDDEN;
-                            case WindowEventID.MOVED:
-                                return GwsEvent.MOVED;
-                            case WindowEventID.RESIZED:
-                                return GwsEvent.RESIZED;
-                            case WindowEventID.SIZE_CHANGED:
-                                return GwsEvent.SIZE_CHANGED;
-                            case WindowEventID.MINIMIZED:
-                                return GwsEvent.MINIMIZED;
-                            case WindowEventID.MAXIMIZED:
-                                return GwsEvent.MAXIMIZED;
-                            case WindowEventID.RESTORED:
-                                return GwsEvent.RESTORED;
-                            case WindowEventID.ENTER:
-                                return GwsEvent.ENTER;
-                            case WindowEventID.LEAVE:
-                                return GwsEvent.LEAVE;
-                            case WindowEventID.FOCUS_GAINED:
-                                return GwsEvent.FOCUS_GAINED;
-                            case WindowEventID.FOCUS_LOST:
-                                return GwsEvent.FOCUS_LOST;
-                            case WindowEventID.CLOSE:
-                                return GwsEvent.CLOSE;
+                            case WindowEventID.Shown:
+                                return GwsEvent.Shown;
+                            case WindowEventID.Hidden:
+                                return GwsEvent.Hidden;
+                            case WindowEventID.Exposed:
+                                return GwsEvent.Hidden;
+                            case WindowEventID.Moved:
+                                return GwsEvent.Moved;
+                            case WindowEventID.Resized:
+                                return GwsEvent.Resized;
+                            case WindowEventID.SizeChanged:
+                                return GwsEvent.SizeChanged;
+                            case WindowEventID.MiniMized:
+                                return GwsEvent.Minimized;
+                            case WindowEventID.Maximized:
+                                return GwsEvent.Maximized;
+                            case WindowEventID.Restored:
+                                return GwsEvent.Restored;
+                            case WindowEventID.Enter:
+                                return GwsEvent.Enter;
+                            case WindowEventID.Leave:
+                                return GwsEvent.Leave;
+                            case WindowEventID.FocusGained:
+                                return GwsEvent.FocusGained;
+                            case WindowEventID.FocusLost:
+                                return GwsEvent.FocusLost;
+                            case WindowEventID.Close:
+                                return GwsEvent.Close;
                             default:
                                 break;
                         }
-                        return GwsEvent.WINDOWEVENT;
+                        return GwsEvent.WindowEvent;
                     case EventType.SYSWMEVENT:
-                        return GwsEvent.SYSWMEVENT;
+                        return GwsEvent.SysWmEvent;
                     case EventType.KEYDOWN:
-                        return GwsEvent.KEYDOWN;
+                        return GwsEvent.KeyDown;
                     case EventType.KEYUP:
-                        return GwsEvent.KEYUP;
+                        return GwsEvent.KeyUp;
                     case EventType.TEXTEDITING:
                     case EventType.TEXTINPUT:
-                        return GwsEvent.TEXTINPUT;
+                        return GwsEvent.TextInput;
                     case EventType.MOUSEMOTION:
-                        return GwsEvent.MOUSEMOTION;
+                        return GwsEvent.MouseMotion;
                     case EventType.MOUSEBUTTONDOWN:
-                        return GwsEvent.MOUSEBUTTONDOWN;
+                        return GwsEvent.MouseDown;
                     case EventType.MOUSEBUTTONUP:
-                        return GwsEvent.MOUSEBUTTONUP;
+                        return GwsEvent.MouseUp;
                     case EventType.MOUSEWHEEL:
-                        return GwsEvent.MOUSEWHEEL;
+                        return GwsEvent.MouseWheel;
                     case EventType.JOYAXISMOTION:
-                        return GwsEvent.JOYAXISMOTION;
+                        return GwsEvent.JoyAxisMotion;
                     case EventType.JOYBALLMOTION:
-                        return GwsEvent.JOYBALLMOTION;
+                        return GwsEvent.JoyBallMotion;
                     case EventType.JOYHATMOTION:
-                        return GwsEvent.JOYHATMOTION;
+                        return GwsEvent.JoyHatMotion;
                     case EventType.JOYBUTTONDOWN:
-                        return GwsEvent.JOYBUTTONDOWN;
+                        return GwsEvent.JoyButtonDown;
                     case EventType.JOYBUTTONUP:
-                        return GwsEvent.JOYBUTTONUP;
+                        return GwsEvent.JoyButtonUp;
                     case EventType.JOYDEVICEADDED:
-                        return GwsEvent.JOYDEVICEADDED;
+                        return GwsEvent.JoystickAdded;
                     case EventType.JOYDEVICEREMOVED:
-                        return GwsEvent.JOYDEVICEREMOVED;
+                        return GwsEvent.JoystickRemoved;
                     case EventType.CONTROLLERAXISMOTION:
-                        return GwsEvent.CONTROLLERAXISMOTION;
+                        return GwsEvent.ControllerAxisMotion;
                     case EventType.CONTROLLERBUTTONDOWN:
-                        return GwsEvent.CONTROLLERBUTTONDOWN;
+                        return GwsEvent.ControllerButtonDown;
                     case EventType.CONTROLLERBUTTONUP:
-                        return GwsEvent.CONTROLLERBUTTONUP;
+                        return GwsEvent.ControllerButtonUp;
                     case EventType.CONTROLLERDEVICEADDED:
-                        return GwsEvent.CONTROLLERDEVICEADDED;
+                        return GwsEvent.ControllerAdded;
                     case EventType.CONTROLLERDEVICEREMOVED:
-                        return GwsEvent.CONTROLLERDEVICEREMOVED;
+                        return GwsEvent.ControllerRemoved;
                     case EventType.CONTROLLERDEVICEREMAPPED:
-                        return GwsEvent.CONTROLLERDEVICEREMAPPED;
+                        return GwsEvent.ControllerMapped;
                     case EventType.FINGERDOWN:
-                        return GwsEvent.FINGERDOWN;
+                        return GwsEvent.FingerDown;
                     case EventType.FINGERUP:
-                        return GwsEvent.FINGERUP;
+                        return GwsEvent.FingerUp;
                     case EventType.FINGERMOTION:
-                        return GwsEvent.FINGERMOTION;
+                        return GwsEvent.FingerMotion;
                     case EventType.DOLLARGESTURE:
-                        return GwsEvent.DOLLARGESTURE;
+                        return GwsEvent.DollarGesture;
                     case EventType.DOLLARRECORD:
-                        return GwsEvent.DOLLARRECORD;
+                        return GwsEvent.DollarRecord;
                     case EventType.MULTIGESTURE:
-                        return GwsEvent.MULTIGESTURE;
+                        return GwsEvent.MultiGesture;
                     case EventType.CLIPBOARDUPDATE:
-                        return GwsEvent.CLIPBOARDUPDATE;
+                        return GwsEvent.ClipBoardUpdate;
                     case EventType.DROPFILE:
-                        return GwsEvent.DROPFILE;
+                        return GwsEvent.DropFile;
                     case EventType.USEREVENT:
-                        return GwsEvent.USEREVENT;
+                        return GwsEvent.UserEvent;
                     case EventType.LASTEVENT:
                         return GwsEvent.LASTEVENT;
                     case EventType.DROPTEXT:
-                        return GwsEvent.DROPTEXT;
+                        return GwsEvent.DropText;
                     case EventType.DROPBEGIN:
-                        return GwsEvent.DROPBEGIN;
+                        return GwsEvent.DropBegin;
                     case EventType.DROPCOMPLETE:
-                        return GwsEvent.DROPCOMPLETE;
+                        return GwsEvent.DropComplete;
                     case EventType.AUDIODEVICEADDED:
-                        return GwsEvent.AUDIODEVICEADDED;
+                        return GwsEvent.AudioDeviceAdded;
                     case EventType.AUDIODEVICEREMOVED:
-                        return GwsEvent.AUDIODEVICEREMOVED;
+                        return GwsEvent.AudioDeviceRemoved;
                     case EventType.RENDER_TARGETS_RESET:
                     case EventType.RENDER_DEVICE_RESET:
                     default:

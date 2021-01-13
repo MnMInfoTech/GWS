@@ -32,18 +32,28 @@ namespace MnM.GWS
     /// <param name="copyLength">Length of pixels to be copied.</param>
     /// <param name="xPosition">Position of X axis for the scan line copied.</param>
     /// <param name="yPosition">Position of Y axis for the scan line copied.</param>
-    public delegate void BlockCopy(int sourceIndex, int destinationIndex, int copyLength, int xPosition, int yPosition);
+    public delegate void BlockCopy(int sourceIndex, int destinationIndex, int copyLength, int xPosition, int yPosition, Command command);
 
 
 #if GWS || Window
     /// <summary>
     /// Provides axial pixel information to process further for variety of purposes.
     /// </summary>
-    /// <typeparam name="T">Expected type: float or integer.</typeparam>
     /// <param name="val">Value i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
     /// <param name="axis">Axis i.e. Y co-ordinate if horizontal is true otherwise X co-ordinate.</param>
     /// <param name="horizontal">Axial direction i.e. if true horizontal otherwise vertical</param>
-    public delegate void PixelAction<T>(T val, int axis, bool horizontal, DrawCommand command);
+    public delegate void PixelAction(float val, int axis, bool horizontal, Command command);
+
+    /// <summary>
+    /// Provides axial line information to process further for variety of purposes.
+    /// </summary>
+    /// <param name="val1">Value1 i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
+    /// <param name="axis">Axis i.e. Y co-ordinate if horizontal is true otherwise X co-ordinate.</param>
+    /// <param name="horizontal">Axial direction i.e. if true horizontal otherwise vertical</param>
+    /// <param name="val2">Value2 i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
+    /// <param name="userData">Any data supplied by user.</param>
+    /// <param name="command">Fill command to control aspects of filling line.</param>
+    public delegate void FillAction(float val1, int axis, bool horizontal, float val2, float? userData, Command command);
 
     /// <summary>
     /// Provides pixel information to process further for variety of purposes.
@@ -51,19 +61,5 @@ namespace MnM.GWS
     /// <param name="x">X co-ordinate of pixel.</param>
     /// <param name="y">Y co-ordinate of pixel.</param>
     public delegate void VectorAction<T>(T x, T y);
-
-    /// <summary>
-    /// Provides axial line information to process further for variety of purposes.
-    /// </summary>
-    /// <typeparam name="T">Expected type: float or integer.</typeparam>
-    /// <param name="val1">Value1 i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
-    /// <param name="axis">Axis i.e. Y co-ordinate if horizontal is true otherwise X co-ordinate.</param>
-    /// <param name="horizontal">Axial direction i.e. if true horizontal otherwise vertical</param>
-    /// <param name="val2">Value2 i.e. X co-ordinate if horizontal is true otherwise Y co-ordinate.</param>
-    /// <param name="userData">Any data supplied by user.</param>
-    /// <param name="command">Fill command to control aspects of filling line.</param>
-    /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
-    /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
-    public delegate void FillAction<T>(T val1, int axis, bool horizontal, T val2, float? userData, DrawCommand command);
 #endif
 }

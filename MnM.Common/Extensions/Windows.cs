@@ -328,21 +328,21 @@ namespace MnM.GWS
             return false;
         }
 #endif
-        public static bool Leave(this IMouseEventArgs e, IRenderable control)
-        {
-            return e.State == MouseState.Leave &&
-                !control.Bounds.Has(e.X, e.Y);
-        }
-        public static bool IsDraggedOutside<T>(this IMouseEventArgs e, T control) where T : IRenderable, IEventPusher =>
-            e.Button == MouseButton.Left &&
-            e.State == MouseState.Move &&
-            !control.Bounds.Has(e.X, e.Y);
+        //public static bool Leave(this IMouseEventArgs e, IRenderable control)
+        //{
+        //    return e.State == MouseState.Leave &&
+        //        !control.Bounds.Has(e.X, e.Y);
+        //}
+        //public static bool IsDraggedOutside<T>(this IMouseEventArgs e, T control) where T : IRenderable, IEventPusher =>
+        //    e.Button == MouseButton.Left &&
+        //    e.State == MouseState.Move &&
+        //    !control.Bounds.Has(e.X, e.Y);
 
         public static bool OpenContextMenu(this IMouseEventArgs e) =>
             e.Up() && e.Right();
 
-        public static bool DragStartedWithin(this IMouseEventArgs e, Rectangle area) =>
-            e.State.HasFlag(MouseState.DragBegin) && area.Has(e.DragStartX, e.DragStartY);
+        public static bool DragStartedWithin(this IMouseEventArgs e, IRectangle area) =>
+            e.State.HasFlag(MouseState.DragBegin) && area.Contains(e.DragStartX, e.DragStartY);
         #endregion
     }
 #endif

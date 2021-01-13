@@ -2,11 +2,12 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+
+//The following are just a namespaces allocation statements.
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-//The following are just a namespaces allocation statements.
 namespace MnM.GWS.Standard { }
 namespace MnM.GWS.Advanced { }
 
@@ -29,9 +30,16 @@ namespace MnM.GWS
         static string goforStandard = @"
             Implement your own version of {0} interface and supply instance here!. Alteranatively, you can download fully implemented standard version from http://mnminfotech.co.uk.";
 
-        public static readonly IFactory Instance = new NativeFactory();
-        protected NativeFactory() { }
+        static string goforSdl = @"
+            Implement your own version of {0} or similiar Windowing System here!. Alteranatively, you can download fully implemented standard version from http://mnminfotech.co.uk.";
 
+        public static readonly IFactory Instance = new NativeFactory();
+        protected NativeFactory()
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IFactory"));
+        }
+
+#if GWS || Window
         #region SURFACE
         public override ISurface newSurface(int width, int height)
         {
@@ -51,24 +59,26 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region CANVAS
-        public override ICanvas newCanvas(int width, int height)
+        #region IMAGE
+        public override IImage newImage(int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
+            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
         }
-        public override unsafe ICanvas newCanvas(IntPtr pixels, int width, int height)
+        public override IImage newImage(IntPtr pixels, int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
+            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
         }
-        public override ICanvas newCanvas(int[] pixels, int width, int height, bool makeCopy = false)
+        public override IImage newImage(int[] pixels, int width, int height, bool makeCopy = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
+            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
         }
-        public override ICanvas newCanvas(int width, int height, byte[] pixels, bool makeCopy = false)
+        public override IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
+            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
         }
+        #endregion
 
+        #region CANVAS
         public override ICanvas newCanvas(IRenderTarget window)
         {
             throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
@@ -76,25 +86,25 @@ namespace MnM.GWS
         #endregion
 
         #region RENDER TARGET
+#if Window
         public override IRenderTarget newRenderTarget(IRenderWindow window)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IRenderTarget"));
         }
-        #endregion
-
-        #region FORM
-#if NATIVE
-        public override IForm newForm(int x, int y, int w, int h)
-        {
-            throw new NotImplementedException(string.Format(goforStandard, "IForm"));
-        }
 #endif
         #endregion
 
-        #region RENDER INFO
-        public override IRenderInfo newRenderInfo(string shapeID)
+        #region NATIVE WINDPW
+        public override INativeTarget newNativeTarget(int x, int y, int w, int h)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IRenderInfo"));
+            throw new NotImplementedException(string.Format(goforStandard, "INativeWindow"));
+        }
+        #endregion
+
+        #region FORM
+        public override IForm newForm(int x, int y, int w, int h)
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IForm"));
         }
         #endregion
 
@@ -117,7 +127,7 @@ namespace MnM.GWS
         #endregion
 
         #region OBJECT COLLECTION
-        public override IObjCollection newObjectCollection(IWritable buffer)
+        public override IObjCollection newObjectCollection(IImage buffer)
         {
             throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
         }
@@ -199,9 +209,9 @@ namespace MnM.GWS
         #endregion
 
         #region SHAPE
-        public override IShape newShape(IEnumerable<VectorF> shape, string name)
+        public override IFigure newFigure(IEnumerable<VectorF> shape, string name)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IShape"));
+            throw new NotImplementedException(string.Format(goforStandard, "IFigure"));
         }
         #endregion
 
@@ -237,6 +247,32 @@ namespace MnM.GWS
             throw new NotImplementedException(string.Format(goforStandard, "IText"));
         }
         #endregion
-    }
+
+        #region BOUNDARY
+        public override IBoundary newBoundary()
+        {
+            throw new NotImplementedException(string.Format(goforStandard, "IBoundary"));
+        }
+        #endregion
+
+        #region PUSH, PUMP, POLL EVENTS
+        public override void PushEvent(IEvent e)
+        {
+            throw new NotImplementedException(string.Format(goforSdl, "SDL"));
+        }
+        public override void PumpEvents()
+        {
+            throw new NotImplementedException(string.Format(goforSdl, "SDL"));
+        }
+        public override bool PollEvent(out IEvent e)
+        {
+            throw new NotImplementedException(string.Format(goforSdl, "SDL"));
+        }
+        #endregion
+
 #endif
     }
+#else
+        partial class NativeFactory { }
+#endif
+}

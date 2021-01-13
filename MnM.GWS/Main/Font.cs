@@ -24,6 +24,7 @@ THE SOFTWARE.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
+#if GWS || Window
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,11 +33,23 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#if Standard
+namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
 namespace MnM.GWS
+#endif
 {
-    public abstract class _NativeFont : _Font, IFont
+#if AllHidden
+    partial class _Factory
     {
-        #region VARIABLES
+#else
+    public
+#endif
+      sealed  partial class Font : _Font, IFont
+    {
+    #region VARIABLES
         const string tostr = "Name:{0}, Size:{1}, XHeight:{2}, Ascent:{3}, Descent:{4}";
 
         const int Unicode32 = 4, Unicode = 0, Microsoft = 3, UnicodeBmp = 1,
@@ -58,11 +71,11 @@ namespace MnM.GWS
         private byte[] prepProgram;
         private bool kerning;
         FontInfo info;
-        protected readonly static IGlyphRenderer Renderer = new GlyphRenderer();
-        #endregion
+        public readonly static IGlyphRenderer Renderer = new GlyphRenderer();
+    #endregion
 
-        #region CONSTRUCTORS
-        public _NativeFont(string path, int fontSize)
+    #region CONSTRUCTORS
+        public Font(string path, int fontSize)
         {
             using (Stream fontStream = System.IO.File.OpenRead(path))
             {
@@ -78,13 +91,13 @@ namespace MnM.GWS
         /// All relevant font data is loaded into memory and retained by the FontFace object.
         /// Once the constructor finishes you are free to close the stream.
         /// </remarks>
-        public _NativeFont(Stream fontStream, int fontSize)
+        public Font(Stream fontStream, int fontSize)
         {
             ReadFont(fontStream, fontSize);
         }
-        #endregion
+    #endregion
 
-        #region PROPERTIES
+    #region PROPERTIES
         public int Dpi
         {
             get => dpi;
@@ -108,9 +121,9 @@ namespace MnM.GWS
         public override bool Kerning => EnableKerning && kerning;
         public override bool EnableKerning { get; set; }
         public override IFontInfo Info => info;
-        #endregion
+    #endregion
 
-        #region READ FONT
+    #region READ FONT
         void ReadFont(Stream fontStream, int fontSize)
         {
             iSize = fontSize;
@@ -267,9 +280,22 @@ namespace MnM.GWS
             id = Info.FullName;
             kerning = kernTable != null;
         }
-        #endregion
+    #endregion
 
-        #region SUBSEQUENT QUERY OF GLYPHS
+    #region MEASURE GLYPHS
+        public override void MeasureGlyphs(IList<IGlyph> Glyphs, float destX, float destY,
+            out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, ITextStyle drawStyle = null)
+        {
+            ResultGlyphs = null;
+            Area = RectangleF.Empty;
+            minHBY = 0;
+            MeasureGlyphs2(Glyphs, destX, destY, ref Area, ref ResultGlyphs, ref minHBY, drawStyle);
+        }
+        partial void MeasureGlyphs2(IList<IGlyph> Glyphs, float destX, float destY,
+            ref RectangleF Area, ref IList<IGlyph> ResultGlyphs, ref float minHBY, ITextStyle drawStyle = null);
+    #endregion
+
+    #region SUBSEQUENT QUERY OF GLYPHS
         protected static bool IsSpace(IList<IGlyph> glyphs, int index) =>
                 glyphs[index].Character == ' ';
         protected static bool IsCR(IList<IGlyph> glyphs, int index) =>
@@ -291,18 +317,18 @@ namespace MnM.GWS
                 return font.GetKerning(glyphs[i - 1].Character, c);
             return 0;
         }
-        #endregion
+    #endregion
 
-        #region GET GLYPH
+    #region GET GLYPH
         public sealed override IGlyph GetGlyph(char character)
         {
             var key = ID + "." + size + "." + character.ToString();
             if (Cache.ContainsKey(key))
-                return newGlyph(Cache[key]);
+                return new Glyph(Cache[key]);
 
             var glyphIndex = charMap.Lookup(character);
             if (glyphIndex < 0)
-                return newGlyph(new GlyphSlot(character, null, null, Info.XHeight));
+                return new Glyph(new GlyphSlot(character, null, null, Info.XHeight));
 
             // set up the control value table
             var scale = ComputeScale(size, Info.UnitsPerEm, IntegerPpems);
@@ -349,14 +375,13 @@ namespace MnM.GWS
             var g = new GlyphSlot(character, Points, contourArray, Info.XHeight);
 
             Cache.Add(key, g);
-            return newGlyph(g);
+            return new Glyph(g);
         }
-        protected abstract IGlyph newGlyph(IGlyphSlot slot);
-        protected static IGlyphSlot newGlyphSlot(char character, IList<VectorF> pts, int[] contours, int XHeight) =>
+        public static IGlyphSlot newGlyphSlot(char character, IList<VectorF> pts, int[] contours, int XHeight) =>
             new GlyphSlot(character, pts, contours, XHeight);
-        #endregion
+    #endregion
 
-        #region GET KERNING
+    #region GET KERNING
         public override int GetKerning(char left, char right)
         {
             if (this.kernTable == null)
@@ -371,9 +396,9 @@ namespace MnM.GWS
             var k = kernTable.Lookup(num, num2) * ComputeScale(size, Info.UnitsPerEm, IntegerPpems);
             return k.Round();
         }
-        #endregion
+    #endregion
 
-        #region GLYPH COMPOSITION
+    #region GLYPH COMPOSITION
         float ComputeScale(float pixelSize, float UnitsPerEm, bool integerPpems)
         {
             if (integerPpems)
@@ -443,18 +468,18 @@ namespace MnM.GWS
                 }
             }
         }
-        #endregion
+    #endregion
 
-        #region DISPOSE
+    #region DISPOSE
         public void Dispose() { }
-        #endregion
+    #endregion
 
         public override string ToString()
         {
             return string.Format(tostr, Info.FullName, size, Info.XHeight, Info.CellAscent, Info.CellDescent);
         }
 
-        #region FONT INFO
+    #region FONT INFO
         class FontInfo : IFontInfo
         {
             public FontMode Style { get; internal set; }
@@ -471,160 +496,22 @@ namespace MnM.GWS
             public float StrikeoutSize { get; internal set; }
             public float StrikeoutPosition { get; internal set; }
         }
-        #endregion
+    #endregion
 
-        #region GLYPH CLASS
-        protected abstract class Glyph : _Glyph, IGlyph
-        {
-            #region VARIABLES
-            protected IGlyphSlot slot;
-            protected int x, y;
-            IList<AxisLine> Data;
-            bool DataInitialized;
-            static string tostr = "Char: {0}, X: {1}, Y: {2}, W: {3}, H: {4}";
-            #endregion
-
-            #region CONSTRUCTORS
-            protected Glyph() { }
-
-            /// <summary>
-            /// Create a new glyph object from a given slot.
-            /// </summary>
-            /// <param name="slot">Glyph slot made available by the font object</param>
-            /// <returns></returns>
-            public Glyph(IGlyphSlot glyph)
-            {
-                slot = glyph;
-                Character = slot.Character;
-            }
-            protected void SetData()
-            {
-                if (Character == ' ')
-                    return;
-                if (Data == null)
-                    Data = new Collection<AxisLine>(25);
-                Data.Clear();
-                var data = Data;
-                FillAction<int> action = (val1, axis, horizontal, val2, alpha, cmd) =>
-                {
-                    data.Add(new AxisLine(val1, val2, axis, horizontal, alpha));
-                };
-
-                Renderer.Process(slot.Points, slot.Contours, action, Bounds.Width.Round(), Bounds.Height.Round());
-                DataInitialized = true;
-            }
-            #endregion
-
-            #region PROPERTIES
-            public override int X
-            {
-                get => (x + slot.Bounds.X).Round();
-                set => x = value;
-            }
-            public override int Y
-            {
-                get => (y + slot.Bounds.Y).Round();
-                set => y = value;
-            }
-            public override RectangleF Bounds => new RectangleF(X, Y, slot.Bounds.Width, slot.Bounds.Height);
-            RectangleF IBoundsF.Bounds => Bounds;
-            #endregion
-
-            #region DRAW
-            public override bool Draw(IWritable buffer, IRenderInfo Settings)
-            {
-                if (Character == ' ')
-                    return true;
-
-                if ((Settings.Rotation) || Settings.Scale.HasScale)
-                    DataInitialized = RotateAndScale(Settings);
-
-                if (!DataInitialized)
-                    SetData();
-
-                var x = X;
-                var y = Y;
-                Settings.Command |= DrawCommand.DrawLineOnly;
-                var aa = !((Settings.Command & DrawCommand.Breshenham) == DrawCommand.Breshenham);
-                var offx = Settings.X;
-                var offy = Settings.Y;
-                var cmd = Settings.Command;
-
-                IReadable Pen;
-
-                if (Settings.Foreground is IReadable)
-                    Pen = (IReadable)Settings.Foreground;
-                else
-                    Pen = buffer.GetPen(this, Settings);
-
-                if (aa)
-                {
-                    foreach (var item in Data)
-                    {
-                        if (item.Horizontal)
-                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, item.Alpha, cmd, offx, offy);
-                        else
-                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, item.Alpha, cmd, offx, offy);
-                    }
-                }
-                else
-                {
-                    foreach (var item in Data)
-                    {
-                        if (item.Horizontal)
-                            buffer.WriteLine(item.Val + x, item.Val + x + item.Stretch, item.Axis + y, true, Pen, null, cmd, offx, offy);
-                        else
-                            buffer.WriteLine(item.Val + y, item.Val + y + item.Stretch, item.Axis + x, false, Pen, null, cmd, offx, offy);
-                    }
-                }
-                return true;
-            }
-            #endregion
-
-            #region ROTATE
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            protected abstract bool RotateAndScale(IRenderInfo Settings);
-            #endregion
-
-            public override IEnumerable<VectorF> Figure() => null;
-
-            #region CLONE
-            public override object Clone()
-            {
-                var g = EmptyInstance();
-                g.x = x;
-                g.y = y;
-                g.slot = slot;
-                g.Data = Data;
-                g.Character = Character;
-                g.DataInitialized = DataInitialized;
-                g.IsOutLine = IsOutLine;
-                return g;
-            }
-            protected abstract Glyph EmptyInstance();
-            #endregion
-
-            public override string ToString()
-            {
-                return string.Format(tostr, slot.Character,
-                   X, Y, slot.Bounds.Width, slot.Bounds.Height);
-            }
-        }
-        #endregion
-
-        #region GLYPH SLOT
+    #region GLYPH SLOT
         /// <summary>
         /// Represents information vital to draw a character for a given font.
         /// the information is directly fetched from the font object.
         /// </summary>
         struct GlyphSlot : IGlyphSlot
         {
-            #region VARIABLES
-            const string tostr = "Char: {0}, Area: {1}";
+    #region VARIABLES
+            const string tostr = "Char: {0}, Area: {1}, {2}, {3}, {4}";
             VectorF min, max;
-            #endregion
+            float X, Y, Width, Height;
+    #endregion
 
-            #region CONSTRUCTORS
+    #region CONSTRUCTORS
             /// <summary>
             /// Creates a new glyph slot with the given parameters
             /// </summary>
@@ -635,8 +522,6 @@ namespace MnM.GWS
             /// <returns>IGlyphSlot</returns>
             public GlyphSlot(char c, IList<VectorF> data, int[] contours, float xHeight) : this()
             {
-                Bounds = RectangleF.Empty;
-
                 if (data == null)
                     Points = new VectorF[4];
                 else
@@ -652,7 +537,7 @@ namespace MnM.GWS
                 if (Initialized)
                     return;
 
-                Bounds = InitializeGlyphSlot(this, out min, out max);
+                InitializeGlyphSlot(this, out min, out max, out X, out Y, out Width, out Height);
 
                 Initialized = true;
 
@@ -661,27 +546,27 @@ namespace MnM.GWS
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            static RectangleF InitializeGlyphSlot(GlyphSlot slot, out VectorF Min, out VectorF Max)
+            static void InitializeGlyphSlot(IGlyphSlot slot, out VectorF Min, out VectorF Max, out float x, out float y, out float w, out float h)
             {
                 Min = Max = VectorF.Empty;
 
-                float x = slot.Bounds.X;
-                float y = slot.Bounds.Y;
-                float w = slot.Bounds.Width;
-                float h = slot.Bounds.Height;
+                x = slot.X;
+                y = slot.Y;
+                w = slot.Width;
+                h = slot.Height;
 
                 if (slot.Initialized)
-                    return new RectangleF(x, y, w, h);
+                    return;
 
                 if (char.IsWhiteSpace(slot.Character))
                 {
                     if (slot.Character == ' ')
                         w = (slot.Points[1].X - slot.Points[0].X).Ceiling();
 
-                    return new RectangleF(x, y, w, h);
+                    return;
                 }
                 if (slot.Points.Count < 4)
-                    return new RectangleF(x, y, w, h);
+                    return;
 
                 var num = slot.Points.Count - 4;
 
@@ -703,11 +588,10 @@ namespace MnM.GWS
                 h = (Max.Y - Min.Y).Ceiling();
                 x = Min.X.Ceiling();
                 y = (slot.XHeight - h) - Min.Y.Ceiling();
-                return new RectangleF(x, y, w, h);
             }
-            #endregion
+    #endregion
 
-            #region PROPERTIES
+    #region PROPERTIES
             /// <summary>
             /// List of Points that forms an outline of the character.
             /// </summary>
@@ -717,11 +601,6 @@ namespace MnM.GWS
             /// List of curve contours
             /// </summary>
             public IList<int> Contours { get; private set; }
-
-            /// <summary>
-            /// Are of the slot - determines where character is to be drawn.
-            /// </summary>
-            public RectangleF Bounds { get; private set; }
 
             /// <summary>
             /// The character this slot represents for drawing on screen.
@@ -747,19 +626,32 @@ namespace MnM.GWS
             /// Indicates if the slot is initialzed and ready for the process or not.
             /// </summary>
             public bool Initialized { get; private set; }
-            #endregion
+            float IPointF.X => X;
+            float IPointF.Y => Y;
+            float ISizeF.Width => Width;
+            float ISizeF.Height => Height;
+    #endregion
+
+    #region CONTAINS
+            public bool Contains(float x, float y)
+            {
+                if (x < X || y < Y || x > X + Width || y > Y + Height)
+                    return false;
+                return true;
+            }
+    #endregion
 
             public override string ToString()
             {
-                return string.Format(tostr, Character, Bounds.ToString());
+                return string.Format(tostr, Character, X, Y, Width, Height);
             }
         }
-        #endregion
+    #endregion
 
-        #region GLYPH- RENDERER
+    #region GLYPH- RENDERER
         class GlyphRenderer : IGlyphRenderer
         {
-            #region variables
+    #region variables
             const float EPSILON = .0001f;
             int[] scanlines;                // one scanline per Y, points into cell buffer
             int[] curveLevels;
@@ -774,15 +666,15 @@ namespace MnM.GWS
             IList<VectorF> Points;
             IList<int> Contours;
             int iw, ih;
-            FillAction<int> action;
-            #endregion
+            FillAction action;
+    #endregion
 
-            #region constructor
+    #region constructor
             static GlyphRenderer() { }
-            #endregion
+    #endregion
 
-            #region methods
-            public void Process(IList<VectorF> points, IList<int> contours, FillAction<int> action, int width, int height)
+    #region methods
+            public void Process(IList<VectorF> points, IList<int> contours, FillAction action, int width, int height)
             {
                 if (contours == null)
                     Contours = new int[] { points.Count - 1 };
@@ -1284,7 +1176,7 @@ namespace MnM.GWS
                 bezierArc = null;
                 cells = null;
             }
-            #endregion
+    #endregion
 
             struct Cell
             {
@@ -1294,9 +1186,9 @@ namespace MnM.GWS
                 public float Area;
             }
         }
-        #endregion
+    #endregion
 
-        #region SBIT TABLE
+    #region SBIT TABLE
         class SbitTable
         {
             public unsafe static SbitTable Read(DataReader reader, TableRecord[] tables)
@@ -1385,9 +1277,9 @@ namespace MnM.GWS
 
             const int MaxBitmapStrikes = 1024;
         }
-        #endregion
+    #endregion
 
-        #region KERNING TABLE
+    #region KERNING TABLE
         class KerningTable
         {
             Dictionary<uint, int> table;
@@ -1482,9 +1374,9 @@ namespace MnM.GWS
                 Override = 0x8
             }
         }
-        #endregion
+    #endregion
 
-        #region INTERPRETER
+    #region INTERPRETER
         class Interpreter
         {
             GraphicsState state;
@@ -3210,9 +3102,9 @@ namespace MnM.GWS
                 MIRP = 0xE0     // range of 32 values, 0xE0 - 0xFF
             }
         }
-        #endregion
+    #endregion
 
-        #region CHARACTER MAP
+    #region CHARACTER MAP
         class CharacterMap
         {
             Dictionary<Character, int> table;
@@ -3380,9 +3272,9 @@ namespace MnM.GWS
                 public uint Offset;
             }
         }
-        #endregion
+    #endregion
 
-        #region DATA READER
+    #region DATA READER
         unsafe sealed class DataReader : IDisposable
         {
             readonly Stream stream;
@@ -3547,9 +3439,9 @@ namespace MnM.GWS
                 return (ushort)(ptr[0] << 8 | ptr[1]);
             }
         }
-        #endregion
+    #endregion
 
-        #region SFNT TABLE
+    #region SFNT TABLE
         unsafe static class SfntTables
         {
             public static uint[] ReadTTCHeader(DataReader reader)
@@ -4199,14 +4091,14 @@ namespace MnM.GWS
                 public const int TypographicSubfamilyName = 17;
             }
         }
-        #endregion
+    #endregion
 
-        #region CHARACTER
+    #region CHARACTER
         struct Character : IComparable<Character>, IEquatable<Character>
         {
             readonly int value;
 
-            #region constructors
+    #region constructors
             /// <summary>
             /// Initializes a new instance of the <see cref="Character"/> struct.
             /// </summary>
@@ -4234,9 +4126,9 @@ namespace MnM.GWS
             {
                 value = char.ConvertToUtf32(highSurrogate, lowSurrogate);
             }
-            #endregion
+    #endregion
 
-            #region IComparable/ IEquatable
+    #region IComparable/ IEquatable
             /// <summary>
             /// Compares this instance to the specified value.
             /// </summary>
@@ -4270,9 +4162,9 @@ namespace MnM.GWS
             /// </summary>
             /// <returns>The instance's hashcode.</returns>
             public override int GetHashCode() => value.GetHashCode();
-            #endregion
+    #endregion
 
-            #region operator overload
+    #region operator overload
             /// <summary>
             /// Implements the equality operator.
             /// </summary>
@@ -4338,7 +4230,7 @@ namespace MnM.GWS
             /// </summary>
             /// <param name="codePoint">The codepoint value.</param>
             public static explicit operator char(Character codePoint) => (char)codePoint.value;
-            #endregion
+    #endregion
 
             /// <summary>
             /// Converts the value to its equivalent string representation.
@@ -4346,9 +4238,9 @@ namespace MnM.GWS
             /// <returns></returns>
             public override string ToString() => $"{value} ({(char)value})";
         }
-        #endregion
+    #endregion
 
-        #region TABLE RECORD
+    #region TABLE RECORD
         struct TableRecord
         {
             public FourCC Tag;
@@ -4358,9 +4250,9 @@ namespace MnM.GWS
 
             public override string ToString() => Tag.ToString();
         }
-        #endregion
+    #endregion
 
-        #region FACE HEADER
+    #region FACE HEADER
         struct FaceHeader
         {
             public HeadFlags Flags;
@@ -4376,9 +4268,9 @@ namespace MnM.GWS
             public int MaxInstructionDefs;
             public int MaxStackSize;
         }
-        #endregion
+    #endregion
 
-        #region METRICSHEADER
+    #region METRICSHEADER
         struct MetricsHeader
         {
             public int Ascender;
@@ -4386,17 +4278,17 @@ namespace MnM.GWS
             public int LineGap;
             public int MetricCount;
         }
-        #endregion
+    #endregion
 
-        #region METRICSENTRY
+    #region METRICSENTRY
         struct MetricsEntry
         {
             public int Advance;
             public int FrontSideBearing;
         }
-        #endregion
+    #endregion
 
-        #region OS2 DATA
+    #region OS2 DATA
         struct OS2Data
         {
             public FontWeight Weight;
@@ -4414,9 +4306,9 @@ namespace MnM.GWS
             public int XHeight;
             public int CapHeight;
         }
-        #endregion
+    #endregion
 
-        #region NAME DATA
+    #region NAME DATA
         struct NameData
         {
             public string FamilyName;
@@ -4428,9 +4320,9 @@ namespace MnM.GWS
             public string TypographicFamilyName;
             public string TypographicSubfamilyName;
         }
-        #endregion
+    #endregion
 
-        #region FOUR CC
+    #region FOUR CC
         struct FourCC
         {
             uint value;
@@ -4483,9 +4375,9 @@ namespace MnM.GWS
             public static readonly FourCC Prep = "prep";
             public static readonly FourCC Eblc = "EBLC";
         }
-        #endregion
+    #endregion
 
-        #region BASE GLYPH
+    #region BASE GLYPH
         abstract class BaseGlyph
         {
             public byte[] Instructions;
@@ -4494,17 +4386,17 @@ namespace MnM.GWS
             public int MaxX;
             public int MaxY;
         }
-        #endregion
+    #endregion
 
-        #region SIMPLE GLYPH
+    #region SIMPLE GLYPH
         class SimpleGlyph : BaseGlyph
         {
             public VectorF[] Points;
             public int[] ContourEndpoints;
         }
-        #endregion
+    #endregion
 
-        #region SUB GLYPH
+    #region SUB GLYPH
         struct Subglyph
         {
             public Matrix3x2 Transform;
@@ -4513,16 +4405,16 @@ namespace MnM.GWS
             public int Arg1;
             public int Arg2;
         }
-        #endregion
+    #endregion
 
-        #region COMPOSITE GLYPH
+    #region COMPOSITE GLYPH
         class CompositeGlyph : BaseGlyph
         {
             public Subglyph[] Subglyphs;
         }
-        #endregion
+    #endregion
 
-        #region COMPOSITE GLYPH FLAGS
+    #region COMPOSITE GLYPH FLAGS
         [Flags]
         enum CompositeGlyphFlags
         {
@@ -4538,9 +4430,9 @@ namespace MnM.GWS
             UseMetrics = 0x200,
             ScaledComponentOffset = 0x800
         }
-        #endregion
+    #endregion
 
-        #region HEAD FLAGS
+    #region HEAD FLAGS
         [Flags]
         enum HeadFlags
         {
@@ -4551,6 +4443,10 @@ namespace MnM.GWS
             IntegerPpem = 0x8,
             InstructionsAlterAdvance = 0x10
         }
-        #endregion
+    #endregion
     }
+#if AllHidden
+    }
+#endif
 }
+#endif

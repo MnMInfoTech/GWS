@@ -19,7 +19,7 @@ namespace Test
         static ITextureBrush textureBrush;
         static int X, Y;
         static IFont tahoma;
-        static IRenderInfo Settings;
+        static ISettings Settings;
         static void Main()
         {
             //frame = true;
@@ -31,7 +31,7 @@ namespace Test
             moonfs = new BrushStyle(BrushType.BackwardDiagonal, Rgba.Red, Rgba.Green);
             textureBrush = Factory.newBrush(AppDomain.CurrentDomain.BaseDirectory + "\\GWS.png");
             tahoma = Factory.newFont("c:\\windows\\fonts\\tahoma.ttf", 40);
-            Settings = Factory. newRenderInfo(null);
+            Settings = Factory.newSettings();
             /*If you want direct rendering for popups, add flags:GwsWindowFlags.EnableDirectRender;
              */
             window = Factory.newWindow(width: 1000, height: 900, flags: GwsWindowFlags.Resizable);
@@ -54,7 +54,7 @@ namespace Test
                  188, 46, 41, 182, 206, 70, 26, 156, 217, 97, 20,
                  127, 219, 127, 22, 97, 213, 156, 33, 70, 198, 182, 51,
                  46, 176, 202, 76, 29, 149, 215, 105,
-                 21, 120, 220, 134, 21, 90, 215), rg1);
+                 21, 120, 220, 134, 21, 90, 215), Settings);
             Path.Add(Factory.newCurve(600, 10, 300, 400));
             //Renderer.Settings.InvertBrushColor = false;
 
@@ -63,7 +63,7 @@ namespace Test
 
             Path.Add(Factory.newBezier(158, 181, 174, 348, 350, 363, 541, 145));
 
-            Path.Add(Factory.newTetragon(425, 480, 650, 690, 190), rg1);
+            Path.Add(Factory.newTetragon(425, 480, 650, 690, 190), Settings);
 
 
             Path.Add(Factory.newText(tahoma, "GWS - Drawing", 576, 507));
@@ -94,19 +94,11 @@ namespace Test
         private static void Window_Load(object sender, IEventArgs e)
         {
             var timer = new Timer(50);
-            //timer.Interval = 50;
-            //var img = Factory.newSurface(300, 300);
-            //img.Foreground = rg;
-            //img.DrawEllipse(10, 10, 200, 200);
-            //window.DrawImage(img, 20, 20, 10, 10, 400, 400);
-            //window.DrawImage(img, 600, 500, 10, 10, 400, 400);
-            //window.DrawImage(img, 500, 500, 10, 10, 400, 400);
-
             timer.Tick += (s, eV) =>
              {
                  window.Background = new Rgba(1000 + j);
-                 window.Update();
                  Factory.SystemFont.Size = 20;
+                 Settings.PenContext = textureBrush;
                  Program.window.Text = Benchmarks.Execute((() =>
                  {
                      float sin, cos;
@@ -115,14 +107,13 @@ namespace Test
                          Angles.SinCos(i, out sin, out cos);
                          X = 200 + (int)(200 * sin);
                          Y = 200 + (int)(200 * cos);
-                         window.DrawEllipse(X, Y, 500, 400, textureBrush);
+                         window.DrawEllipse(X, Y, 500, 400, Settings);
                          //break;
                      };
                  }), "Shape frame drawing");
                  j += 1000;
              };
-            //timer.Enabled = true;
-            //timer.Start();
+            timer.Start();
         }
 
         private static void Window_MouseDown(object sender, IMouseEventArgs e)
@@ -131,7 +122,7 @@ namespace Test
         }
         private static void Window_PaintBackground(object sender, IDrawEventArgs e)
         {
-            var surface = e.Surface;
+            var surface = e.Graphics;
             if (surface == null)
                 return;
 
@@ -145,7 +136,7 @@ namespace Test
                 int x = 0, y = 0;
                 var img = Factory.newSurface(300, 300);
 
-                Settings.Command = DrawCommand.Backdrop;
+                Settings.Command = Command.Backdrop;
                 img.DrawEllipse(10, 10, 200, 200);
                 surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
                 surface.DrawImage(img, 600, 500, 10, 10, 400, 400);
@@ -221,7 +212,7 @@ namespace Test
                     surface.DrawPolygon(206, 124, 26, 37, 217, 96, 20, 66, 219, 66, 22, 96, 213, 37, 33, 124, 15, 119, 10, 114, 15, 109, 10, 104, 15, 99, 10, 94, 15, 89, 10, 84, 15, 79, 10, 74, 15, 69, 10, 64, 15, 59, 10, 54, 15, 49, 10, 44, 15, 39, 10, 34, 15, 29, 10, 24, 0, 19, 0, 190, 220, 190, 206, 124);
 
                     ////Test 6 Interesctions big
-                    surface.DrawPolygon(moonfs, 161, 411, 306, 39, 107, 385, 356, 73, 63, 344, 393,
+                    surface.DrawPolygon(Settings, 161, 411, 306, 39, 107, 385, 356, 73, 63, 344, 393,
                          120, 33, 293, 414, 175, 20, 234, 419, 234, 25, 175, 406, 293, 46, 120,
                          376, 344, 83, 73, 332, 385, 133, 39, 278, 411, 190, 22, 220, 420, 249,
                          22, 161, 411, 306, 39, 107, 385, 356, 73, 63, 344, 393, 120, 33, 293,
@@ -230,7 +221,7 @@ namespace Test
 
 
                     //7 Mukesh
-                    surface.DrawPolygon(moonfs, 0, 500, 0, 300, 20, 300, 40, 500, 60, 300, 80, 300, 80, 500, 81, 499, 82,
+                    surface.DrawPolygon(Settings, 0, 500, 0, 300, 20, 300, 40, 500, 60, 300, 80, 300, 80, 500, 81, 499, 82,
                         497, 83, 494, 84, 490, 85, 484, 86, 477, 87, 469, 88, 460, 89, 450, 90, 439, 91, 427,
                         92, 414, 93, 400, 93, 475, 94, 480, 95, 485, 97, 490, 99, 495, 101, 500, 103, 495, 105,
                         490, 107, 485, 108, 480, 110, 475, 110, 400, 112, 400, 112, 490, 113, 495, 115, 500, 117,
@@ -254,47 +245,38 @@ namespace Test
             {
                 var img = Factory.newSurface(300, 300);
                 img.DrawEllipse(10, 10, 200, 200);
-
-                //surface.DrawMode = DrawMode.Default;
                 //surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
                 //surface.DrawImage(img, 600, 500, 10, 10, 400, 400);
                 //surface.DrawImage(img, 500, 500, 10, 10, 300, 300);
-                //surface.DrawMode = 0;
 
 #if Advanced
                 //window.Controls.Hide(window.Controls["Text1"]);
                 //window.Controls.Hide(window.Controls["Tetragon1"]);
-                //window.DrawMode = DrawMode.NoControlDraw;
-                //window.SaveAs("C://users//maadh//desktop//onlybkg");
                 //window.DrawMode = DrawMode.NoBkgDraw;
-                //window.SaveAs("C://users//maadh//desktop//onlycontrol");
                 //window.DrawMode = DrawMode.NoBkgDraw | DrawMode.NoControlDraw;
-                //window.SaveAs("C://users//maadh//desktop//onlyPbkg");
-                //window.DrawMode=0;
                 //window.Controls.Disable(shape);
                 //window.DrawFocusRect(window.Controls["Text1"]);
 
 #endif
                 ////7 Mukesh
-
-                //window.DrawPolygon(rg, 0, 500, 0, 300, 20, 300, 40, 500, 60, 300, 80, 300, 80, 500, 81, 499, 82,
-                //    497, 83, 494, 84, 490, 85, 484, 86, 477, 87, 469, 88, 460, 89, 450, 90, 439, 91, 427,
-                //    92, 414, 93, 400, 93, 475, 94, 480, 95, 485, 97, 490, 99, 495, 101, 500, 103, 495, 105,
-                //    490, 107, 485, 108, 480, 110, 475, 110, 400, 112, 400, 112, 490, 113, 495, 115, 500, 117,
-                //    497, 118, 493, 119, 488, 120, 482, 121, 475, 122, 467, 123, 458, 124, 448, 125, 437,
-                //    126, 425, 127, 412, 129, 350, 129, 500, 129, 450, 140, 400, 130, 455, 140, 500, 141,
-                //    494, 142, 487, 143, 479, 144, 470, 145, 460, 146, 450, 167, 450, 167, 443, 165, 431,
-                //    163, 417, 161, 405, 159, 402, 157, 400, 155, 402, 153, 405, 151, 417, 149, 431, 147,
-                //    443, 145, 449, 147, 458, 149, 470, 151, 484, 153, 495, 155, 500, 157, 500, 159, 500,
-                //    161, 494, 163, 487, 165, 479, 167, 470, 169, 460, 171, 449, 173, 442, 175, 431, 177,
-                //    418, 179, 407, 181, 404, 183, 402, 185, 404, 187, 407, 189, 418, 191, 431, 189, 424,
-                //    187, 414, 185, 411, 183, 409, 181, 411, 179, 414, 177, 423, 175, 434, 177, 442, 179,
-                //    446, 181, 449, 183, 452, 185, 456, 187, 464, 189, 475, 187, 488, 185, 499, 183, 502,
-                //    181, 504, 179, 501, 177, 490, 175, 477, 177, 474, 179, 474, 181, 473, 183, 471, 185,
-                //    468, 187, 464, 189, 459, 191, 453, 193, 446, 195, 438, 197, 429, 199, 419, 201, 408,
-                //    203, 396, 205, 383, 207, 369, 209, 354, 209, 350, 209, 500, 210, 450, 212, 438, 214,
-                //    425, 216, 412, 218, 405, 220, 402, 222, 400, 224, 403, 226, 410, 228, 422, 230, 433,
-                //    232, 443, 232, 600, 0, 600, 0, 500);
+                window.DrawPolygon(Factory.newSettings( rg), 0, 500, 0, 300, 20, 300, 40, 500, 60, 300, 80, 300, 80, 500, 81, 499, 82,
+                    497, 83, 494, 84, 490, 85, 484, 86, 477, 87, 469, 88, 460, 89, 450, 90, 439, 91, 427,
+                    92, 414, 93, 400, 93, 475, 94, 480, 95, 485, 97, 490, 99, 495, 101, 500, 103, 495, 105,
+                    490, 107, 485, 108, 480, 110, 475, 110, 400, 112, 400, 112, 490, 113, 495, 115, 500, 117,
+                    497, 118, 493, 119, 488, 120, 482, 121, 475, 122, 467, 123, 458, 124, 448, 125, 437,
+                    126, 425, 127, 412, 129, 350, 129, 500, 129, 450, 140, 400, 130, 455, 140, 500, 141,
+                    494, 142, 487, 143, 479, 144, 470, 145, 460, 146, 450, 167, 450, 167, 443, 165, 431,
+                    163, 417, 161, 405, 159, 402, 157, 400, 155, 402, 153, 405, 151, 417, 149, 431, 147,
+                    443, 145, 449, 147, 458, 149, 470, 151, 484, 153, 495, 155, 500, 157, 500, 159, 500,
+                    161, 494, 163, 487, 165, 479, 167, 470, 169, 460, 171, 449, 173, 442, 175, 431, 177,
+                    418, 179, 407, 181, 404, 183, 402, 185, 404, 187, 407, 189, 418, 191, 431, 189, 424,
+                    187, 414, 185, 411, 183, 409, 181, 411, 179, 414, 177, 423, 175, 434, 177, 442, 179,
+                    446, 181, 449, 183, 452, 185, 456, 187, 464, 189, 475, 187, 488, 185, 499, 183, 502,
+                    181, 504, 179, 501, 177, 490, 175, 477, 177, 474, 179, 474, 181, 473, 183, 471, 185,
+                    468, 187, 464, 189, 459, 191, 453, 193, 446, 195, 438, 197, 429, 199, 419, 201, 408,
+                    203, 396, 205, 383, 207, 369, 209, 354, 209, 350, 209, 500, 210, 450, 212, 438, 214,
+                    425, 216, 412, 218, 405, 220, 402, 222, 400, 224, 403, 226, 410, 228, 422, 230, 433,
+                    232, 443, 232, 600, 0, 600, 0, 500);
             }
         }
         private static void Window_KeyPress(object sender, IKeyPressEventArgs e)

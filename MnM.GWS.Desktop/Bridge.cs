@@ -3,13 +3,14 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace MnM.GWS.Desktop
 {
-    public static  class Bridge
+#if MS
+	using System.Windows.Forms;
+	public static class MSBridge
     {
-        public const Benchmarks.Unit Unit = Benchmarks.Unit.MilliSecond;
+        public const Unit BUnit = Unit.MilliSecond;
 
         public static System.Drawing.PointF[] ToPointsF(this IEnumerable<int> xyPairs, bool formultipleBezier = false)
         {
@@ -491,4 +492,5 @@ namespace MnM.GWS.Desktop
             }
         }
     }
+#endif
 }

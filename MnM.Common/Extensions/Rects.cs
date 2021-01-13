@@ -82,35 +82,35 @@ namespace MnM.GWS
         /// <summary>
         /// Returns an IRectangle that is compatible with the one required.
         /// </summary>
-        /// <param name="sW">Width reuired</param>
-        /// <param name="sH">Height Required</param>
-        /// <param name="x">Proposed X position if any.</param>
-        /// <param name="y">Proposed Y position if any.</param>
-        /// <param name="width">Proposed width if any.</param>
-        /// <param name="height">Prioposed height if any.</param>
-        /// <returns>Returns a rexctangle compatible with the sW and sH using the provided parameters (if any) or and empty Irectangle object.</returns>
+        /// <param name="srcW">Width reuired</param>
+        /// <param name="srcH">Height Required</param>
+        /// <param name="copyX">Proposed X position if any.</param>
+        /// <param name="copyY">Proposed Y position if any.</param>
+        /// <param name="copyW">Proposed width if any.</param>
+        /// <param name="copyH">Prooposed height if any.</param>
+        /// <returns>Returns Resultant Rectangle object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CompitibleRc(int sW, int sH, int? x = null, int? y = null, int? width = null, int? height = null)
+        public static Rectangle CompitibleRc(int srcW, int srcH, int? copyX = null, int? copyY = null, int? copyW = null, int? copyH = null)
         {
-            var x0 = x ?? 0;
-            var y0 = y ?? 0;
+            var x0 = copyX ?? 0;
+            var y0 = copyY ?? 0;
 
             if (x0 < 0)
                 x0 = 0;
             if (y0 < 0)
                 y0 = 0;
 
-            var srcW = Math.Min(width ?? sW, sW);
-            var srcH = Math.Min(height ?? sH, sH);
-            if (srcH < 0 || srcW < 0)
+            var w = Math.Min(copyW ?? srcW, srcW);
+            var h = Math.Min(copyH ?? srcH, srcH);
+            if (h < 0 || w < 0)
                 return Rectangle.Empty;
 
-            var right = x0 + srcW;
-            var bottom = y0 + srcH;
-            if (right > sW)
-                right = sW;
-            if (bottom > sH)
-                bottom = sH;
+            var right = x0 + w;
+            var bottom = y0 + h;
+            if (right > srcW)
+                right = srcW;
+            if (bottom > srcH)
+                bottom = srcH;
             return Rectangle.FromLTRB(x0, y0, right, bottom);
         }
 
@@ -141,7 +141,7 @@ namespace MnM.GWS
             CompitibleRc(sz, rect.X, rect.Y, rect.Width, rect.Height);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CompitibleRc(this Rectangle rect, int? x0 = null, int? y0 = null, int? width = null, int? height = null)
+        public static Rectangle CompitibleRc(this IRectangle rect, int? x0 = null, int? y0 = null, int? width = null, int? height = null)
         {
             var x = x0 ?? rect.X;
             var y = y0 ?? rect.Y;
@@ -176,7 +176,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CompitibleRc(this Rectangle sz, Rectangle rect) =>
+        public static Rectangle CompitibleRc(this IRectangle sz, Rectangle rect) =>
             sz.CompitibleRc(rect.X, rect.Y, rect.Width, rect.Height);
         #endregion
 
@@ -188,12 +188,12 @@ namespace MnM.GWS
         /// <param name="areaG2">Second rectangle to be merged.</param>
         /// <returns>IRectangle with area containing the orriginal rectangles.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle Hybrid(this Rectangle areaG1, Rectangle areaG2)
+        public static Rectangle Hybrid(this IRectangle areaG1, IRectangle areaG2)
         {
             var x = Math.Min(areaG1.X, areaG2.X);
             var y = Math.Min(areaG1.Y, areaG2.Y);
-            var r = Math.Max(areaG1.Right, areaG2.Right);
-            var b = Math.Max(areaG1.Bottom, areaG2.Bottom);
+            var r = Math.Max(areaG1.X + areaG1.Width, areaG2.X + areaG2.Width);
+            var b = Math.Max(areaG1.Y + areaG1.Height, areaG2.Y + areaG2.Height);
             return Rectangle.FromLTRB(x, y, r, b);
         }
         /// <summary>
@@ -203,13 +203,12 @@ namespace MnM.GWS
         /// <param name="areaG2">Second rectangle to be merged.</param>
         /// <returns>IRectangleF with area containing the orriginal rectangles.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RectangleF Hybrid(this RectangleF areaG1, RectangleF areaG2)
+        public static RectangleF Hybrid(this IRectangleF areaG1, IRectangleF areaG2)
         {
             var x = Math.Min(areaG1.X, areaG2.X);
             var y = Math.Min(areaG1.Y, areaG2.Y);
-
-            var r = Math.Max(areaG1.Right, areaG2.Right);
-            var b = Math.Max(areaG1.Bottom, areaG2.Bottom);
+            var r = Math.Max(areaG1.X + areaG1.Width, areaG2.X + areaG2.Width);
+            var b = Math.Max(areaG1.Y + areaG1.Height, areaG2.Y + areaG2.Height);
             return RectangleF.FromLTRB(x, y, r, b);
         }
         #endregion
@@ -224,7 +223,7 @@ namespace MnM.GWS
         /// <param name="y">y position of the Top Left corner rounded up to an Integer..</param>
         /// <param name="w">Width rounded up to an Integer.</param>
         /// <param name="h">Height rounded up to an Integer.</param>
-        public static void Ceiling(this RectangleF r, out int x, out int y, out int w, out int h)
+        public static void Ceiling(this IRectangleF r, out int x, out int y, out int w, out int h)
         {
             x = r.X.Ceiling();
             y = r.Y.Ceiling();
@@ -241,7 +240,7 @@ namespace MnM.GWS
         /// <param name="y">y position of the Top Left corner rounded to the nearest Integer.</param>
         /// <param name="w">Width rounded to the nearest Integer.</param>
         /// <param name="h">Height rounded to the nearest Integer.</param>
-        public static void Round(this RectangleF r, out int x, out int y, out int w, out int h)
+        public static void Round(this IRectangleF r, out int x, out int y, out int w, out int h)
         {
             x = r.X.Round();
             y = r.Y.Round();
@@ -258,7 +257,7 @@ namespace MnM.GWS
         /// <param name="y">y position of the Top Left corner rounded down.</param>
         /// <param name="w">Width rounded down.</param>
         /// <param name="h">Height rounded down.</param>
-        public static void Floor(this RectangleF r, out int x, out int y, out int w, out int h)
+        public static void Floor(this IRectangleF r, out int x, out int y, out int w, out int h)
         {
             x = r.X.Floor();
             y = r.Y.Floor();
@@ -276,7 +275,7 @@ namespace MnM.GWS
         /// <param name="y">y position of the Top Left corner rounded up.</param>
         /// <param name="w">Width rounded down.</param>
         /// <param name="h">Height rounded down.</param>
-        public static void Shrink(this RectangleF r, out int x, out int y, out int w, out int h)
+        public static void Shrink(this IRectangleF r, out int x, out int y, out int w, out int h)
         {
             x = r.X.Ceiling();
             y = r.Y.Ceiling();
@@ -294,7 +293,7 @@ namespace MnM.GWS
         /// <param name="y">y position of the Top Left corner rounded down.</param>
         /// <param name="w">Width rounded up.</param>
         /// <param name="h">Height rounded up.</param>
-        public static void Expand(this RectangleF r, out int x, out int y, out int w, out int h)
+        public static void Expand(this IRectangleF r, out int x, out int y, out int w, out int h)
         {
             x = r.X.Floor();
             y = r.Y.Floor();
@@ -313,12 +312,12 @@ namespace MnM.GWS
         /// <param name="y">y position of Top Left corner.</param>
         /// <param name="r">x position of bottom right corner.</param>
         /// <param name="b">y position of bottom right corner.</param>
-        public static void Get(this Rectangle rc, out int x, out int y, out int r, out int b)
+        public static void Get(this IRectangle rc, out int x, out int y, out int r, out int b)
         {
             x = rc.X;
             y = rc.Y;
-            r = rc.Right;
-            b = rc.Bottom;
+            r = x + rc.Width;
+            b = y + rc.Height;
         }
 
         /// <summary>
@@ -330,12 +329,12 @@ namespace MnM.GWS
         /// <param name="y">y position of Top Left corner.</param>
         /// <param name="r">x position of bottom right corner.</param>
         /// <param name="b">y position of bottom right corner.</param>
-        public static void Get(this RectangleF rc, out float x, out float y, out float r, out float b)
+        public static void Get(this IRectangleF rc, out float x, out float y, out float r, out float b)
         {
             x = rc.X;
             y = rc.Y;
-            r = rc.Right;
-            b = rc.Bottom;
+            r = x + rc.Width;
+            b = y + rc.Height;
         }
         #endregion
 
@@ -346,24 +345,12 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the locaiton.</param>
         /// <param name="y">Y co-ordinate of the location.</param>
         /// <returns>True if the location lies within bounds of this object otherwise false.</returns>
-        public static bool Contains(this Rectangle rect, int x, int y) =>
-            x >= rect.X && y >= rect.Y && x <= rect.X + rect.Width && y <= rect.Y + rect.Height;
-
-        /// <summary>
-        /// Tests if given x lies within the bounds of this object.
-        /// </summary>
-        /// <param name="x">X co-ordinate of the locaiton.</param>
-        /// <returns>True if the x lies within bounds of this object otherwise false.</returns>
-        public static bool ContainsX(this Rectangle rect, int x) =>
-            x >= rect.X && x <= rect.X + rect.Width;
-
-        /// <summary>
-        /// Tests if given y lies within the bounds of this object.
-        /// </summary>
-        /// <param name="y">Y co-ordinate of the locaiton.</param>
-        /// <returns>True if the y lies within bounds of this object otherwise false.</returns>
-        public static bool ContainsY(this Rectangle rect, int y) =>
-             y >= rect.Y && y <= rect.Y + rect.Height;
+        public static bool Contains(this IRectangle rectangle, int x, int y)
+        {
+            if (x < rectangle.X || y < rectangle.Y || x > rectangle.X + rectangle.Width || y > rectangle.Y + rectangle.Height)
+                return false;
+            return true;
+        }
 
         /// <summary>
         /// Tests if given location lies within the bounds of this object.
@@ -371,15 +358,19 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the locaiton.</param>
         /// <param name="y">Y co-ordinate of the location.</param>
         /// <returns>True if the location lies within bounds of this object otherwise false.</returns>
-        public static bool Contains(this RectangleF rect, float x, float y) =>
-            x >= rect.X && y >= rect.Y && x <= rect.X + rect.Width && y <= rect.Y + rect.Height;
+        public static bool Contains(this IRectangleF rectangle, float x, float y)
+        {
+            if (x < rectangle.X || y < rectangle.Y || x > rectangle.X + rectangle.Width || y > rectangle.Y + rectangle.Height)
+                return false;
+            return true;
+        }
 
         /// <summary>
         /// Tests if given x lies within the bounds of this object.
         /// </summary>
         /// <param name="x">X co-ordinate of the locaiton.</param>
         /// <returns>True if the x lies within bounds of this object otherwise false.</returns>
-        public static bool ContainsX(this RectangleF rect, float x) =>
+        public static bool ContainsX(this IRectangle rect, int x) =>
             x >= rect.X && x <= rect.X + rect.Width;
 
         /// <summary>
@@ -387,96 +378,24 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="y">Y co-ordinate of the locaiton.</param>
         /// <returns>True if the y lies within bounds of this object otherwise false.</returns>
-        public static bool ContainsY(this RectangleF rect, float y) =>
+        public static bool ContainsY(this IRectangle rect, int y) =>
              y >= rect.Y && y <= rect.Y + rect.Height;
 
-        #endregion
-
-        #region HAS
         /// <summary>
-        /// Checks if specified point is in rectangle. 
+        /// Tests if given x lies within the bounds of this object.
         /// </summary>
-        /// <param name="rect">Rectangle to check with</param>
-        /// <param name="p">Point to check</param>
-        /// <param name="checkRightUpto">If null check is considered upto far right of the rectangle. </param>
-        /// <param name="checkBottomUpto">If null check is considered upto far bottom of the rectangle. </param>
-        /// <returns></returns>
-        public static bool Has(this Rectangle rect, Vector p, int? checkRightUpto = null, int? checkBottomUpto = null)
-        {
-            if (p == null)
-                return false;
-            return Has(rect, p.X, p.Y, checkRightUpto, checkBottomUpto);
-        }
+        /// <param name="x">X co-ordinate of the locaiton.</param>
+        /// <returns>True if the x lies within bounds of this object otherwise false.</returns>
+        public static bool ContainsX(this IRectangleF rect, float x) =>
+            x >= rect.X && x <= rect.X + rect.Width;
 
         /// <summary>
-        /// Checks if specified if x0 & y0 is in rectangle. 
+        /// Tests if given y lies within the bounds of this object.
         /// </summary>
-        /// <param name="rect">Rectangle to check with</param>
-        /// <param name="x0">x coordinate to check if null then its x coordinate of rectangle</param>
-        /// <param name="y0">y coordinate to check if null then its y coordinate of rectangle</param>
-        /// <param name="checkRightUpto">If null check is considered upto far right of the rectangle. </param>
-        /// <param name="checkBottomUpto">If null check is considered upto far bottom of the rectangle. </param>
-        /// <returns></returns>
-        public static bool Has(this Rectangle rect, int? x0 = null, int? y0 = null, int? checkRightUpto = null, int? checkBottomUpto = null)
-        {
-            if (rect.Width == 0 || rect.Height == 0) return false;
-            var x = x0 ?? rect.X;
-            var y = y0 ?? rect.Y;
-            var r = checkRightUpto ?? rect.Right;
-            var b = checkBottomUpto ?? rect.Bottom;
-
-            return x >= rect.X && x <= r && y >= rect.Y && y <= b;
-        }
-
-        /// <summary>
-        /// Checks if specified point is in rectangle. 
-        /// </summary>
-        /// <param name="rect">Rectangle to check with</param>
-        /// <param name="p">Point to check</param>
-        /// <param name="checkRightUpto">If null check is considered upto far right of the rectangle. </param>
-        /// <param name="checkBottomUpto">If null check is considered upto far bottom of the rectangle. </param>
-        /// <returns></returns>
-        public static bool Has(this RectangleF rect, Vector p, int? checkRightUpto = null, int? checkBottomUpto = null)
-        {
-            if (p == null)
-                return false;
-            return Has(rect, p.X, p.Y, checkRightUpto, checkBottomUpto);
-        }
-
-        /// <summary>
-        /// Checks if specified if x0 & y0 is in rectangle. 
-        /// </summary>
-        /// <param name="rect">Rectangle to check with</param>
-        /// <param name="x0">x coordinate to check if null then its x coordinate of rectangle</param>
-        /// <param name="y0">y coordinate to check if null then its y coordinate of rectangle</param>
-        /// <param name="checkRightUpto">If null check is considered upto far right of the rectangle. </param>
-        /// <param name="checkBottomUpto">If null check is considered upto far bottom of the rectangle. </param>
-        /// <returns></returns>
-        public static bool Has(this RectangleF rect, float? x0 = null, float? y0 = null, int? checkRightUpto = null, int? checkBottomUpto = null)
-        {
-            if (rect.Width == 0 || rect.Height == 0) return false;
-            var x = x0 ?? rect.X;
-            var y = y0 ?? rect.Y;
-            var r = checkRightUpto ?? rect.Right;
-            var b = checkBottomUpto ?? rect.Bottom;
-
-            return x >= rect.X && x <= r && y >= rect.Y && y <= b;
-        }
-
-        /// <summary>
-        /// Checks if specified point is in rectangle. 
-        /// </summary>
-        /// <param name="rect">Rectangle to check with</param>
-        /// <param name="p">Point to check</param>
-        /// <param name="checkRightUpto">If null check is considered upto far right of the rectangle. </param>
-        /// <param name="checkBottomUpto">If null check is considered upto far bottom of the rectangle. </param>
-        /// <returns></returns>
-        public static bool Has(this RectangleF rect, VectorF p, int? checkRightUpto = null, int? checkBottomUpto = null)
-        {
-            if (p == null)
-                return false;
-            return Has(rect, p.X, p.Y, checkRightUpto, checkBottomUpto);
-        }
+        /// <param name="y">Y co-ordinate of the locaiton.</param>
+        /// <returns>True if the y lies within bounds of this object otherwise false.</returns>
+        public static bool ContainsY(this IRectangleF rect, float y) =>
+             y >= rect.Y && y <= rect.Y + rect.Height;
         #endregion
 
         #region EQUALS
@@ -489,7 +408,7 @@ namespace MnM.GWS
         /// <param name="h">Height value to match.</param>
         /// <returns>True if all parameters match otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this Rectangle rc, int x, int y, int w, int h) =>
+        public static bool Equals(this IRectangle rc, int x, int y, int w, int h) =>
             x == rc.X && y == rc.Y && w == rc.Width && h == rc.Height;
 
         /// <summary>
@@ -501,7 +420,7 @@ namespace MnM.GWS
         /// <param name="h">Height value to match.</param>
         /// <returns>True if all parameters match otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this RectangleF rc, float x, float y, float w, float h) =>
+        public static bool Equals(this IRectangleF rc, float x, float y, float w, float h) =>
             x == rc.X && y == rc.Y && w == rc.Width && h == rc.Height;
 
         /// <summary>
@@ -510,7 +429,7 @@ namespace MnM.GWS
         /// <param name="o">Other rectangle to match.</param>
         /// <returns>True if all parameters match otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this Rectangle rc, Rectangle o) =>
+        public static bool Equals(this IRectangle rc, IRectangle o) =>
             o.X == rc.X && o.Y == rc.Y && o.Width == rc.Width && o.Height == rc.Height;
 
         /// <summary>
@@ -519,47 +438,90 @@ namespace MnM.GWS
         /// <param name="o">Other rectangle to match.</param>
         /// <returns>True if all parameters match otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this RectangleF rc, RectangleF o) =>
+        public static bool Equals(this IRectangleF rc, IRectangleF o) =>
             o.X == rc.X && o.Y == rc.Y && o.Width == rc.Width && o.Height == rc.Height;
         #endregion
 
         #region INTERSECTS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Intersects(this Rectangle rect, Rectangle other)
+        public static bool Intersects(this IRectangle rect, IRectangle other)
         {
-            bool xOverlap = rect.X.IsWithIn(other.X, other.Right) ||
-                 other.X.IsWithIn(rect.X, rect.Right);
+            bool xOverlap = rect.X.IsWithIn(other.X, other.X + other.Width) ||
+                 other.X.IsWithIn(rect.X, rect.X + rect.Width);
 
-            bool yOverlap = rect.Y.IsWithIn(other.Y, other.Bottom) ||
-                 other.Y.IsWithIn(rect.Y, rect.Bottom);
+            bool yOverlap = rect.Y.IsWithIn(other.Y, other.Y + other.Height) ||
+                 other.Y.IsWithIn(rect.Y, rect.Y + rect.Height);
 
             return xOverlap && yOverlap;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Intersects(this RectangleF rect, RectangleF other)
+        public static bool Intersects(this IRectangleF rect, IRectangleF other)
         {
-            bool xOverlap = rect.X.IsWithIn(other.X, other.Right) ||
-                 other.X.IsWithIn(rect.X, rect.Right);
+            bool xOverlap = rect.X.IsWithIn(other.X, other.X + other.Width) ||
+                 other.X.IsWithIn(rect.X, rect.X + rect.Width);
 
-            bool yOverlap = rect.Y.IsWithIn(other.Y, other.Bottom) ||
-                 other.Y.IsWithIn(rect.Y, rect.Bottom);
+            bool yOverlap = rect.Y.IsWithIn(other.Y, other.Y + other.Height) ||
+                 other.Y.IsWithIn(rect.Y, rect.Y + rect.Height);
 
             return xOverlap && yOverlap;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rectangle Intersect(this IRectangle a, IRectangle b)
+        {
+            int x1 = Math.Max(a.X, b.X);
+            int y1 = Math.Max(a.Y, b.Y);
+            int x2 = Math.Min(a.X + a.Width, b.X + b.Width);
+            int y2 = Math.Min(a.Y + a.Height, b.Y + b.Height);
+
+            if (x2 >= x1
+                && y2 >= y1)
+            {
+                return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+            }
+            return Rectangle.Empty;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RectangleF Intersect(this IRectangleF a, IRectangleF b)
+        {
+            float x1 = Math.Max(a.X, b.X);
+            float y1 = Math.Max(a.Y, b.Y);
+            float x2 = Math.Min(a.X + a.Width, b.X + b.Width);
+            float y2 = Math.Min(a.Y + a.Height, b.Y + b.Height);
+
+            if (x2 >= x1
+                && y2 >= y1)
+            {
+
+                return new RectangleF(x1, y1, x2 - x1, y2 - y1);
+            }
+            return RectangleF.Empty;
         }
         #endregion
 
         #region CONTAINS OTHER RECT
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains(this Rectangle parent, Rectangle child)
+        public static bool Contains(this IRectangle parent, IRectangle child)
         {
-            return child.X >= parent.X && child.Y >= parent.Y && child.Right <= parent.Right && child.Bottom <= parent.Bottom;
+            var chr = child.X + child.Width;
+            var chb = child.Y + child.Height;
+            var par = parent.X + parent.Width;
+            var pab = parent.Y + parent.Height;
+
+            return child.X >= parent.X && child.Y >= parent.Y && chr <= par && chb <= pab;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains(this RectangleF parent, RectangleF child)
+        public static bool Contains(this IRectangleF parent, IRectangleF child)
         {
-            return child.X >= parent.X && child.Y >= parent.Y && child.Right <= parent.Right && child.Bottom <= parent.Bottom;
+            var chr = child.X + child.Width;
+            var chb = child.Y + child.Height;
+            var par = parent.X + parent.Width;
+            var pab = parent.Y + parent.Height;
+
+            return child.X >= parent.X && child.Y >= parent.Y && chr <= par && chb <= pab;
         }
         #endregion
 
@@ -587,12 +549,12 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CorrectMinMax(this Rectangle rectangle, ref int minX, ref int minY, ref int maxX, ref int maxY)
+        public static void CorrectMinMax(this IRectangle rectangle, ref int minX, ref int minY, ref int maxX, ref int maxY)
         {
             if (rectangle == null)
                 return;
             CorrectMinMax(rectangle.X, rectangle.Y, ref minX, ref minY, ref maxX, ref maxY);
-            CorrectMinMax(rectangle.Right, rectangle.Bottom, ref minX, ref minY, ref maxX, ref maxY);
+            CorrectMinMax(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height, ref minX, ref minY, ref maxX, ref maxY);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -625,12 +587,12 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CorrectMinMax(this RectangleF rectangle, ref float minX, ref float minY, ref float maxX, ref float maxY)
+        public static void CorrectMinMax(this IRectangleF rectangle, ref float minX, ref float minY, ref float maxX, ref float maxY)
         {
             if (rectangle == null)
                 return;
             CorrectMinMax(rectangle.X, rectangle.Y, ref minX, ref minY, ref maxX, ref maxY);
-            CorrectMinMax(rectangle.Right, rectangle.Bottom, ref minX, ref minY, ref maxX, ref maxY);
+            CorrectMinMax(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height, ref minX, ref minY, ref maxX, ref maxY);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -645,28 +607,28 @@ namespace MnM.GWS
     partial class Rects
     {
         #region SCALE
-        public static RectangleF Scale(this RectangleF bounds, IScale scale, VectorF? center = null)
+        public static RectangleF Scale(this IRectangleF bounds, IScale scale, VectorF? center = null)
         {
             var sx = scale.X;
             var sy = scale.Y;
             float x, y, r, b;
             var c = center ?? bounds.Center();
             Vectors.Scale(bounds.X, bounds.Y, sx, sy, c.X, c.Y, out x, out y);
-            Vectors.Scale(bounds.Right, bounds.Bottom, sx, sy, c.X, c.Y, out r, out b);
+            Vectors.Scale(bounds.X + bounds.Width, bounds.Y + bounds.Height, sx, sy, c.X, c.Y, out r, out b);
             return RectangleF.FromLTRB(x, y, r, b);
         }
-        public static Rectangle Scale(this Rectangle bounds, IScale scale, VectorF? center = null)
+        public static Rectangle Scale(this IRectangle bounds, IScale scale, VectorF? center = null)
         {
             var sx = scale.X;
             var sy = scale.Y;
             float x, y, r, b;
             var c = center ?? bounds.Center();
             Vectors.Scale(bounds.X, bounds.Y, sx, sy, c.X, c.Y, out x, out y);
-            Vectors.Scale(bounds.Right, bounds.Bottom, sx, sy, c.X, c.Y, out r, out b);
+            Vectors.Scale(bounds.X + bounds.Width, bounds.Y + bounds.Height, sx, sy, c.X, c.Y, out r, out b);
             return Rectangle.FromLTRB(x, y, r, b);
         }
 
-        public static RectangleF Scale(this RectangleF rect, Rotation angle, IScale scale, out bool flatSkew)
+        public static RectangleF Scale(this IRectangleF rect, Rotation angle, IScale scale, out bool flatSkew)
         {
             flatSkew = false;
 
@@ -682,17 +644,17 @@ namespace MnM.GWS
                 flatSkew = skew == SkewType.Horizontal || skew == SkewType.Vertical;
             }
 
-            var bounds = rect;
+            RectangleF bounds = new RectangleF(rect.X, rect.Y, rect.Width, rect.Height);
             float Cx, Cy;
             float Sx = scale.X + 1;
             float Sy = scale.Y + 1;
 
             if (Sx != 1 || Sy != 1)
-                bounds = bounds.Scale(new VectorF(Sx, Sy));
+                bounds = rect.Scale(new VectorF(Sx, Sy));
 
-            bool isRotated = angle.EffectiveCenter(bounds, out Cx, out Cy);
+            bool isRotated = angle.EffectiveCenter(rect, out Cx, out Cy);
             if (isRotated && skew != 0)
-                bounds = bounds.Scale(angle, new VectorF(Cx, Cy));
+                bounds = rect.Scale(angle, new VectorF(Cx, Cy));
 
             return bounds;
         }
@@ -751,7 +713,8 @@ namespace MnM.GWS
         /// <param name="stroke">Stroke size.</param>
         /// <param name="mode">Enum defining stroke position in relation to the curve without stroke.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetStrokeAreas(this Rectangle area, out RectangleF outerArea, out RectangleF innerArea, float stroke, StrokeMode mode = StrokeMode.StrokeMiddle) =>
+        public static void GetStrokeAreas(this IRectangle area, out RectangleF outerArea, out RectangleF innerArea,
+            float stroke, StrokeMode mode = StrokeMode.StrokeMiddle) =>
             GetStrokeAreas(area.X, area.Y, area.Width, area.Height, out outerArea, out innerArea, stroke, mode);
 
         /// <summary>
@@ -763,7 +726,8 @@ namespace MnM.GWS
         /// <param name="stroke">Stroke size.</param>
         /// <param name="mode">Enum defining stroke position in relation to the curve without stroke.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetStrokeAreas(this RectangleF area, out RectangleF outerArea, out RectangleF innerArea, float stroke, StrokeMode mode = StrokeMode.StrokeMiddle) =>
+        public static void GetStrokeAreas(this IRectangleF area, out RectangleF outerArea, 
+            out RectangleF innerArea, float stroke, StrokeMode mode = StrokeMode.StrokeMiddle) =>
             GetStrokeAreas(area.X, area.Y, area.Width, area.Height, out outerArea, out innerArea, stroke, mode);
         #endregion
 
@@ -775,13 +739,18 @@ namespace MnM.GWS
         /// <param name="outer">Outer rectangle as parent.</param>
         /// <param name="inner">Inner rectange as child.</param>
         /// <returns>RectF[] with four elements.</returns>
-        public static RectangleF[] GetOutLineAreas(this RectangleF outer, RectangleF inner)
+        public static RectangleF[] GetOutLineAreas(this IRectangleF outer, IRectangleF inner)
         {
+            float ib = inner.Y + inner.Height;
+            float ob = outer.Y + outer.Height;
+            float ir = inner.X + inner.Width;
+            float or = outer.X + outer.Width;
+
             RectangleF[] r = new RectangleF[4];
-            r[0] = RectangleF.FromLTRB(outer.X, inner.Y, inner.X, inner.Bottom); //left
-            r[1] = RectangleF.FromLTRB(outer.X, outer.Y, outer.Right, inner.Y); //top
-            r[2] = RectangleF.FromLTRB(inner.Right, inner.Y, outer.Right, inner.Bottom); //right
-            r[3] = RectangleF.FromLTRB(outer.X, inner.Bottom, outer.Right, outer.Bottom); //right
+            r[0] = RectangleF.FromLTRB(outer.X, inner.Y, inner.X, ib); //left
+            r[1] = RectangleF.FromLTRB(outer.X, outer.Y, or, inner.Y); //top
+            r[2] = RectangleF.FromLTRB(ir, inner.Y, or, ib); //right
+            r[3] = RectangleF.FromLTRB(outer.X, ib, or, ob); //right
             return r;
         }
         #endregion
@@ -797,6 +766,7 @@ namespace MnM.GWS
         public static RectangleF HybridBounds(this IEnumerable<VectorF> c1, IEnumerable<VectorF> c2) =>
             c1.ToArea().Hybrid(c2.ToArea());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RectangleF HybridBounds(this ILine c1, ILine c2)
         {
             float minX, minY, maxX, maxY;
@@ -815,7 +785,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangle to convert.</param>
         /// <returns></returns>
-        public static RectangleF ToRectangleF(this Rectangle r) =>
+        public static RectangleF ToRectangleF(this IRectangle r) =>
             new RectangleF(r.X, r.Y, r.Width, r.Height);
 
         /// <summary>
@@ -823,7 +793,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangle to convert</param>
         /// <returns></returns>
-        public static RectangleF ToAreaF(this Rectangle r) =>
+        public static RectangleF ToAreaF(this IRectangle r) =>
             new RectangleF(r.X, r.Y, r.Width, r.Height);
 
         /// <summary>
@@ -832,7 +802,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Ceiling(this RectangleF r) =>
+        public static Rectangle Ceiling(this IRectangleF r) =>
             new Rectangle(r.X.Ceiling(), r.Y.Ceiling(), r.Width.Ceiling(), r.Height.Ceiling());
 
         /// <summary>
@@ -841,7 +811,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Round(this RectangleF r) =>
+        public static Rectangle Round(this IRectangleF r) =>
             new Rectangle(r.X.Round(), r.Y.Round(), r.Width.Round(), r.Height.Round());
 
         /// <summary>
@@ -850,7 +820,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Floor(this RectangleF r) =>
+        public static Rectangle Floor(this IRectangleF r) =>
             new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height);
 
         /// <summary>
@@ -860,7 +830,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Shrink(this RectangleF r) =>
+        public static Rectangle Shrink(this IRectangleF r) =>
             new Rectangle(r.X.Ceiling(), r.Y.Ceiling(), (int)r.Width, (int)r.Height);
 
         /// <summary>
@@ -870,7 +840,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Expand(this RectangleF r, int offSet = 0) =>
+        public static Rectangle Expand(this IRectangleF r, int offSet = 0) =>
            new Rectangle((int)r.X - offSet, (int)r.Y - offSet, r.Width.Ceiling() + offSet, r.Height.Ceiling() + offSet);
 
         /// <summary>
@@ -880,7 +850,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Expand(this Rectangle r, int offSet = 0) =>
+        public static Rectangle Expand(this IRectangle r, int offSet = 0) =>
            new Rectangle((int)r.X - offSet, (int)r.Y - offSet, r.Width + offSet, r.Height + offSet);
 
         /// <summary>
@@ -890,7 +860,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">IRectangleF to convert</param>
         /// <returns>New IRectangle with integer dimensions.</returns>
-        public static Rectangle Expand(this Rectangle r, int offsetX = 0, int offsetY = 0, int offsetW = 0, int offsetH = 0) =>
+        public static Rectangle Expand(this IRectangle r, int offsetX = 0, int offsetY = 0, int offsetW = 0, int offsetH = 0) =>
            new Rectangle(r.X - offsetX,  r.Y - offsetY, r.Width + offsetW, r.Height + offsetH);
         #endregion
 
@@ -900,7 +870,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">Rectangle to get center from</param>
         /// <returns></returns>
-        public static VectorF Center(this RectangleF r) =>
+        public static VectorF Center(this IRectangleF r) =>
             new VectorF(r.X + r.Width / 2f, r.Y + r.Height / 2f);
 
         /// <summary>
@@ -908,57 +878,28 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="r">RectangleF to get center from</param>
         /// <returns></returns>
-        public static VectorF Center(this Rectangle r) =>
+        public static VectorF Center(this IRectangle r) =>
             new VectorF(r.X + r.Width / 2f, r.Y + r.Height / 2f);
         #endregion
 
         #region PROXIMITY - INTERSECT
-        public static bool Proximity(this Rectangle rect, Vector p, out Vector distancePoint)
+        public static bool Proximity(this IRectangle rect, Vector p, out Vector distancePoint)
         {
-            bool ok = (Has(rect, p));
+            bool ok = rect.Contains(p.X, p.Y);
             if (ok)
                 distancePoint = new Vector(rect.X + rect.Width - p.X, rect.Y + rect.Height - p.Y);
             else
                 distancePoint = new Vector();
             return ok;
         }
-        public static bool Proximity(this RectangleF rect, VectorF p, out VectorF distancePoint)
+        public static bool Proximity(this IRectangleF rect, VectorF p, out VectorF distancePoint)
         {
-            bool ok = (Has(rect, p));
+            bool ok = rect.Contains(p.X, p.Y);
             if (ok)
                 distancePoint = new VectorF(rect.X + rect.Width - p.X, rect.Y + rect.Height - p.Y);
             else
                 distancePoint = new VectorF();
             return ok;
-        }
-        public static Rectangle Intersect(this Rectangle a, Rectangle b)
-        {
-            int x1 = Math.Max(a.X, b.X);
-            int y1 = Math.Max(a.Y, b.Y);
-            int x2 = Math.Min(a.Right, b.Right);
-            int y2 = Math.Min(a.Bottom, b.Bottom);
-
-            if (x2 >= x1
-                && y2 >= y1)
-            {
-                return new Rectangle(x1, y1, x2 - x1, y2 - y1);
-            }
-            return Rectangle.Empty;
-        }
-        public static RectangleF Intersect(this RectangleF a, RectangleF b)
-        {
-            float x1 = Math.Max(a.X, b.X);
-            float x2 = Math.Min(a.X + a.Width, b.X + b.Width);
-            float y1 = Math.Max(a.Y, b.Y);
-            float y2 = Math.Min(a.Y + a.Height, b.Y + b.Height);
-
-            if (x2 >= x1
-                && y2 >= y1)
-            {
-
-                return new RectangleF(x1, y1, x2 - x1, y2 - y1);
-            }
-            return RectangleF.Empty;
         }
         #endregion
 
@@ -997,9 +938,9 @@ namespace MnM.GWS
         #endregion
 
         #region CLAMP
-        public static RectangleF Clamp(this RectangleF rect, Size max) =>
+        public static RectangleF Clamp(this IRectangleF rect, Size max) =>
             Clamp(rect, max.Width, max.Height);
-        public static RectangleF Clamp(this RectangleF rect, float width, float height)
+        public static RectangleF Clamp(this IRectangleF rect, float width, float height)
         {
             if (width == 0)
                 width = rect.Width;
@@ -1016,9 +957,9 @@ namespace MnM.GWS
                 h = height;
             return new RectangleF(x, y, w, h);
         }
-        public static Rectangle Clamp(this Rectangle rect, Size max) =>
+        public static Rectangle Clamp(this IRectangle rect, Size max) =>
             Clamp(rect, max.Width, max.Height);
-        public static Rectangle Clamp(this Rectangle rect, int width, int height)
+        public static Rectangle Clamp(this IRectangle rect, int width, int height)
         {
             if (width == 0)
                 width = rect.Width;
@@ -1038,12 +979,12 @@ namespace MnM.GWS
         #endregion
 
         #region INFLATE
-        public static Rectangle Inflate(this Rectangle rect, int xUnit, int yUnit)
+        public static Rectangle Inflate(this IRectangle rect, int xUnit, int yUnit)
         {
             var x = rect.X - xUnit;
             var y = rect.Y - yUnit;
-            int r = rect.Right + xUnit;
-            int b = rect.Bottom + yUnit;
+            var r = (rect.X + rect.Width);
+            var b = (rect.Y + rect.Height);
             if (x < 0)
                 x = 0;
             if (y < 0)
@@ -1051,12 +992,12 @@ namespace MnM.GWS
             return Rectangle.FromLTRB(x, y, r, b);
         }
 
-        public static Rectangle Inflate(this Rectangle rect, int xUnit, int yUnit, int rUnit, int bUnit)
+        public static Rectangle Inflate(this IRectangle rect, int xUnit, int yUnit, int rUnit, int bUnit)
         {
             var x = rect.X - xUnit;
             var y = rect.Y - yUnit;
-            int r = rect.Right + rUnit;
-            int b = rect.Bottom + bUnit;
+            var r = (rect.X + rect.Width) + rUnit;
+            var b = (rect.Y + rect.Height) + bUnit;
             if (x < 0)
                 x = 0;
             if (y < 0)
@@ -1064,12 +1005,12 @@ namespace MnM.GWS
             return Rectangle.FromLTRB(x, y, r, b);
         }
 
-        public static RectangleF Inflate(this RectangleF rect, int xUnit, int yUnit)
+        public static RectangleF Inflate(this IRectangleF rect, int xUnit, int yUnit)
         {
             var x = rect.X - xUnit;
             var y = rect.Y - yUnit;
-            var r = rect.Right + xUnit;
-            var b = rect.Bottom + yUnit;
+            var r = (rect.X + rect.Width);
+            var b = (rect.Y + rect.Height);
             if (x < 0)
                 x = 0;
             if (y < 0)
@@ -1077,19 +1018,18 @@ namespace MnM.GWS
             return RectangleF.FromLTRB(x, y, r, b);
         }
 
-        public static RectangleF Inflate(this RectangleF rect, int xUnit, int yUnit, int rUnit, int bUnit)
+        public static RectangleF Inflate(this IRectangleF rect, int xUnit, int yUnit, int rUnit, int bUnit)
         {
             var x = rect.X - xUnit;
             var y = rect.Y - yUnit;
-            var r = rect.Right + rUnit;
-            var b = rect.Bottom + bUnit;
+            var r = (rect.X + rect.Width) + rUnit;
+            var b = (rect.Y + rect.Height) + bUnit;
             if (x < 0)
                 x = 0;
             if (y < 0)
                 y = 0;
             return RectangleF.FromLTRB(x, y, r, b);
         }
-
         #endregion
     }
 #endif

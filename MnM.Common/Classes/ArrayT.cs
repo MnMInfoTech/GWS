@@ -3,13 +3,12 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MnM.GWS
 {
-    public sealed class Array<T> : ISize, ILength, IResizable
+    public sealed class Array<T>: IBlockable
     {
         #region VARIABLES
         GCHandle handle;
@@ -35,12 +34,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region PROPERTIES
-        int ILength.Length => Length;
-        int ISize.Width => Width;
-        int ISize.Height => Height;
-        #endregion
-
         #region RESIZE
         public void Resize(int? width = null, int? height = null)
         {
@@ -63,6 +56,12 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region PROPERTIES
+        int ISize.Width => Width;
+        int ISize.Height => Height;
+        int ILength.Length => Length;
+        #endregion
+
         #region CLEAR
         /// <summary>
         /// Clears data blocks covered by area specified by x, y, width and height paramters.
@@ -73,18 +72,14 @@ namespace MnM.GWS
         /// <param name="height">Height of region which is to be cleared.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Rectangle Clear(int dstX, int dstY, int width, int height)
+        public void Clear(int dstX, int dstY, int width, int height)
         {
-            var copy = this.CompitibleRc(dstX, dstY, width, height);
-            T[] src = new T[copy.Width * copy.Height];
-            int copyX = copy.X;
-            int copyY = copy.Y;
-            int copyW = copy.Width;
-            int copyH = copy.Height;
-
-            BlockCopy action = (srcIndex, dstIndex, copyLength, x, y) => Array.Copy(src, srcIndex, Data, dstIndex, copyLength);
-            var dstRc = Blocks.CopyBlock(copyX, copyY, copyW, copyH, src.Length, copyW, copyH, dstX, dstY, Width, Length, action);
-            return new Rectangle(dstX, dstY, copy.Width, copy.Height);
+            int copyX = dstX;
+            int copyY = dstY;
+            int copyW = width;
+            int copyH = height;
+            T[] src = new T[copyW * copyH];
+            Blocks.CopyBlock(src, copyX, copyY, copyW, copyH, src.Length, copyW, copyH, Data, dstX, dstY, Width, Length);
         }
         #endregion
 

@@ -13,7 +13,7 @@ using System.Text;
 namespace MnM.GWS
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    unsafe delegate void AudioCallback(IntPtr userdata, byte* stream, int len);
+    public unsafe delegate void AudioCallback(IntPtr userdata, byte* stream, int len);
 #if AllHidden
     partial class SdlFactory
     {
@@ -93,7 +93,7 @@ namespace MnM.GWS
             private const string libSDL = Application.libSDL;
 
             [DllImport(libSDL, EntryPoint = "SDL_Init", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-            protected static extern int Init(SystemFlags flags);
+            internal static extern int Init(SystemFlags flags);
 
             //SDL_AudioInit
             static int InitAudio(string driver_name) => audioInit(Operations.UTF8_ToNative(driver_name));
@@ -132,7 +132,7 @@ namespace MnM.GWS
 
             //SDL_GetAudioDeviceStatus
             [DllImport(libSDL, EntryPoint = "SDL_GetAudioDeviceStatus", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-            protected static extern AudioStatus GetAudioDeviceStatus(uint dev);
+            internal static extern AudioStatus GetAudioDeviceStatus(uint dev);
 
             //SDL_GetAudioDriver
             internal static string GetAudioDriver(int index) => Operations.UTF8_ToManaged(getAudioDriver(index));
@@ -141,7 +141,7 @@ namespace MnM.GWS
 
             //SDL_GetAudioStatus
             [DllImport(libSDL, EntryPoint = "SDL_GetAudioStatus", CallingConvention = CallingConvention.Cdecl)]
-            protected static extern AudioStatus GetAudioStatus();
+            internal static extern AudioStatus GetAudioStatus();
 
             //SDL_GetCurrentAudioDriver
             protected static string GetCurrentAudioDriver() => Operations.UTF8_ToManaged(getCurrentAudioDriver());

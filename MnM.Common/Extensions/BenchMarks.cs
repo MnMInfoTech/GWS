@@ -8,16 +8,6 @@ namespace MnM.GWS
 {
     public static class Benchmarks
     {
-        #region BENCHMARK UNIT
-        public enum Unit
-        {
-            MilliSecond,
-            Tick,
-            Second,
-            MicroSecond
-        }
-        #endregion
-
         #region BENCHMARKING
         static readonly Stopwatch Watch = new Stopwatch();
         #endregion

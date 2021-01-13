@@ -279,8 +279,22 @@ namespace MnM.GWS
 
             direction = min > max;
             bool Negative = direction;
-            start = Scanning ? min.Ceiling() : min.Round();
-            end = Scanning ? max.Ceiling() : max.Round();
+            start = (int)min;
+            end = (int)max;
+            if(Scanning)
+            {
+                if (min - start > 0)
+                    ++start;
+                if (max - end > 0)
+                    ++end;
+            }
+            else
+            {
+                if (min - start >= 0.5f)
+                    ++start;
+                if (max - end >= 0.5f)
+                    ++end;
+            }
             initialValue = start * calculatedSlope + t;
 
             if (Negative)
@@ -779,7 +793,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <returns>True if segment is valid and processed otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(VectorF p1, VectorF p2, PixelAction<float> action, DrawCommand lineCommand) =>
+        public static void ProcessLine(VectorF p1, VectorF p2, PixelAction action, Command lineCommand) =>
             Renderer.ProcessLine(p1.X, p1.Y, p2.X, p2.Y, action, lineCommand);
         #endregion
     }

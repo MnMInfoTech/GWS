@@ -1,0 +1,273 @@
+﻿/* Licensed under the MIT/X11 license.
+* Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
+* This notice may not be removed from any source distribution.
+* See license.txt for detailed licensing details. */
+#if GWS || Window
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+#if Standard
+namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
+namespace MnM.GWS
+#endif
+{
+    public partial class Boundary : IBoundary
+    {
+        #region VARIABLES
+        /// <summary>
+        /// X co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int X1 = int.MaxValue;
+
+        /// <summary>
+        /// Y co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int Y1 = int.MaxValue;
+
+        /// <summary>
+        /// Far right X co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int X2 = 0;
+
+        /// <summary>
+        /// Far bottom Y co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int Y2 = 0;
+
+        /// <summary>
+        /// X co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int X3 = int.MaxValue;
+
+        /// <summary>
+        /// Y co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int Y3 = int.MaxValue;
+
+        /// <summary>
+        /// Far right X co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int X4 = 0;
+
+        /// <summary>
+        /// Far bottom Y co-ordinate of recently drawn area of this object.
+        /// </summary>
+        volatile int Y4 = 0;
+
+
+        public static Boundary Empty = new Boundary();
+
+        static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
+        #endregion
+
+        #region CONSTRUCTORS
+        public Boundary() { }
+        #endregion
+
+        #region PROPERTIES
+        public bool Valid => X2 != 0 && Y2 != 0;
+        public int Width => X2 - X1;
+        public int Height => Y2 - Y1;
+        public int X => X1;
+        public int Y => Y1;
+        #endregion
+
+        #region CONTAINS
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Contains(int x, int y)
+        {
+            if (x < X1 || y < Y1 || x > X2 || y > Y2)
+                return false;
+
+            var Area1 = GetArea(X1, Y3, X3, Y1, X4, Y2);
+            var Area2 = GetArea(X3, Y1, X2, Y4, X4, Y2);
+
+            var a1 = GetArea(x, y, X1, Y3, X3, Y1);
+            var a2 = GetArea(x, y, X1, Y3, X2, Y4);
+            var a3 = GetArea(x, y, X2, Y4, X3, Y1);
+            var result = a1 + a2 + a3;
+            if (Area1 == result)
+                return true;
+            a1 = GetArea(x, y, X3, Y1, X2, Y4);
+            a2 = GetArea(x, y, X3, Y1, X4, Y2);
+            a3 = GetArea(x, y, X4, Y2, X2, Y4);
+            result = a1 + a2 + a3;
+            return Area2 == result;
+        }
+        #endregion
+
+        #region INTERSECTS
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Intersects<T>(T other) where T : IPoint, ISize
+        {
+            if (other.Width == 0 || other.Height == 0)
+                return false;
+            bool xOverlap = X >= other.X && X <= (other.X + other.Width) ||
+                 other.X >= X && X <= (X + Width);
+
+            bool yOverlap = Y >= other.Y && Y <= (other.Y + other.Height) ||
+                 other.Y >= Y && Y <= (Y + Height);
+
+            if (!xOverlap || !yOverlap)
+                return false;
+
+            return true;
+        }
+        #endregion
+
+        #region INTERSECT
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IRectangle Intersect<T>(T b) where T : IPoint, ISize
+        {
+            int x1 = Math.Max(X, b.X);
+            int y1 = Math.Max(Y, b.Y);
+            int x2 = Math.Min(X + Width, b.X + b.Width);
+            int y2 = Math.Min(Y + Height, b.Y + b.Height);
+
+            if (x2 >= x1
+                && y2 >= y1)
+            {
+                return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+            }
+            return Rectangle.Empty;
+        }
+        #endregion
+
+        #region NOTIFY
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Notify(int x1, int y1, int x2, int y2) =>
+            Notify2(x1, y1, x2, y2);
+        partial void Notify2(int x1, int y1, int x2, int y2);
+        #endregion
+
+        #region MERGE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Merge(IRectangle boundary) =>
+            Merge2(boundary);
+        partial void Merge2(IRectangle boundary);
+        #endregion
+
+        #region COPY
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Copy(IRectangle boundary) =>
+            Copy2(boundary);
+        partial void Copy2(IRectangle boundary);
+        #endregion
+
+        #region CLEAR
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            X1 = Y1 = int.MaxValue;
+            X2 = Y2 = X3 = Y3 = X4 = Y4 = 0;
+        }
+        #endregion
+
+        #region RESET
+        public void Reset(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+        {
+            X1 = x1;
+            Y1 = y1;
+            X2 = x2;
+            Y2 = y2;
+            X3 = x3;
+            Y3 = y3;
+            X4 = x4;
+            Y4 = y4;
+        }
+        #endregion
+
+        #region DRAW
+        public void Draw(IImage buffer, Command command = 0)
+        {
+            if (X2 == 0 || Y2 == 0)
+                return;
+
+            PixelAction action;
+            IReadable pen;
+
+            if (buffer is IReadable)
+                pen = (IReadable)buffer;
+            else if (buffer is IBackground)
+                pen = ((IBackground)buffer).Background as IReadable;
+            else
+                pen = Pens.Black;
+            var invert = pen.Invert;
+            pen.Invert = true;
+            command |= Command.DirectScreen;
+            var boundary = Factory.newBoundary();
+            buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
+            Renderer.ProcessLine(X1, Y3, X3, Y1, action, command);
+            Renderer.ProcessLine(X2, Y4, X3, Y1, action, command);
+            Renderer.ProcessLine(X2, Y4, X4, Y2, action, command);
+            Renderer.ProcessLine(X1, Y3, X4, Y2, action, command);
+            pen.Invert = invert;
+            (buffer as IUpdatable)?.Update(command, boundary);
+        }
+        #endregion
+
+        #region GET BOUNDS
+        public IRectangle GetBounds(int xExpand = 1, int yExpand = 1)
+        {
+            if (X2 == 0 || Y2 == 0)
+                return Rectangle.Empty;
+            var x = X1 - xExpand;
+            var y = Y1 - yExpand;
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            return Rectangle.FromLTRB(x, y, X2 + xExpand * 2, Y2 + yExpand * 2);
+        }
+        #endregion
+
+        #region GET AREA
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static float GetArea(int p1X, int p1Y, int p2X, int p2Y, int p3X, int p3Y)
+        {
+            var area = ((p1X * (p2Y - p3Y) + p2X * (p3Y - p1Y) + p3X * (p1Y - p2Y)) / 2f);
+            if (area < 0)
+                area = -area;
+            return area;
+        }
+        #endregion
+
+        #region CLONE
+        public IBoundary Clone()
+        {
+            var bdr = new Boundary();
+            bdr.Copy(this);
+            return bdr;
+        }
+
+        object ICloneable.Clone() =>
+            Clone();
+        #endregion
+
+        #region OPERATORS
+        public static implicit operator bool(Boundary boundary) =>
+            boundary.Valid;
+        #endregion
+
+        #region GET ENUMERATOR
+        public IEnumerator<Vector> GetEnumerator()
+        {
+            yield return new Vector(X1, Y3);
+            yield return new Vector(X3, Y1);
+            yield return new Vector(X2, Y4);
+            yield return new Vector(X4, Y2);
+        }
+        IEnumerator IEnumerable.GetEnumerator() =>
+            GetEnumerator();
+        #endregion
+
+        public override string ToString()
+        {
+            return string.Format(description, X1, Y1, X2, Y2);
+        }
+    }
+}
+#endif

@@ -2,10 +2,17 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+#if GWS || Window
 using System;
 using System.Runtime.CompilerServices;
 
+#if Standard
+namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
 namespace MnM.GWS
+#endif
 {
 #if AllHidden
     partial class _Factory
@@ -13,211 +20,136 @@ namespace MnM.GWS
 #else
     public
 #endif
-        sealed class Pen : IPen, IColor, ISettings
+        sealed class Pen : IPen, IColor, ISettingsReceiver
+    {
+        #region VARIABLES
+        int w, h;
+        int color;
+        bool Inversion;
+        #endregion
+
+        #region CONSTRUCTOR
+        Pen(int color)
         {
-            #region VARIABLES
-            int X, Y, w, h, R, B;
-            int color;
-            bool Inversion;
-            #endregion
-
-            #region CONSTRUCTOR
-            Pen(int color)
-            {
-                this.color = color;
-                ID = color.ToString();
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static Pen CreateInstance(int color)
-            {
-                var ID = color.ToString();
-                Pen pen;
-
-                if (!Pens.Get(ID, out pen))
-                {
-                    pen = new Pen(color);
-                }
-                return pen;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static Pen CreateInstance(IColor color) =>
-                CreateInstance(color.Color);
-            #endregion
-
-            #region PROPERTIES
-            public string ID { get; private set; }
-            public int Color => color;
-            public int Type => 0;
-            public int Width => w;
-            public int Height => h;
-            public int Length => w * h;
-            public bool Invert
-            {
-                get => Inversion;
-                set => Inversion = value;
-            }
-            #endregion
-
-            #region READ PIXEL
-            public int ReadPixel(int x, int y)
-            {
-                if (Inversion)
-                    return color ^ 0xffffff;
-                return color;
-            }
-            #endregion
-
-            #region READLINE
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int* src, out int srcIndex, out int length)
-            {
-                int[] pixels = new int[0];
-                srcIndex = 0;
-                
-                if (!Numbers.PositiveLength(ref start, ref end, out length))
-                    goto mks;
-                int c = color;
-                if (Inversion)
-                    c = color ^ 0xffffff;
-
-                pixels = new int[length];
-
-                fixed (int* d = pixels)
-                {
-                    for (int i = 0; i < length; i++)
-                        d[i] = c;
-                    src = d;
-                }
-                return;
-            mks:
-                length = 0;
-                fixed (int* p = pixels)
-                    src = p;
-            }
-            #endregion
-
-            #region COPY TO
-            public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY, DrawCommand command)
-            {
-                var data = color.Repeat(copyW * copyH + 1);
-                var dst = (int*)destination;
-                fixed (int* source = data)
-                {
-                    int* src = source;
-                    return Blocks.CopyBlock(0, 0, copyW, copyH, data.Length, copyW, copyH, destX, destY, destW, destLen,
-                         (srcIndex, dstIndex, w, x, y) =>
-                         Blocks.Copy(src, srcIndex, dst, dstIndex, w, command));
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY, int copyW, int copyH, DrawCommand command)
-            {
-                Rectangle dstRc = Rectangle.Empty;
-                if (block is IPixels)
-                {
-                    dstRc = CopyTo(copyX, copyY, copyW, copyH, ((IPixels)block).Source, block.Length, block.Width, destX, destY, command);
-                    goto Update;
-                }
-
-                if (!(block is IWritable))
-                    return dstRc;
-
-                var surface = (IWritable)block;
-
-                Rectangle copy = new Rectangle(copyX, copyY, copyW, copyH);
-
-                var x = copy.X;
-                var r = x + copy.Width;
-                var y = copy.Y;
-                var b = y + copy.Height;
-                copyW = copy.Width;
-                copyH = copy.Height;
-
-                if (y < 0)
-                {
-                    b += y;
-                    y = 0;
-                }
-                int destLen = surface.Length;
-                var dy = destY;
-                int srcIndex, copylen;
-
-                int i = 0;
-                while (y < b)
-                {
-                    ReadLine(x, r, y, true, out int* src, out srcIndex, out copylen);
-                    surface.WriteLine(src, srcIndex, copylen, copylen, true, destX, dy++, null, null, command);
-                    ++i;
-                    ++y;
-                }
-                dstRc = new Rectangle(destX, destY, copyW, i);
-                
-            Update:
-                if (dstRc && block is IUpdatable)
-                {
-                    var updatable = (IUpdatable)block;
-                    updatable.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height);
-                    updatable.Update(command);
-                }
-                return dstRc;
-            }
-            #endregion
-
-            #region CONTAINS
-            public bool Contains(int x, int y)
-            {
-                return x >= X && y >= Y && x <= R && y <= B;
-            }
-            #endregion
-
-            #region CLONE
-            public object Clone()
-            {
-                var pen = new Pen(Color);
-                pen.X = X;
-                pen.Y = Y;
-                pen.w = w;
-                pen.h = h;
-                pen.R = R;
-                pen.B = B;
-                return pen;
-            }
-            #endregion
-
-            #region COPY SETTINGS
-            public void CopySettings(ISettable settings, bool flushMode)
-            {
-                if (settings == null) goto Flush;
-
-                if (flushMode)
-                    goto Flush;
-
-                if (settings is IRenderInfo)
-                {
-                    var Settings = settings as IRenderInfo;
-                    var bounds = Settings.Bounds;
-
-                    X = bounds.X;
-                    Y = bounds.Y;
-                    w = bounds.Width;
-                    h = bounds.Height;
-                    R = bounds.Right;
-                    B = bounds.Bottom;
-#if Advanced
-                    Inversion = Settings.Command.HasFlag(DrawCommand.InvertBrushColor);
-#endif
-                }
-                return;
-            Flush:
-                X = Y = R = B = w = h = 0;
-                Inversion = false;
-            }
-#endregion
+            this.color = color;
+            ID = color.ToString();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Pen CreateInstance(int color)
+        {
+            var ID = color.ToString();
+                Pen pen = new Pen(color);
+            return pen;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Pen CreateInstance(IColor color) =>
+            CreateInstance(color.Color);
+        #endregion
+
+        #region PROPERTIES
+        public string ID { get; private set; }
+        public int Color => color;
+        public int Type => 0;
+        public int Width => w;
+        public int Height => h;
+        public int Length => w * h;
+        public bool Invert
+        {
+            get => Inversion;
+            set => Inversion = value;
+        }
+        #endregion
+
+        #region READ PIXEL
+        public int ReadPixel(int x, int y)
+        {
+            if (Inversion)
+                return color ^ 0xffffff;
+            return color;
+        }
+        #endregion
+
+        #region READLINE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, out byte[] pixelAlphas)
+        {
+            pixels = new int[0];
+            srcIndex = 0;
+            pixelAlphas = null;
+            if (!Numbers.PositiveLength(ref start, ref end, out length))
+                goto mks;
+            int c = color;
+            if (Inversion)
+                c = color ^ 0xffffff;
+
+            pixels = new int[length];
+
+            fixed (int* d = pixels)
+            {
+                for (int i = 0; i < length; i++)
+                    d[i] = c;
+            }
+            return;
+        mks:
+            length = 0;
+        }
+        #endregion
+
+        #region COPY TO
+        public unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, Command command = 0, string shapeID = null)
+        {
+            var data = color.Repeat(copyW * copyH + 1);
+            var dst = (int*)destination;
+            fixed (int* source = data)
+            {
+                int* src = source;
+                return Blocks.CopyBlock(0, 0, copyW, copyH, data.Length, copyW, copyH, dstX, dstY, dstW, dstLen,
+                     (srcIndex, dstIndex, w, x, y, cmd) =>
+                     Blocks.Copy(src, srcIndex, dst, dstIndex, w, cmd, null, true), command);
+            }
+        }
+        #endregion
+
+        #region CLONE
+        public object Clone()
+        {
+            var pen = new Pen(Color);
+            pen.w = w;
+            pen.h = h;
+            return pen;
+        }
+        #endregion
+
+        #region COPY SETTINGS
+        public void Receive(IDrawParams settings, bool flushMode)
+        {
+            if (settings == null) goto Flush;
+
+            if (flushMode)
+                goto Flush;
+            if(settings is IBounds)
+            {
+                var Settings = ((IBounds)settings).Bounds;
+                w = Settings.Width;
+                h = Settings.Height;
+            }
+            else if (settings is ISize)
+            {
+                var Settings = ((ISize)settings);
+                w = Settings.Width;
+                h = Settings.Height;
+            }
+            return;
+        Flush:
+            w = h = 0;
+        }
+        #endregion
+    }
 #if AllHidden
     }
 #endif
 }
+#endif

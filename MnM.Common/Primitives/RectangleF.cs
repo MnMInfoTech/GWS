@@ -14,7 +14,7 @@ namespace MnM.GWS
     /// Also Oppsite sides have an agle of 90 degree between them.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct RectangleF : IEquatable<RectangleF>
+    public struct RectangleF : IEquatable<IRectangleF>, IRectangleF
     {
         #region VARIABLES
         public float X, Y, Width, Height;
@@ -37,7 +37,7 @@ namespace MnM.GWS
             Y = y;
             Width = w;
             Height = h;
-            if (x == int.MinValue || y == int.MinValue || w <= 0 || h <= 0)
+            if (x == float.NaN || y == float.NaN || w <= 0 || h <= 0)
                 valid = 0;
             else
                 valid = 1;
@@ -47,7 +47,7 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="r">Area to copy bounds from.</param>
-        public RectangleF(Rectangle r) :
+        public RectangleF(IRectangle r) :
             this(r.X, r.Y, r.Width, r.Height)
         { }
 
@@ -55,7 +55,7 @@ namespace MnM.GWS
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to copy bounds from.</param>
-        public RectangleF(RectangleF r) :
+        public RectangleF(IRectangleF r) :
             this(r.X, r.Y, r.Width, r.Height)
         { }
         /// <summary>
@@ -123,21 +123,27 @@ namespace MnM.GWS
         /// Y co-ordinate of center of this object.
         /// </summary>
         public float Cy => Y + Height / 2;
+        float IPointF.X => X;
+        float IPointF.Y => Y;
+        float ISizeF.Width => Width;
+        float ISizeF.Height => Height;
         #endregion
 
         #region EQUALITY
-        public bool Equals(RectangleF other)
+        public bool Equals(IRectangleF other)
         {
             if (other == null)
                 return false;
-            if (valid == 0 && !other)
+
+            if (valid == 0 && !(other.X == float.NaN || other.Y == float.NaN || 
+                other.Width <= 0 || other.Height <= 0))
                 return true;
             return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
         }
         public override bool Equals(object obj)
         {
-            if (obj is RectangleF)
-                return Equals((RectangleF)obj);
+            if (obj is IRectangleF)
+                return Equals((IRectangleF)obj);
             else if (obj is Rectangle)
                 return Equals((RectangleF)obj);
             return false;
@@ -165,7 +171,6 @@ namespace MnM.GWS
         {
             return string.Format(description, X, Y, Width, Height);
         }
-
     }
 #endif
 }

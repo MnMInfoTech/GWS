@@ -45,7 +45,6 @@ namespace MnM.GWS
             Instance = factory;
 #endif
             Operations.Converters["GWS"] = factory.newConverter();
-            Pens.Attach(Instance);
             ImageProcessor = Instance.newImageProcessor();
             ShapeParser = Instance.newShapeParser();
             using (var fontStream = System.IO.File.OpenRead(sysFontpath))
@@ -69,12 +68,6 @@ namespace MnM.GWS
 
         #region PROPERTIES
         /// <summary>
-        /// Returns a default system font available in GWS.
-        /// The font is: UbuntuMono-Regular and is covered under UBUNTU FONT LICENCE Version 1.0.
-        /// </summary>
-        public static IFont SystemFont { get; private set; }
-
-        /// <summary>
         /// Returns true if currently underlying instance is null.
         /// </summary>
         public static bool IsDisposed => Instance == null;
@@ -84,6 +77,48 @@ namespace MnM.GWS
         /// the GWS uses STBIMage internally. For more info on STBImage visit: https://github.com/nothings/stb
         /// </summary>
         public static IImageProcessor ImageProcessor { get; private set; }
+
+#if GWS || Window
+#endif
+        #endregion
+
+        #region IMAGE PROCESSOR
+        /// <summary>
+        /// Creates a new image processor. By default, GWS uses STBImage. For more info on STBImage visit: https://github.com/nothings/stb
+        /// </summary>
+        /// <returns>IImageProcessor</returns>
+        public static IImageProcessor newImageProcessor()
+        {
+            return Instance.newImageProcessor();
+        }
+
+        public static IAnimatedGifFrame newAnimatedGifFrame(byte[] data, int delay)
+        {
+            return Instance.newAnimatedGifFrame(data, delay);
+        }
+        #endregion
+
+        class _EventArgs : EventArgs, IEventArgs { }
+        public static void Dispose()
+        {
+            Instance.Dispose();
+#if GWS || Window
+            SystemFont = null;
+#endif
+            ImageProcessor.Dispose();
+            Operations.Converters.Remove("GWS");
+        }
+    }
+
+#if GWS || Window
+    partial class Factory
+    {
+        #region PROPERTIES
+        /// <summary>
+        /// Returns a default system font available in GWS.
+        /// The font is: UbuntuMono-Regular and is covered under UBUNTU FONT LICENCE Version 1.0.
+        /// </summary>
+        public static IFont SystemFont { get; private set; }
 
         /// <summary>
         /// Returns an instance of shape parser coming from attached factory.
@@ -118,6 +153,7 @@ namespace MnM.GWS
         {
             return Instance.newSurface(width, height);
         }
+
         /// <summary>
         /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
         /// </summary>
@@ -188,21 +224,19 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region CANVAS
+        #region IMAGE
         /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
+        /// Creates a new Image object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
         /// </param>
         /// <returns>IBuffer</returns>
-        public static ICanvas newCanvas(int width, int height)
-        {
-            return Instance.newCanvas(width, height);
-        }
+        public static IImage newImage(int width, int height) =>
+            Instance.newImage(width, height);
 
         /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
+        /// Creates a new Image object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="pixels">Pointer containing data to use. Please note that the array will be converted to int[] first.
         /// <param name="width">Required width</param>
@@ -212,13 +246,11 @@ namespace MnM.GWS
         /// otherwise set an internal menory buffer referring to the pixel pointer supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        public static ICanvas newCanvas(IntPtr pixels, int width, int height)
-        {
-            return Instance.newCanvas(pixels, width, height);
-        }
+        public static IImage newImage(IntPtr pixels, int width, int height) =>
+            Instance.newImage(pixels, width, height);
 
         /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
+        /// Creates a new Image object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="pixels">pixel array containing color data/// </param>
         /// <param name="width">Required width</param>
@@ -227,13 +259,11 @@ namespace MnM.GWS
         /// otherwise set an internal menory buffer referring to the pixel array supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        public static ICanvas newCanvas(int[] pixels, int width, int height, bool makeCopy = false)
-        {
-            return Instance.newCanvas(pixels, width, height, makeCopy);
-        }
+        public static IImage newImage(int[] pixels, int width, int height, bool makeCopy = false) =>
+            Instance.newImage(pixels, width, height, makeCopy);
 
         /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
+        /// Creates a new Surface object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
@@ -242,30 +272,18 @@ namespace MnM.GWS
         /// otherwise set an internal menory buffer referring to the pixel array supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        public static ICanvas newCanvas(int width, int height, byte[] pixels, bool makeCopy = false)
-        {
-            return Instance.newCanvas(width, height, pixels, makeCopy);
-        }
-
-        /// <summary>
-        /// Creates a new GWS Graphics object attached with given window.
-        /// </summary>
-        /// <param name="window">Window which this object belongs to.</param>
-        /// <returns></returns>
-        public static ICanvas newCanvas(IRenderTarget window)
-        {
-            return Instance.newCanvas(window);
-        }
+        public static IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false) =>
+            Instance.newImage(width, height, pixels, makeCopy);
 
         /// <summary>
         /// Creates a new GWS Graphics object and fills it with the data received from the disk image file located on a given path.
         /// </summary>
         /// <param name="path">Path of the disk image file to use as a initial source of Graphics object</param>
         /// <returns>IGraphics</returns>
-        public static ICanvas newCanvas(string path)
+        public static IImage newImage(string path)
         {
             var tuple = Renderer.ReadImage(path);
-            return newCanvas(tuple.Item2, tuple.Item3, tuple.Item1);
+            return newImage(tuple.Item2, tuple.Item3, tuple.Item1);
         }
 
         /// <summary>
@@ -274,10 +292,22 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="pixels">Byte array to use as internal memory buffer</param>
         /// <returns>Graphics object</returns>
-        public static ICanvas newCanvas(byte[] pixels)
+        public static IImage newImage(byte[] pixels)
         {
             var tuple = Renderer.ReadImage(pixels);
-            return newCanvas(tuple.Item2, tuple.Item3, tuple.Item1);
+            return newImage(tuple.Item2, tuple.Item3, tuple.Item1);
+        }
+        #endregion
+
+        #region CANVAS
+        /// <summary>
+        /// Creates a new GWS Graphics object attached with given window.
+        /// </summary>
+        /// <param name="window">Window which this object belongs to.</param>
+        /// <returns></returns>
+        public static ICanvas newCanvas(IRenderTarget window)
+        {
+            return Instance.newCanvas(window);
         }
         #endregion
 
@@ -288,17 +318,87 @@ namespace MnM.GWS
 #endif
         #endregion
 
+        #region SETTINGS
+        public static Settings newSettings(string shapeID, IPenContext context) =>
+            new Settings(shapeID, context);
+        public static Settings newSettings(IPenContext context) =>
+            new Settings(null, context);
+        public static Settings newSettings(string shapeID) =>
+            new Settings(shapeID, null);
+        public static Settings newSettings() =>
+            new Settings(null, null);
+        public static Settings newSettings(string shapeID, IPenContext context, Command Command)
+        {
+            var settings = new Settings(shapeID, context);
+            settings.Command = Command;
+            return settings;
+        }
+        public static Settings newSettings(string shapeID, Command Command)
+        {
+            var settings = new Settings(shapeID, null);
+            settings.Command = Command;
+            return settings;
+        }
+        public static Settings newSettings(IPenContext context, Command Command)
+        {
+            var settings = new Settings(null, context);
+            settings.Command = Command;
+            return settings;
+        }
+        public static Settings newSettings(Command Command)
+        {
+            var settings = new Settings(null, null);
+            settings.Command = Command;
+            return settings;
+        }
+        #endregion
+
+        #region SHAPE
+        /// <summary>
+        /// Creates new shape with renderable and default settings for rendering.
+        /// </summary>
+        /// <param name="renderable">Renderable to render.</param>
+        /// <returns></returns>
+        public static IShape newShape(IRenderable renderable) =>
+            new Shape(renderable);
+
+        /// <summary>
+        /// Creates new shape with renderable and default settings for rendering.
+        /// </summary>
+        /// <param name="renderable">Renderable to render.</param>
+        /// <param name="settings">Settings attached to the Renderable to render.</param>
+        /// <returns></returns>
+        public static IShape newShape(IRenderable renderable, ISettings settings) =>
+            new Shape(renderable, settings);
+        #endregion
+
+        #region NATIVE WINDOW
+        public static INativeTarget newNativeTarget(int x, int y, int w, int h) =>
+            Instance.newNativeTarget(x, y, w, h);
+
+        public static INativeTarget newNativeTarget() =>
+            Instance.newNativeTarget(formX, formY, formW, formH);
+
+        public static INativeTarget newNativeTarget(int formW, int formH) =>
+            Instance.newNativeTarget(formX, formY, formW, formH);
+        #endregion
+
         #region FORM
-#if NATIVE
         public static IForm newForm(int x, int y, int w, int h) =>
             Instance.newForm(x, y, w, h);
 
-        public static IForm newForm() =>
-            Instance.newForm(formX, formY, formW, formH);
-
         public static IForm newForm(int formW, int formH) =>
             Instance.newForm(formX, formY, formW, formH);
-#endif
+
+        public static IForm newForm() =>
+            Instance.newForm(formX, formY, formW, formH);
+        #endregion
+
+        #region TO PEN
+        public static IReadable ToPen(this IPenContext context, int? w = null, int? h = null)
+        {
+            return Instance.ToPen(context, w, h);
+        }
         #endregion
 
         #region BRUSH - PEN
@@ -362,7 +462,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">Parent buffer block.</param>
         /// <returns></returns>
-        public static IObjCollection newObjectCollection(IWritable buffer)
+        public static IObjCollection newObjectCollection(IImage buffer)
         {
             return Instance.newObjectCollection(buffer);
         }
@@ -384,7 +484,7 @@ namespace MnM.GWS
         /// If no null value is provided then ChangePrimary method will not be able to change the primary buffer value.
         /// As we have already provided dedicated primary buffer here.</param>
         /// <returns>IBufferCollection</returns>
-        public static IBufferCollection newBufferCollection(ISurface primary) =>
+        public static IBufferCollection newBufferCollection(ICanvas primary) =>
             Instance.newBufferCollection(primary);
 
         /// <summary>
@@ -395,16 +495,6 @@ namespace MnM.GWS
         public static IBufferCollection newBufferCollection(int capacity) =>
             Instance.newBufferCollection(capacity);
 #endif
-        #endregion
-
-        #region RENDER INFO
-        public static
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo
-#endif
-        newRenderInfo(string shapeID) => Instance.newRenderInfo(shapeID);
         #endregion
 
         #region POLY FILL
@@ -430,22 +520,6 @@ namespace MnM.GWS
         public static IFont newFont(Stream fontStream, int fontSize)
         {
             return Instance.newFont(fontStream, fontSize);
-        }
-        #endregion
-
-        #region IMAGE PROCESSOR
-        /// <summary>
-        /// Creates a new image processor. By default, GWS uses STBImage. For more info on STBImage visit: https://github.com/nothings/stb
-        /// </summary>
-        /// <returns>IImageProcessor</returns>
-        public static IImageProcessor newImageProcessor()
-        {
-            return Instance.newImageProcessor();
-        }
-
-        public static IAnimatedGifFrame newAnimatedGifFrame(byte[] data, int delay)
-        {
-            return Instance.newAnimatedGifFrame(data, delay);
         }
         #endregion
 
@@ -495,7 +569,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="angle">Angle to apply rotation on x1, y1, x2, y2 before creating the line segment</param>
         /// <param name="deviation">Deviates the line segment to create a parallel one away from the original points specified</param>
-        public static ILine newLine(float x1, float y1, float x2, float y2,  Rotation angle, float deviation, bool? antiClock = null)
+        public static ILine newLine(float x1, float y1, float x2, float y2, Rotation angle, float deviation, bool? antiClock = null)
         {
             if (angle)
                 angle.Rotate(ref x1, ref y1, ref x2, ref y2, antiClock);
@@ -503,7 +577,7 @@ namespace MnM.GWS
             if (deviation != 0)
                 Lines.Parallel(x1, y1, x2, y2, deviation, out x1, out y1, out x2, out y2);
 
-           return newLine(x1, y1, x2, y2);
+            return newLine(x1, y1, x2, y2);
         }
 
         /// <summary>
@@ -558,7 +632,7 @@ namespace MnM.GWS
         /// <param name="startAngle">Start angle from where a curve start</param>
         /// <param name="endAngle">End Angle where a curve stops. If type includes NoSweepAngle option otherwise effective end angle is start angle + end angle</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
-        public static ICurve newCurve(float x, float y, float width, float height, 
+        public static ICurve newCurve(float x, float y, float width, float height,
             float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF))
         {
             return Instance.newCurve(x, y, width, height, startAngle, endAngle, type, rotation, scale);
@@ -584,7 +658,7 @@ namespace MnM.GWS
         /// <param name="rotation">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         /// <returns>ICurve</returns>
-        public static ICurve newCurve(VectorF first, VectorF second, VectorF third, CurveType type, 
+        public static ICurve newCurve(VectorF first, VectorF second, VectorF third, CurveType type,
             Rotation rotation = default(Rotation), VectorF scale = default(VectorF))
         {
             var Conic = newConic(first, second, third, type, rotation, scale);
@@ -602,7 +676,7 @@ namespace MnM.GWS
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         /// <param name="rotation">Angle to apply rotation while rendering the arc/pie</param>
         public static ICurve newCurve(VectorF p1, VectorF p2, VectorF p3, VectorF p4, CurveType type = CurveType.Full,
-            Rotation rotation = default(Rotation), VectorF Scale = default(VectorF)) 
+            Rotation rotation = default(Rotation), VectorF Scale = default(VectorF))
         {
             var Conic = newConic(p1, p2, p3, p4, type, rotation, Scale);
             return newCurve(Conic, Conic.GetPieTriangle(type), type);
@@ -619,7 +693,7 @@ namespace MnM.GWS
         /// <param name="rotation">Angle to apply rotation while rendering the arc/pie</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         public static ICurve newCurve(VectorF p1, VectorF p2, VectorF p3, VectorF p4, VectorF p5, CurveType type = CurveType.Pie,
-            Rotation rotation = default(Rotation), VectorF Scale = default(VectorF)) 
+            Rotation rotation = default(Rotation), VectorF Scale = default(VectorF))
         {
             var Conic = newConic(p1, p2, p3, p4, p5, rotation, Scale);
             return newCurve(Conic, Conic.GetPieTriangle(type), type);
@@ -631,7 +705,7 @@ namespace MnM.GWS
         /// <param name="conic">A circle whiose identical copy is to be created</param>
         /// <param name="assignID">If true assign an unique id to the object</param>
         /// <returns>ICurve</returns>
-        public static ICurve newCurve(IConic conic, Rotation rotation = default(Rotation), VectorF Scale = default(VectorF)) 
+        public static ICurve newCurve(IConic conic, Rotation rotation = default(Rotation), VectorF Scale = default(VectorF))
         {
             CurveType type = CurveType.Full;
             float startAngle = 0, endAngle = 0;
@@ -642,7 +716,7 @@ namespace MnM.GWS
                 endAngle = (conic as ICurve).EndAngle;
                 type = (conic as ICurve).Type;
             }
-            var Conic = newConic(conic.Bounds, 0, 0, rotation, Scale);
+            var Conic = newConic(conic.X, conic.Y, conic.Width, conic.Height, 0, 0, rotation, Scale);
             return newCurve(Conic, Conic.GetPieTriangle(type, startAngle, endAngle), type);
         }
         #endregion
@@ -738,7 +812,7 @@ namespace MnM.GWS
         /// <param name="startAngle">Start angle from where a curve start</param>
         /// <param name="endAngle">Start angle from where a curve start</param>
         public static IConic newConic(float x, float y, float width, float height, float startAngle = 0, float endAngle = 0,
-            Rotation rotation = default(Rotation), VectorF Scale = default(VectorF)) 
+            Rotation rotation = default(Rotation), VectorF Scale = default(VectorF))
         {
             var bounds = new RectangleF(x, y, width, height);
 
@@ -783,7 +857,7 @@ namespace MnM.GWS
         /// <param name="h">Height the bounding rectangle</param>
         /// <param name="angle">Angle to apply rotation while rendering the rhombus</param>
         /// <param name="deviation">If not null, it replaces the value of width parameter</param>
-        public static ITetragon newTetragon(float x, float y, float w, float h, float? deviation = null) 
+        public static ITetragon newTetragon(float x, float y, float w, float h, float? deviation = null)
         {
             w = deviation ?? w;
             return newTetragon(new VectorF(x, y), new VectorF(x, y + h), new VectorF(x + w, y + h), new VectorF(x + w, y));
@@ -873,7 +947,7 @@ namespace MnM.GWS
                 parallelLineDeviation = values[4];
             if (values.Length > 5)
                 parallelLineSizeDifference = values[5];
-            return  newTetragon(first, parallelLineDeviation, StrokeMode.StrokeOuter, parallelLineSizeDifference);
+            return newTetragon(first, parallelLineDeviation, StrokeMode.StrokeOuter, parallelLineSizeDifference);
         }
 
         /// <summary>
@@ -928,7 +1002,7 @@ namespace MnM.GWS
         /// <param name="points">Points which defines perimiter of the bezier.</param>
         public static IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points)
         {
-           return Instance.newBezier(type, pointValues, points);
+            return Instance.newBezier(type, pointValues, points);
         }
 
         /// <summary>
@@ -1151,6 +1225,15 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region BOUNDARY
+        /// <summary>
+        /// Gets a new boundary object.
+        /// </summary>
+        /// <returns></returns>
+        public static IBoundary newBoundary() =>
+            Instance.newBoundary();
+        #endregion
+
         #region SHAPE
         /// <summary>
         /// Returns an instance of IShape.
@@ -1158,9 +1241,9 @@ namespace MnM.GWS
         /// <param name="shape">Points to form a shape.</param>
         /// <param name="name">NAme of shape</param>
         /// <returns></returns>
-        public static IShape newShape(IEnumerable<VectorF> shape, string name)
+        public static IFigure newShape(IEnumerable<VectorF> shape, string name)
         {
-            return Instance.newShape(shape, name);
+            return Instance.newFigure(shape, name);
         }
         #endregion
 
@@ -1175,7 +1258,7 @@ namespace MnM.GWS
         /// <returns></returns>
         public static IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY)
         {
-           return Instance.newGlyphs(text, area, resultGlyphs, minHBY);
+            return Instance.newGlyphs(text, area, resultGlyphs, minHBY);
         }
         #endregion
 
@@ -1190,7 +1273,7 @@ namespace MnM.GWS
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         public static IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false)
         {
-           return Instance.newRoundBox(x, y, w, h, cornerRadius, positiveLocation);
+            return Instance.newRoundBox(x, y, w, h, cornerRadius, positiveLocation);
         }
 
         /// <summary>
@@ -1290,210 +1373,7 @@ namespace MnM.GWS
         /// <param name="dstY">X cordinate of destination location where glyphs to be drawn</param>
         /// <param name="drawStyle">A specific drawstyle to use to measure and draw glyphs if desired so</param>
         public static IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null) =>
-             Instance.newText(font, text,  dstX, dstY, drawStyle);
-        #endregion
-
-        class _EventArgs : EventArgs, IEventArgs { }
-        public static void Dispose()
-        {
-            Instance.Dispose();
-            Pens.Dispose();
-            SystemFont = null;
-            ImageProcessor.Dispose();
-            Operations.Converters.Remove("GWS");
-        }
-    }
-
-#if Window
-    partial class Factory
-    {
-        #region PROPERTIES
-        /// <summary>
-        /// Gets the primary scrren available with system default resoultion in the operating system.
-        /// </summary>
-        public static IScreen PrimaryScreen => Instance.PrimaryScreen;
-
-        /// <summary>
-        /// Gets the default window creatio flags from the operating system.
-        /// </summary>
-        public static int DefaultWinFlag => Instance.DefaultWinFlag;
-
-        /// <summary>
-        /// Gets the flags required to create full screen desktop.
-        /// </summary>
-        public static int FullScreenWinFlag => Instance.FullScreenWinFlag;
-
-        /// <summary>
-        /// Returns all the availble scrrens with possible resoultion provided by operating system.
-        /// </summary>
-        public static IScreens AvailableScreens => Instance.AvailableScreens;
-
-        /// <summary>
-        /// Gets the array of available pixelformats offered by the operating system.
-        /// </summary>
-        public static uint[] PixelFormats => Instance.PixelFormats;
-
-        /// <summary>
-        /// Gets default primary pixel format offered by the operating system.
-        /// </summary>
-        public static uint PixelFormat => Instance.PixelFormat;
-
-        /// <summary>
-        /// Indicates if a connection to by the operating system is established or not.
-        /// </summary>
-        public static bool Initialized => Instance.Initialized;
-
-        /// <summary>
-        /// Gets the type of underlying operating system.
-        /// </summary>
-        public static OS OS => Instance.OS;
-
-        /// <summary>
-        /// Gets the latest error occured while interacting with by the operating system.
-        /// </summary>
-        public static string LastError => Instance.LastError;
-        #endregion
-
-        #region WINDOW
-        /// <summary>
-        /// Creates a new window with specified parameters.
-        /// </summary>
-        /// <param name="title">Title of the window</param>
-        /// <param name="width">Width of the window</param>
-        /// <param name="height">Height of the window</param>
-        /// <param name="x">X coordinate of location of the window</param>
-        /// <param name="y">Y coordinate of location of the window</param>
-        /// <param name="flags">GwsWindowFlags to create a certain kind of window i.e fullscrren, resizeable etc.</param>
-        /// <param name="display"></param>
-        /// <param name="renderFlags">Define flags to create renderer whenever requested.</param>
-        /// <returns></returns>
-        public static IWindow newWindow(string title = null, int? width = null, int? height = null, int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null, RendererFlags? renderFlags = null)
-        {
-            return Instance.newWindow(title, width, height, x, y, flags, display, renderFlags);
-        }
-
-        /// <summary>
-        /// Create a new window from an existing window by refercing the exisitng window's handle.
-        /// </summary>
-        /// <param name="externalWindow">External window</param>
-        /// <returns></returns>
-        public static IWindow newWindow(IExternalWindow externalWindow)
-        {
-            return Instance.newWindow(externalWindow);
-        }
-        #endregion
-
-        #region OPENGL CONTEXT
-        /// <summary>
-        /// Creates OpenGL context for the given window.
-        /// </summary>
-        /// <param name="window"></param>
-        /// <returns></returns>
-        public static IGLContext newGLContext(IWindow window)
-        {
-            return Instance.newGLContext(window);
-        }
-        #endregion
-
-        #region GET WINDOW ID
-        /// <summary>
-        /// Gets the unique window id associated with the window.
-        /// </summary>
-        /// <param name="window"></param>
-        /// <returns></returns>
-        public static int GetWindowID(IntPtr window)
-        {
-            return Instance.GetWindowID(window);
-        }
-        #endregion
-
-        #region SAVE IMAGE AS BITMAP
-        /// <summary>
-        /// Saves specified buffer as an image file on disk on specified file path.
-        /// </summary>
-        /// <param name="image">Image which is to be saved</param>
-        /// <param name="file">Path of a file where data is to be saved</param>
-        /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        public static bool SaveAsBitmap(ICopyable image, string file)
-        {
-            return Instance.SaveAsBitmap(image, file);
-        }
-
-        /// <summary>
-        /// Saves specified buffer as an image file on disk on specified file path.
-        /// </summary>
-        /// <param name="Pixels"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="file"></param>
-        /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        public static bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file)
-        {
-            return Instance.SaveAsBitmap(Pixels, width, height, file);
-        }
-        #endregion
-
-        #region CURSOR TYPE ENUM CONVERSION
-        /// <summary>
-        /// Converts GWS cursor types to native operating system's cursor types.
-        /// </summary>
-        /// <param name="cursorType"></param>
-        /// <returns></returns>
-        public static int ConvertToSystemCursorID(CursorType cursorType)
-        {
-            return Instance.ConvertToSystemCursorID(cursorType);
-        }
-        #endregion
-
-        #region TEXTURE
-        /// <summary>
-        /// Crates a new texture from a given window.
-        /// </summary>
-        /// <param name="window">Window from which texture is to be created</param>
-        /// <param name="w">Width of the texture</param>
-        /// <param name="h">Height of the texture</param>
-        /// <param name="isPrimary">Defines if its a primary one for the window</param>
-        /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
-        /// <returns></returns>
-        public static ITexture newTexture(IHost window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null)
-        {
-            return Instance.newTexture(window, w, h, isPrimary, textureAccess);
-        }
-
-        /// <summary>
-        /// Crates a new texture from a given window. Then copies dat from given buffer.
-        /// </summary>
-        /// <param name="window">Window from which texture is to be created</param>
-        /// <param name="source">Buffer source to copy data from onto surface</param>
-        /// <param name="isPrimary">Define if its a primary one for the window</param>
-        /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
-        /// <returns></returns>
-        public static ITexture newTexture(IHost window, ICopyable source, bool isPrimary = false, TextureAccess? textureAccess = null)
-        {
-            return Instance.newTexture(window, source, isPrimary, textureAccess);
-        }
-        #endregion
-
-        #region SET CURSOR POSITION
-        /// <summary>
-        /// Sets window's cusor's position to specified x and y coordinates.
-        /// </summary>
-        /// <param name="x">X coordinate of the location where cursor should be placed</param>
-        /// <param name="x">Y coordinate of the location where cursor should be placed</param>
-        public static void SetCursorPos(int x, int y)
-        {
-            Instance.SetCursorPos(x, y);
-        }
-        #endregion
-
-        #region MISC
-        /// <summary>
-        /// Disables the existing scrren saver of the operating system.
-        /// </summary>
-        public static void DisableScreenSaver()
-        {
-            Instance.DisableScreenSaver();
-        }
+             Instance.newText(font, text, dstX, dstY, drawStyle);
         #endregion
 
         #region PUSH, PUMP, POLL EVENTS
@@ -1521,22 +1401,8 @@ namespace MnM.GWS
                 return false;
             return Instance.PollEvent(out e);
         }
-
-        /// <summary>
-        /// Gives current event happeed on active window.
-        /// </summary>
-        /// <param name="e">Event which is just happened</param>
-        /// <returns></returns>
-        public static ISound newWavPlayer()
-        {
-            return Instance.newWavPlayer();
-        }
         #endregion
-    }
-#endif
 
-    partial class Factory
-    {
         #region BRUSH
         /// <summary>
         /// Creates a new brush of certain width and height using specified fill style.
@@ -1640,7 +1506,81 @@ namespace MnM.GWS
         #endregion
 
 #if Window
+        #region PROPERTIES
+        /// <summary>
+        /// Gets the primary scrren available with system default resoultion in the operating system.
+        /// </summary>
+        public static IScreen PrimaryScreen => Instance.PrimaryScreen;
+
+        /// <summary>
+        /// Gets the default window creatio flags from the operating system.
+        /// </summary>
+        public static int DefaultWinFlag => Instance.DefaultWinFlag;
+
+        /// <summary>
+        /// Gets the flags required to create full screen desktop.
+        /// </summary>
+        public static int FullScreenWinFlag => Instance.FullScreenWinFlag;
+
+        /// <summary>
+        /// Returns all the availble scrrens with possible resoultion provided by operating system.
+        /// </summary>
+        public static IScreens AvailableScreens => Instance.AvailableScreens;
+
+        /// <summary>
+        /// Gets the array of available pixelformats offered by the operating system.
+        /// </summary>
+        public static uint[] PixelFormats => Instance.PixelFormats;
+
+        /// <summary>
+        /// Gets default primary pixel format offered by the operating system.
+        /// </summary>
+        public static uint PixelFormat => Instance.PixelFormat;
+
+        /// <summary>
+        /// Indicates if a connection to by the operating system is established or not.
+        /// </summary>
+        public static bool Initialized => Instance.Initialized;
+
+        /// <summary>
+        /// Gets the type of underlying operating system.
+        /// </summary>
+        public static OS OS => Instance.OS;
+
+        /// <summary>
+        /// Gets the latest error occured while interacting with by the operating system.
+        /// </summary>
+        public static string LastError => Instance.LastError;
+        #endregion
+
         #region WINDOW
+        /// <summary>
+        /// Creates a new window with specified parameters.
+        /// </summary>
+        /// <param name="title">Title of the window</param>
+        /// <param name="width">Width of the window</param>
+        /// <param name="height">Height of the window</param>
+        /// <param name="x">X coordinate of location of the window</param>
+        /// <param name="y">Y coordinate of location of the window</param>
+        /// <param name="flags">GwsWindowFlags to create a certain kind of window i.e fullscrren, resizeable etc.</param>
+        /// <param name="display"></param>
+        /// <param name="renderFlags">Define flags to create renderer whenever requested.</param>
+        /// <returns></returns>
+        public static IWindow newWindow(string title = null, int? width = null, int? height = null, int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null, RendererFlags? renderFlags = null)
+        {
+            return Instance.newWindow(title, width, height, x, y, flags, display, renderFlags);
+        }
+
+        /// <summary>
+        /// Create a new window from an existing window by refercing the exisitng window's handle.
+        /// </summary>
+        /// <param name="externalWindow">External window</param>
+        /// <returns></returns>
+        public static IWindow newWindow(IExternalWindow externalWindow)
+        {
+            return Instance.newWindow(externalWindow);
+        }
+
         /// <summary>
         /// Creates a new window with specified parameters.
         /// </summary>
@@ -1742,6 +1682,132 @@ namespace MnM.GWS
             return Instance.newWindow(title, width, height, null, null, flags, null, null);
         }
         #endregion
+
+        #region OPENGL CONTEXT
+        /// <summary>
+        /// Creates OpenGL context for the given window.
+        /// </summary>
+        /// <param name="window"></param>
+        /// <returns></returns>
+        public static IGLContext newGLContext(IWindow window)
+        {
+            return Instance.newGLContext(window);
+        }
+        #endregion
+
+        #region GET WINDOW ID
+        /// <summary>
+        /// Gets the unique window id associated with the window.
+        /// </summary>
+        /// <param name="window"></param>
+        /// <returns></returns>
+        public static int GetWindowID(IntPtr window)
+        {
+            return Instance.GetWindowID(window);
+        }
+        #endregion
+
+        #region SAVE IMAGE AS BITMAP
+        /// <summary>
+        /// Saves specified buffer as an image file on disk on specified file path.
+        /// </summary>
+        /// <param name="image">Image which is to be saved</param>
+        /// <param name="file">Path of a file where data is to be saved</param>
+        /// <returns>Returns true, if operation is succesful otherwise false.</returns>
+        public static bool SaveAsBitmap(IBlockable image, string file, Command command = Command.DirectScreen)
+        {
+            return Instance.SaveAsBitmap(image, file, command);
+        }
+
+        /// <summary>
+        /// Saves specified buffer as an image file on disk on specified file path.
+        /// </summary>
+        /// <param name="Pixels"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="file"></param>
+        /// <returns>Returns true, if operation is succesful otherwise false.</returns>
+        public static bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file)
+        {
+            return Instance.SaveAsBitmap(Pixels, width, height, file);
+        }
+        #endregion
+
+        #region CURSOR TYPE ENUM CONVERSION
+        /// <summary>
+        /// Converts GWS cursor types to native operating system's cursor types.
+        /// </summary>
+        /// <param name="cursorType"></param>
+        /// <returns></returns>
+        public static int ConvertToSystemCursorID(CursorType cursorType)
+        {
+            return Instance.ConvertToSystemCursorID(cursorType);
+        }
+        #endregion
+
+        #region TEXTURE
+        /// <summary>
+        /// Crates a new texture from a given window.
+        /// </summary>
+        /// <param name="window">Window from which texture is to be created</param>
+        /// <param name="w">Width of the texture</param>
+        /// <param name="h">Height of the texture</param>
+        /// <param name="isPrimary">Defines if its a primary one for the window</param>
+        /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
+        /// <returns></returns>
+        public static ITexture newTexture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null)
+        {
+            return Instance.newTexture(window, w, h, isPrimary, textureAccess);
+        }
+
+        /// <summary>
+        /// Crates a new texture from a given window. Then copies dat from given buffer.
+        /// </summary>
+        /// <param name="window">Window from which texture is to be created</param>
+        /// <param name="source">Buffer source to copy data from onto surface</param>
+        /// <param name="isPrimary">Define if its a primary one for the window</param>
+        /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
+        /// <returns></returns>
+        public static ITexture newTexture(IRenderWindow window, ICopyable source, bool isPrimary = false, TextureAccess? textureAccess = null)
+        {
+            return Instance.newTexture(window, source, isPrimary, textureAccess);
+        }
+        #endregion
+
+        #region SET CURSOR POSITION
+        /// <summary>
+        /// Sets window's cusor's position to specified x and y coordinates.
+        /// </summary>
+        /// <param name="x">X coordinate of the location where cursor should be placed</param>
+        /// <param name="x">Y coordinate of the location where cursor should be placed</param>
+        public static void SetCursorPos(int x, int y)
+        {
+            Instance.SetCursorPos(x, y);
+        }
+        #endregion
+
+        #region MISC
+        /// <summary>
+        /// Disables the existing scrren saver of the operating system.
+        /// </summary>
+        public static void DisableScreenSaver()
+        {
+            Instance.DisableScreenSaver();
+        }
+        #endregion
+
+        #region NEW WAV PLAYER
+        /// <summary>
+        /// Gives current event happeed on active window.
+        /// </summary>
+        /// <param name="e">Event which is just happened</param>
+        /// <returns></returns>
+        public static ISound newWavPlayer()
+        {
+            return Instance.newWavPlayer();
+        }
+        #endregion
 #endif
     }
+#endif
 }

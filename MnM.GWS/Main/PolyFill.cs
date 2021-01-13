@@ -8,8 +8,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+#if Standard
+namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
 namespace MnM.GWS
+#endif
 {
+#if GWS || Window
 #if AllHidden
     partial class _Factory
     {
@@ -18,13 +25,13 @@ namespace MnM.GWS
 #endif
         sealed class PolyFill : _PolyFill, IPolyFill
         {
-            #region VARIABLES
+    #region VARIABLES
             Collection<float>[] Results;
             VectorF Start;
             Collection<VectorF> points;
-            #endregion
+    #endregion
 
-            #region BEGIN - END
+    #region BEGIN - END
             public override void Begin(int y, int bottom)
             {
                 base.Begin(y, bottom);
@@ -37,10 +44,10 @@ namespace MnM.GWS
                 Results = null;
                 points = null;
             }
-            #endregion
+    #endregion
 
-            #region FILL
-            public override void Fill(FillAction<float> fillAction)
+    #region FILL
+            public override void Fill(FillAction fillAction)
             {
                 if (fillAction == null)
                     return;
@@ -58,11 +65,11 @@ namespace MnM.GWS
                 for (int i = MinY; i < MaxY; i++)
                     FillLine(Results[i - MinY], i, true, fillAction);
             }
-            #endregion
+    #endregion
 
-            #region FILL SCAN LINE
+    #region FILL SCAN LINE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override void FillLine(ICollection<float> data, int axis, bool horizontal, FillAction<float> action, float? alpha = null)
+            public override void FillLine(ICollection<float> data, int axis, bool horizontal, FillAction action, float? alpha = null)
             {
                 if (data == null || data.Count == 0)
                     return;
@@ -96,9 +103,9 @@ namespace MnM.GWS
                         ++i;
                 }
             }
-            #endregion
+    #endregion
 
-            #region SCAN
+    #region SCAN
             public override void Scan(float x, int y)
             {
                 if (!y.IsWithIn(MinY, MaxY))
@@ -197,10 +204,10 @@ namespace MnM.GWS
                     firstIndex = lastIndex + 1;
                 }
             }
-            #endregion
+    #endregion
 
-            #region NOTIFY SCAN RESULT
-            protected override void NotifyScanResult(float value, int axis, bool horizontal, DrawCommand command)
+    #region NOTIFY SCAN RESULT
+            protected override void NotifyScanResult(float value, int axis, bool horizontal, Command command)
             {
                 Numbers.Confine(MinX, MaxX, ref value);
 
@@ -212,16 +219,16 @@ namespace MnM.GWS
 
                 Results[i].Add(value);
             }
-            #endregion
+    #endregion
 
-            #region MOVE TO
+    #region MOVE TO
             void MoveTo(VectorF p)
             {
                 Start = p;
             }
-            #endregion
+    #endregion
 
-            #region CURVE TO
+    #region CURVE TO
             void CurveTo(VectorF controlPoint1, VectorF controlPoint2, VectorF endPoint)
             {
                 if (!Start)
@@ -237,9 +244,10 @@ namespace MnM.GWS
                 Curves.GetBezierPoints(4, ref points, Start, controlPoint1, endPoint);
                 Start = endPoint;
             }
-            #endregion
+    #endregion
         }
 #if AllHidden
     }
+#endif
 #endif
 }

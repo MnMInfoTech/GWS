@@ -2,16 +2,16 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+#if Window
 using System;
 
 namespace MnM.GWS
 {
-#if Window
     public abstract partial class _Window : _Host, IWindow
     {
         #region VARIABLES
         readonly ICanvas Primary;
-        ISurface Current;
+        ICanvas Current;
 
         protected bool previousCursorVisible = true;
         protected bool cursorVisible;
@@ -21,12 +21,7 @@ namespace MnM.GWS
         readonly EventInfo Event = new EventInfo();
         protected Rectangle bounds;
         protected bool focused;
-        IExternalWindow Control;
-        IObjCollection Controls;
-
-#if Advanced
-        IBufferCollection Buffers;
-#endif
+        IExternalWindow Target;
         #endregion
 
         #region CONSTRUCTORS
@@ -34,13 +29,13 @@ namespace MnM.GWS
         {
             bounds = new Rectangle(0, 0, width, height);
         }
-        protected _Window(IExternalWindow control) :
-            this(control.Width, control.Height)
+        protected _Window(IExternalWindow target) :
+            this(target.Width, target.Height)
         {
-            if (!Initialize(externalWindow: control))
+            if (!Initialize(externalWindow: target))
                 throw new Exception("Window could not be initialized!");
-            Control = control;
-            UnderlyingWindow = Control;
+            Target = target;
+            UnderlyingWindow = Target;
             Initialize(out Primary, null);
         }
         protected _Window(string title = null, int? width = null, int? height = null,
@@ -50,7 +45,7 @@ namespace MnM.GWS
         {
             if (!Initialize(title, width, height, x, y, flags, display, renderFlags: renderFlags))
                 throw new Exception("Window could not be initialized!");
-           
+
             UnderlyingWindow = Factory.newRenderTarget(this);
             Initialize(out Primary, flags);
         }
@@ -62,12 +57,8 @@ namespace MnM.GWS
         void Initialize(out ICanvas Canvas, GwsWindowFlags? flags)
         {
             Canvas = Factory.newCanvas(UnderlyingWindow);
-            Controls = Canvas.Objects;
             Current = Canvas;
-#if Advanced
-            Buffers = Factory.newBufferCollection(Canvas);
-            Buffers.BufferChanged += BufferIsChanged;
-#endif
+            Initialize2(Canvas);
             GwsWindowFlags = flags ?? 0;
             if (GwsWindowFlags.HasFlag(GwsWindowFlags.OpenGL))
                 GLContext = Factory.newGLContext(this);
@@ -75,17 +66,21 @@ namespace MnM.GWS
             Name = "Window" + WindowID;
             this.Register();
         }
+        partial void Initialize2(ICanvas Canvas);
         #endregion
 
         #region PROPERTIES
-        protected sealed override ISurface Buffer => Current;
-        public sealed override IObjCollection Objects => Controls;
-#if Advanced
-        public int BufferCount => Buffers.BufferCount;
-        public int BufferIndex => Buffers.BufferIndex;
-#endif
+        protected sealed override ICanvas Buffer => Current;
         public sealed override string ID => Name;
         public sealed override Rectangle Bounds => bounds;
+        public override IPenContext Background
+        {
+            get => UnderlyingWindow.Background;
+            set
+            {
+                UnderlyingWindow.Background = value;
+            }
+        }
         public GwsWindowFlags GwsWindowFlags { get; private set; }
         public IGLContext GLContext { get; private set; }
         public int WindowID { get; private set; }
@@ -152,18 +147,18 @@ namespace MnM.GWS
         #endregion
 
         #region CLOSE - DISPOSE
-        public virtual void Close()
+        public void Close()
         {
+            isDisposed = true;           
+            this.Deregister();
+            Objects?.Dispose();
+            Primary.Dispose();
+            Close2();
             OnClosed(Factory.EmptyArgs);
         }
+        partial void Close2();
         public override void Dispose()
         {
-            base.Dispose();
-            Primary.Dispose();
-#if Advanced
-            Buffers.Dispose();
-#endif
-            this.Deregister();
             Close();
         }
         #endregion
@@ -195,12 +190,11 @@ namespace MnM.GWS
         {
             bounds = new Rectangle(Bounds.X, Bounds.Y, e.Width, e.Height);
             Primary?.Resize(e.Width, e.Height);
-#if Advanced
-            Buffers.ResizeBuffers();
-#endif
-            (UnderlyingWindow as IResizable)?.Resize(e.Width, e.Height);
+            Resize2();
+            UnderlyingWindow.Resize(e.Width, e.Height);
             base.OnResize(e);
         }
+        partial void Resize2();
         #endregion
 
         #region MOVE
@@ -214,55 +208,6 @@ namespace MnM.GWS
         public abstract void SendBackward(int numberOfPlaces = 1);
         #endregion
 
-#if Advanced
-        #region ADD - REMOVE BUFFER
-        public int AddBuffer(bool Canvas = false) =>
-            Buffers.AddBuffer(Canvas);
-        public void RemoveBuffer(int index) =>
-            Buffers.RemoveBuffers();
-        #endregion
-
-        #region SWITCH BUFFER
-        public void SwitchToBuffer(int index) =>
-            Buffers.SwitchToBuffer(index);
-
-        public void SwitchToMainBuffer() =>
-            Buffers.SwitchToMainBuffer();
-        #endregion
-
-        #region RESIZE ALL BUFFERS
-        public void ResizeBuffers() =>
-            Buffers.ResizeBuffers();
-        #endregion
-
-        #region REMOVE BUFFERS
-        public void RemoveBuffers() =>
-            Buffers.RemoveBuffers();
-        #endregion
-
-        #region BUFFER CHANGE
-        void BufferIsChanged(object sender, IEventArgs e)
-        {
-            UnderlyingWindow.Invalidate(0, 0, Width, Height);
-            UnderlyingWindow.Update();
-            //UnderlyingWindow.CopyFrom(this, 0, 0, Width, Height);
-            OnBufferChanged(e);
-            if (Buffers.Current is IContainer)
-                Controls = ((IContainer)Buffers.Current).Objects;
-            else
-                Controls = Primary.Objects;
-            Current = Buffers.Current;
-        }
-        protected virtual void OnBufferChanged(IEventArgs e) =>
-            BufferChanged?.Invoke(this, e);
-        #endregion
-
-        #region BACKGROUND CHANGED
-        private void BackgroundIsChanged(object sender, IEventArgs e) =>
-            OnBackgroundChanged(e);
-        #endregion
-#endif
-
         #region IEVENT PROCESSING
         public bool ProcessEvent(IEvent @event)
         {
@@ -270,28 +215,28 @@ namespace MnM.GWS
 
             if (e == null)
                 return false;
+            var Event = new EventInfo();
             Event.Sender = this;
             Event.Args = e;
-            Event.Type = @event.Type;
+            Event.Type = (int)@event.Type;
             PushEvent(Event);
-            Event.Status = EventUseStatus.Unused;
+            //Event.Handled = false;
             return true;
         }
-
         public override void PushEvent(IEventInfo e)
         {
-            switch (e.Type)
+            switch ((GwsEvent)e.Type)
             {
-                case GwsEvent.CLOSE:
+                case GwsEvent.Close:
                     OnClosed(e.Args);
                     break;
-                case GwsEvent.RESIZED:
+                case GwsEvent.Resized:
                     //case GwsEvent.SIZE_CHANGED:
                     base.PushEvent(e);
                     break;
                 default:
-                    if (Control != null)
-                        Control.PushEvent(e);
+                    if (Target != null)
+                        Target.PushEvent(e);
                     else
                         base.PushEvent(e);
                     break;
@@ -359,6 +304,16 @@ namespace MnM.GWS
         protected virtual void OnLoad(IEventArgs e) =>
             Load?.Invoke(this, e);
         #endregion
+
+        #region BACKGROUND CHANGED
+        private void BackgroundIsChanged(object sender, IEventArgs e) =>
+            OnBackgroundChanged(e);
+        protected virtual void OnBackgroundChanged(IEventArgs e)
+        {
+            BackgroundChanged?.Invoke(this, e);
+        }
+        public event EventHandler<IEventArgs> BackgroundChanged;
+        #endregion
     }
-#endif
 }
+#endif

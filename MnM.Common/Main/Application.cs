@@ -18,16 +18,14 @@ namespace MnM.GWS
         public const string ImplementedInAdvanceVersionOnly = "Sorry this is only implemented  the Advanced version! For more information - visit www.mnminfotech.co.uk";
         public const byte True = 1;
         public const byte False = 0;
+#if GWS || Window
         static readonly Dictionary<string, IEventProcessor> Windows = new Dictionary<string, IEventProcessor>(4);
+#endif
         static volatile bool IsClosing;
         #endregion
 
         #region EVENT STORAGE
-#if Window
         static volatile bool EventsRunning = false;
-#endif
-
-        #endregion
         #endregion
 
         #region EXTERNAL LIBRARY NAMES
@@ -51,6 +49,7 @@ namespace MnM.GWS
         public const string libFT = "libfreetype-6.dll";
         //internal const string libFT = "freetype.dll";
 #endif
+        #endregion
         #endregion
 
         #region CONSTRUCTORS
@@ -102,6 +101,7 @@ namespace MnM.GWS
             Debug.WriteLine(message);
         #endregion
 
+#if GWS || Window
         #region REGISTER - DE-REGISTER WINDOW
         public static void Register(this IEventProcessor window)
         {
@@ -139,9 +139,8 @@ namespace MnM.GWS
             return Windows.Values.OfType<T>().Where(x => condition(x));
         }
         #endregion
-
+#endif
         #region RUN - QUIT - HALT - RESUME
-#if Window
         public static void Run(params IShowable[] controls)
         {
             if (EventsRunning)
@@ -153,17 +152,14 @@ namespace MnM.GWS
                 foreach (var item in controls)
                     item.Show();
             }
+#if Window
+
             while (EventsRunning && Windows.Count > 0)
             {
                 if (Factory.IsDisposed)
                     break;
-                //Factory.PumpEvents();
-                if (Factory.IsDisposed)
-                    break;
-                IEvent e = null;
 
-                Timers.Run();
-
+                IEvent e;
                 while (Factory.PollEvent(out e))
                 {
                     if (GetWindow(e.ID, out IEventProcessor window))
@@ -173,21 +169,21 @@ namespace MnM.GWS
                     }
                 }
             }
+#elif MS
+            System.Windows.Forms.Application.Run();
+#endif
             Quit();
         }
-#endif
         public static void Quit()
         {
             IsClosing = true;
-#if Window
             EventsRunning = false;
-#endif
             Factory.Dispose();
+#if GWS || Window
             foreach (var item in Windows.Values)
                 item.Dispose();
             Windows.Clear();
-            Pens.Dispose();
-            Timers.Dispose();
+#endif
             IsClosing = false;
         }
         #endregion

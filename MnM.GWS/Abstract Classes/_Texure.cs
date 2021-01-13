@@ -2,14 +2,14 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+#if Window
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-#if Window
-    public abstract class _Texture : ITexture
+    public abstract partial class _Texture : ITexture
     {
         #region VARIABLES
         protected readonly IRenderWindow Window;
@@ -40,7 +40,7 @@ namespace MnM.GWS
             this(window, source.Width, source.Height, isPrimary, pixelFormat, textureAccess)
         {
             var rc = this.CompitibleRc(0, 0, source.Width, source.Height);
-            CopyFrom(source, 0, 0, rc.X, rc.Y, rc.Width, rc.Height, DrawCommand.SuspendUpdate);
+            CopyFrom(source, 0, 0, rc.X, rc.Y, rc.Width, rc.Height, Command.SuspendUpdate);
         }
         #endregion
 
@@ -49,23 +49,23 @@ namespace MnM.GWS
         public bool IsPrimary { get; private set; }
         public IntPtr Handle { get; private set; }
 
-        public int Width => 
+        public int Width =>
             width;
         public int Height =>
             height;
-        public int Length => 
+        public int Length =>
             length;
-        public bool IsDisposed => 
+        public bool IsDisposed =>
             Window.IsDisposed || Disposed;
-        public RendererFlags RendererFlags => 
+        public RendererFlags RendererFlags =>
             Window.RendererFlags;
         #endregion
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void CopyFrom(IBlockable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, DrawCommand command = 0);
+        public abstract void CopyFrom(IBlockable source, int dstX, int dstY, int srcX, int srcY, int srcW, int srcH, Command command = 0);
         #endregion
-       
+
         #region BIND - UNBIND
         public abstract void Bind();
         public abstract void Unbind();
@@ -99,5 +99,5 @@ namespace MnM.GWS
         }
         #endregion
     }
-#endif
 }
+#endif

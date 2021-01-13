@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+#if MS && (GWS || Window)
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -56,7 +57,7 @@ namespace MnM.GWS.Desktop
             }
             if (Demo.Instance.MsMethod != null)
             {
-                base.Text = Benchmarks.Execute(Demo.Instance.MsMethod, out long i, shape + "", Bridge.Unit);
+                base.Text = Benchmarks.Execute(Demo.Instance.MsMethod, out long i, shape + "", MSBridge.BUnit);
             }
             if (rotate)
             {
@@ -81,7 +82,7 @@ namespace MnM.GWS.Desktop
             }
         }
 
-    #region Windows Form Designer generated code
+#region Windows Form Designer generated code
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -123,6 +124,7 @@ namespace MnM.GWS.Desktop
             Button b;
         }
 
-    #endregion
+#endregion
     }
 }
+#endif

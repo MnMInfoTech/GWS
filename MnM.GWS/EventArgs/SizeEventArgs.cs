@@ -14,7 +14,7 @@ namespace MnM.GWS
         {
 
         }
-        public SizeEventArgs(Size e)
+        public SizeEventArgs(ISize e)
         {
             Width = e.Width;
             Height = e.Height;

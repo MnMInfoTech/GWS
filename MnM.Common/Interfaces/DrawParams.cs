@@ -6,21 +6,15 @@ using System;
 
 namespace MnM.GWS
 {
-#if GWS || Window
-    #region IOFFSET
-    public interface IOffset : ISettable
-    {
-        /// <summary>
-        /// Gets X co-ordinate of the location this object.
-        /// </summary>
-        int X { get; }
-
-        /// <summary>
-        /// Gets Y co-ordinate of the location of this object.
-        /// </summary>
-        int Y { get; }
-    }
+    #region IDRAWPARAM
+    /// <summary>
+    /// Marker interface - represents any object which has settings.
+    /// </summary>
+    public interface IDrawParams
+    { }
     #endregion
+
+#if GWS || Window
 
     #region IRECENTLYDRAWN
     public interface IRecentlyDrawn
@@ -28,17 +22,17 @@ namespace MnM.GWS
         /// <summary>
         /// Gets recently drawn area since last rendering operation.
         /// </summary>
-        Rectangle RecentlyDrawn { get; set; }
+        IBoundary RecentlyDrawn { get; }
     }
     #endregion
 
     #region IPOLYDRAW INFO
-    public interface IPolyInfo
+    public interface IPolyInfo: IDrawParams
     {
         /// <summary>
         /// Gets or sets command to apply on buffers while writing them for rendering a shape.
         /// </summary>
-        DrawCommand Command { get; set; }
+        Command Command { get; set; }
 
         /// <summary>
         /// Gets the size of current buffer on which shape is being rendered.
@@ -47,25 +41,30 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IRENDERINFO
+    #region SETTINGS0
+    public interface ISettings0: IPolyInfo, IRecentlyDrawn
+    {
+        /// <summary>
+        /// Gets or sets an ID of current shape associated with current rendering process.
+        /// </summary>
+        string ShapeID { get; }
+    }
+    #endregion
+
+    #region ISETTINGS
     /// <summary>
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public interface IRenderInfo : IPolyInfo, IOffset, IRotatable, ISettings, IContext, IRecentlyDrawn
-    {
+    public partial interface ISettings : ISettings0, ISettingsReceiver, IPoint, IBounds, IRotatable
+    {  
         /// <summary>
-        /// Gets ID of current reader (IBufferPen) associated with current rendering process.
+        /// Gets or sets an ID of current shape associated with current rendering process.
         /// </summary>
-        string PenID { get; }
+        new string ShapeID { get; set; }
 
         /// <summary>
-        /// Gets ID of current shape associated with current rendering process.
-        /// </summary>
-        string ShapeID { get; set; }
-
-        /// <summary>
-        /// Gets X co-ordinate of the location this object.
+        /// Gets X co-ordinate of the location this object. 
         /// </summary>
         new int X { get; set; }
 
@@ -100,14 +99,19 @@ namespace MnM.GWS
         VectorF Scale { get; set; }
 
         /// <summary>
-        /// Gets bounds of current shape associated with current rendering process.
+        /// Gets or sets bounds of current shape associated with current rendering process.
         /// </summary>
-        Rectangle Bounds { get; set; }
+        new IRectangle Bounds { get; set; }
 
         /// <summary>
         /// Gets or sets the supplied foreground context to be used for rendering.
         /// </summary>
-        IPenContext Foreground { get; set; }
+        IPenContext PenContext { get; set; }
+
+        ///// <summary>
+        ///// Gets pe created using current PenContext.
+        ///// </summary>
+        //IReadable Pen { get; }
 
         /// <summary>
         /// Cleans existing draw command by removing run time temporary redering options.
@@ -115,47 +119,9 @@ namespace MnM.GWS
         void CleanCommand();
 
         /// <summary>
-        /// Adds multiple draw commands to this this object.
+        /// Flushes all parameters and bring this object to default state.
         /// </summary>
-        /// <param name="commands"></param>
-        void AddCommands(params DrawCommand[] commands);
-
-        /// Removes multiple draw commands to this this object.
-        void RemoveCommands(params DrawCommand[] commands);
-    }
-    #endregion
-
-#if Advanced
-    #region RENDERINFO2
-    public interface IRenderInfo2 : IRenderInfo, IVisible//,IClippable
-    {
-        /// <summary>
-        /// Gets the tab index of the shape.
-        /// </summary>
-        int TabIndex { get; }
-
-        /// <summary>
-        /// Gets the zorder of the shape.
-        /// </summary>
-        int ZOrder { get; }
-
-        /// <summary>
-        /// Gets the page which the shape blelogs to.
-        /// </summary>
-        int Page { get; }
-    }
-    #endregion
-#endif
-
-    #region IDRAWNINFO
-    public interface IDrawnInfo
-    {
-        IRenderable Shape { get; }
-#if Advanced
-        IRenderInfo2 Info { get; }
-#else
-        IRenderInfo Info { get; }
-#endif
+        void Flush();
     }
     #endregion
 #endif

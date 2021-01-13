@@ -6,7 +6,13 @@
 using System;
 using System.IO;
 
+#if Standard
+namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
 namespace MnM.GWS
+#endif
 {
 #if AllHidden
     partial class _Factory

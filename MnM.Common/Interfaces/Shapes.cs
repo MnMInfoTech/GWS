@@ -2,11 +2,25 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+using System;
 using System.Collections.Generic;
 
 namespace MnM.GWS
 {
 #if (GWS || Window)
+
+    #region ISHAPE
+    public interface IShape : IID, IDisposable
+    {
+        IRenderable Renderable { get; }
+
+        /// <summary>
+        /// Gets dedicated settings object associated with this control.
+        /// </summary>
+        ISettings Settings { get; }
+    }
+    #endregion
+
     #region ISHAPE PARSER
     public interface IShapeParser
     {
@@ -36,7 +50,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns>Returns the LineDraw enum used to decide how line is drawn.</returns>
-        DrawCommand GetLineDraw(string Name);
+        Command GetLineDraw(string Name);
 
         /// <summary>
         /// Gets lien skip information for outer and inner parameters.
@@ -71,7 +85,7 @@ namespace MnM.GWS
     /// Represents an object which can rotate, offer perimeters(surround area represented by points in sequential order) and has bounds.
     /// And of course, must also implement IElement - the gateway interface.
     /// </summary>
-    public interface IShape : IID, IFigurable, IRecognizable, IEnumerable<VectorF>
+    public interface IFigure : IID, IFigurable, IRecognizable, IEnumerable<VectorF>
     { }
     #endregion
 
@@ -85,7 +99,8 @@ namespace MnM.GWS
     /// GWS, does not break the curves except bezier i.e Ellipse, Circle, Pie, Arc in straight lines and 
     /// that is why there is a separate drawing routine for them.
     /// </summary>
-    public interface IPolygon : IShape { }
+    public interface IPolygon : IFigure, IRectangleF 
+    { }
     #endregion
 
     #region IBEZIER
@@ -95,7 +110,7 @@ namespace MnM.GWS
     /// In GWS, a bezier can be drawn by offering minimum 3 points. 
     /// However there isn't any specific number of points required except minimum 3 to draw a curve.
     /// </summary>
-    public interface IBezier : IShape
+    public interface IBezier : IFigure, IRectangleF
     {
         /// <summary>
         /// Specified which option is used to interpret the points for accumulating bezier points.
@@ -111,7 +126,7 @@ namespace MnM.GWS
     /// Represent an object which has three points to offer.
     /// This object must have collection of three points.
     /// </summary>
-    public interface ITriangle : IShape
+    public interface ITriangle : IFigure, IRectangleF
     {
         /// <summary>
         /// 1st point of triangle.
@@ -146,7 +161,7 @@ namespace MnM.GWS
     /// Represents a closed object (Quardilateral) which has four sides.
     /// This defination is in accordance with the British English and not the US one.
     /// </summary>
-    public interface ITetragon : IShape
+    public interface ITetragon : IFigure, IRectangleF
     {
         QuadType Type { get; }
     }
@@ -202,7 +217,7 @@ namespace MnM.GWS
     /// <summary>
     /// Defines conic section Ax2 + Bxy + Cy2 +  Dx + Ey + F = 0 where A, B, C, D, E and F are constants. 
     /// </summary>
-    public interface IConic: ICurvature, IRotatable, IDrawable, IID
+    public interface IConic: ICurvature, IRotatable, IDrawable, IID, IRectangleF
     {
         /// <summary>
         /// Gets original tilt angle of this object. 
@@ -323,7 +338,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which defines a line segment and its properties.
     /// </summary>
-    public interface ILine : IShape, IDrawable
+    public interface ILine : IFigure, IDrawable, IRectangleF
     {
         /// <summary>
         /// X cordinate of start point.
@@ -368,7 +383,7 @@ namespace MnM.GWS
     #endregion
 
     #region IBOX
-    public interface IBox : IShape, IPoint, ISize
+    public interface IBox : IFigure, IRectangle
     {
         /// <summary>
         /// 
@@ -393,7 +408,7 @@ namespace MnM.GWS
     #endregion
 
     #region IBOXF
-    public interface IBoxF : IShape, IPointF, ISizeF
+    public interface IBoxF : IFigure, IRectangleF
     {
         /// <summary>
         /// 

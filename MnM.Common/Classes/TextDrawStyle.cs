@@ -64,7 +64,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets a Buffer image to be drawn to screen.
         /// </summary>
-        public IImage Image { get; set; }
+        public ISurface Image { get; set; }
 
 #endif
         /// <summary>
@@ -85,7 +85,7 @@ namespace MnM.GWS
 #if Advanced
             txtStyle.ImageAlignment = ImageAlignment;
             txtStyle.ImageDraw = ImageDraw;
-            txtStyle.Image = Image.Clone() as IImage;
+            txtStyle.Image = Image.Clone() as ISurface;
 #endif
             return txtStyle;
         }

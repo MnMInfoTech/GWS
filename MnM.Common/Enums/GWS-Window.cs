@@ -8,10 +8,19 @@ using System;
 
 namespace MnM.GWS
 {
-#if GWS || Window
-    #region DRAW COMMAND
+    #region BENCHMARK UNIT
+    public enum Unit
+    {
+        MilliSecond,
+        Tick,
+        Second,
+        MicroSecond
+    }
+    #endregion
+
+    #region COMMAND
     [Flags]
-    public enum DrawCommand : ulong
+    public enum Command : ulong
     {
         /// <summary>
         /// Discard all changes made to the command and set it to previous value
@@ -152,113 +161,452 @@ namespace MnM.GWS
         BrushFollowCanvas = 0x400000,
 
         /// <summary>
-        /// Inverts brush color before applying it to canvas.
-        /// </summary>
-        InvertBrushColor = 0x800000,
-
-        /// <summary>
         /// Inverts the rotation angle of the brush in opposite direction then that of shape rotation.
         /// </summary>
-        InvertBrushRotation = 0x1000000,
+        InvertBrushRotation = 0x800000,
 
         /// <summary>
         /// Calculates the rendering area but does not draw shape.
         /// </summary>
-        Calculate = 0x2000000,
+        CalculateOnly = 0x1000000,
 
         /// <summary>
         /// Uploads data directly on screen (which of course temporary in nature) bypassing the internal buffer completely.
         /// </summary>
-        DirectOnScreen = 0x4000000,
+        DirectScreen = 0x2000000,
 
-#if Advanced
         /// <summary>
         /// Tells GWS to apply animation.
         /// </summary>
-        Animate = DirectOnScreen | 0x8000000,
+        Animate = DirectScreen | 0x4000000,
 
         /// <summary>
         /// Erases specified shape from the memory block. Advanced version only.
         /// </summary>
-        EraseControl = 0x10000000,
+        EraseControl = 0x8000000,
 
         /// <summary>
         /// Removes specified shape from the collection and memory block. Advanced version only.
         /// </summary>
-        RemoveControl = EraseControl | 0x20000000,
+        RemoveControl = EraseControl | 0x10000000,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
         /// </summary>
-        RestoreControl = 0x40000000,
+        RestoreControl = 0x20000000,
 
         /// <summary>
         /// Tells GWS to render shape in disabled state.
         /// </summary>
-        DisableControl = 0x80000000,
+        DisableControl = 0x40000000,
 
         /// <summary>
         /// Tells GWS that this control is in invisible state.
         /// </summary>
-        InvisibleControl = 0x100000000,
+        InvisibleControl = 0x80000000,
 
         /// <summary>
-        /// Gets or sets a flag to determine that rendering of shape is done i backdrop mode or not.
+        /// Tells GWS that shape is being drawn first time.
+        /// </summary>
+        FirstDraw = 0x100000000,
+
+        /// <summary>
+        /// Gets or sets a flag to determine that rendering of shape is done i backdrop mode or not. Pro version only.
         /// </summary>
         BackgroundBuffer = 0x200000000,
 
         /// <summary>
-        /// Pushes drawing of added controls to background and brings background to the front.
+        /// Pushes drawing of added controls to background and brings background to the front. Pro version only.
         /// </summary>
         SwapZOrder = 0x400000000,
 
         /// <summary>
-        /// Excludes everything drawn on background buffer for rendering on screen. 
+        /// Excludes everything drawn on background buffer for rendering on screen. Pro version only.
         /// </summary>
-        SkipBackgroundDraw = 0x800000000,
+        SkipBackground = 0x800000000,
 
         /// <summary>
-        /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. 
+        /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. Pro version only.
         /// </summary>
-        SkipForegroundDraw = 0x1000000000,
+        SkipForeground = 0x1000000000,
 
         /// <summary>
-        /// Tells GWS that shape is being rendered with hovereffect.
+        /// When resized, the image inside is also resizes to fit the size without losing quality. Pro version only.
         /// </summary>
-        HoverEffect = 0x2000000000,
+        NoQualityLoss = 0x2000000000,
 
         /// <summary>
-        /// Tells GWS that child control is being rendered as a part of complex parent control rendering.
+        /// Updates screen without copying data from underlying buffer.  
         /// </summary>
-        DrawingObjectForeground = 0x4000000000,
+        UpdateScreenOnly = 0x4000000000,
 
         /// <summary>
-        /// Tells GWS that background shape of control is being rendered as a part of complex control rendering.
+        /// Copies data from underlying buffer but does not update screen.
         /// </summary>
-        DrawingObjectBackground = 0x8000000000,
-
-        /// <summary>
-        /// Only applicable with texture brushes. When resized, the image inside is also resizes to fit the size without losing quality.
-        /// </summary>
-        NoBrushQualityLoss = 0x10000000000,
-#endif
+        CopyBufferOnly = 0x8000000000,
     }
     #endregion
 
-    #region BACKGROUND TYPE
-    public enum BackgroundType
+    #region MOUSE STATE
+    /// <summary>
+    /// Represents the state of the mouse.
+    /// </summary>
+    public enum MouseState
     {
-        Opaque = 0x0,
-        Invert = 0x1,
-        Rectangular = 0x2,
-        RoundRectangular = 0x4,
-        Elliptical = 0x8,
+        /// <summary>
+        /// No state.
+        /// </summary>
+        None = 0x0,
+
+        /// <summary>
+        /// Mouse button up
+        /// </summary>
+        Up = 0x1,
+
+        /// <summary>
+        /// Mouse button down
+        /// </summary>
+        Down = 0x2,
+
+        /// <summary>
+        /// Mouse is moving
+        /// </summary>
+        Move = 0x4,
+
+        /// <summary>
+        /// mouse is clicked
+        /// </summary>
+        Click = 0x8,
+
+        /// <summary>
+        /// Mouse is double clicked
+        /// </summary>
+        DoubleClick = 0x10,
+
+        /// <summary>
+        /// Mouse wheel motion is ongoing.
+        /// </summary>
+        Wheel = 0x20,
+
+        /// <summary>
+        /// Mouse is entered in some container premises
+        /// </summary>
+        Enter = 0x40,
+
+        /// <summary>
+        /// Mouse has left some container premises
+        /// </summary>
+        Leave = 0x80,
+
+        /// <summary>
+        /// Mouse has started a draw operation on something
+        /// </summary>
+        DragBegin = 0x100,
+
+        /// <summary>
+        /// Mouse is dragging something currently
+        /// </summary>
+        Drag = DragBegin | 0x200,
+
+        /// <summary>
+        /// Mouse has finished dragging something
+        /// </summary>
+        DragEnd = Drag | 0x400
     }
     #endregion
 
-    #region FILL COMMAND
+    #region MOUSE BUTTON
+    public enum MouseButton
+    {
+        None = 0,
+        /// <summary>
+        /// The left mouse button.
+        /// </summary>
+        Left = 1,
+        /// <summary>
+        /// The middle mouse button.
+        /// </summary>
+        Middle,
+        /// <summary>
+        /// The right mouse button.
+        /// </summary>
+        Right,
+        /// <summary>
+        /// The first extra mouse button.
+        /// </summary>
+        Button1,
+        /// <summary>
+        /// The second extra mouse button.
+        /// </summary>
+        Button2,
+        /// <summary>
+        /// The third extra mouse button.
+        /// </summary>
+        Button3,
+        /// <summary>
+        /// The fourth extra mouse button.
+        /// </summary>
+        Button4,
+        /// <summary>
+        /// The fifth extra mouse button.
+        /// </summary>
+        Button5,
+        /// <summary>
+        /// The sixth extra mouse button.
+        /// </summary>
+        Button6,
+        /// <summary>
+        /// The seventh extra mouse button.
+        /// </summary>
+        Button7,
+        /// <summary>
+        /// The eigth extra mouse button.
+        /// </summary>
+        Button8,
+        /// <summary>
+        /// The ninth extra mouse button.
+        /// </summary>
+        Button9,
+        /// <summary>
+        /// Indicates the last available mouse button.
+        /// </summary>
+        LastButton
+    }
     #endregion
 
+    #region KEY STATE
+    /// <summary>
+    /// Represents state of the keyboard key.
+    /// </summary>
+    public enum KeyState
+    {
+        /// <summary>
+        /// No key is acted upon
+        /// </summary>
+        None = 0x0,
+
+        /// <summary>
+        /// Key is up
+        /// </summary>
+        Up = 0x1,
+
+        /// <summary>
+        /// Key is down
+        /// </summary>
+        Down = 0x2,
+
+        /// <summary>
+        /// Just after down before up for preview and do something about it.
+        /// </summary>
+        Preview = Down | 0x4
+    }
+    #endregion
+
+    #region KEY
+    public enum Key
+    {
+        Modifiers = -65536,
+        None = 0,
+        LButton = 1,
+        RButton = 2,
+        Cancel = 3,
+        MButton = 4,
+        XButton1 = 5,
+        XButton2 = 6,
+        Back = 8,
+        Tab = 9,
+        LineFeed = 10,
+        Clear = 12,
+        Return = 13,
+        Enter = 13,
+        ShiftKey = 16,
+        ControlKey = 17,
+        Menu = 18,
+        Pause = 19,
+        Capital = 20,
+        CapsLock = 20,
+        KanaMode = 21,
+        HanguelMode = 21,
+        HangulMode = 21,
+        JunjaMode = 23,
+        FinalMode = 24,
+        HanjaMode = 25,
+        KanjiMode = 25,
+        Escape = 27,
+        IMEConvert = 28,
+        IMENonconvert = 29,
+        IMEAccept = 30,
+        IMEAceept = 30,
+        IMEModeChange = 31,
+        Space = 32,
+        Prior = 33,
+        PageUp = 33,
+        Next = 34,
+        PageDown = 34,
+        End = 35,
+        Home = 36,
+        Left = 37,
+        Up = 38,
+        Right = 39,
+        Down = 40,
+        Select = 41,
+        Print = 42,
+        Execute = 43,
+        Snapshot = 44,
+        PrintScreen = 44,
+        Insert = 45,
+        Delete = 46,
+        Help = 47,
+        D0 = 48,
+        D1 = 49,
+        D2 = 50,
+        D3 = 51,
+        D4 = 52,
+        D5 = 53,
+        D6 = 54,
+        D7 = 55,
+        D8 = 56,
+        D9 = 57,
+        A = 65,
+        B = 66,
+        C = 67,
+        D = 68,
+        E = 69,
+        F = 70,
+        G = 71,
+        H = 72,
+        I = 73,
+        J = 74,
+        K = 75,
+        L = 76,
+        M = 77,
+        N = 78,
+        O = 79,
+        P = 80,
+        Q = 81,
+        R = 82,
+        S = 83,
+        T = 84,
+        U = 85,
+        V = 86,
+        W = 87,
+        X = 88,
+        Y = 89,
+        Z = 90,
+        LWin = 91,
+        RWin = 92,
+        Apps = 93,
+        Sleep = 95,
+        NumPad0 = 96,
+        NumPad1 = 97,
+        NumPad2 = 98,
+        NumPad3 = 99,
+        NumPad4 = 100,
+        NumPad5 = 101,
+        NumPad6 = 102,
+        NumPad7 = 103,
+        NumPad8 = 104,
+        NumPad9 = 105,
+        Multiply = 106,
+        Add = 107,
+        Separator = 108,
+        Subtract = 109,
+        Decimal = 110,
+        Divide = 111,
+        F1 = 112,
+        F2 = 113,
+        F3 = 114,
+        F4 = 115,
+        F5 = 116,
+        F6 = 117,
+        F7 = 118,
+        F8 = 119,
+        F9 = 120,
+        F10 = 121,
+        F11 = 122,
+        F12 = 123,
+        F13 = 124,
+        F14 = 125,
+        F15 = 126,
+        F16 = 127,
+        F17 = 128,
+        F18 = 129,
+        F19 = 130,
+        F20 = 131,
+        F21 = 132,
+        F22 = 133,
+        F23 = 134,
+        F24 = 135,
+        NumLock = 144,
+        Scroll = 145,
+        LShiftKey = 160,
+        RShiftKey = 161,
+        LControlKey = 162,
+        RControlKey = 163,
+        LMenu = 164,
+        RMenu = 165,
+        BrowserBack = 166,
+        BrowserForward = 167,
+        BrowserRefresh = 168,
+        BrowserStop = 169,
+        BrowserSearch = 170,
+        BrowserFavorites = 171,
+        BrowserHome = 172,
+        VolumeMute = 173,
+        VolumeDown = 174,
+        VolumeUp = 175,
+        MediaNextTrack = 176,
+        MediaPreviousTrack = 177,
+        MediaStop = 178,
+        MediaPlayPause = 179,
+        LaunchMail = 180,
+        SelectMedia = 181,
+        LaunchApplication1 = 182,
+        LaunchApplication2 = 183,
+        OemSemicolon = 186,
+        Oem1 = 186,
+        Oemplus = 187,
+        Oemcomma = 188,
+        OemMinus = 189,
+        OemPeriod = 190,
+        OemQuestion = 191,
+        Oem2 = 191,
+        OemTilde = 192,
+        Oem3 = 192,
+        OemOpenBrackets = 219,
+        Oem4 = 219,
+        OemPipe = 220,
+        Oem5 = 220,
+        OemCloseBrackets = 221,
+        Oem6 = 221,
+        OemQuotes = 222,
+        Oem7 = 222,
+        Oem8 = 223,
+        OemSlash = 225,
+        OemBackslash = 226,
+        Oem102 = 226,
+        ProcessKey = 229,
+        Packet = 231,
+        Attn = 246,
+        Crsel = 247,
+        Exsel = 248,
+        EraseEof = 249,
+        Play = 250,
+        Zoom = 251,
+        NoName = 252,
+        Pa1 = 253,
+        OemClear = 254,
+        KeyCode = 65535,
+        Shift = 65536,
+        Control = 131072,
+        Alt = 262144,
+        LAlt = Alt | 1000,
+        RALT = Alt | 2000,
+        LastKey = 196,
+    }
+    #endregion
+
+#if GWS || Window
     #region FILL MODE
     ///<summary>
     /// Represents various option to create a brush to fill a surface.
@@ -1402,133 +1750,6 @@ namespace MnM.GWS
 #endif
 
 #if GWS || Window || Advanced
-    #region MOUSE STATE
-    /// <summary>
-    /// Represents the state of the mouse.
-    /// </summary>
-    public enum MouseState
-    {
-        /// <summary>
-        /// No state.
-        /// </summary>
-        None = 0x0,
-
-        /// <summary>
-        /// Mouse button up
-        /// </summary>
-        Up = 0x1,
-
-        /// <summary>
-        /// Mouse button down
-        /// </summary>
-        Down = 0x2,
-
-        /// <summary>
-        /// Mouse is moving
-        /// </summary>
-        Move = 0x4,
-
-        /// <summary>
-        /// mouse is clicked
-        /// </summary>
-        Click = 0x8,
-
-        /// <summary>
-        /// Mouse is double clicked
-        /// </summary>
-        DoubleClick = 0x10,
-
-        /// <summary>
-        /// Mouse wheel motion is ongoing.
-        /// </summary>
-        Wheel = 0x20,
-
-        /// <summary>
-        /// Mouse is entered in some container premises
-        /// </summary>
-        Enter = 0x40,
-
-        /// <summary>
-        /// Mouse has left some container premises
-        /// </summary>
-        Leave = 0x80,
-
-        /// <summary>
-        /// Mouse has started a draw operation on something
-        /// </summary>
-        DragBegin = 0x100,
-
-        /// <summary>
-        /// Mouse is dragging something currently
-        /// </summary>
-        Drag = DragBegin | 0x200,
-
-        /// <summary>
-        /// Mouse has finished dragging something
-        /// </summary>
-        DragEnd = Drag | 0x400
-    }
-    #endregion
-
-    #region MOUSE BUTTON
-    public enum MouseButton
-    {
-        None = 0,
-        /// <summary>
-        /// The left mouse button.
-        /// </summary>
-        Left = 1,
-        /// <summary>
-        /// The middle mouse button.
-        /// </summary>
-        Middle,
-        /// <summary>
-        /// The right mouse button.
-        /// </summary>
-        Right,
-        /// <summary>
-        /// The first extra mouse button.
-        /// </summary>
-        Button1,
-        /// <summary>
-        /// The second extra mouse button.
-        /// </summary>
-        Button2,
-        /// <summary>
-        /// The third extra mouse button.
-        /// </summary>
-        Button3,
-        /// <summary>
-        /// The fourth extra mouse button.
-        /// </summary>
-        Button4,
-        /// <summary>
-        /// The fifth extra mouse button.
-        /// </summary>
-        Button5,
-        /// <summary>
-        /// The sixth extra mouse button.
-        /// </summary>
-        Button6,
-        /// <summary>
-        /// The seventh extra mouse button.
-        /// </summary>
-        Button7,
-        /// <summary>
-        /// The eigth extra mouse button.
-        /// </summary>
-        Button8,
-        /// <summary>
-        /// The ninth extra mouse button.
-        /// </summary>
-        Button9,
-        /// <summary>
-        /// Indicates the last available mouse button.
-        /// </summary>
-        LastButton
-    }
-    #endregion
-
     #region GWS EVENT
     /// <summary>
     /// Represents GwsEvent
@@ -1538,189 +1759,189 @@ namespace MnM.GWS
         /// <summary>
         /// Just a place holder at 0 index.
         /// </summary>
-        FIRSTEVENT = 0,
+        First = 0,
 
         /// <summary>
         /// System has quitted
         /// </summary>
-        QUIT,
+        Quit,
 
         /// <summary>
         /// System is handling window event
         /// </summary>
-        WINDOWEVENT,
+        WindowEvent,
 
         /// <summary>
         /// System is handling window event
         /// </summary>
-        SYSWMEVENT,
+        SysWmEvent,
 
         /// <summary>
         /// System has thrown key down event
         /// </summary>
-        KEYDOWN,
+        KeyDown,
 
         /// <summary>
         /// System has thrown key up event
         /// </summary>
-        KEYUP,
+        KeyUp,
 
         /// <summary>
         /// System has indicated an act of entering some text
         /// </summary>
-        TEXTINPUT,
+        TextInput,
 
         /// <summary>
         /// System has indicated mouse motion
         /// </summary>
-        MOUSEMOTION,
+        MouseMotion,
 
         /// <summary>
         /// System has indicated mouse down
         /// </summary>
-        MOUSEBUTTONDOWN,
+        MouseDown,
 
         /// <summary>
         /// System has indicated mouse up
         /// </summary>
-        MOUSEBUTTONUP,
+        MouseUp,
 
         /// <summary>
         /// System has indicated mouse wheel motion
         /// </summary>
-        MOUSEWHEEL,
+        MouseWheel,
 
         /// <summary>
         /// System has indicated joy axis motion
         /// </summary>
-        JOYAXISMOTION,
+        JoyAxisMotion,
 
         /// <summary>
         /// System has indicated joy ball motion
         /// </summary>
-        JOYBALLMOTION,
+        JoyBallMotion,
 
         /// <summary>
         /// System has indicated joy hat motion
         /// </summary>
-        JOYHATMOTION,
+        JoyHatMotion,
 
         /// <summary>
         /// System has indicated joy button down
         /// </summary>
-        JOYBUTTONDOWN,
+        JoyButtonDown,
 
         /// <summary>
         /// System has indicated joy button up
         /// </summary>
-        JOYBUTTONUP,
+        JoyButtonUp,
 
         /// <summary>
         /// System has indicated a joy device has been added
         /// </summary>
-        JOYDEVICEADDED,
+        JoystickAdded,
 
         /// <summary>
         /// System has indicated a joy device has been removed
         /// </summary>
-        JOYDEVICEREMOVED,
+        JoystickRemoved,
 
         /// <summary>
         /// System has indicated a controller axis motion
         /// </summary>
-        CONTROLLERAXISMOTION,
+        ControllerAxisMotion,
 
         /// <summary>
         /// System has indicated controller button down
         /// </summary>
-        CONTROLLERBUTTONDOWN,
+        ControllerButtonDown,
 
         /// <summary>
         /// System has indicated controller button up
         /// </summary>
-        CONTROLLERBUTTONUP,
+        ControllerButtonUp,
 
         /// <summary>
         /// System has indicated a controller device has been added
         /// </summary>
-        CONTROLLERDEVICEADDED,
+        ControllerAdded,
 
         /// <summary>
         /// System has indicated a controller device has been removed
         /// </summary>
-        CONTROLLERDEVICEREMOVED,
+        ControllerRemoved,
 
         /// <summary>
         /// System has indicated a controller device has been mapped
         /// </summary>
-        CONTROLLERDEVICEREMAPPED,
+        ControllerMapped,
 
         /// <summary>
         /// System has indicated a fingure down on screen
         /// </summary>
-        FINGERDOWN,
+        FingerDown,
 
         /// <summary>
         /// System has indicated a fingure up on screen
         /// </summary>
-        FINGERUP,
+        FingerUp,
 
         /// <summary>
         /// System has indicated a fingure motion on screen
         /// </summary>
-        FINGERMOTION,
+        FingerMotion,
 
         /// <summary>
         /// System has indicated a dollar gesture on screen
         /// </summary>
-        DOLLARGESTURE,
+        DollarGesture,
 
-        DOLLARRECORD,
+        DollarRecord,
 
         /// <summary>
         /// System has indicated multi gestures of fingure movements on screen
         /// </summary>
-        MULTIGESTURE,
+        MultiGesture,
 
         /// <summary>
         /// System has indicated an update of clipboard
         /// </summary>
-        CLIPBOARDUPDATE,
+        ClipBoardUpdate,
 
         /// <summary>
         /// System has indicated a file drop
         /// </summary>
-        DROPFILE,
+        DropFile,
 
         /// <summary>
         /// Any user instigated event
         /// </summary>
-        USEREVENT,
+        UserEvent,
 
         /// <summary>
         /// System has indicated a text drop on some window
         /// </summary>
-        DROPTEXT,
+        DropText,
 
         /// <summary>
         /// System has indicated a beginning of drop operation on some window
         /// </summary>
-        DROPBEGIN,
+        DropBegin,
 
         /// <summary>
         /// System has indicated a completion of drop operation on some window
         /// </summary>
-        DROPCOMPLETE,
+        DropComplete,
 
         /// <summary>
         /// System has indicated an audio device is added
         /// </summary>
-        AUDIODEVICEADDED,
+        AudioDeviceAdded,
 
         /// <summary>
         /// System has indicated an audio device is removed
         /// </summary>
-        AUDIODEVICEREMOVED,
+        AudioDeviceRemoved,
 
         /// <summary>
         /// System has indicated a render target on current window is reset
@@ -1735,84 +1956,92 @@ namespace MnM.GWS
         /// <summary>
         /// Window is shown
         /// </summary>
-        SHOWN,
+        Shown,
 
         /// <summary>
         /// Window is shown
         /// </summary>
-        HIDDEN,
+        Hidden,
 
         /// <summary>
         /// Window is exposed sort of shown
         /// </summary>
-        EXPOSED,
+        Exposed,
 
         /// <summary>
         /// Window is moved
         /// </summary>
-        MOVED,
+        Moved,
 
         /// <summary>
         /// Window is resized
         /// </summary>
-        RESIZED,
+        Resized,
 
         /// <summary>
         /// Window's size is changed
         /// </summary>
-        SIZE_CHANGED,
+        SizeChanged,
 
         /// <summary>
         /// Window is minimized
         /// </summary>
-        MINIMIZED,
+        Minimized,
 
         /// <summary>
         /// Window is maximized
         /// </summary>
-        MAXIMIZED,
+        Maximized,
 
         /// <summary>
         /// Window is restored
         /// </summary>
-        RESTORED,
+        Restored,
 
         /// <summary>
         /// Mouse has entered in the window.
         /// </summary>
-        ENTER,
+        Enter,
 
         /// <summary>
         /// Mouse has left the window.
         /// </summary>
-        LEAVE,
+        Leave,
 
         /// <summary>
         /// Window has gained the focus
         /// </summary>
-        FOCUS_GAINED,
+        FocusGained,
 
         /// <summary>
         /// Window has left the focus
         /// </summary>
-        FOCUS_LOST,
+        FocusLost,
 
         /// <summary>
         /// Window is closing
         /// </summary>
-        CLOSE,
+        Close,
 
         /// <summary>
         /// Repaint the window.
         /// </summary>
-        PAINT,
+        Paint,
 
         /// <summary>
         /// Mouse is clicked outside window.
         /// </summary>
-        APPCLICK,
+        AppClick,
 
-        MOUSECLICK,
+        /// <summary>
+        /// 
+        /// </summary>
+        MouseClick,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        FirstShown,
 
         /// <summary>
         /// Place holder last index in screen.
@@ -1835,133 +2064,72 @@ namespace MnM.GWS
         /// <summary>
         /// Window is shown
         /// </summary>
-        SHOWN,
+        Shown,
 
         /// <summary>
         /// Window was made hidden
         /// </summary>
-        HIDDEN,
+        Hidden,
 
         /// <summary>
         /// Window is exposed - sort of shown
         /// </summary>
-        EXPOSED,
+        Exposed,
 
         /// <summary>
         /// Window is moved
         /// </summary>
-        MOVED,
+        Moved,
 
         /// <summary>
         /// Window is resized
         /// </summary>
-        RESIZED,
+        Resized,
 
         /// <summary>
         /// Window's size is changed
         /// </summary>
-        SIZE_CHANGED,
+        SizeChanged,
 
         /// <summary>
         /// Window is minimized
         /// </summary>
-        MINIMIZED,
+        MiniMized,
 
         /// <summary>
         /// Window is maximized
         /// </summary>
-        MAXIMIZED,
+        Maximized,
 
         /// <summary>
         /// Window is restored to its previous state.
         /// </summary>
-        RESTORED,
+        Restored,
 
         /// <summary>
         /// Mouse has entered in the window.
         /// </summary>
-        ENTER,
+        Enter,
 
         /// <summary>
         /// Mouse has left the window
         /// </summary>
-        LEAVE,
+        Leave,
 
         /// <summary>
         /// Window receives focus
         /// </summary>
-        FOCUS_GAINED,
+        FocusGained,
 
         /// <summary>
         /// Window has lost focus
         /// </summary>
-        FOCUS_LOST,
+        FocusLost,
 
         /// <summary>
         /// Window is colsed
         /// </summary>
-        CLOSE,
-    }
-    #endregion
-
-    #region EVENT USE STATUS
-    /// <summary>
-    /// Represents current status of how an event is handled by a given control placed in a hierarchy of controls which are part of a control collection.
-    /// </summary>
-    public enum EventUseStatus
-    {
-        /// <summary>
-        /// Specifies that the event is not used by the control at all.
-        /// </summary>
-        Unused = 0x1,
-
-        /// <summary>
-        /// specifies that the event is used by the control.
-        /// </summary>
-        Used = 0x2,
-
-        /// <summary>
-        /// Specifies that although, it is a relevant event for the control, it was not able to use it for various reasons for example because it is disabled.
-        /// </summary>
-        UnableToUse = 0x4,
-
-        /// <summary>
-        /// Specifies that although the control is enabled to respond to the event, it is not relevent to the control on a functional level.
-        /// </summary>
-        NotRelevant = 0x8,
-
-        /// <summary>
-        /// Specifies that although the event was used by the control, it does not indicates GWS to stop passing it on the next control in hierarchy.
-        /// </summary>
-        CarryOn = 0x10,
-    }
-    #endregion
-
-    #region KEY STATE
-    /// <summary>
-    /// Represents state of the keyboard key.
-    /// </summary>
-    public enum KeyState
-    {
-        /// <summary>
-        /// No key is acted upon
-        /// </summary>
-        None = 0x0,
-
-        /// <summary>
-        /// Key is up
-        /// </summary>
-        Up = 0x1,
-
-        /// <summary>
-        /// Key is down
-        /// </summary>
-        Down = 0x2,
-
-        /// <summary>
-        /// Just after down before up for preview and do something about it.
-        /// </summary>
-        Preview = Down | 0x4
+        Close,
     }
     #endregion
 #endif

@@ -14,22 +14,41 @@ namespace MnM.GWS
 #endif
 
     #region FACTORY
-#if (GWS || Window)
     public partial interface IFactory : IAttachment
     {
-        #region COLOR
+        #region IMAGE PROCESSOR
         /// <summary>
-        /// Creates a new Colour structure with Red, Green, Blue and Alpha components.
+        /// Creates a new image processor. By default, GWS uses STBImage. For more info on STBImage visit: https://github.com/nothings/stb
         /// </summary>
-        /// <param name="r">Red component</param>
-        /// <param name="g">Green component</param>
-        /// <param name="b">Blue component</param>
-        /// <param name="a">Alpha component</param>
-        /// <returns></returns>
-        Rgba newColor(byte r, byte g, byte b, byte a = 255);
+        /// <returns>IImageProcessor</returns>
+        IImageProcessor newImageProcessor();
         #endregion
 
-        #region SURFACE
+        #region ANIMATED GIF FRAME
+        /// <summary>
+        /// Creates a new animated gif class.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="delay"></param>
+        /// <returns></returns>
+        IAnimatedGifFrame newAnimatedGifFrame(byte[] data, int delay);
+        #endregion
+    }
+#if (GWS || Window)
+    partial interface IFactory
+    {
+    #region TO PEN
+        /// <summary>
+        /// Creates a instance of Pen or Brush from the given context.
+        /// </summary>
+        /// <param name="context">Context to convert to IPen instance.</param>
+        /// <param name="w">Width of IPen instance. Will be default if not supplied.</param>
+        /// <param name="h">Height of IPen instance. Will be default if not supplied.</param>
+        /// <returns>IPen</returns>
+        IReadable ToPen(IPenContext context, int? w = null, int? h = null);
+    #endregion
+
+    #region SURFACE
         /// <summary>
         /// Creates a new Surface object of given width and height with pixels provided by buffer.
         /// </summary>
@@ -75,33 +94,29 @@ namespace MnM.GWS
         /// </param>
         /// <returns>IBuffer</returns>
         ISurface newSurface(int width, int height, byte[] pixels, bool makeCopy = false);
-        #endregion
+    #endregion
 
-        #region CANVAS
+    #region IMAGE
         /// <summary>
-        /// Creates a new Canvas object of given width and height with pixels provided by buffer.
+        /// Creates a new Image object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
         /// </param>
         /// <returns>IBuffer</returns>
-        ICanvas newCanvas(int width, int height);
+        IImage newImage(int width, int height);
 
         /// <summary>
-        /// Creates a new Canvas object of given width and height with pixels provided by buffer.
+        /// Creates a new Image object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="pixels">Pointer containing data to use. Please note that the array will be converted to int[] first.
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
-        /// </param>
-        /// <param name="makeCopy">If true then copy the buffer array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel pointer supplied.
-        /// </param>
         /// <returns>IBuffer</returns>
-        unsafe ICanvas newCanvas(IntPtr pixels, int width, int height);
+        IImage newImage(IntPtr pixels, int width, int height);
 
         /// <summary>
-        /// Creates a new Canvas object of given width and height with pixels provided by buffer.
+        /// Creates a new Image object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="pixels">pixel array containing color data/// </param>
         /// <param name="width">Required width</param>
@@ -110,10 +125,10 @@ namespace MnM.GWS
         /// otherwise set an internal menory buffer referring to the pixel array supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        ICanvas newCanvas(int[] pixels, int width, int height, bool makeCopy = false);
+        IImage newImage(int[] pixels, int width, int height, bool makeCopy = false);
 
         /// <summary>
-        /// Creates a new Canvas object of given width and height with pixels provided by buffer.
+        /// Creates a new Surface object of given width and height with pixels provided by buffer.
         /// </summary>
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
@@ -122,29 +137,53 @@ namespace MnM.GWS
         /// otherwise set an internal menory buffer referring to the pixel array supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        ICanvas newCanvas(int width, int height, byte[] pixels, bool makeCopy = false);
+        IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false);
+    #endregion
 
+    #region CANVAS
         /// <summary>
         /// Creates a new Canvas object attached with given window.
         /// </summary>
         /// <param name="window">Window which this object belongs to.</param>
         /// <returns></returns>
         ICanvas newCanvas(IRenderTarget window);
-        #endregion
+    #endregion
 
-        #region RENDER TARGET
+    #region RENDER TARGET
 #if Window
         IRenderTarget newRenderTarget(IRenderWindow window);
 #endif
-        #endregion
+    #endregion
 
-        #region FORM
-#if NATIVE
+    #region NATIVE WINDOW
+        /// <summary>
+        /// Gets direct form associated with native form or control.
+        /// For example, System.Windows.Form or System.Windows.Control 
+        /// if using Microsoft Windows.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <returns>I Form</returns>
+        INativeTarget newNativeTarget(int x, int y, int w, int h);
+    #endregion
+
+    #region FORM
+        /// <summary>
+        /// Gets GWS form associated with native form or control.
+        /// For example, System.Windows.Form or System.Windows.Control 
+        /// if using Microsoft Windows.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <returns>IForm - the GWS Form</returns>
         IForm newForm(int x, int y, int w, int h);
-#endif
-        #endregion
+    #endregion
 
-        #region BRUSH - PEN
+    #region BRUSH - PEN
         /// <summary>
         /// Creates a new brush of certain width and height using specified fill style.
         /// </summary>
@@ -169,67 +208,33 @@ namespace MnM.GWS
         /// <param name="color"></param>
         /// <returns></returns>
         IReadable newPen(int color);
-        #endregion
+    #endregion
 
-        #region TO PEN
+    #region OBJECT COLLECTION
+        IObjCollection newObjectCollection(IImage buffer);
+    #endregion
+
+    #region COLOR
         /// <summary>
-        /// Creates a instance of Pen or Brush from the given context.
+        /// Creates a new Colour structure with Red, Green, Blue and Alpha components.
         /// </summary>
-        /// <param name="context">Context to convert to IPen instance.</param>
-        /// <param name="w">Width of IPen instance. Will be default if not supplied.</param>
-        /// <param name="h">Height of IPen instance. Will be default if not supplied.</param>
-        /// <returns>IPen</returns>
-        IReadable ToPen(IPenContext context, int? w = null, int? h = null);
-        #endregion
-
-        #region OBJECT COLLECTION
-        IObjCollection newObjectCollection(IWritable buffer);
-        #endregion
-
-        #region BUFFER COLLECTION
-#if Advanced
-        /// <summary>
-        /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
-        /// </summary>
-        /// <returns>IBufferCollection</returns>
-        IBufferCollection newBufferCollection();
-
-        /// <summary>
-        /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
-        /// </summary>
-        /// <param name="primary">Primary buffer for this instance to use.
-        /// If no null value is provided then ChangePrimary method will not be able to change the primary buffer value.
-        /// As we have already provided dedicated primary buffer here.</param>
-        /// <returns>IBufferCollection</returns>
-        IBufferCollection newBufferCollection(ISurface primary);
-
-        /// <summary>
-        /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
-        /// </summary>
-        /// <param name="capacity">Initiali capacity of the collection. the default is 4</param>
+        /// <param name="r">Red component</param>
+        /// <param name="g">Green component</param>
+        /// <param name="b">Blue component</param>
+        /// <param name="a">Alpha component</param>
         /// <returns></returns>
-        IBufferCollection newBufferCollection(int capacity);
-#endif
-        #endregion
+        Rgba newColor(byte r, byte g, byte b, byte a = 255);
+    #endregion
 
-        #region RENDER INFO
-#if Advanced
-        IRenderInfo2
-#else
-        IRenderInfo
-#endif
-        newRenderInfo(string shapeID);
-        #endregion
-
-        #region POLY FILL
+    #region POLY FILL
         /// <summary>
         /// Creates new instance of IPolygonFill which can fill a polygon structure with specified PolyFill enum option.
         /// </summary>
         /// <returns>IPolygonFill</returns>
         IPolyFill newPolyFill();
-        #endregion
+    #endregion
 
-        #region FONT
+    #region FONT
         /// <summary>
         /// Creates a new font with given parameters.
         /// </summary>
@@ -237,27 +242,9 @@ namespace MnM.GWS
         /// <param name="fontSize">Size of the font to be used to create any glyph required.</param>
         /// <returns>IFont object</returns>
         IFont newFont(Stream fontStream, int fontSize);
-        #endregion
+    #endregion
 
-        #region MISC
-        /// <summary>
-        /// Creates a new animated gif class.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="delay"></param>
-        /// <returns></returns>
-        IAnimatedGifFrame newAnimatedGifFrame(byte[] data, int delay);
-        #endregion
-
-        #region IMAGE PROCESSOR
-        /// <summary>
-        /// Creates a new image processor. By default, GWS uses STBImage. For more info on STBImage visit: https://github.com/nothings/stb
-        /// </summary>
-        /// <returns>IImageProcessor</returns>
-        IImageProcessor newImageProcessor();
-        #endregion
-
-        #region LINE
+    #region LINE
         /// <summary>
         /// Creates a new line segment with points specified by x1, y1 and x2, y2.
         /// </summary>
@@ -266,9 +253,9 @@ namespace MnM.GWS
         /// <param name="x2">X corordinate of end point</param>
         /// <param name="y2">Y corordinate of end point</param>
         ILine newLine(float x1, float y1, float x2, float y2);
-        #endregion
+    #endregion
 
-        #region CURVE
+    #region CURVE
         /// <summary>
         /// Creates a new circle or ellipse or pie or an arc specified by the bounding area, start and end angles and angle of rotation if supplied.
         /// </summary>
@@ -290,9 +277,9 @@ namespace MnM.GWS
         /// <param name="pieTriangle">Array of three VectorF instances representing pie trianlge.</param>
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         ICurve newCurve(IConic conic, VectorF[] pieTriangle, CurveType type);
-        #endregion
+    #endregion
 
-        #region CONIC
+    #region CONIC
         /// <summary>
         /// Creates a new conic for circle or ellipse or pie or an arc specified by the bounding area, cut angles and angle of rotation if supplied.
         /// </summary>
@@ -305,9 +292,9 @@ namespace MnM.GWS
         /// <param name="endAngle">Start angle from where a curve start</param>
         /// <param name="tiltAngle">Tilt angle is a deviation from 0 angle conic.</param>
         IConic newConic(Rotation rotation, float x, float y, float width, float height, float startAngle = 0, float endAngle = 0, float tiltAngle = 0);
-        #endregion
+    #endregion
 
-        #region TETRAGON
+    #region TETRAGON
         /// <summary>
         /// Creates a tetragon specified by four points and applies an angle of rotation if supplied.
         /// </summary>
@@ -316,9 +303,9 @@ namespace MnM.GWS
         /// <param name="third">Third point.</param>
         /// <param name="fourth">Fourth point.</param>
         ITetragon newTetragon(VectorF first, VectorF second, VectorF third, VectorF fourth);
-        #endregion
+    #endregion
 
-        #region BEZIER
+    #region BEZIER
         /// <summary>
         /// Creates a bezier defined by either pointsData (float values) or pixels (points) and specified by type and an angle of rotation if supplied.
         /// </summary>
@@ -326,9 +313,9 @@ namespace MnM.GWS
         /// <param name="pointValues">Defines perimiter of the bezier as values in float - each group of two subsequent values forms one point i.e x & y</param>
         /// <param name="points">Points which defines perimiter of the bezier.</param>
         IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points);
-        #endregion
+    #endregion
 
-        #region TRIANGLE
+    #region TRIANGLE
         /// <summary>
         /// Creates a new trianle formed by three points specified by x1, y1, x2, y2, x3, y3 and angle of rotation if supplied.
         /// </summary>
@@ -339,9 +326,9 @@ namespace MnM.GWS
         /// <param name="x3">X corodinate of the third point</param>
         /// <param name="y3">Y corodinate of the third point</param>
         ITriangle newTriangle(float x1, float y1, float x2, float y2, float x3, float y3);
-        #endregion
+    #endregion
 
-        #region BOX
+    #region BOX
         /// <summary>
         /// Creates a new rect with specifed parameters.
         /// </summary>
@@ -350,9 +337,9 @@ namespace MnM.GWS
         /// <param name="w">Width of the rectangle.</param>
         /// <param name="h">Height of the rectangle.</param>
         IBox newBox(int x, int y, int width, int height);
-        #endregion
+    #endregion
 
-        #region BOXF
+    #region BOXF
         /// <summary>
         /// Creates a new rect with specifed parameters.
         /// </summary>
@@ -361,19 +348,27 @@ namespace MnM.GWS
         /// <param name="w">Width of the rectangle.</param>
         /// <param name="h">Height of the rectangle.</param>
         IBoxF newBoxF(float x, float y, float width, float height);
-        #endregion
+    #endregion
 
-        #region SHAPE
+    #region BOUNDARY
+        /// <summary>
+        /// Gets a new boundary object.
+        /// </summary>
+        /// <returns></returns>
+        IBoundary newBoundary();
+    #endregion
+
+    #region SHAPE
         /// <summary>
         /// Returns an instance of IShape.
         /// </summary>
         /// <param name="shape">Points to form a shape.</param>
         /// <param name="name">NAme of shape</param>
         /// <returns></returns>
-        IShape newShape(IEnumerable<VectorF> shape, string name);
-        #endregion
+        IFigure newFigure(IEnumerable<VectorF> shape, string name);
+    #endregion
 
-        #region GLYPHS
+    #region GLYPHS
         /// <summary>
         /// Returns an instance of IGlyphs.
         /// </summary>
@@ -383,9 +378,9 @@ namespace MnM.GWS
         /// <param name="minHBY">Minimum horizontal bearing of the glyphs.</param>
         /// <returns></returns>
         IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY);
-        #endregion
+    #endregion
 
-        #region ROUNDBOX
+    #region ROUNDBOX
         /// <summary>
         /// Creates a new rouded box with specifed parameters.
         /// </summary>
@@ -395,18 +390,18 @@ namespace MnM.GWS
         /// <param name="h">Height of the rectangle.</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
         IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false);
-        #endregion
+    #endregion
 
-        #region POLYGON
+    #region POLYGON
         /// <summary>
         /// Creates a new polygon specified by a collection of points and angle of rotation if supplied.
         /// </summary>
         /// <param name="polyPoints">A collection of points which forms perimeter of the polygon.</param>
         /// <param name="angle">Angle to apply rotation while rendering the polygon</param>
         IPolygon newPolygon(IList<VectorF> polyPoints);
-        #endregion
+    #endregion
 
-        #region TEXT
+    #region TEXT
         /// <summary>
         /// Cretes new text object with given parameters.
         /// </summary>
@@ -425,26 +420,39 @@ namespace MnM.GWS
         /// <param name="dstY">X cordinate of destination location where glyphs to be drawn</param>
         /// <param name="drawStyle">A specific drawstyle to use to measure and draw glyphs if desired so</param>
         IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null);
-        #endregion
+    #endregion
 
-        #region CONVERTER
+    #region CONVERTER
         IConverter newConverter();
-        #endregion
+    #endregion
 
-        #region PEN STORE
-        /// <summary>
-        /// Gets currently attached Pen store in GWS.
-        /// </summary>
-        IPens newPenStore();
-        #endregion
-
-        #region SHAPE PARSER
+    #region SHAPE PARSER
         /// <summary>
         /// Creates new shape parser for preparing settings for a given shape rendering.
         /// </summary>
         /// <returns></returns>
         IShapeParser newShapeParser();
-        #endregion
+    #endregion
+
+    #region PUSH, PUMP, POLL EVENTS
+        /// <summary>
+        /// Push the specified event to the active window.
+        /// </summary>
+        /// <param name="e">Event to push on</param>
+        void PushEvent(IEvent e);
+
+        /// <summary>
+        /// Instructs Window manager to start pumping events to eligble window.
+        /// </summary>
+        void PumpEvents();
+
+        /// <summary>
+        /// Gives current event happeed on active window.
+        /// </summary>
+        /// <param name="e">Event which is just happened</param>
+        /// <returns></returns>
+        bool PollEvent(out IEvent e);
+    #endregion
     }
 #endif
     #endregion
@@ -453,7 +461,7 @@ namespace MnM.GWS
 #if (GWS && Window)
     public interface IWindowFactory : IFactory
     {
-        #region PROPERTIES
+    #region PROPERTIES
         /// <summary>
         /// Gets the primary scrren available with system default resoultion in the operating system.
         /// </summary>
@@ -491,9 +499,9 @@ namespace MnM.GWS
         /// Gets the latest error occured while interacting with by the operating system.
         /// </summary>
         string LastError { get; }
-        #endregion
+    #endregion
 
-        #region WINDOW
+    #region WINDOW
         /// <summary>
         /// Creates a new window with specified parameters.
         /// </summary>
@@ -516,34 +524,34 @@ namespace MnM.GWS
         /// <param name="externalWindow">External window</param>
         /// <returns></returns>
         IWindow newWindow(IExternalWindow externalWindow);
-        #endregion
+    #endregion
 
-        #region OPENGL CONTEXT
+    #region OPENGL CONTEXT
         /// <summary>
         /// Creates OpenGL context for the given window.
         /// </summary>
         /// <param name="window"></param>
         /// <returns></returns>
         IGLContext newGLContext(IWindow window);
-        #endregion
+    #endregion
 
-        #region GET WINDOW ID
+    #region GET WINDOW ID
         /// <summary>
         /// Gets the unique window id associated with the window.
         /// </summary>
         /// <param name="window"></param>
         /// <returns></returns>
         int GetWindowID(IntPtr window);
-        #endregion
+    #endregion
 
-        #region SAVE IMAGE AS BITMAP
+    #region SAVE IMAGE AS BITMAP
         /// <summary>
         /// Saves specified buffer as an image file on disk on specified file path.
         /// </summary>
         /// <param name="image">Image which is to be saved</param>
         /// <param name="file">Path of a file where data is to be saved</param>
         /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        bool SaveAsBitmap(ICopyable image, string file);
+        bool SaveAsBitmap(IBlockable image, string file, Command command = Command.DirectScreen);
 
         /// <summary>
         /// Saves specified buffer as an image file on disk on specified file path.
@@ -554,18 +562,18 @@ namespace MnM.GWS
         /// <param name="file"></param>
         /// <returns>Returns true, if operation is succesful otherwise false.</returns>
         bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file);
-        #endregion
+    #endregion
 
-        #region CURSOR TYPE ENUM CONVERSION
+    #region CURSOR TYPE ENUM CONVERSION
         /// <summary>
         /// Converts GWS cursor types to native operating system's cursor types.
         /// </summary>
         /// <param name="cursorType"></param>
         /// <returns></returns>
         int ConvertToSystemCursorID(CursorType cursorType);
-        #endregion
+    #endregion
 
-        #region TEXTURE
+    #region TEXTURE
         /// <summary>
         /// Crates a new texture from a given window.
         /// </summary>
@@ -586,49 +594,31 @@ namespace MnM.GWS
         /// <param name="textureAccess">Defines the way texture can be accessed. Default is streaming.</param>
         /// <returns></returns>
         ITexture newTexture(IRenderWindow window, ICopyable source, bool isPrimary = false, TextureAccess? textureAccess = null);
-        #endregion
+    #endregion
 
-        #region SET CURSOR POSITION
+    #region SET CURSOR POSITION
         /// <summary>
         /// Sets window's cusor's position to specified x and y coordinates.
         /// </summary>
         /// <param name="x">X coordinate of the location where cursor should be placed</param>
         /// <param name="x">Y coordinate of the location where cursor should be placed</param>
         void SetCursorPos(int x, int y);
-        #endregion
+    #endregion
 
-        #region MISC
+    #region MISC
         /// <summary>
         /// Disables the existing scrren saver of the operating system.
         /// </summary>
         void DisableScreenSaver();
-        #endregion
+    #endregion
 
-        #region PUSH, PUMP, POLL EVENTS
-        /// <summary>
-        /// Push the specified event to the active window.
-        /// </summary>
-        /// <param name="e">Event to push on</param>
-        void PushEvent(IEvent e);
-        /// <summary>
-        /// Instructs Window manager to start pumping events to eligble window.
-        /// </summary>
-        void PumpEvents();
-        /// <summary>
-        /// Gives current event happeed on active window.
-        /// </summary>
-        /// <param name="e">Event which is just happened</param>
-        /// <returns></returns>
-        bool PollEvent(out IEvent e);
-        #endregion
-
-        #region WAV PLAYER
+    #region WAV PLAYER
         /// <summary>
         /// Createa new Wav player.
         /// </summary>
         /// <returns></returns>
         ISound newWavPlayer();
-        #endregion
+    #endregion
     }
 #endif
     #endregion

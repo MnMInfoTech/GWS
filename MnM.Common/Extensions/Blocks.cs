@@ -9,19 +9,12 @@ namespace MnM.GWS
 {
     public static partial class Blocks
     {
-        #region COPY BLOCK
-#if GWS || Window
+        #region CORRECT REGION
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CopyBlock(int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
-            int dstX, int dstY, int dstW, int dstLen, BlockCopy action)
+        public static void CorrectRegion(ref int copyX, ref int copyY, ref int copyW, ref int copyH, int srcW, int srcH,
+            ref int dstX, ref int dstY, int dstW, int dstLen, out int srcIndex, out int dstIndex)
         {
-            var copy = Rects.CompitibleRc(srcW, srcH, copyX, copyY, copyW, copyH);
-
-            copyW = copy.Width;
-            copyH = copy.Height;
-            copyX = copy.X;
-            copyY = copy.Y;
-
+            #region VARIABLE INITIALIZATION
             if (copyX < 0)
             {
                 copyW += copyX;
@@ -32,32 +25,70 @@ namespace MnM.GWS
                 copyH += copyY;
                 copyY = 0;
             }
-            var srcIndex = copyX + copyY * srcW;
+
+            var w = Math.Min(copyW, srcW);
+            var h = Math.Min(copyH, srcH);
+            var right = copyX + w;
+            var bottom = copyY + h;
+            if (right > srcW)
+                right = srcW;
+            if (bottom > srcH)
+                bottom = srcH;
+            copyW = right - copyX;
+            copyH = bottom - copyY;
+            int srcLen = srcW * srcH;
+            #endregion
+
+            #region CORRECT COPY AND PASTE PARAMETERS
+            srcIndex = copyX + copyY * srcW;
 
             if (dstX < 0)
                 dstX = 0;
             if (dstY < 0)
                 dstY = 0;
 
-            var dstIndex = dstX + dstY * dstW;
+            dstIndex = dstX + dstY * dstW;
 
-            if (copyW > srcW)
-                copyW = srcW;
-            if (copyH > srcH)
-                copyH = srcH;
+            if (copyW > dstW)
+                copyW = dstW;
 
             if (srcIndex + copyW >= srcLen)
                 copyW -= (srcIndex + copyW - srcLen);
 
             if (copyW <= 0)
-                return Rectangle.Empty;
+                return;
 
             if (dstIndex + copyW >= dstLen)
                 copyW -= (dstIndex + copyW - dstLen);
+            #endregion
+        }
+        #endregion
 
+        #region COPY BLOCK
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="copyX"></param>
+        /// <param name="copyY"></param>
+        /// <param name="copyW"></param>
+        /// <param name="copyH"></param>
+        /// <param name="srcLen"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="dstW"></param>
+        /// <param name="dstLen"></param>
+        /// <param name="action"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Rectangle CopyBlock(int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+            int dstX, int dstY, int dstW, int dstLen, BlockCopy action, Command command)
+        {
+            CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
                 return Rectangle.Empty;
-
             int i = 0;
             while (i < copyH)
             {
@@ -72,57 +103,42 @@ namespace MnM.GWS
                 if (copyW <= 0)
                     break;
 
-                action(srcIndex, dstIndex, copyW, copyX, copyY + i);
+                action(srcIndex, dstIndex, copyW, copyX, copyY + i, command);
                 srcIndex += srcW;
                 dstIndex += dstW;
                 ++i;
             }
             return new Rectangle(dstX, dstY, copyW, i);
         }
-       
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="copyX"></param>
+        /// <param name="copyY"></param>
+        /// <param name="copyW"></param>
+        /// <param name="copyH"></param>
+        /// <param name="srcLen"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dst"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="dstW"></param>
+        /// <param name="dstLen"></param>
+        /// <param name="command"></param>
+        /// <param name="srcAlphas"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyBlock2(int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
-            int dstX, int dstY, int dstW, int dstLen, BlockCopy action)
+        public static unsafe IRectangle CopyBlock(int* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null)
         {
-            Rects.CompitibleRc(srcW, srcH, out copyX, out copyY, out copyW, out copyH, copyX, copyY, copyW, copyH);
-
-            if (copyX < 0)
-            {
-                copyW += copyX;
-                copyX = 0;
-            }
-            if (copyY < 0)
-            {
-                copyH += copyY;
-                copyY = 0;
-            }
-            var srcIndex = copyX + copyY * srcW;
-
-            if (dstX < 0)
-                dstX = 0;
-            if (dstY < 0)
-                dstY = 0;
-
-            var dstIndex = dstX + dstY * dstW;
-
-            if (copyW > srcW)
-                copyW = srcW;
-            if (copyH > srcH)
-                copyH = srcH;
-
-            if (srcIndex + copyW >= srcLen)
-                copyW -= (srcIndex + copyW - srcLen);
-
+            CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
-                return;
-
-            if (dstIndex + copyW >= dstLen)
-                copyW -= (dstIndex + copyW - dstLen);
-
-            if (copyW <= 0)
-                return;
-
+                return Rectangle.Empty;
             int i = 0;
+
             while (i < copyH)
             {
                 if (srcIndex + copyW >= srcLen)
@@ -135,124 +151,346 @@ namespace MnM.GWS
 
                 if (copyW <= 0)
                     break;
-
-                action(srcIndex, dstIndex, copyW, copyX, copyY + i);
+                Copy(src, srcIndex, dst, dstIndex, copyW, command, srcAlphas);
                 srcIndex += srcW;
                 dstIndex += dstW;
                 ++i;
             }
+            return new Rectangle(dstX, dstY, copyW, i);
         }
-#endif
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="copyX"></param>
+        /// <param name="copyY"></param>
+        /// <param name="copyW"></param>
+        /// <param name="copyH"></param>
+        /// <param name="srcLen"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dst"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="dstW"></param>
+        /// <param name="dstLen"></param>
+        /// <param name="command"></param>
+        /// <param name="srcAlphas"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe IRectangle CopyBlock(byte* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command)
+        {
+            CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
+            if (copyW <= 0)
+                return Rectangle.Empty;
+            int i = 0;
+
+            while (i < copyH)
+            {
+                if (srcIndex + copyW >= srcLen)
+                    copyW -= (srcIndex + copyW - srcLen);
+                if (copyW <= 0)
+                    break;
+
+                if (dstIndex + copyW >= dstLen)
+                    copyW -= (dstIndex + copyW - dstLen);
+
+                if (copyW <= 0)
+                    break;
+                Copy(src, srcIndex, dst, dstIndex, copyW, command);
+                srcIndex += srcW;
+                dstIndex += dstW;
+                ++i;
+            }
+            return new Rectangle(dstX, dstY, copyW, i);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="copyX"></param>
+        /// <param name="copyY"></param>
+        /// <param name="copyW"></param>
+        /// <param name="copyH"></param>
+        /// <param name="srcLen"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dst"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="dstW"></param>
+        /// <param name="dstLen"></param>
+        /// <param name="command"></param>
+        /// <param name="srcAlphas"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe IRectangle CopyBlock<T>(T[] src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+            T[] dst, int dstX, int dstY, int dstW, int dstLen)
+        {
+            CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
+            if (copyW <= 0)
+                return Rectangle.Empty;
+            int i = 0;
+
+            while (i < copyH)
+            {
+                if (srcIndex + copyW >= srcLen)
+                    copyW -= (srcIndex + copyW - srcLen);
+                if (copyW <= 0)
+                    break;
+
+                if (dstIndex + copyW >= dstLen)
+                    copyW -= (dstIndex + copyW - dstLen);
+
+                if (copyW <= 0)
+                    break;
+                Array.Copy(src, srcIndex, dst, dstIndex, copyW);
+                srcIndex += srcW;
+                dstIndex += dstW;
+                ++i;
+            }
+            return new Rectangle(dstX, dstY, copyW, i);
+        }
         #endregion
 
         #region COPY MEMORY
         /// <summary>
-        /// Copies source menory block to destination memory block as it is.
+        /// Copies source memory block to destination memory block.
         /// </summary>
         /// <param name="src">Source memory block</param>
-        /// <param name="srcIndex">Index in source from where copy operation must start</param>
+        /// <param name="srcIndex">Index in source from where copy operation should start</param>
+        /// <param name="dst"></param>
         /// <param name="dstIndex">Index in destination where paste operation should start</param>
         /// <param name="length">Length of pixels to be copied</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length, DrawCommand command = DrawCommand.Opaque)
-        {
-            src += srcIndex;
-            dst += dstIndex;
-            bool opaque = (command & DrawCommand.Opaque) == DrawCommand.Opaque;
-            bool back = (command & DrawCommand.Backdrop) == DrawCommand.Backdrop;
-
-            if (opaque)
-            {
-                for (int i = 0; i < length; i++)
-                    *dst++ = *src++;
-            }
-            else
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    if (*src == 0)
-                        continue;
-                    if (back && *dst != 0)
-                        continue;
-                    *dst++ = *src++;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies source menory block to destination memory block as it is.
-        /// </summary>
-        /// <param name="src">Source memory block</param>
-        /// <param name="srcIndex">Index in source from where copy operation must start</param>
-        /// <param name="dstIndex">Index in destination where paste operation should start</param>
-        /// <param name="length">Length of pixels to be copied</param>
+        /// <param name="command">Command to control copy operation.
+        /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="alphas"></param>
+        /// <param name="useDstIndexForAlphas"></param>
+        /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
+        /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
-            int dstCounter, int srcCounter, DrawCommand command = DrawCommand.Opaque)
+            Command command = Command.Opaque, byte* alphas = null, bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
         {
-            if (dstCounter == 0)
-                dstCounter = 1;
-            if (srcCounter == 0)
-                srcCounter = 1;
-            bool opaque = (command & DrawCommand.Opaque) == DrawCommand.Opaque;
-            bool back = (command & DrawCommand.Backdrop) == DrawCommand.Backdrop;
+            if (length == 0)
+                return;
+            bool Opaque = (command & Command.Opaque) == Command.Opaque;
+            bool Back = (command & Command.Backdrop) == Command.Backdrop;
+            bool Invert = (command & Command.InvertCanvasColor) == Command.InvertCanvasColor;
+            bool Clear = src == null;
 
-            if (opaque)
+            if (dstCounter <= 0)
+                dstCounter = 1;
+            if (srcCounter <= 0)
+                srcCounter = 1;
+
+            int srcColor = 0, dstColor;
+
+            if (Opaque)
             {
-                for (int i = 0; i < length; i++)
+                if (Clear)
                 {
-                    dst[dstIndex] = src[srcIndex];
-                    dstIndex += dstCounter;
-                    srcIndex += srcCounter;
+                    if (Invert)
+                        srcColor ^= Colors.Inversion;
+
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    {
+                        if (Back && dst[dstIndex] != 0)
+                            continue;
+                        dst[dstIndex] = srcColor;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    {
+                        srcColor = src[srcIndex];
+                        if (Invert)
+                            srcColor ^= Colors.Inversion;
+                        if (Back && dst[dstIndex] != 0)
+                            continue;
+                        dst[dstIndex] = srcColor;
+                    }
                 }
             }
             else
             {
-                for (int i = 0; i < length; i++)
+                bool HasAlphas = alphas != null;
+                if (!HasAlphas)
                 {
-                    if (src[srcIndex] == 0)
-                        continue;
-                    if (back && dst[dstIndex] != 0)
-                        continue;
-                    dst[dstIndex] = src[srcIndex];
-                    dstIndex += dstCounter;
-                    srcIndex += srcCounter;
+                    if (Clear)
+                    {
+                        if (Invert)
+                            srcColor ^= Colors.Inversion;
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        {
+                            dstColor = dst[dstIndex];
+                            if ((Back && dstColor != 0))
+                                continue;
+                            dst[dstIndex] = srcColor;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            srcColor = src[srcIndex];
+                            dstColor = dst[dstIndex];
+                            if (srcColor == 0 || (Back && dstColor != 0))
+                                continue;
+                            if (Invert)
+                                srcColor ^= Colors.Inversion;
+                            dst[dstIndex] = srcColor;
+                        }
+                    }
+                }
+                else
+                {
+                    int alphaIdx;
+                    uint C1, C2, RB, AG, invAlpha, alpha;
+                    if (Clear)
+                    {
+                        if (Invert)
+                            srcColor ^= Colors.Inversion;
+
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        {
+                            dstColor = dst[dstIndex];
+                            alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
+
+                            if (Back && dstColor != 0)
+                                continue;
+                            dst[dstIndex] = srcColor;
+                            alphas[alphaIdx] = 0;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            srcColor = src[srcIndex];
+                            dstColor = dst[dstIndex];
+                            alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
+                            alpha = alphas[alphaIdx];
+
+                            if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0))
+                                continue;
+
+                            if (alpha == 0 || alpha == 255 || dstColor == 0)
+                                goto AssignColor;
+
+                            if (Back) alpha = (255 - alpha);
+                            C1 = (uint)dstColor;
+                            C2 = (uint)srcColor;
+                            //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+                            invAlpha = 255 - (uint)alpha;
+                            RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
+                            AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
+                            srcColor = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
+                        AssignColor:
+                            if (Invert)
+                                srcColor ^= Colors.Inversion;
+                            dst[dstIndex] = srcColor;
+                        }
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// Copies source menory block to destination memory block as it is.
+        /// Copies source memory block to destination memory block.
         /// </summary>
         /// <param name="src">Source memory block</param>
-        /// <param name="srcIndex">Index in source from where copy operation must start</param>
+        /// <param name="srcIndex">Index in source from where copy operation should start</param>
+        /// <param name="dst"></param>
         /// <param name="dstIndex">Index in destination where paste operation should start</param>
         /// <param name="length">Length of pixels to be copied</param>
+        /// <param name="command">Command to control copy operation.
+        /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="alphas"></param>
+        /// <param name="useDstIndexForAlphas"></param>
+        /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
+        /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length, DrawCommand command = DrawCommand.Opaque)
+        public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length,
+            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1)
         {
-            bool opaque = (command & DrawCommand.Opaque) == DrawCommand.Opaque;
-            bool back = (command & DrawCommand.Backdrop) == DrawCommand.Backdrop;
-            src += srcIndex;
-            dst += dstIndex;
-            if (opaque)
+            if (length == 0)
+                return;
+            bool Opaque = (command & Command.Opaque) == Command.Opaque;
+            bool Back = (command & Command.Backdrop) == Command.Backdrop;
+            bool Invert = (command & Command.InvertCanvasColor) == Command.InvertCanvasColor;
+            bool Clear = src == null;
+
+            if (dstCounter <= 0)
+                dstCounter = 1;
+            if (srcCounter <= 0)
+                srcCounter = 1;
+
+            byte srcByte = 0, dstByte;
+
+            if (Opaque)
             {
-                for (int i = 0; i < length; i++)
-                    *dst++ = *src++;
+                if (Clear)
+                {
+                    if (Invert)
+                        srcByte = 1;
+
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    {
+                        if (Back && dst[dstIndex] != 0)
+                            continue;
+                        dst[dstIndex] = srcByte;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    {
+                        srcByte = src[srcIndex];
+                        if (Invert)
+                            srcByte = (byte)(255 - srcByte);
+                        if (Back && dst[dstIndex] != 0)
+                            continue;
+                        dst[dstIndex] = srcByte;
+                    }
+                }
             }
             else
             {
-                for (int i = 0; i < length; i++)
+                if (Clear)
                 {
-                    if (*src == 0)
-                        continue;
-                    if (back && *dst == 0)
-                        continue;
-                    *dst++ = *src++;
+                    if (Invert)
+                        srcByte = 1;
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    {
+                        dstByte = dst[dstIndex];
+                        if ((Back && dstByte != 0))
+                            continue;
+                        dst[dstIndex] = srcByte;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    {
+                        srcByte = src[srcIndex];
+                        dstByte = dst[dstIndex];
+                        if (srcByte == 0 || (Back && dstByte != 0))
+                            continue;
+                        if (Invert)
+                            srcByte = (byte)(255 - srcByte);
+                        dst[dstIndex] = srcByte;
+                    }
                 }
             }
         }
+        #endregion
 
+        #region COPY ARRAY
         public static void Copy<T>(T[] source, ref T[] destination, int length)
         {
             if (length > source.Length)
@@ -288,8 +526,7 @@ namespace MnM.GWS
 
             int copyW = newWidth;
             int copyH = newHeight;
-            CopyBlock2(0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, 0, 0, newWidth, result.Length, (si, di, w, x, y) =>
-            Array.Copy(source, si, result, di, w));
+            CopyBlock(source, 0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
 
             oldWidth = newWidth;
             oldHeight = newHeight;
@@ -317,8 +554,7 @@ namespace MnM.GWS
             }
             int copyW = newWidth;
             int copyH = newHeight;
-            CopyBlock2(0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, 0, 0, newWidth, result.Length, (si, di, w, x, y) =>
-            Array.Copy(source, si, result, di, w));
+            CopyBlock(source, 0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
             return result;
         }
 
@@ -352,8 +588,7 @@ namespace MnM.GWS
             fixed (int* res = result)
             {
                 int* dst = res;
-                CopyBlock2(0, 0, copyW, copyH, srcLen, oldWidth, oldHeight, 0, 0, newWidth, result.Length,
-                    (si, di, w, x, y) => Copy(src, si, dst, di, w));
+                CopyBlock(src, 0, 0, copyW, copyH, srcLen, oldWidth, oldHeight, dst, 0, 0, newWidth, result.Length, 0);
             }
             oldWidth = newWidth;
             oldHeight = newHeight;
@@ -554,14 +789,14 @@ namespace MnM.GWS
                             c4 = (uint)src[n];
                         }
                         if (c1 == 0 || c1 == Colors.Transparent)
-                            c1 = Colors.White;
+                            c1 = Colors.UWhite;
                         if (c2 == 0 || c2 == Colors.Transparent)
-                            c2 = Colors.White;
+                            c2 = Colors.UWhite;
 
                         if (c3 == 0 || c3 == Colors.Transparent)
-                            c3 = Colors.White;
+                            c3 = Colors.UWhite;
                         if (c4 == 0 || c4 == Colors.Transparent)
-                            c4 = Colors.White;
+                            c4 = Colors.UWhite;
 
                         uint alpha = (uint)(Dx * 255);
                         uint invAlpha = 255 - alpha;

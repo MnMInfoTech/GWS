@@ -2,6 +2,8 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+
+#if GWS || Window
 using System;
 using System.Runtime.CompilerServices;
 
@@ -52,12 +54,12 @@ namespace MnM.GWS
 
         #region READ LINE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int* src, out int srcIndex, out int copyLength);
+        public abstract unsafe void ReadLine(int Start, int End, int Axis, bool Horizontal, out int[] pixels, out int srcIndex, out int copyLength, out byte[] srcAlphas);
         #endregion
 
         #region COPY TO
-        public unsafe Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int destLen, 
-            int destW, int destX, int destY, DrawCommand command = DrawCommand.Opaque)
+        public unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int dstLen,
+            int dstW, int dstX, int dstY, Command command = Command.Opaque, string shapeID = null)
         {
             int length;
             int* dst = (int*)dest;
@@ -73,67 +75,20 @@ namespace MnM.GWS
                 y = 0;
             }
 
-            int destIndex = destX + destY * destW;
+            int destIndex = dstX + dstY * dstW;
             int i = 0;
             while (y < b)
             {
-                ReadLine(x, r, y, true, out int* src, out int srcIndex, out length);
-                if (destIndex + length >= destLen)
+                ReadLine(x, r, y, true, out int[] source, out int srcIndex, out length, out _);
+                if (destIndex + length >= dstLen)
                     break;
-                Blocks.Copy(src, srcIndex, dst, destIndex, length, command);
-                destIndex += destW;
+                fixed (int* src = source)
+                    Blocks.Copy(src, srcIndex, dst, destIndex, length, command, null, true);
+                destIndex += dstW;
                 ++i;
                 ++y;
             }
-            return new Rectangle(destX, destY, copyW, i);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Rectangle CopyTo(IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command = DrawCommand.Opaque)
-        {
-            if (block is IPixels)
-            {
-                return CopyTo(copyX, copyY, copyW, copyH, ((IImage)block).Source, block.Length, block.Width, dstX, dstY, command);
-            }
-
-            if (!(block is IWritable))
-                return Rectangle.Empty;
-
-            var surface = (IWritable)block;
-            Rectangle dstRc = Rectangle.Empty;
-            Rectangle copyRc = new Rectangle(copyX, copyY, copyW, copyH);
-
-            var x = copyRc.X;
-            var r = x + copyRc.Width;
-            var y = copyRc.Y;
-            var b = y + copyRc.Height;
-
-            if (y < 0)
-            {
-                b += y;
-                y = 0;
-            }
-            copyRc = Rects.CompitibleRc(width, height, copyX, copyY, copyW, copyH);
-            int destLen = surface.Length;
-            var dy = dstY;
-            int srcIndex, copylen;
-
-            int i = 0;
-            while (y < b)
-            {
-                ReadLine(x, r, y, true, out int* src, out srcIndex, out copylen);
-                surface.WriteLine(src, srcIndex, copylen, copylen, true, dstX, dy++, null, null, command);
-                ++i;
-                ++y;
-            }
-            dstRc = Rectangle.FromLTRB(dstX, dstY, r, dy);
-            if (dstRc && block is IUpdatable)
-            {
-                var updatable = (IUpdatable)surface;
-                updatable.Invalidate(dstRc.X, dstRc.Y, dstRc.Width, dstRc.Height);
-                updatable.Update(command);
-            }
-            return dstRc;
+            return new Rectangle(dstX, dstY, copyW, i);
         }
         #endregion
 
@@ -142,7 +97,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY SETTINGS
-        public abstract void CopySettings(ISettable settings, bool flushMode = false);
+        public abstract void Receive(IDrawParams settings, bool flushMode = false);
         #endregion
 
         #region CLONE
@@ -174,3 +129,4 @@ namespace MnM.GWS
         #endregion
     }
 }
+#endif

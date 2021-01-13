@@ -2,7 +2,9 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+#if GWS || Window
 using System;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
@@ -11,76 +13,49 @@ namespace MnM.GWS
         #region VARIABLES
         readonly KeyPressEventArgs keyPressEventArgs = new KeyPressEventArgs();
         readonly DrawEventArgs DrawEventArgs = new DrawEventArgs();
+        protected volatile bool isDisposed;
         #endregion
 
         #region PROPERTIES
         public abstract string Text { get; set; }
-        public bool IsDisposed { get; private set; }
+        public bool IsDisposed => isDisposed;
         public abstract string ID { get; }
         public string Name { get; protected set; }
         public RendererFlags RendererFlags { get; protected set; }
         public virtual bool FocusOnHover { get; set; }
         public virtual int TabIndex { get; set; }
-        public abstract IObjCollection Objects { get; }
+        public IObjCollection Objects => Buffer.Objects;
+        public abstract IPenContext Background { get; set; }
         public int Width => Bounds.Width;
         public int Height => Bounds.Height;
-        public IPenContext Background
-        {
-            set => Buffer.Background = value;
-        }
-        public IReadable BackgroundPen =>
-            Buffer.BackgroundPen;
         public bool IsContainer =>
             true;
         public abstract IntPtr Handle { get; }
         public abstract Rectangle Bounds { get; }
         public abstract bool Focused { get; }
-        public Rectangle InvalidatedArea =>
-            Buffer.InvalidatedArea;
-
-        protected abstract ISurface Buffer { get; }
-#if Advanced
-        public Rectangle ClipRectangle
-        {
-            get => Buffer.ClipRectangle;
-            set => Buffer.ClipRectangle = value;
-        }
-        public bool Clipped => Buffer.Clipped;
-#endif
+        protected abstract ICanvas Buffer { get; }
         #endregion
 
-        #region RENDER
-        public void Render(IRenderable Renderable, IContext anyContext = null) =>
-            Buffer.Render(Renderable, anyContext);
-        #endregion
-
-        #region UPDATE - INVALIDATE
-        public virtual void Update(DrawCommand command = 0) =>
-            Buffer.Update(command);
-        public virtual void Invalidate(int x, int y, int width, int height) =>
-            Buffer.Invalidate(x, y, width, height);
+        #region UPDATE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void Update(Command command = 0, IRectangle boudary = null) =>
+            Buffer.Update(command, boudary);
         #endregion
 
         #region COPY TO
-        public virtual Rectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int destLen, int destW, int destX, int destY, DrawCommand command)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
+            int destLen, int destW, int destX, int destY, Command command = 0, string shapeID = null)
         {
-            var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            return Buffer.CopyTo(copy.X, copy.Y, copy.Width, copy.Height, destination, destLen, destW, destX, destY, command);
+            return Buffer.CopyTo(copyX, copyY, copyW, copyH, destination, destLen, destW, destX, destY, command, shapeID);
         }
 
-        public virtual Rectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY,
-            int copyW, int copyH, DrawCommand command)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual IRectangle CopyTo(IBlockable block, int destX, int destY, int copyX, int copyY,
+            int copyW, int copyH, Command command)
         {
-            var copy = this.CompitibleRc(copyX, copyY, copyW, copyH);
-            return Buffer.CopyTo(block, destX, destY, copy.X, copy.Y, copy.Width, copy.Height, command);
+            return Buffer.CopyTo(block, destX, destY, copyX, copyY, copyW, copyH, command);
         }
-        #endregion
-
-        #region TO BRUSH
-#if Advanced
-        public ITextureBrush ToBrush(Rectangle? copyArea = null) =>
-            Buffer.ToBrush(copyArea);
-#endif
         #endregion
 
         #region SHOW - HIDE
@@ -93,15 +68,14 @@ namespace MnM.GWS
         #endregion
 
         #region REFRESH
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Refresh()
         {
             if (Width == 0 || Height == 0)
                 return;
-
-            DrawEventArgs.Surface = this;
+            DrawEventArgs.Graphics = this;
             OnPaint(DrawEventArgs);
-            Buffer.Invalidate(0, 0, Width, Height);
-            Buffer.Update();
+            Buffer.Update(0, new Rectangle(0, 0, Width, Height));
         }
         #endregion
 
@@ -116,24 +90,42 @@ namespace MnM.GWS
 #endif
         #endregion
 
+        #region CLEAR
+        void IClearable.Clear(int x, int y, int width, int height, Command command) =>
+            Buffer.Clear(x, y, width, height, command);
+        #endregion
+
+        #region COPY FROM
+        IRectangle IPastable.CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY,
+            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID, IntPtr alphaBytes) =>
+            Buffer.CopyFrom(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command, ShapeID, alphaBytes);
+        #endregion
+
+        #region CONSOLIDATE
+        public IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, IImageData backBuffer, Command Command, IntPtr? Pen, string shapeID) =>
+            Buffer.Consolidate(copyX, copyY, copyW, copyH, destination, dstLen, dstW, dstX, dstY, backBuffer, Command, Pen, shapeID);
+        #endregion
+
         #region PUSH EVENT
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void PushEvent(IEventInfo e)
         {
 #if Advanced
             Objects?.PushEvent(e);
-            if (e.Status == EventUseStatus.Used)
+            if (e.Handled)
                 return;
 #endif
-
-            switch (e.Type)
+            var Type = (GwsEvent)e.Type;
+            switch (Type)
             {
-                case GwsEvent.KEYDOWN:
+                case GwsEvent.KeyDown:
                     OnKeyDown(e.Args as IKeyEventArgs);
                     break;
-                case GwsEvent.KEYUP:
+                case GwsEvent.KeyUp:
                     OnKeyDown(e.Args as IKeyEventArgs);
                     break;
-                case GwsEvent.TEXTINPUT:
+                case GwsEvent.TextInput:
                     var txtInput = e.Args as ITextInputEventArgs;
                     if (txtInput != null)
                     {
@@ -144,99 +136,79 @@ namespace MnM.GWS
                         }
                     }
                     break;
-                case GwsEvent.MOUSEMOTION:
+                case GwsEvent.MouseMotion:
                     OnMouseMove(e.Args as IMouseEventArgs);
                     break;
-                case GwsEvent.ENTER:
+                case GwsEvent.Enter:
                     OnMouseEnter(e.Args as IMouseEventArgs);
                     break;
-                case GwsEvent.LEAVE:
+                case GwsEvent.Leave:
                     OnMouseLeave(e.Args as IMouseEventArgs);
                     break;
-                case GwsEvent.MOUSEBUTTONDOWN:
+                case GwsEvent.MouseDown:
                     OnMouseDown(e.Args as IMouseEventArgs);
                     break;
-                case GwsEvent.MOUSEBUTTONUP:
+                case GwsEvent.MouseUp:
                     IMouseEventArgs me = e.Args as IMouseEventArgs;
                     OnMouseUp(me);
                     OnMouseClick(me);
                     break;
-                case GwsEvent.MOUSEWHEEL:
+                case GwsEvent.MouseWheel:
                     OnMouseWheel(e.Args as IMouseEventArgs);
                     break;
-                case GwsEvent.SIZE_CHANGED:
+                case GwsEvent.SizeChanged:
                     break;
-                case GwsEvent.RESIZED:
+                case GwsEvent.Resized:
                     OnResize(e.Args as ISizeEventArgs);
                     break;
-                case GwsEvent.PAINT:
+                case GwsEvent.Paint:
                     OnPaint(e.Args as IDrawEventArgs);
                     break;
-                case GwsEvent.APPCLICK:
+                case GwsEvent.AppClick:
                     OnAppClicked(e.Args as IMouseEventArgs);
                     break;
-                //Minimal Events ends here...
-                case GwsEvent.SHOWN:
-                case GwsEvent.HIDDEN:
+                case GwsEvent.Shown:
+                case GwsEvent.Hidden:
                     OnVisibleChanged(e.Args);
                     break;
-                case GwsEvent.MOVED:
-                    OnMoved(e.Args);
-                    break;
-                case GwsEvent.FOCUS_GAINED:
+                case GwsEvent.FocusGained:
                     OnGotFocus(e.Args);
                     break;
-                case GwsEvent.FOCUS_LOST:
+                case GwsEvent.FocusLost:
                     if (!(e.Args is ICancelEventArgs))
-                        e = new EventInfo(e.Sender, new CancelEventArgs(), GwsEvent.FOCUS_LOST);
+                        e = new EventInfo(e.Sender, new CancelEventArgs(), (int)GwsEvent.FocusLost);
                     OnLostFocus(e.Args as ICancelEventArgs);
                     break;
-                case GwsEvent.CONTROLLERAXISMOTION:
-                case GwsEvent.JOYAXISMOTION:
-                    OnJoystickMove(e.Args as IJoystickAxisEventArgs);
-                    break;
-                case GwsEvent.JOYBUTTONDOWN:
-                    OnJoystickDown(e.Args as IJoystickButtonEventArgs);
-                    break;
-                case GwsEvent.JOYBUTTONUP:
-                    OnJoystickUp(e.Args as IJoystickButtonEventArgs);
-                    break;
-                case GwsEvent.FINGERDOWN:
-                    OnTouchBegan(e.Args as ITouchEventArgs);
-                    break;
-                case GwsEvent.FINGERMOTION:
-                    OnTouchBegan(e.Args as ITouchEventArgs);
-                    break;
-                case GwsEvent.FINGERUP:
-                    OnTouchBegan(e.Args as ITouchEventArgs);
-                    break;
-                case GwsEvent.MINIMIZED:
+                case GwsEvent.Minimized:
                     OnMinimized(Factory.EmptyArgs);
                     break;
-                case GwsEvent.MAXIMIZED:
+                case GwsEvent.Maximized:
                     OnMaximized(Factory.EmptyArgs);
                     break;
-                case GwsEvent.RESTORED:
+                case GwsEvent.Restored:
                     OnRestored(Factory.EmptyArgs);
                     break;
                 case GwsEvent.LASTEVENT:
-                case GwsEvent.FIRSTEVENT:
+                case GwsEvent.First:
                     break;
-                case GwsEvent.QUIT:
-                case GwsEvent.EXPOSED:
-                case GwsEvent.CLOSE:
+                case GwsEvent.Quit:
+                case GwsEvent.Exposed:
+                case GwsEvent.Close:
                 default:
-                    e.Status = EventUseStatus.Unused;
+                    HandleAdditionalEvents(e);
                     break;
             }
-            if (e.Status == EventUseStatus.Used)
+            if (e.Handled)
                 return;
             OnEventPushed(e);
         }
+
         protected virtual void OnEventPushed(IEventInfo e) =>
             EventPushed?.Invoke(this, e);
 
         public virtual event EventHandler<IEventInfo> EventPushed;
+
+        partial void HandleAdditionalEvents(IEventInfo e);
         #endregion
 
         #region EVENTS EXPOSING METHODS
@@ -291,68 +263,26 @@ namespace MnM.GWS
         public virtual event EventHandler<IDrawEventArgs> Paint;
         #endregion
 
-        #region EVENT2 DECLARATION
+        #region MINIMAL WIDOW EVENTS DECLARATION
         public virtual event EventHandler<ICancelEventArgs> LostFocus;
         public virtual event EventHandler<IEventArgs> GotFocus;
-        public virtual event EventHandler<IEventArgs> Moved;
-        public virtual event EventHandler<IKeyEventArgs> PreviewKeyDown;
         public virtual event EventHandler<IMouseEventArgs> MouseDoubleClick;
         public virtual event EventHandler<IEventArgs> VisibleChanged;
-        public virtual event EventHandler<IEventArgs> FirstShown;
-        public virtual event EventHandler<ITouchEventArgs> TouchBegan;
-        public virtual event EventHandler<ITouchEventArgs> TouchMoved;
-        public virtual event EventHandler<ITouchEventArgs> TouchEnded;
-        public virtual event EventHandler<IMouseEventArgs> MouseDrag;
-        public virtual event EventHandler<IMouseEventArgs> MouseDragBegin;
-        public virtual event EventHandler<IMouseEventArgs> MouseDragEnd;
-        public virtual event EventHandler<IJoystickButtonEventArgs> JoystickDown;
-        public virtual event EventHandler<IJoystickButtonEventArgs> JoystickUp;
-        public virtual event EventHandler<IJoystickAxisEventArgs> JoystickMove;
-        public virtual event EventHandler<IEventArgs> JoystickConnected;
-        public virtual event EventHandler<IEventArgs> JoystickDisconnected;
         public virtual event EventHandler<IEventArgs> Minimized;
         public virtual event EventHandler<IEventArgs> Maximized;
         public virtual event EventHandler<IEventArgs> Restored;
+        public virtual event EventHandler<IEventArgs> FirstShown;
         #endregion
 
-        #region EVENTS2 EXPOSING METHODS
-        protected virtual void OnPreviewKeyDown(IKeyEventArgs e) =>
-            PreviewKeyDown?.Invoke(this, e);
-
+        #region MINIMAL WINDOWS EVENTS2 EXPOSING METHODS
         protected virtual void OnMouseDoubleClick(IMouseEventArgs e) =>
             MouseDoubleClick?.Invoke(this, e);
-        protected virtual void OnMouseDragBegin(IMouseEventArgs e) =>
-            MouseDragBegin?.Invoke(this, e);
-        protected virtual void OnMouseDragEnd(IMouseEventArgs e) =>
-            MouseDragEnd?.Invoke(this, e);
-        protected virtual void OnMouseDrag(IMouseEventArgs e) =>
-            MouseDrag?.Invoke(this, e);
         protected virtual void OnVisibleChanged(IEventArgs e) =>
             VisibleChanged?.Invoke(this, e);
-        protected virtual void OnFirstShown(IEventArgs e) =>
-            FirstShown?.Invoke(this, e);
         protected virtual void OnGotFocus(IEventArgs e) =>
             GotFocus?.Invoke(this, e);
         protected virtual void OnLostFocus(ICancelEventArgs e) =>
             LostFocus?.Invoke(this, e);
-        protected virtual void OnMoved(IEventArgs e) =>
-            Moved?.Invoke(this, e);
-        protected virtual void OnTouchBegan(ITouchEventArgs e) =>
-            TouchBegan?.Invoke(this, e);
-        protected virtual void OnTouchMoved(ITouchEventArgs e) =>
-            TouchMoved?.Invoke(this, e);
-        protected virtual void OnTouchEnded(ITouchEventArgs e) =>
-            TouchEnded?.Invoke(this, e);
-        protected virtual void OnJoystickDown(IJoystickButtonEventArgs e) =>
-            JoystickDown?.Invoke(this, e);
-        protected virtual void OnJoystickUp(IJoystickButtonEventArgs e) =>
-            JoystickUp?.Invoke(this, e);
-        protected virtual void OnJoystickMove(IJoystickAxisEventArgs e) =>
-            JoystickMove?.Invoke(this, e);
-        protected virtual void OnJoystickConnected(IEventArgs e) =>
-            JoystickConnected?.Invoke(this, e);
-        protected virtual void OnJoystickDisconnected(IEventArgs e) =>
-            JoystickDisconnected?.Invoke(this, e);
 
         protected virtual void OnMaximized(IEventArgs e) =>
             Maximized?.Invoke(this, e);
@@ -360,60 +290,29 @@ namespace MnM.GWS
             Minimized?.Invoke(this, e);
         protected virtual void OnRestored(IEventArgs e) =>
             Restored?.Invoke(this, e);
-        #endregion
-
-        #region BUFFER EVENTS
-#if Advanced
-        protected virtual void OnBackgroundChanged(IEventArgs e)
-        {
-            BackgroundChanged?.Invoke(this, e);
-        }
-        public event EventHandler<IEventArgs> BackgroundChanged;
-#endif
+        protected virtual void OnFirstShown(IEventArgs e) =>
+            FirstShown?.Invoke(this, e);
         #endregion
 
         #region DISPOSE
-        public virtual void Dispose()
-        {
-            IsDisposed = true;
-            Objects?.Dispose();
-            (Buffer as IDisposable).Dispose();
-        }
+        public abstract void Dispose();
         #endregion
-    }
-    partial class _Host
-    {
+
         #region IBUFFER
+        bool IWritable.CanNotWrite => 
+            Buffer.CanNotWrite;
         int ILength.Length =>
             Buffer.Length;
-#if Advanced
-        unsafe int* IMixableBlock.Pixels(bool ForegroundBuffer) =>
-            Buffer.Pixels(ForegroundBuffer);
-        unsafe byte* IMixableBlock.AlphaValues(bool ForegroundBuffer) =>
-            Buffer.AlphaValues(ForegroundBuffer);
-        IDrawable2 IObjectAware.Control
-        {
-            get => Buffer.Control;
-            set => Buffer.Control = value;
-        }
-        IReadable IWritable.Target =>
-            Buffer.Target;
-#endif
-        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, DrawCommand command) =>
-           Buffer.WritePixel(val, axis, horizontal, color, Alpha, command);
+        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command command, string ShapeID, INotifier boundary) =>
+           Buffer.WritePixel(val, axis, horizontal, color, Alpha, command, ShapeID, boundary);
 
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, DrawCommand command) =>
-            Buffer.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command);
+            int x, int y, float? Alpha, byte* imageAlphas, Command command, string ShapeID, INotifier boundary) =>
+            Buffer.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, ShapeID, boundary);
 
-        void IClearable.Clear(int x, int y, int width, int height, DrawCommand command) =>
-            Buffer.Clear(x, y, width, height, command);
-
-        void IReceiver.Receive(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, DrawCommand command) =>
-            Buffer.Receive(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command);
-
-        object ICloneable.Clone() =>
-            Buffer.Clone();
+        void IWritable.ClearIndices() =>
+            Buffer.ClearIndices();
         #endregion
     }
 }
+#endif

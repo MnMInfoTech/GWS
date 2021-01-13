@@ -1,0 +1,107 @@
+﻿/* Licensed under the MIT/X11 license.
+* Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
+* This notice may not be removed from any source distribution.
+* See license.txt for detailed licensing details. */
+#if GWS || Window
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+#if Standard
+namespace MnM.GWS.Standard
+#elif Advanced
+namespace MnM.GWS.Advanced
+#else
+namespace MnM.GWS
+#endif
+{
+#if AllHidden
+    partial class _Factory
+    {
+#else
+    public
+#endif
+     partial struct Glyphs : IGlyphs
+    {
+        #region VARIABLES
+        readonly IList<IGlyph> Data;
+        public readonly float MinHBY;
+        public readonly bool ContainsNewLine;
+        public readonly string Text;
+        public readonly float X, Y, Width, Height;
+        public static readonly Glyphs Empty = new Glyphs();
+        #endregion
+
+        #region CONSTRUCTORS
+        public Glyphs(string text, RectangleF area, IList<IGlyph> glyphs, float minHBY, bool containsNewLine = false)
+        {
+            ID = "Glyphs".NewID();
+            X = area.X;
+            Y = area.Y;
+            Width = area.Width;
+            Height = area.Height;
+            this.Data = glyphs;
+            MinHBY = minHBY;
+
+            ContainsNewLine = containsNewLine;
+
+            if (text == null)
+                Text = new string(glyphs.Select(x => x.Character).ToArray());
+            else
+                Text = text;
+        }
+        #endregion
+
+        #region PROPERTIES
+        public IGlyph this[int index]
+        {
+            get => Data[index];
+            set => Data[index] = value;
+        }
+        public string ID { get; private set; }
+        public int Count => Data.Count;
+        public string Name => "Text";
+        float IPointF.X => X;
+        float IPointF.Y => Y;
+        float ISizeF.Width => Width;
+        float ISizeF.Height => Height;
+        #endregion
+
+        #region DRAW TO
+        public bool Draw(IWritable buffer, ISettings Settings)
+        {
+            bool success = false;
+            Draw2(buffer, Settings, ref success);
+            return success;
+        }
+        partial void Draw2(IWritable buffer, ISettings Settings, ref bool success);
+        #endregion
+
+        #region CONTAINS
+        public bool Contains(float x, float y)
+        {
+            if (x < X || y < Y || x > X + Width || y > Y + Height)
+                return false;
+            return true;
+        }
+        #endregion
+
+        #region TO SHAPE
+        public IEnumerable<VectorF> Figure() => null;
+        #endregion
+
+        #region IENUMERABLE<VectorF>
+        public IEnumerator<IGlyph> GetEnumerator()
+        {
+            return Data.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            GetEnumerator();
+        #endregion
+    }
+#if AllHidden
+    }
+#endif
+}
+#endif

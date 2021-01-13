@@ -321,17 +321,6 @@ namespace MnM.GWS
             y = horizontal ? axis : val;
         }
         #endregion
-
-        #region REMOVE INFLATION
-        public static Rectangle RemoveInflation(Rectangle value)
-        {
-            var x = value.X + LOffset;
-            var y = value.Y + LOffset;
-            var r = value.Right - LOffset;
-            var b = value.Bottom - LOffset;
-            return Rectangle.FromLTRB(x, y, r, b);
-        }
-        #endregion
     }
 }
 
@@ -490,7 +479,50 @@ namespace MnM.GWS
         {
             minX = minY = float.MaxValue;
             maxX = maxY = float.MinValue;
+            bool pointFound = false;
+            bool sizeFound = false;
             bool ok = false;
+
+            if (collection is IPointF)
+            {
+                minX = ((IPointF)collection).X;
+                minY = ((IPointF)collection).Y;
+                pointFound = true;
+            }
+            else if(collection is IPoint)
+            {
+                minX = ((IPoint)collection).X;
+                minY = ((IPoint)collection).Y;
+                pointFound = true;
+            }
+
+            if (pointFound && collection is ISizeF)
+            {
+                maxX = ((ISizeF)collection).Width;
+                maxY = ((ISizeF)collection).Height;
+                if (maxX != 0 && maxY != 0)
+                {
+                    maxX += minX;
+                    maxY += minY;
+                    sizeFound = true;
+                }
+            }
+            else if (pointFound && collection is ISize)
+            {
+                minX = ((ISize)collection).Width;
+                minY = ((ISize)collection).Height;
+                if (maxX != 0 && maxY != 0)
+                {
+                    maxX += minX;
+                    maxY += minY;
+                    sizeFound = true;
+                }
+            }
+            if (pointFound && sizeFound)
+            {
+                ok = true;
+                goto Clipping;
+            }
 
             foreach (var p in collection)
             {
@@ -507,6 +539,7 @@ namespace MnM.GWS
                     maxY = p.Y;
             }
 
+            Clipping:
             if (clip != null && clip.Value)
             {
                 minX = Math.Max(minX, 0);
@@ -528,7 +561,51 @@ namespace MnM.GWS
         {
             minX = minY = int.MaxValue;
             maxX = maxY = int.MinValue;
+            bool pointFound = false;
+            bool sizeFound = false;
             bool ok = false;
+
+            if (collection is IPointF)
+            {
+                minX = (int)((IPointF)collection).X;
+                minY = (int)((IPointF)collection).Y;
+                pointFound = true;
+            }
+            else if (collection is IPoint)
+            {
+                minX = ((IPoint)collection).X;
+                minY = ((IPoint)collection).Y;
+                pointFound = true;
+            }
+
+            if (pointFound && collection is ISizeF)
+            {
+                maxX = (int)((ISizeF)collection).Width;
+                maxY = (int)((ISizeF)collection).Height;
+                if (maxX != 0 && maxY != 0)
+                {
+                    maxX += minX;
+                    maxY += minY;
+                    sizeFound = true;
+                }
+            }
+            else if (pointFound && collection is ISize)
+            {
+                minX =  ((ISize)collection).Width;
+                minY = ((ISize)collection).Height;
+                if (maxX != 0 && maxY != 0)
+                {
+                    maxX += minX;
+                    maxY += minY;
+                    sizeFound = true;
+                }
+            }
+            if (pointFound && sizeFound)
+            {
+                ok = true;
+                goto Clipping;
+            }
+
             foreach (var p in collection)
             {
                 if (!p)
@@ -543,6 +620,8 @@ namespace MnM.GWS
                 if (p.Y > maxY)
                     maxY = p.Y;
             }
+
+            Clipping:
             if (clip != null && (clip.Value.Width > 0 && clip.Value.Height > 0))
             {
                 minX = Math.Max(minX, 0);
