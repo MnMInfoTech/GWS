@@ -2,7 +2,9 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
@@ -67,15 +69,8 @@ namespace MnM.GWS
         }
         #endregion
     }
-}
-
-
-namespace MnM.GWS
-{
-#if GWS || Window
-    using System;
-    using System.Collections.Generic;
-
+    
+    #if GWS || Window
     public static partial class Rects
     {
         #region COMPITIBLE RC

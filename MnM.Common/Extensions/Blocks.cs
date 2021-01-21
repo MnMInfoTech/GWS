@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 using System;
 using System.Runtime.CompilerServices;
 
@@ -37,6 +38,9 @@ namespace MnM.GWS
             copyW = right - copyX;
             copyH = bottom - copyY;
             int srcLen = srcW * srcH;
+            int dstH = dstLen / dstW;
+            if (dstY + copyH >= dstH)
+                copyH -= (dstY + copyH - dstH);
             #endregion
 
             #region CORRECT COPY AND PASTE PARAMETERS
@@ -279,7 +283,7 @@ namespace MnM.GWS
                 return;
             bool Opaque = (command & Command.Opaque) == Command.Opaque;
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
-            bool Invert = (command & Command.InvertCanvasColor) == Command.InvertCanvasColor;
+            bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
 
             if (dstCounter <= 0)
@@ -422,7 +426,7 @@ namespace MnM.GWS
                 return;
             bool Opaque = (command & Command.Opaque) == Command.Opaque;
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
-            bool Invert = (command & Command.InvertCanvasColor) == Command.InvertCanvasColor;
+            bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
 
             if (dstCounter <= 0)
@@ -878,13 +882,13 @@ namespace MnM.GWS
         #endregion
 
         #region FLIP
-        public static unsafe int[] Flip(IntPtr source, int srcW, int srcH, Flip flip)
+        public static unsafe int[] Flip(IntPtr source, int srcW, int srcH, FlipMode flip)
         {
             int[] result = new int[srcW * srcH];
             int i = 0;
             int* src = (int*)source;
 
-            if (flip == GWS.Flip.Horizontal)
+            if (flip == FlipMode.Horizontal)
             {
                 for (var y = srcH - 1; y >= 0; y--)
                 {

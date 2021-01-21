@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 using System;
 using System.Globalization;
 
@@ -23,7 +24,7 @@ namespace MnM.GWS
         private static DateTimeFormatInfo DTF = new DateTimeFormatInfo();
         #endregion
 
-#region Change
+        #region Change
 #if Dates
         /// <summary>
         /// Changes the specified change type.
@@ -133,7 +134,7 @@ namespace MnM.GWS
                 return change;
             return date;
         }
-     
+
         /// <summary>
         /// Changes the specified change.
         /// </summary>
@@ -156,7 +157,7 @@ namespace MnM.GWS
         }
         #endregion
 
-#region Compare
+        #region Compare
 #if Dates
         /// <summary>
         /// Compares the specified date2.
@@ -254,7 +255,7 @@ namespace MnM.GWS
         {
             return compareDate >= range1 && compareDate <= range2;
         }
-       
+
         /// <summary>
         /// Verifies the specified range1.
         /// </summary>
@@ -272,7 +273,7 @@ namespace MnM.GWS
         }
         #endregion
 
-#region Convert
+        #region Convert
 #if Dates
         /// <summary>
         /// Converts the in hm.
@@ -351,7 +352,7 @@ namespace MnM.GWS
         }
         #endregion
 
-#region Correct DateRange
+        #region Correct DateRange
 #if Dates
         /// <summary>
         /// Corrects the range.
@@ -404,9 +405,9 @@ namespace MnM.GWS
             }
         }
 #endif
-#endregion
+        #endregion
 
-#region Date Difference
+        #region Date Difference
 #if Dates
         /// <summary>
         /// Gets the difference.
@@ -459,9 +460,9 @@ namespace MnM.GWS
             return dt1.GetDifference(dt2, interval);
         }
 #endif
-#endregion
+        #endregion
 
-#region Date Serial
+        #region Date Serial
         /// <summary>
         /// Dates the serial.
         /// </summary>
@@ -492,9 +493,9 @@ namespace MnM.GWS
                 return DateSerial(y, m, d);
             return DateTime.MinValue;
         }
-#endregion
+        #endregion
 
-#region First & Last Date
+        #region First & Last Date
         /// <summary>
         /// Firsts the date.
         /// </summary>
@@ -532,9 +533,9 @@ namespace MnM.GWS
         {
             return (date.AddMonths(1)).FirstDate().AddDays(-1);
         }
-#endregion
+        #endregion
 
-#region Get Month Name
+        #region Get Month Name
         /// <summary>
         /// Monthes the name.
         /// </summary>
@@ -555,9 +556,9 @@ namespace MnM.GWS
             }
 
         }
-#endregion
+        #endregion
 
-#region Last Day in Month
+        #region Last Day in Month
         /// <summary>
         /// Lasts the day in month.
         /// </summary>
@@ -576,9 +577,9 @@ namespace MnM.GWS
         {
             return date.ToDate().LastDayInMonth();
         }
-#endregion
+        #endregion
 
-#region IS DATE
+        #region IS DATE
         public static bool IsDate(this object value)
         {
             if (value is DateTime)
@@ -594,9 +595,9 @@ namespace MnM.GWS
             }
             return false;
         }
-#endregion
+        #endregion
 
-#region TO DATE
+        #region TO DATE
         public static bool ToDate(this object value, out DateTime result, bool includeTime = false)
         {
             result = DateTime.MinValue;
@@ -637,12 +638,12 @@ namespace MnM.GWS
                 return dt;
             return DateTime.MinValue;
         }
-#endregion
+        #endregion
 
-#region PARSE DATE TIME
+        #region PARSE DATE TIME
         internal static DateTime? parseDateTime(this string word, ValidateType validation) =>
             parseDateTime(word, validation, out bool vdt, out bool vt, out ValidateType vtype, out ValidateType tyype);
-       
+
         internal static DateTime? parseDateTime(this string word, ValidateType validation,
             out bool vdate, out bool vtime, out ValidateType vdateval, out ValidateType vtimeval)
         {
@@ -810,9 +811,9 @@ namespace MnM.GWS
                 return retVal;
             return null;
         }
-#endregion
+        #endregion
 
-#region Week Day
+        #region Week Day
         public static string WeekDayName(this DateTime date, bool abbreviate = true)
         {
             var day = date.DayOfWeek.ToString();
@@ -836,9 +837,9 @@ namespace MnM.GWS
         public static int WeekDay(this object date, DayOfWeek weekStart = DayOfWeek.Monday) =>
             date.ToDate().WeekDay(weekStart);
 
-#endregion
+        #endregion
 
-#region Base Functions
+        #region Base Functions
         static DayOfWeek weekDay(this int day, DayOfWeek startDay = DayOfWeek.Monday)
         {
             day.weekDay(out int d, startDay);

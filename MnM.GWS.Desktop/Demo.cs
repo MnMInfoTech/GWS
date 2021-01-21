@@ -1,26 +1,28 @@
-﻿// ***********************************************************************
-// Assembly         : MnM.GWS
-// Author           : Manan Adhvaryu
-// Created          : 24-12-2018
-//
-// Last Modified By : Manan Adhvaryu
-// Last Modified On : 02-05-2020
-// ***********************************************************************
-/* Licensed under the MIT/X11 license.
+﻿/* Licensed under the MIT/X11 license.
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 
+#if MS && (GWS || Window)
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
+//using System.Drawing.Drawing2D;
+using MnM.GWS.Advanced;
+
 using System.Linq;
 using System.Windows.Forms;
 
+#if Advanced
+using GWS = MnM.GWS.Advanced;
+#elif Standard
+using GWS=MnM.GWS.Standard;
+#else
+using GWS=MnM.GWS;
+#endif
 namespace MnM.GWS.Desktop
 {
-#if MS && (GWS || Window)
     public partial class Demo : Form, IShowable, IHideable
     {
         #region VARIABLES
@@ -28,16 +30,15 @@ namespace MnM.GWS.Desktop
         internal float x, y, w, h;
         float startA, endA;
         int[] drawPoints;
-        MnM.GWS.FillMode pse;
+        FillMode pse;
         CurveType curveType = 0;
         IFont gwsFont;
         ITextureBrush textureBrush;
         ISurface Original;
-        static Font ptFont = new System.Drawing.Font("Verdana", 10);
         static Demo instance;
         static IForm Window;
         System.Drawing.Font MsFont;
-        System.Drawing.Font dfMsFont = new Font("Tahoma", 12);
+        System.Drawing.Font dfMsFont = new System.Drawing.Font("Tahoma", 12);
         System.Drawing.Brush MsBrush;
         ISettings Settings = Factory.newSettings();
         #endregion
@@ -48,6 +49,7 @@ namespace MnM.GWS.Desktop
             InitializeComponent();
 
             Window = Factory.newForm();
+            Window.Background = Rgba.ActiveCaption;
             Load += this.OnLoad;
         }
         #endregion
@@ -90,9 +92,9 @@ namespace MnM.GWS.Desktop
             cmbShape.Items.Add("Glyphs");
 
 
-            cmbStrokeMode.Items.AddRange(Enum.GetNames(typeof(MnM.GWS.StrokeMode)));
+            cmbStrokeMode.Items.AddRange(Enum.GetNames(typeof(StrokeMode)));
 
-            cmbGradient.Items.AddRange(Enum.GetNames(typeof(MnM.GWS.BrushType)));
+            cmbGradient.Items.AddRange(Enum.GetNames(typeof(BrushType)));
 
             var copts = Enum.GetValues(typeof(CurveType));
             foreach (var item in copts)
@@ -100,7 +102,7 @@ namespace MnM.GWS.Desktop
                 chkLstCurveOption.Items.Add(item);
             }
 
-            var zrotdir = Enum.GetValues(typeof(MnM.GWS.SkewType));
+            var zrotdir = Enum.GetValues(typeof(SkewType));
             foreach (var item in zrotdir)
             {
                 cmbZRotateDirection.Items.Add(item);
@@ -118,12 +120,12 @@ namespace MnM.GWS.Desktop
             cmbBezier.Items.Add(new KeyValuePair<string, BezierType>("Multiple", BezierType.Multiple));
 
 
-            cmbStroke.Items.Add(new KeyValuePair<string, MnM.GWS.FillMode>("Normal", MnM.GWS.FillMode.Original));
-            cmbStroke.Items.Add(new KeyValuePair<string, MnM.GWS.FillMode>("Outer", MnM.GWS.FillMode.Outer));
-            cmbStroke.Items.Add(new KeyValuePair<string, MnM.GWS.FillMode>("FillOutLine", MnM.GWS.FillMode.FillOutLine));
-            cmbStroke.Items.Add(new KeyValuePair<string, MnM.GWS.FillMode>("Inner", MnM.GWS.FillMode.Inner));
-            cmbStroke.Items.Add(new KeyValuePair<string, MnM.GWS.FillMode>("DrawOutLine", MnM.GWS.FillMode.DrawOutLine));
-            cmbStroke.Items.Add(new KeyValuePair<string, MnM.GWS.FillMode>("ExceptOutLine", MnM.GWS.FillMode.ExceptOutLine));
+            cmbStroke.Items.Add(new KeyValuePair<string, FillMode>("Normal", FillMode.Original));
+            cmbStroke.Items.Add(new KeyValuePair<string, FillMode>("Outer", FillMode.Outer));
+            cmbStroke.Items.Add(new KeyValuePair<string, FillMode>("FillOutLine", FillMode.FillOutLine));
+            cmbStroke.Items.Add(new KeyValuePair<string, FillMode>("Inner", FillMode.Inner));
+            cmbStroke.Items.Add(new KeyValuePair<string, FillMode>("DrawOutLine", FillMode.DrawOutLine));
+            cmbStroke.Items.Add(new KeyValuePair<string, FillMode>("ExceptOutLine", FillMode.ExceptOutLine));
 
             cmbZRotateDirection.SelectedIndex = 0;
             cmbStrokeMode.SelectedIndex = 0;
@@ -464,7 +466,7 @@ namespace MnM.GWS.Desktop
             {
                 var p1 = pts[i];
                 var p2 = pts[i + 1];
-               
+
                 Window.DrawLine(p1.X, p1.Y, p2.X, p2.Y);
                 Window.DrawText(Factory.SystemFont, p1.X, p1.Y, "" + (j++), null);
             }
@@ -536,12 +538,14 @@ namespace MnM.GWS.Desktop
         }
         private void DrawCoordinates(object sender, IMouseEventArgs e)
         {
-            var boundary =  Factory.newBoundary();
+            var boundary = Factory.newBoundary();
+            int color = Rgba.Red.Color;
             txtPts.Text += "," + e.X + "," + e.Y;
-            Window.WritePixel(e.X, e.Y, true, Rgba.Red, null, Command.DirectScreen, null, boundary);
-            Window.WritePixel(e.X, e.Y+1, true, Rgba.Red, null, Command.DirectScreen, null, boundary);
-            Window.WritePixel(e.X+1, e.Y, true, Rgba.Red, null, Command.DirectScreen, null, boundary);
-            Window.WritePixel(e.X + 1, e.Y + 1, true, Rgba.Red, null, Command.DirectScreen, null, boundary);
+            Window.WritePixel(e.X, e.Y, true, color, null, Command.Animate, null, boundary);
+            Window.WritePixel(e.X, e.Y + 1, true, color, null, Command.Animate, null, boundary);
+            Window.WritePixel(e.X + 1, e.Y, true, color, null, Command.Animate, null, boundary);
+            Window.WritePixel(e.X + 1, e.Y + 1, true, color, null, Command.Animate, null, boundary);
+            Window.Update(Command.UpdateScreenOnly, boundary);
         }
         private void ShowCompareForm(object sender, System.EventArgs e)
         {
@@ -571,7 +575,7 @@ namespace MnM.GWS.Desktop
 
             if (textureBrush == null)
             {
-                Enum.TryParse(cmbGradient.SelectedItem + "", true, out MnM.GWS.BrushType grad);
+                Enum.TryParse(cmbGradient.SelectedItem + "", true, out BrushType grad);
 
                 BrushStyle fStyle;
                 if (lstColors.Items.Count > 0)
@@ -648,8 +652,8 @@ namespace MnM.GWS.Desktop
                 case "Circle":
                     if (drawPoints?.Length >= 4)
                     {
-                        GwsMethod = () => Canvas.DrawCircle(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), Settings);
+                        GwsMethod = () => Canvas.DrawCircle(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), Settings);
                     }
                     else
                         GwsMethod = () => Canvas.DrawEllipse(x, y, w, w, Settings);
@@ -688,21 +692,21 @@ namespace MnM.GWS.Desktop
                 case "Arc":
                     if (drawPoints?.Length >= 10)
                     {
-                        GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), Settings, curveType);
+                        GwsMethod = () => Canvas.DrawArc(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), new VectorF(drawPoints[4], drawPoints[5]),
+                            new VectorF(drawPoints[6], drawPoints[7]), new VectorF(drawPoints[8], drawPoints[9]), Settings, curveType);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
-                        GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), Settings, curveType);
+                        GwsMethod = () => Canvas.DrawArc(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), new VectorF(drawPoints[4], drawPoints[5]),
+                            new VectorF(drawPoints[6], drawPoints[7]), Settings, curveType);
                     }
 
                     else if (drawPoints?.Length >= 6)
                     {
-                        GwsMethod = () => Canvas.DrawArc(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), Settings, curveType);
+                        GwsMethod = () => Canvas.DrawArc(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), new VectorF(drawPoints[4], drawPoints[5]), Settings, curveType);
                     }
                     else
                         GwsMethod = () => Canvas.DrawArc(x, y, w, h, startA, endA, Settings, curveType);
@@ -711,21 +715,21 @@ namespace MnM.GWS.Desktop
                 case "Pie":
                     if (drawPoints?.Length >= 10)
                     {
-                        GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), new MnM.GWS.VectorF(drawPoints[8], drawPoints[9]), Settings, curveType);
+                        GwsMethod = () => Canvas.DrawPie(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), new VectorF(drawPoints[4], drawPoints[5]),
+                            new VectorF(drawPoints[6], drawPoints[7]), new VectorF(drawPoints[8], drawPoints[9]), Settings, curveType);
                     }
                     else if (drawPoints?.Length >= 8)
                     {
-                        GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]),
-                            new MnM.GWS.VectorF(drawPoints[6], drawPoints[7]), Settings, curveType);
+                        GwsMethod = () => Canvas.DrawPie(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), new VectorF(drawPoints[4], drawPoints[5]),
+                            new VectorF(drawPoints[6], drawPoints[7]), Settings, curveType);
                     }
 
                     else if (drawPoints?.Length >= 6)
                     {
-                        GwsMethod = () => Canvas.DrawPie(new MnM.GWS.VectorF(drawPoints[0], drawPoints[1]),
-                            new MnM.GWS.VectorF(drawPoints[2], drawPoints[3]), new MnM.GWS.VectorF(drawPoints[4], drawPoints[5]), Settings, curveType);
+                        GwsMethod = () => Canvas.DrawPie(new VectorF(drawPoints[0], drawPoints[1]),
+                            new VectorF(drawPoints[2], drawPoints[3]), new VectorF(drawPoints[4], drawPoints[5]), Settings, curveType);
                     }
                     else
                         GwsMethod = () => Canvas.DrawPie(x, y, w, h, startA, endA, Settings, curveType);
@@ -796,7 +800,7 @@ namespace MnM.GWS.Desktop
             drawPoints = null;
             //mnmCanvas.AntiAlias = chkAA.Checked;
             pse = cmbStroke.SelectedIndex != -1 ?
-                ((KeyValuePair<string, MnM.GWS.FillMode>)cmbStroke.SelectedItem).Value : MnM.GWS.FillMode.FillOutLine;
+                ((KeyValuePair<string, FillMode>)cmbStroke.SelectedItem).Value : FillMode.FillOutLine;
 
             //get the user input values for width, height, x & y coordinates.
             x = (int)numX.Value;
@@ -813,7 +817,7 @@ namespace MnM.GWS.Desktop
             //get the GWS gradient fill mode 
 
             //for Triangle, Bezier, Polygon etc. - get the points selected by the user
-            RectangleF rc;
+            MnM.GWS.RectangleF rc;
             var shape = cmbShape.SelectedItem + "";
             if (shape == "Glyphs")
             {
@@ -927,11 +931,11 @@ namespace MnM.GWS.Desktop
             MsMethod = null;
             var stroke = (float)numStroke.Value;
             MsDisplay.Screen.Canvas.SmoothingMode = !Settings.Command.HasFlag(Command.Breshenham) ?
-                SmoothingMode.AntiAlias : SmoothingMode.Default;
+                System.Drawing.Drawing2D.SmoothingMode.AntiAlias : System.Drawing.Drawing2D.SmoothingMode.Default;
 
             if (textureBrush == null)
             {
-                Enum.TryParse(cmbGradient.SelectedItem + "", true, out LinearGradientMode msgrad);
+                Enum.TryParse(cmbGradient.SelectedItem + "", true, out System.Drawing.Drawing2D.LinearGradientMode msgrad);
                 //create an instance of the Microst gradient fill brush 
 
                 object[] all = null;
@@ -953,8 +957,9 @@ namespace MnM.GWS.Desktop
                 }
                 positions[positions.Length - 1] = 1f;
 
-                var Brush = new LinearGradientBrush(new System.Drawing.RectangleF(x, y, w + 1, h + 1), colors[0], colors[colors.Length - 1], msgrad);
-                ColorBlend colorBlend = new ColorBlend();
+                var Brush = new System.Drawing.Drawing2D.LinearGradientBrush(new System.Drawing.RectangleF(x, y, w + 1, h + 1),
+                    colors[0], colors[colors.Length - 1], msgrad);
+                System.Drawing.Drawing2D.ColorBlend colorBlend = new System.Drawing.Drawing2D.ColorBlend();
                 colorBlend.Colors = colors;
                 colorBlend.Positions = positions;
                 Brush.InterpolationColors = colorBlend;
@@ -974,7 +979,7 @@ namespace MnM.GWS.Desktop
                     MsMethod = () => MsDisplay.Screen.Canvas.DrawLine(new System.Drawing.Pen(MsBrush, stroke), drawPoints[0], drawPoints[1], drawPoints[2], drawPoints[3]);
                     break;
                 case "Circle":
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillEllipse(MsBrush, x, y, w, w);
                     else
                         MsMethod = () => MsDisplay.Screen.Canvas.DrawEllipse(new System.Drawing.Pen(MsBrush, stroke), x, y, w, w);
@@ -982,7 +987,7 @@ namespace MnM.GWS.Desktop
                     break;
                 case "Ellipse":
 
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillEllipse(MsBrush, x, y, w, h);
                     else
                         MsMethod = () => MsDisplay.Screen.Canvas.DrawEllipse(new System.Drawing.Pen(MsBrush, stroke), x, y, w, h);
@@ -993,12 +998,12 @@ namespace MnM.GWS.Desktop
                     break;
                 case "Pie":
                 case "BezierPie":
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillPie(MsBrush, x, y, w, h, startA, endA);
                     else
                         MsMethod = () => MsDisplay.Screen.Canvas.DrawPie(new System.Drawing.Pen(MsBrush, stroke), x, y, w, h, startA, endA); break;
                 case "Square":
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillRectangle(MsBrush, x, y, w, w);
                     else
                         MsMethod = () => MsDisplay.Screen.Canvas.DrawRectangle(new System.Drawing.Pen(MsBrush, stroke), x, y, w, w);
@@ -1006,7 +1011,7 @@ namespace MnM.GWS.Desktop
                 case "Rectangle":
                     var loc = new System.Drawing.PointF(x, y);
 
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillRectangle(MsBrush, new System.Drawing.RectangleF(loc, new System.Drawing.SizeF(w, h)));
                     else
                     {
@@ -1016,7 +1021,7 @@ namespace MnM.GWS.Desktop
                 case "Triangle":
                     if (drawPoints == null || drawPoints.Length < 6)
                         return;
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillPolygon(MsBrush, drawPoints.ToPointsF());
                     else
                         MsMethod = () => MsDisplay.Screen.Canvas.DrawPolygon(new System.Drawing.Pen(MsBrush, stroke), drawPoints.ToPointsF());
@@ -1025,7 +1030,7 @@ namespace MnM.GWS.Desktop
                 case "Polygon":
                     if (drawPoints == null)
                         return;
-                    if (pse == MnM.GWS.FillMode.Outer || pse == MnM.GWS.FillMode.Original)
+                    if (pse == FillMode.Outer || pse == FillMode.Original)
                         MsMethod = () => MsDisplay.Screen.Canvas.FillPolygon(MsBrush, drawPoints.ToPointsF(), System.Drawing.Drawing2D.FillMode.Winding);
                     else
                         MsMethod = () => MsDisplay.Screen.Canvas.DrawPolygon(new System.Drawing.Pen(MsBrush, stroke), drawPoints.ToPointsF());
@@ -2268,5 +2273,5 @@ namespace MnM.GWS.Desktop
 
         #endregion
     }
-#endif
 }
+#endif

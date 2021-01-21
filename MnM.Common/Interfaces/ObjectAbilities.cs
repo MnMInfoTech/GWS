@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 using System;
 using System.Collections.Generic;
 
@@ -206,10 +207,14 @@ namespace MnM.GWS
         unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha, byte* imageAlphas, Command Command, string ShapeID, INotifier boundary);
 
-        void ClearIndices();
+        /// <summary>
+        /// Clears indices of last drawn pixels. 
+        /// Only useful when a shape is drawn with Distinct flag of enum : Command.
+        /// </summary>
+        void ClearPixelRecord();
     }
     #endregion
-
+     
     #region INOTIFIER
     public interface INotifier
     {
@@ -295,7 +300,7 @@ namespace MnM.GWS
         /// <param name="clearW">Width of region which is to be cleared.</param>
         /// <param name="clearH">Height of region which is to be cleared.</param>
         /// <param name="command">A command to control clearing operation.</param>
-        void Clear(int clearX, int clearY, int clearW, int clearH, Command command = 0);
+        IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command command = 0);
     }
     #endregion
 
@@ -484,7 +489,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="flipMode"></param>
         /// <returns>Flipped copy of this object.</returns>
-        Size Flip(out IntPtr Data, Flip flipMode);
+        Size Flip(out IntPtr Data, FlipMode flipMode);
     }
     #endregion
 
@@ -557,6 +562,16 @@ namespace MnM.GWS
         /// Gets or sets an active object from the perspective of handling user inputs.
         /// </summary>
         IEventPusher ActiveObject { get; set; }
+
+        /// <summary>
+        /// Gets th actual location when the drag operation started.
+        /// </summary>
+        Vector DragLocation { get; }
+
+        /// <summary>
+        /// Gets current status in relation to mouse dragging routine.
+        /// </summary>
+        MouseDrag MouseDrag { get; }
 
         /// <summary>
         /// Gets latest element which the mouse last hovered on.

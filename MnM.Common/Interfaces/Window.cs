@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 using System;
 using System.Collections.Generic;
 
@@ -25,9 +26,8 @@ namespace MnM.GWS
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
     public partial interface IRenderTarget : IID, IClearable, IPastable, IPixels,
-        IResizable, ICopyable, IUpdatable, IBackground, IBackgroundPen, IDisposed
+        IResizable, ICopyable, IUpdatable, IDisposed
     {
-        event EventHandler<IEventArgs> BackgroundChanged;
     }
     #endregion
 
@@ -37,6 +37,14 @@ namespace MnM.GWS
     {
         INativeForm Form { set; }
     }
+    #endregion
+
+    #region IEXTERNAL- TARGET
+    /// <summary>
+    /// Represents an object which is a render target but belongs to external system such as Form.
+    /// </summary>
+    public interface IExternalTarget : IRenderTarget, IEventPusher, IHandle
+    { }
     #endregion
 
 #if (GWS || Window)
@@ -84,14 +92,6 @@ namespace MnM.GWS
     {
         RendererFlags RendererFlags { get; }
     }
-    #endregion
-
-    #region IEXTERNAL- WINDOW
-    /// <summary>
-    /// Represents an object which is a render target but belongs to external system such as Form.
-    /// </summary>
-    public interface IExternalWindow : IRenderTarget, IEventPusher, IHandle
-    { }
     #endregion
 
     #region ICHILD

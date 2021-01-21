@@ -2,25 +2,20 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 #if GWS || Window
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-#if Standard
-namespace MnM.GWS.Standard
-#elif Advanced
-namespace MnM.GWS.Advanced
-#else
 namespace MnM.GWS
-#endif
 {
     /// <summary>
     /// Defines conic section Ax2 + Bxy + Cy2 +  Dx + Ey + F = 0 where A, B, C, D, E and F are constants. 
     /// </summary>
 
 #if AllHidden
-    partial class _Factory
+    partial class NativeFactory
     {
 #else
     public

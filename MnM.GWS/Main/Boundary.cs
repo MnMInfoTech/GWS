@@ -2,19 +2,14 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 #if GWS || Window
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-#if Standard
-namespace MnM.GWS.Standard
-#elif Advanced
-namespace MnM.GWS.Advanced
-#else
 namespace MnM.GWS
-#endif
 {
     public partial class Boundary : IBoundary
     {
@@ -183,7 +178,7 @@ namespace MnM.GWS
         #endregion
 
         #region DRAW
-        public void Draw(IImage buffer, Command command = 0)
+        public void Draw(IWritable buffer, Command command = 0)
         {
             if (X2 == 0 || Y2 == 0)
                 return;
@@ -199,7 +194,7 @@ namespace MnM.GWS
                 pen = Pens.Black;
             var invert = pen.Invert;
             pen.Invert = true;
-            command |= Command.DirectScreen;
+            command |= Command.Screen;
             var boundary = Factory.newBoundary();
             buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
             Renderer.ProcessLine(X1, Y3, X3, Y1, action, command);

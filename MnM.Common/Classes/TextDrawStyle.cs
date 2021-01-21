@@ -2,11 +2,15 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
+#if (GWS || Window)
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     using System;
+
+    using MnM.GWS.Advanced;
+
     public class TextDrawStyle : ITextStyle
     {
         /// <summary>
@@ -93,5 +97,5 @@ namespace MnM.GWS
         object ICloneable.Clone() => Clone();
 
     }
-#endif
 }
+#endif

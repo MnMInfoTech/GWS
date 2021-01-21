@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -114,6 +115,21 @@ namespace MnM.GWS
 
 #if (GWS || Window)
 
+    #region ILOCK-UNLOCK
+    public interface ILockUnlock
+    {
+        /// <summary>
+        /// Locks or unlock area of pixels in this buffer in context of over-writing.
+        /// <summary>
+        /// <param name="lockPixels"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        void LockUnlock(bool lockPixels, int x, int y, int w, int h);
+    }
+    #endregion
+
     #region IIMAGE
     public partial interface IImage : IWritable, ICopyable, IRenderable, IDisposed
     {
@@ -149,9 +165,10 @@ namespace MnM.GWS
     #endregion
 
     #region ICANVAS
-    public partial interface ICanvas : IImage, IClearable, IPastable, ICloneable, IResizable,
-        IRenderable, IContainer, IUpdatable, IRefreshable
-    { }
+    public partial interface ICanvas : ISurface, IContainer, IUpdatable, IRefreshable, IBackground
+    {
+        event EventHandler<IEventArgs> BackgroundChanged;
+    }
     #endregion
 
     #region IPEN
@@ -295,10 +312,6 @@ namespace MnM.GWS
     #endregion
 
 #endif
-}
-
-namespace MnM.GWS
-{
 #if Window && GWS
     #region ITEXTURE
     public partial interface ITexture : ISize, IResizable, IDisposable
@@ -325,7 +338,7 @@ namespace MnM.GWS
     }
     public interface ITexture2 : ITexture
     {
-        Flip Flip { get; set; }
+        FlipMode Flip { get; set; }
         BlendMode Mode { get; set; }
         byte Alpha { get; set; }
         int ColorMode { get; set; }

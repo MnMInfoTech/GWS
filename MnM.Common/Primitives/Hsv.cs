@@ -2,11 +2,12 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 using System;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     public struct Hsv
     {
         /// <summary>
@@ -77,5 +78,5 @@ namespace MnM.GWS
             return new Rgba(r1 + m, g1 + m, b1 + m);
         }
     }
-#endif 
 }
+#endif 

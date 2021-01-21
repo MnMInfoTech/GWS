@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 
 using System.Collections.Generic;
 
@@ -106,6 +107,16 @@ namespace MnM.GWS
         /// </summary>
         bool HasScale { get; }
     }
+    #endregion  
+    
+    #region ICOLOR
+    public interface IColor
+    {
+        /// <summary>
+        /// The color this object represents.
+        /// </summary>
+        int Color { get; }
+    }
     #endregion
 
 #if (GWS || Window)
@@ -165,7 +176,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="buffer">Buffer which to draw boundary on.</param>
         /// <param name="command">Command to control boundary drawing.</param>
-        void Draw(IImage buffer, Command command = 0);
+        void Draw(IWritable buffer, Command command = 0);
     }
     #endregion
 
@@ -219,16 +230,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ICOLOR
-    public interface IColor
-    {
-        /// <summary>
-        /// The color this object represents.
-        /// </summary>
-        int Color { get; }
-    }
-    #endregion
-
     #region IBOUNDS
     public interface IBounds: IDrawParams
     {
@@ -238,6 +239,5 @@ namespace MnM.GWS
         IRectangle Bounds { get; }
     }
     #endregion
-
 #endif
 }

@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 using System;
 
 using MnM.GWS;
@@ -23,7 +24,7 @@ namespace Test
         static void Main()
         {
             //frame = true;
-            Attach(SdlFactory.Instance);
+            Attach(NativeFactory.Instance);
             rg = new BrushStyle(BrushType.Conical, Rgba.Red, Rgba.SkyBlue, Rgba.LightPink, Rgba.Green);
             rg1 = new BrushStyle(BrushType.Vertical, Rgba.Yellow, Rgba.Green, Rgba.Orange, Rgba.Olive);
             fs = new BrushStyle(BrushType.Conical, Rgba.Gold, Rgba.Orange, Rgba.Green, Rgba.Teal);

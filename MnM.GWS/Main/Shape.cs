@@ -1,7 +1,9 @@
 ﻿/* Copyright (c) 2016-2018 owned by M&M Info-Tech UK Ltd.
 * This notice must not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 #if GWS || Window
+
 namespace MnM.GWS
 {
     internal sealed class Shape : IShape

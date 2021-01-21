@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Demo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgsClasses.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MsDisplay.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)_NativeTarget.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NativeFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NativeTarget.cs" />
   </ItemGroup>
 </Project>

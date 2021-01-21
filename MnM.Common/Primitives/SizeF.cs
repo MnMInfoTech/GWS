@@ -2,17 +2,17 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 using System;
 using System.Runtime.InteropServices;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     /// <summary>
     /// Represents dimension in terms of width and height.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct SizeF
+    public struct SizeF: ISizeF
     {
         /// <summary>
         /// Value of Width.
@@ -82,6 +82,8 @@ namespace MnM.GWS
         /// </summary>
         public static implicit operator bool(SizeF sizef) =>
             !(sizef.Width < 1 || float.IsNaN(sizef.Width) || sizef.Height < 1 || float.IsNaN(sizef.Height));
+
+        float ISizeF.Width => Width;
+        float ISizeF.Height => Height;
     }
-#endif
 }

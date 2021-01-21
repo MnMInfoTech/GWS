@@ -2,41 +2,42 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 
 #if Window
 using System;
 using System.Runtime.InteropServices;
 
-#if Advanced
-using MnM.GWS.Advanced;
-#else
-using MnM.GWS.Standard;
-#endif
+using MnM.GWS.SDL;
 
 namespace MnM.GWS
 {
-    public partial class SdlFactory : NativeFactory, IWindowFactory
+    public partial class NativeFactory 
     {
         #region VARIABLES
-        static SdlScreens screens;
-        static IScreen primary;
-        static readonly uint[] pixelFormats;
-        internal static readonly uint pixelFormat;
-        static readonly bool initialized;
+        static SdlScreens Screens;
+        static IScreen Primary;
+        static uint[] pixelFormats;
+        internal static uint pixelFormat;
         internal const int MaxAxisCount = 10;
         internal const int MaxDPadCount = 2;
-        static readonly OS os;
-        public static readonly new IWindowFactory Instance = new SdlFactory();
+        static OS os;
         #endregion
 
         #region CONSTRUCTORS
-        static SdlFactory()
+        static partial void InitializeWindowingSystem(ref bool initialized)
         {
-            initialized = detectSdl2(out string message);
-
-            if (!initialized)
-                throw new Exception(message);
-
+            initialized = false;
+            try
+            {
+                WasInit(0);
+                Init(SystemFlags.VIDEO);
+            }
+            catch (System.Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            initialized = true;
             os = OS.None;
 
             if (IntPtr.Size == 4)
@@ -71,181 +72,172 @@ namespace MnM.GWS
             else
                 pixelFormat = ARGB8888;
         }
-        SdlFactory() { }
-
-        static bool detectSdl2(out string message)
-        {
-            message = "SDL could not Initialized!";
-            try
-            {
-                if (WasInit(0))
-                {
-                    message = "SDL is Initialized!";
-                    return true;
-                }
-                else
-                {
-                    if (Init(SystemFlags.VIDEO) == 0)
-                    {
-                        message = "SDL is Initialized!";
-                        return true;
-                    }
-                    else
-                        message = (string.Format("SDL2 init failed with error: {0}", GetError()));
-                }
-            }
-            catch (System.Exception e)
-            {
-                message = (string.Format("SDL2 init failed with error: {0}", e.Message));
-            }
-            return false;
-        }
         #endregion
-         
+
         #region PROPERTIES
-        public IScreens AvailableScreens
+        partial void GetScreen(ref IScreen screen)
         {
-            get
-            {
-                if (screens == null)
-                    screens = new SdlScreens();
-                return screens;
-            }
+            if (Primary == null)
+                Primary = AvailableScreens.Primary;
+            screen = Primary;
         }
-        public IScreen PrimaryScreen
+        partial void GetScreens(ref IScreens screens)
         {
-            get
-            {
-                if (primary == null)
-                    primary = AvailableScreens.Primary;
-                return primary;
-            }
+            if (Screens == null)
+                Screens = new SdlScreens();
+            screens = Screens;
         }
-        public int DefaultWinFlag => (int)WindowFlags.Default;
-        public int FullScreenWinFlag => (int)WindowFlags.FullScreen;
-        public uint[] PixelFormats => pixelFormats;
-        public uint PixelFormat => pixelFormat;
-        public bool Initialized => initialized;
-        public OS OS => os;
-        public string LastError => GetError();
+        partial void GetDefaultWinFlag(ref int winflag)
+        {
+            winflag = (int)WindowFlags.Default;
+        }
+        partial void GetScreenFlag(ref int winflag)
+        {
+            winflag = (int)WindowFlags.FullScreen;
+        }
+        partial void GetPixelFormats(ref uint[] pixelFormats)
+        {
+            pixelFormats = NativeFactory.pixelFormats;
+        }
+        partial void GetPixelFormat(ref uint pixelFormat)
+        {
+            pixelFormat = NativeFactory.pixelFormat;
+        }
+        partial void GetOS(ref OS os)
+        {
+            os = NativeFactory.os;
+        }
+        partial void GetLastError(ref string error)
+        {
+            error = GetError();
+        }
         #endregion
 
         #region TEXTURE
-        public virtual ITexture newTexture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null) =>
-            new SdlTexture(window, w, h, isPrimary, null, textureAccess);
-        public virtual ITexture newTexture(IRenderWindow window, ICopyable info, bool isPrimary = false, TextureAccess? textureAccess = null) =>
-            new SdlTexture(window, info, isPrimary, null, textureAccess);
+        partial void newTexture(ref ITexture texture, IRenderWindow window, int? w, int? h, bool isPrimary, TextureAccess? textureAccess)  =>
+           texture = new SdlTexture(window, w, h, isPrimary, null, textureAccess);
+        partial void newTexture(ref ITexture texture, IRenderWindow window, ICopyable info, bool isPrimary, TextureAccess? textureAccess) =>
+            texture = new SdlTexture(window, info, isPrimary, null, textureAccess);
         #endregion
 
         #region WINDOW
-        public IWindow newWindow(string title = null, int? width = null, int? height = null,
-            int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null, RendererFlags? renderFlags = null) =>
-            new SdlWindow(title, width, height, x, y, flags, display, renderFlags);
-        public IWindow newWindow(IExternalWindow control) =>
-            new SdlWindow(control);
-        public int GetWindowID(IntPtr window) =>
-            WindowID(window);
-        public void SetCursorPos(int x, int y) =>
+        partial void newWindow(ref IWindow window, string title, int? width, int? height, int? x, int? y, 
+            GwsWindowFlags? flags, IScreen display, RendererFlags? renderFlags) =>
+            window = new SdlWindow(title, width, height, x, y, flags, display, renderFlags);
+        partial void newWindow(ref IWindow window, IExternalTarget control) =>
+            window = new SdlWindow(control);
+        partial void GetWindowID2(ref int id, IntPtr window) =>
+            id = WindowID(window);
+        partial void SetCursorPos2(int x, int y) =>
             SetCursorPosition(x, y);
-        public void DisableScreenSaver() =>
+        partial void DisableScreenSaver2() =>
             DisableScreenSaverEx();
         #endregion
 
+        #region RENDER TARGET
+        partial void newRenderTarget(ref IRenderTarget target, IRenderWindow window)=>
+             target = new SdlWindowSurface(window);
+        #endregion
+
         #region OPENGL CONTEXT
-        public IGLContext newGLContext(IWindow window) =>
-            GLContext.Create(window);
+        partial void newGLContext(ref IGLContext glContext, IWindow window) =>
+            glContext = GLContext.Create(window);
         #endregion
 
         #region SAVE AS BITMAP
-        public unsafe bool SaveAsBitmap(IBlockable image, string file, Command command = Command.DirectScreen)
+        partial void SaveAsBitmap(ref bool success, IntPtr Pixels, int width, int height, string file)
         {
-            if (image == null)
-                return false;
-            image.CopyTo(out IntPtr data, 0, 0, image.Width, image.Height, command);
-            return SaveAsBitmap(data, image.Width, image.Height, file);
-        }
-        public unsafe bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file)
-        {
-            if (Pixels == IntPtr.Zero)
-                return false;
-
             var format = Factory.PixelFormat;
             var surface = CreateSurface(Pixels, width, height, Depth(format), Pitch(format) * width, format);
 
             var raw = OpenFile(UTF8_ToNative(file), UTF8_ToNative("wb"));
             SaveBMPRW(surface, raw, 1);
-            return true;
+            success = true;
         }
         #endregion
 
         #region CURSOR
-        public int ConvertToSystemCursorID(CursorType cursorType)
+        partial void GetCursorID(ref int systemCursorID, CursorType cursorType)
         {
             switch (cursorType)
             {
                 case CursorType.Arrow:
                 case CursorType.Default:
-                    return 0;//SDL_SYSTEM_CURSOR_ARROW;
+                    systemCursorID = 0;//SDL_SYSTEM_CURSOR_ARROW;
+                    break;
                 case CursorType.IBeam:
-                    return 1;// SystemCursor.SDL_SYSTEM_CURSOR_IBEAM;
+                    systemCursorID = 1;// SystemCursor.SDL_SYSTEM_CURSOR_IBEAM;
+                    break;
                 case CursorType.WaitCursor:
-                    return 2;//SystemCursor.SDL_SYSTEM_CURSOR_WAIT;
+                    systemCursorID = 2;//SystemCursor.SDL_SYSTEM_CURSOR_WAIT;
+                    break;
                 case CursorType.Cross:
-                    return 3;//SDL_SYSTEM_CURSOR_CROSSHAIR;
+                    systemCursorID = 3;//SDL_SYSTEM_CURSOR_CROSSHAIR;
+                    break;
                 case CursorType.SizeNWSE:
-                    return 5;// SystemCursor.SDL_SYSTEM_CURSOR_SIZENWSE;
+                    systemCursorID = 5;// SystemCursor.SDL_SYSTEM_CURSOR_SIZENWSE;
+                    break;
                 case CursorType.SizeNESW:
-                    return 6;// SystemCursor.SDL_SYSTEM_CURSOR_SIZENESW;
+                    systemCursorID = 6;// SystemCursor.SDL_SYSTEM_CURSOR_SIZENESW;
+                    break;
                 case CursorType.SizeWE:
-                    return 7;//SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE;
+                    systemCursorID = 7;//SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE;
+                    break;
                 case CursorType.SizeNS:
-                    return 8;//SystemCursor.SDL_SYSTEM_CURSOR_SIZENS;
+                    systemCursorID = 8;//SystemCursor.SDL_SYSTEM_CURSOR_SIZENS;
+                    break;
                 case CursorType.SizeAll:
-                    return 9;//SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL;
+                    systemCursorID = 9;//SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL;
+                    break;
                 case CursorType.No:
-                    return 10;// SystemCursor.SDL_SYSTEM_CURSOR_NO;
+                    systemCursorID = 10;// SystemCursor.SDL_SYSTEM_CURSOR_NO;
+                    break;
                 case CursorType.Hand:
-                    return 11;// SystemCursor.SDL_SYSTEM_CURSOR_HAND;
+                    systemCursorID = 11;// SystemCursor.SDL_SYSTEM_CURSOR_HAND;
+                    break;
                 default:
-                    return (int)cursorType;
+                    systemCursorID = (int)cursorType;
+                    break;
             }
         }
-        public void SetCursor(IntPtr cursor) =>
+
+        partial void SetCursor2(IntPtr cursor) =>
             SetWindowCursor(cursor);
         #endregion
 
         #region EVENTS
-        public override void PushEvent(IEvent e)
+        partial void PumpEvents2() =>
+            pumpEvents();
+        partial void PushEvent2(IEvent e)
         {
             if (!(e is Event))
                 return;
             Event evt = (Event)e;
             PushEventEx(evt);
         }
-        public override void PumpEvents() =>
-            pumpEvents();
-        public override bool PollEvent(out IEvent e)
+        partial void PollEvent2(ref bool success, ref IEvent e)
         {
-            Event evt;
-            var i = PollEventEx(out evt);
-            e = evt;
-            return i != 0;
+            Event ev;
+            var i = PollEventEx(out ev);
+            e = ev;
+            success = i != 0;
         }
         #endregion
 
         #region WAV PLAYER
-        public ISound newWavPlayer() => new SdlSound();
+        partial void newWavPlayer(ref ISound sound) =>
+            sound =  new SdlSound();
         #endregion
 
-        protected override void Dispose2()
+        partial void Dispose2()
         {
-            base.Dispose2();
             SdlSoundBase.QuitAudio();
         }
     }
-    partial class SdlFactory
+   
+    partial class NativeFactory
     {
-        const string libSDL = GWS.Application.libSDL;
+        const string libSDL = Application.libSDL;
 
         #region PIXEL FORMATS
         const uint UnKnown = 0,
@@ -309,7 +301,7 @@ namespace MnM.GWS
         internal static int Depth(uint format) =>
                  (byte)(((uint)format >> 8) & 0xFF);
 
-        static byte[] UTF8_ToNative(string s)
+        internal static byte[] UTF8_ToNative(string s)
         {
             if (s == null)
                 return null;
@@ -327,18 +319,13 @@ namespace MnM.GWS
         [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurface", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int UpdateWindowSurface(IntPtr window);
 
-        [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurface", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        static extern int UpdateWindowSurface(IntPtr window,  Rectangle[] rects, int numrects);
-        internal static int UpdateWindow(IntPtr window, params  Rectangle[] rects)
-        {
-            return UpdateWindowSurface(window, rects, rects.Length);
-        }
+        [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        static extern int UpdateWindowSurfaceRects(IntPtr window, Rectangle[] rects, int numrects);
 
-        internal static int UpdateWindow(IntPtr window, Rectangle[] rects, int count)
+        internal static int UpdateWindow(IntPtr window, params Rectangle[] rectangles)
         {
-            return UpdateWindowSurface(window, rects, count);
+            return UpdateWindowSurfaceRects(window, rectangles, rectangles.Length);
         }
-
 
         [DllImport(libSDL, EntryPoint = "SDL_CreateRGBSurfaceWithFormatFrom", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal unsafe static extern IntPtr CreateSurface(IntPtr pixels, int width, int height, int depth, int pitch, uint format);
@@ -346,20 +333,18 @@ namespace MnM.GWS
 
         [DllImport(libSDL, EntryPoint = "SDL_CreateRGBSurfaceWithFormat", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern IntPtr CreateSurface(uint flags, int width, int height, int depth, uint format);
-
         internal static IntPtr CreateSurface(int width, int height) =>
             CreateSurface(0, width, height, Depth(pixelFormat), pixelFormat);
-
         internal static unsafe IntPtr CreateSurface(IntPtr pixels, int width, int height, uint format) =>
             CreateSurface(pixels, width, height, Depth(format), Pitch(format) * width, format);
-
         internal static unsafe IntPtr CreateSurface(int[] data, int width, int height, uint format)
         {
-            fixed(int* pixels= data)
+            fixed (int* pixels = data)
             {
-               return  CreateSurface((IntPtr)pixels, width, height, Depth(format), Pitch(format) * width, format);
+                return CreateSurface((IntPtr)pixels, width, height, Depth(format), Pitch(format) * width, format);
             }
         }
+
         [DllImport(libSDL, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_FreeSurface", ExactSpelling = true)]
         internal static extern void FreeSurface(IntPtr surface);
 
@@ -373,7 +358,7 @@ namespace MnM.GWS
         internal static byte GetTextureAlpha(IntPtr texture)
         {
             GetTextureAlpha(texture, out byte a);
-            return a; 
+            return a;
         }
 
         [DllImport(libSDL, EntryPoint = "SDL_SetTextureAlphaMod", CallingConvention = CallingConvention.Cdecl)]
@@ -449,6 +434,9 @@ namespace MnM.GWS
 
         [DllImport(libSDL, EntryPoint = "SDL_QueryTexture", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int QueryTexture(IntPtr texture, out uint format, out TextureAccess access, out int w, out int h);
+
+        [DllImport(libSDL, EntryPoint = "SDL_UpdateTexture", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int UpdateTexture(IntPtr texture, Rectangle rect, IntPtr pixels, int pitch);
         #endregion
 
         #region RENDERER BINDINGS

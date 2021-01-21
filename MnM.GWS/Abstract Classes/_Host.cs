@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 #if GWS || Window
 using System;
 using System.Runtime.CompilerServices;
@@ -17,7 +18,7 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public abstract string Text { get; set; }
+        public virtual string Text { get; set; }
         public bool IsDisposed => isDisposed;
         public abstract string ID { get; }
         public string Name { get; protected set; }
@@ -25,7 +26,11 @@ namespace MnM.GWS
         public virtual bool FocusOnHover { get; set; }
         public virtual int TabIndex { get; set; }
         public IObjCollection Objects => Buffer.Objects;
-        public abstract IPenContext Background { get; set; }
+        public IPenContext Background
+        {
+            get => Buffer.Background;
+            set => Buffer.Background = value;
+        }
         public int Width => Bounds.Width;
         public int Height => Bounds.Height;
         public bool IsContainer =>
@@ -83,15 +88,15 @@ namespace MnM.GWS
         public abstract void Resize(int? width = null, int? height = null);
         #endregion
 
-        #region FIND ELEMENT
 #if Advanced
+        #region FIND ELEMENT
         public IRenderable FindElement(int x, int y) =>
             Buffer?.FindElement(x, y);
-#endif
         #endregion
+#endif
 
         #region CLEAR
-        void IClearable.Clear(int x, int y, int width, int height, Command command) =>
+        IRectangle IClearable.Clear(int x, int y, int width, int height, Command command) =>
             Buffer.Clear(x, y, width, height, command);
         #endregion
 
@@ -112,7 +117,7 @@ namespace MnM.GWS
         public virtual void PushEvent(IEventInfo e)
         {
 #if Advanced
-            Objects?.PushEvent(e);
+            Buffer?.PushEvent(e);
             if (e.Handled)
                 return;
 #endif
@@ -299,7 +304,7 @@ namespace MnM.GWS
         #endregion
 
         #region IBUFFER
-        bool IWritable.CanNotWrite => 
+        bool IWritable.CanNotWrite =>
             Buffer.CanNotWrite;
         int ILength.Length =>
             Buffer.Length;
@@ -310,8 +315,8 @@ namespace MnM.GWS
             int x, int y, float? Alpha, byte* imageAlphas, Command command, string ShapeID, INotifier boundary) =>
             Buffer.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, ShapeID, boundary);
 
-        void IWritable.ClearIndices() =>
-            Buffer.ClearIndices();
+        void IWritable.ClearPixelRecord() =>
+            Buffer.ClearPixelRecord();
         #endregion
     }
 }

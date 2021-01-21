@@ -2,14 +2,15 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace MnM.GWS
 {
-
     public static partial class Angles
     {
         #region VARAIBLES AND CONSTS
@@ -455,12 +456,8 @@ namespace MnM.GWS
         }
         #endregion
     }
-}
-namespace MnM.GWS
-{
-#if GWS || Window
-    using System.Linq;
 
+#if GWS || Window
     public static partial class Angles
     {
         #region ROTATION ROTATE

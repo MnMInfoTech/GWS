@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 #if Window
 using System;
 
@@ -12,16 +13,16 @@ namespace MnM.GWS
         #region VARIABLES
         readonly ICanvas Primary;
         ICanvas Current;
-
+        protected bool IsEventPusher;
         protected bool previousCursorVisible = true;
         protected bool cursorVisible;
-        protected readonly IRenderTarget UnderlyingWindow;
-        bool firstShow;
-        readonly DrawEventArgs DrawEventArgs = new DrawEventArgs();
-        readonly EventInfo Event = new EventInfo();
+        protected bool firstShow;
         protected Rectangle bounds;
         protected bool focused;
-        IExternalWindow Target;
+
+        readonly DrawEventArgs DrawEventArgs = new DrawEventArgs();
+        readonly EventInfo Event = new EventInfo();
+        readonly IExternalTarget Target;
         #endregion
 
         #region CONSTRUCTORS
@@ -29,14 +30,14 @@ namespace MnM.GWS
         {
             bounds = new Rectangle(0, 0, width, height);
         }
-        protected _Window(IExternalWindow target) :
+        protected _Window(IExternalTarget target) :
             this(target.Width, target.Height)
         {
             if (!Initialize(externalWindow: target))
                 throw new Exception("Window could not be initialized!");
             Target = target;
-            UnderlyingWindow = Target;
-            Initialize(out Primary, null);
+            Initialize(out Primary, null, target);
+            IsEventPusher = true;
         }
         protected _Window(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
@@ -45,20 +46,18 @@ namespace MnM.GWS
         {
             if (!Initialize(title, width, height, x, y, flags, display, renderFlags: renderFlags))
                 throw new Exception("Window could not be initialized!");
-
-            UnderlyingWindow = Factory.newRenderTarget(this);
             Initialize(out Primary, flags);
         }
 
         protected abstract bool Initialize(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
-            IExternalWindow externalWindow = null, RendererFlags? renderFlags = null);
+            IExternalTarget externalWindow = null, RendererFlags? renderFlags = null);
 
-        void Initialize(out ICanvas Canvas, GwsWindowFlags? flags)
+        void Initialize(out ICanvas Canvas, GwsWindowFlags? flags, IRenderTarget target = null)
         {
-            Canvas = Factory.newCanvas(UnderlyingWindow);
+            Canvas = Factory.newCanvas(target ?? Factory.newRenderTarget(this));
             Current = Canvas;
-            Initialize2(Canvas);
+            InitializeBufferCollection();
             GwsWindowFlags = flags ?? 0;
             if (GwsWindowFlags.HasFlag(GwsWindowFlags.OpenGL))
                 GLContext = Factory.newGLContext(this);
@@ -66,21 +65,13 @@ namespace MnM.GWS
             Name = "Window" + WindowID;
             this.Register();
         }
-        partial void Initialize2(ICanvas Canvas);
+        partial void InitializeBufferCollection();
         #endregion
 
         #region PROPERTIES
         protected sealed override ICanvas Buffer => Current;
         public sealed override string ID => Name;
         public sealed override Rectangle Bounds => bounds;
-        public override IPenContext Background
-        {
-            get => UnderlyingWindow.Background;
-            set
-            {
-                UnderlyingWindow.Background = value;
-            }
-        }
         public GwsWindowFlags GwsWindowFlags { get; private set; }
         public IGLContext GLContext { get; private set; }
         public int WindowID { get; private set; }
@@ -149,7 +140,7 @@ namespace MnM.GWS
         #region CLOSE - DISPOSE
         public void Close()
         {
-            isDisposed = true;           
+            isDisposed = true;
             this.Deregister();
             Objects?.Dispose();
             Primary.Dispose();
@@ -191,7 +182,6 @@ namespace MnM.GWS
             bounds = new Rectangle(Bounds.X, Bounds.Y, e.Width, e.Height);
             Primary?.Resize(e.Width, e.Height);
             Resize2();
-            UnderlyingWindow.Resize(e.Width, e.Height);
             base.OnResize(e);
         }
         partial void Resize2();
@@ -235,7 +225,7 @@ namespace MnM.GWS
                     base.PushEvent(e);
                     break;
                 default:
-                    if (Target != null)
+                    if (IsEventPusher)
                         Target.PushEvent(e);
                     else
                         base.PushEvent(e);

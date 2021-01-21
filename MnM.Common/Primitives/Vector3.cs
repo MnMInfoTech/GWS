@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file  the project root for more information.
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 
 using System;
 using System.Globalization;
@@ -9,7 +11,6 @@ using System.Text;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     /// <summary>
     /// A structure encapsulating three single precision floating point values and provides hardware accelerated methods.
     /// </summary>
@@ -496,5 +497,5 @@ namespace MnM.GWS
         }
         #endregion
     }
-#endif 
 }
+#endif 

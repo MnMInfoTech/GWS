@@ -2,15 +2,16 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-
-namespace MnM.GWS
-{
+// Author: Mukesh Adhvaryu.
 #if Functions
+
+ namespace MnM.GWS
+{
     using System;
     using System.Collections;
     using System.Collections.Generic;
 
-    #region IBEHAVIOR
+#region IBEHAVIOR
     public interface IBehavior
     {
         /// <summary>
@@ -31,12 +32,12 @@ namespace MnM.GWS
         /// <value>The size.</value>
         int Size { get; set; }
     }
-    #endregion
+#endregion
 
-    #region ILIMIT
+#region ILIMIT
     public interface ILimit : IGroup
     {
-    #region PROPERTIES
+#region PROPERTIES
         /// <summary>
         /// Gets or sets the identifier.
         /// </summary>
@@ -72,9 +73,9 @@ namespace MnM.GWS
         /// </summary>
         /// <value>The restrictions.</value>
         Collection<int> Restrictions { get; }
-    #endregion
+#endregion
 
-    #region ALLOWS
+#region ALLOWS
         /// <summary>
         /// Allowses the specified value.
         /// </summary>
@@ -102,11 +103,11 @@ namespace MnM.GWS
         /// <param name="value">The value.</param>
         /// <returns><c>true</c> if [contains] [the specified value]; otherwise, <c>false</c>.</returns>
         bool Contains(int value);
-    #endregion
+#endregion
     }
-    #endregion
+#endregion
 
-    #region IFXPARAMS
+#region IFXPARAMS
     public interface IFxParam
     {
         int Index { get; }
@@ -115,17 +116,17 @@ namespace MnM.GWS
         object Value { get; }
         bool Replace { get; }
     }
-    #endregion
+#endregion
 
-    #region IFUNCTION
+#region IFUNCTION
     public interface IFunction : IReadOnlyList, ICloneable
     {
-    #region events
+#region events
         event VoidMethod BeforeParse;
         event VoidMethod AfterParse;
-    #endregion
+#endregion
 
-    #region properties
+#region properties
         IBehavior Behavior { get; }
 
         IList<IFunction> Children { get; }
@@ -145,9 +146,9 @@ namespace MnM.GWS
         bool CloningIncludeStructure { get; }
 
         bool CloningIncludeValues { get; }
-    #endregion
+#endregion
 
-    #region series change
+#region series change
         bool AddGroup(int group);
 
         SeriesChange SetSeries(int count);
@@ -159,23 +160,23 @@ namespace MnM.GWS
         SeriesChange SetSeries<G>(params G[] invokers) where G : IGroup;
 
         SeriesChange SetSeries<G>(IEnumerable<G> invokers) where G : IGroup;
-    #endregion
+#endregion
 
-    #region casting
+#region casting
         Any CastAs<Any>(ICloneType replication) where Any : IFunction;
 
         Any CastAs<Any>(bool includeMeAsChildFunction = false) where Any : IFunction;
 
         Any CastAs<Any>(ISpan range) where Any : IFunction;
-    #endregion
+#endregion
 
-    #region math
+#region math
         Any Math<Any>(MathOperator mop, object b, Operand operand) where Any : IFunction;
 
         Any Math<Any>(MathOperator mop, object b) where Any : IFunction;
-    #endregion
+#endregion
 
-    #region parameter handling
+#region parameter handling
         void AddParameter(int sectionID, int index, object value, bool replace = false);
 
         IEnumerable<IFxParam> GetParameters(int sectionID);
@@ -189,9 +190,9 @@ namespace MnM.GWS
         void RemoveParameter(int sectionID, int index);
 
         void RemoveParameters();
-    #endregion
+#endregion
 
-    #region parse, merge, reset, update, ppend, flush, compute
+#region parse, merge, reset, update, ppend, flush, compute
         void Append(params IFunction[] parsers);
 
         void Compute(object Argument, ref object result);
@@ -207,19 +208,19 @@ namespace MnM.GWS
         void Reset();
 
         void Update();
-    #endregion
+#endregion
 
-    #region expression
+#region expression
         string Expression(ITextFormatter format = null);
 
         string[] Statements(ITextFormatter argFormat = null, ITextFormatter resultFormat = null);
 
         string[] TextArray(ITextFormatter argFormat = null);
-    #endregion
+#endregion
     }
-    #endregion
+#endregion
 
-    #region IGROUP
+#region IGROUP
     /// <summary>
     /// Interface IInvoker
     /// </summary>
@@ -243,12 +244,12 @@ namespace MnM.GWS
         /// <value><c>true</c> if circular; otherwise, <c>false</c>.</value>
         bool Circular { get; }
     }
-    #endregion
+#endregion
 
-    #region ISERIES
+#region ISERIES
     public interface ISeries : IReadOnlyList<ISpan>, IGroup
     {
-    #region PROPERTIES
+#region PROPERTIES
         /// <summary>
         /// Gets the items.
         /// </summary>
@@ -258,9 +259,9 @@ namespace MnM.GWS
         int Cursor { get; }
 
         bool AsAdditional { get; }
-    #endregion
+#endregion
 
-    #region ACCEPTS
+#region ACCEPTS
         /// <summary>
         /// Acceptses the specified value.
         /// </summary>
@@ -274,9 +275,9 @@ namespace MnM.GWS
         /// <param name="limit">The limit.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         bool Accepts(ILimit limit);
-    #endregion
+#endregion
 
-    #region ADD
+#region ADD
         /// <summary>
         /// Adds the specified value.
         /// </summary>
@@ -303,9 +304,9 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="value">The value.</param>
         void Add(int value);
-    #endregion
+#endregion
 
-    #region CHANGE
+#region CHANGE
         /// <summary>
         /// Changes the specified source.
         /// </summary>
@@ -319,9 +320,9 @@ namespace MnM.GWS
         /// <param name="values">The values.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         bool Change(params int[] values);
-    #endregion
+#endregion
 
-    #region REMOVE
+#region REMOVE
         /// <summary>
         /// Removes the specified index.
         /// </summary>
@@ -332,25 +333,25 @@ namespace MnM.GWS
         /// Removes the last.
         /// </summary>
         void RemoveLast();
-    #endregion
+#endregion
 
-    #region RESET
+#region RESET
         /// <summary>
         /// Resets this instance.
         /// </summary>
         void Reset();
-    #endregion
+#endregion
 
-    #region UPDATE
+#region UPDATE
         /// <summary>
         /// Updates the specified force.
         /// </summary>
         /// <param name="force">if set to <c>true</c> [force].</param>
         /// <returns>Span.</returns>
         ISpan Update(bool force);
-    #endregion
+#endregion
 
-    #region OCCUPATION
+#region OCCUPATION
         /// <summary>
         /// Occupations the specified upto.
         /// </summary>
@@ -359,11 +360,11 @@ namespace MnM.GWS
         /// <param name="count">The count.</param>
         /// <returns>System.Int32.</returns>
         int Occupation(int upto, out int start, out int count);
-    #endregion
+#endregion
     }
-    #endregion
+#endregion
 
-    #region ICLONETYPE
+#region ICLONETYPE
     public interface ICloneType : ICloneable
     {
         /// <summary>
@@ -431,6 +432,6 @@ namespace MnM.GWS
         /// <returns>CloneType.</returns>
         new ICloneType Clone();
     }
-    #endregion
-#endif
+#endregion
 }
+#endif

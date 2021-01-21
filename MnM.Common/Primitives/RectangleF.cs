@@ -2,18 +2,19 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 using System;
 using System.Runtime.InteropServices;
 
-namespace MnM.GWS
-{
-#if (GWS || Window)
-    /// <summary>
-    /// Represents a trapezium(as defined in the British English) which has parallel sides equal in length.
-    /// Sides are represented in points consist of integer X & Y values.
-    /// Also Oppsite sides have an agle of 90 degree between them.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+namespace MnM.GWS 
+{ 
+/// <summary>
+/// Represents a trapezium(as defined in the British English) which has parallel sides equal in length.
+/// Sides are represented in points consist of integer X & Y values.
+/// Also Oppsite sides have an agle of 90 degree between them.
+/// </summary>
+[StructLayout(LayoutKind.Sequential)]
     public struct RectangleF : IEquatable<IRectangleF>, IRectangleF
     {
         #region VARIABLES
@@ -172,5 +173,5 @@ namespace MnM.GWS
             return string.Format(description, X, Y, Width, Height);
         }
     }
-#endif
 }
+#endif

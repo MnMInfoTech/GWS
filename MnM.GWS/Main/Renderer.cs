@@ -2,15 +2,17 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     public static partial class Renderer
     {
         #region INSTANCE VARIABLE
@@ -52,17 +54,17 @@ namespace MnM.GWS
 
             var OriginalCommand = Settings.Command;
 
-            Settings.Clip = new GWS.Size(writable.Width, writable.Height);
+            Settings.Clip = new Size(writable.Width, writable.Height);
 
-            Command Cmd = Settings.Command;
+            Command TempCommand = Settings.Command;
             Settings.RecentlyDrawn.Clear();
 
-            bool RestoreControl = (Cmd & Command.RestoreControl) == Command.RestoreControl;
-            bool EraseControl = (Cmd & Command.EraseControl) == Command.EraseControl;
-            bool RemoveControl = (Cmd & Command.RemoveControl) == Command.RemoveControl;
-            bool Distinct = (Cmd & Command.Distinct) == Command.Distinct;
+            bool RestoreControl = (TempCommand & Command.RestoreControl) == Command.RestoreControl;
+            bool EraseControl = (TempCommand & Command.EraseControl) == Command.EraseControl;
+            bool RemoveControl = (TempCommand & Command.RemoveControl) == Command.RemoveControl;
+            bool Distinct = (TempCommand & Command.Distinct) == Command.Distinct;
             if (Distinct)
-                writable.ClearIndices();
+                writable.ClearPixelRecord();
 
             if (Renderable is IDrawable)
             {
@@ -92,25 +94,46 @@ namespace MnM.GWS
 
             End:
             if (suspendUpdate == true)
-                Cmd |= Command.SuspendUpdate;
+                TempCommand |= Command.SuspendUpdate;
             else if (suspendUpdate == false)
-                Cmd &= ~Command.SuspendUpdate;
+                TempCommand &= ~Command.SuspendUpdate;
 
             if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Cmd, Settings.RecentlyDrawn);
+                ((IUpdatable)writable).Update(TempCommand, Settings.RecentlyDrawn);
 
             if (!RestoreControl && (EraseControl || RemoveControl))
                 Settings.RecentlyDrawn.Clear();
 
             Exit:
             if (Distinct)
-                writable.ClearIndices();
+                writable.ClearPixelRecord();
 
             (Settings.PenContext as ISettingsReceiver)?.Receive(Settings, true);
             Settings.Command = OriginalCommand;
 
             if (NoShapeID)
                 Settings.ShapeID = null;
+        }
+
+        /// <summary>
+        /// Renders any element on this given object. This renderer has a built-in support for the following kind of elements:
+        /// 1. IDrawable
+        /// 2. IFigurable
+        /// 3. IShape
+        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
+        /// Once you have handled it return true otherwise false.
+        /// </summary>
+        /// <param name="Renderable">Renderable object which is to be rendered</param>
+        /// <param name="Settings">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
+        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string Render(this IWritable writable, out long ExecutionTime, IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null)
+        {
+            Stopwatch Watch = new Stopwatch();
+            var description = Renderable.ID + " rendering ";
+            string message = Benchmarks.Execute(() => Render(writable, Renderable, Settings), Watch, out ExecutionTime, description);
+            Watch = null;
+            return message;
         }
 
         /// <summary>
@@ -137,6 +160,61 @@ namespace MnM.GWS
 
             if (Boundary.Valid && writable is IUpdatable)
                 ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Shapes">Array of renderable shapes.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Render(this IWritable writable, IEnumerable<IShape> Shapes)
+        {
+            if (writable.CanNotWrite || Shapes == null)
+                return;
+            var Boundary = Factory.newBoundary();
+
+            foreach (var Shape in Shapes)
+            {
+                Render(writable, Shape.Renderable, Shape.Settings, true);
+                Boundary.Merge(Shape.Settings.RecentlyDrawn);
+            }
+
+            if (Boundary.Valid && writable is IUpdatable)
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="ExecutionTime">Time to complete rendering process for all shapes in miliseconds.</param>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string RenderWithBenchmark(this IWritable writable, out long ExecutionTime,
+            IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
+        {
+            Stopwatch Watch = new Stopwatch();
+            var description = string.Join(",", Renderables.Select(r => r.ID)) + " rendering ";
+            string message = Benchmarks.Execute(()=> Render(writable, Renderables, SettingsList), Watch, out ExecutionTime, description);
+            Watch = null;
+            return message;
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        /// <returns>Message which contains IDs of shapes and total executon time to render them all.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string RenderWithBenchmark(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
+        {
+            Stopwatch Watch = new Stopwatch();
+            var description = string.Join(",", Renderables.Select(r => r.ID)) + " rendering ";
+            string message = Benchmarks.Execute(() => Render(writable, Renderables, SettingsList), Watch, out _, description);
+            Watch = null;
+            return message;
         }
 
         /// <summary>
@@ -745,8 +823,8 @@ namespace MnM.GWS
 
         mks:
             Pen = PenContext.ToPen(w, h);
-            //if (shape is IRotation)
-            //    Settings.Rotation = ((IRotation)shape).Rotation;
+            if (shape is IRotatable)
+                Settings.Rotation = ((IRotatable)shape).Rotation;
 
             (Pen as ISettingsReceiver)?.Receive(Settings);
             if (Inverted)
@@ -1207,7 +1285,7 @@ namespace MnM.GWS
         /// <param name = "h" > Height of area in the source to copy</param>
         /// <param name = "Command" > Draw command to control the copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe ISize CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.DirectScreen)
+        public static unsafe ISize CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.Screen)
         {
             #region INITIALIZE VARIABLES
             var copy = source.CompitibleRc(x, y, w, h);
@@ -1276,7 +1354,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe ISize CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.DirectScreen)
+        public static unsafe ISize CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.Screen)
         {
             var rc = CopyTo(block, out int[] data, x, y, w, h, command);
             if (data == null)
@@ -1367,7 +1445,7 @@ namespace MnM.GWS
         /// <param name="quality">Resolution quality of the tageted image file</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SaveAs(this IBlockable block, string file,
-            ImageFormat format = ImageFormat.BMP, Command command = Command.DirectScreen, Rectangle? portion = null, int pitch = 4, int quality = 50)
+            ImageFormat format = ImageFormat.BMP, Command command = Command.Screen, Rectangle? portion = null, int pitch = 4, int quality = 50)
         {
             file += "." + format.ToString();
             ISize size;
@@ -2952,7 +3030,7 @@ namespace MnM.GWS
             var Settings = info ?? Factory.newSettings("FocusRect");
             Settings.Receive(null, true);
             info.FillMode = FillMode.DrawOutLine;
-            info.Command = Command.Dot | Command.InvertCanvasColor
+            info.Command = Command.Dot | Command.InvertColor
 #if Advanced
              | Command.NoBrushAutoSizing
 #endif
@@ -3143,9 +3221,9 @@ namespace MnM.GWS
 
                     else if (alpha != 0)
                     {
-                        rb = ((invAlpha * (c1 & GWS.Colors.RBMASK)) + (alpha * (c2 & GWS.Colors.RBMASK))) >> 8;
-                        ag = (invAlpha * ((c1 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c2 & GWS.Colors.GMASK) >> 8)));
-                        c1 = ((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+                        rb = ((invAlpha * (c1 & Colors.RBMASK)) + (alpha * (c2 & Colors.RBMASK))) >> 8;
+                        ag = (invAlpha * ((c1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c2 & Colors.GMASK) >> 8)));
+                        c1 = ((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
                     }
                     if (only2)
                     {
@@ -3157,9 +3235,9 @@ namespace MnM.GWS
                         c3 = c4;
                     else if (alpha != 0)
                     {
-                        rb = ((invAlpha * (c3 & GWS.Colors.RBMASK)) + (alpha * (c4 & GWS.Colors.RBMASK))) >> 8;
-                        ag = (invAlpha * ((c3 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c4 & GWS.Colors.GMASK) >> 8)));
-                        c3 = ((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+                        rb = ((invAlpha * (c3 & Colors.RBMASK)) + (alpha * (c4 & Colors.RBMASK))) >> 8;
+                        ag = (invAlpha * ((c3 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c4 & Colors.GMASK) >> 8)));
+                        c3 = ((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
                     }
 
                     alpha = (uint)(Dy * 255);
@@ -3169,9 +3247,9 @@ namespace MnM.GWS
                         color = (int)c3;
                     else if (alpha != 0)
                     {
-                        rb = ((invAlpha * (c1 & GWS.Colors.RBMASK)) + (alpha * (c3 & GWS.Colors.RBMASK))) >> 8;
-                        ag = (invAlpha * ((c1 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c3 & GWS.Colors.GMASK) >> 8)));
-                        color = (int)((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+                        rb = ((invAlpha * (c1 & Colors.RBMASK)) + (alpha * (c3 & Colors.RBMASK))) >> 8;
+                        ag = (invAlpha * ((c1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c3 & Colors.GMASK) >> 8)));
+                        color = (int)((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
                     }
                     else
                         color = (int)c1;
@@ -3218,7 +3296,7 @@ namespace MnM.GWS
         /// <param name="flipMode"></param>
         /// <returns>Flipped copy of this object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Size Flip(this IBlockable source, out IntPtr data, Flip flipMode)
+        public static unsafe Size Flip(this IBlockable source, out IntPtr data, FlipMode flipMode)
         {
             if (source is IScalable)
             {
@@ -3254,7 +3332,7 @@ namespace MnM.GWS
                 return Size.Empty;
             }
             int i = 0;
-            if (flipMode == GWS.Flip.Horizontal)
+            if (flipMode == FlipMode.Horizontal)
             {
                 for (var y = srcH - 1; y >= 0; y--)
                 {
@@ -3279,7 +3357,7 @@ namespace MnM.GWS
                 }
             }
 
-            if (flipMode == GWS.Flip.Vertical)
+            if (flipMode == FlipMode.Vertical)
                 Numbers.Swap(ref srcW, ref srcH);
             data = (IntPtr)dst;
             return new Size(srcW, srcH);
@@ -4073,12 +4151,12 @@ namespace MnM.GWS
         /// <param name="flipMode"></param>
         /// <returns>Flipped copy of this object.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ISurface Flip(this IScalable buffer, Flip flipMode)
+        public static ISurface Flip(this IScalable buffer, FlipMode flipMode)
         {
             var sz = buffer.Flip(out IntPtr data, flipMode);
             return Factory.newSurface(data, sz.Width, sz.Height);
         }
         #endregion
     }
-#endif
 }
+#endif

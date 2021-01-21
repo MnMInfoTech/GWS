@@ -1,28 +1,30 @@
 ﻿/* Copyright (c) 2016-2018 owned by M&M Info-Tech UK Ltd.
 * This notice must not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 #if GWS || Window
+
 namespace MnM.GWS
 {
     public sealed partial class Settings : ISettings
     {
-#region VARIABLES
+        #region VARIABLES
         Command drawCommand, calculatedDrawCommand;
         private FillMode fillMode;
         private float stroke;
-#endregion
+        #endregion
 
-#region CONSTRUCTORS
-        internal Settings(string shapeID, IPenContext context) 
+        #region CONSTRUCTORS
+        internal Settings(string shapeID, IPenContext context)
         {
             ShapeID = shapeID;
             drawCommand = Command.OddEven;
             PenContext = context;
             RecentlyDrawn = Factory.newBoundary();
         }
-#endregion
+        #endregion
 
-#region PROPERTIES
+        #region PROPERTIES
         public Command Command
         {
             get => calculatedDrawCommand;
@@ -63,9 +65,9 @@ namespace MnM.GWS
         public IRectangle Bounds { get; set; }
         public IBoundary RecentlyDrawn { get; private set; }
         public Size Clip { get; set; }
-#endregion
+        #endregion
 
-#region SYNC PATTERN AND ANTIALIAS SETTINGS
+        #region SYNC PATTERN AND ANTIALIAS SETTINGS
         void SyncCommand()
         {
             calculatedDrawCommand = drawCommand;
@@ -83,9 +85,9 @@ namespace MnM.GWS
             if (stroke != 0 && fillMode == FillMode.FillOutLine)
                 calculatedDrawCommand |= Command.Outlininig;
         }
-#endregion
+        #endregion
 
-#region COPY SETTINGS
+        #region COPY SETTINGS
         public void Receive(IDrawParams settings, bool flushMode = false)
         {
             if (settings == null || flushMode)
@@ -113,9 +115,9 @@ namespace MnM.GWS
         Flush:
             SyncCommand();
         }
-#endregion
+        #endregion
 
-#region CLEAN DRAW COMMAND
+        #region CLEAN DRAW COMMAND
         public void CleanCommand()
         {
             drawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
@@ -132,12 +134,12 @@ namespace MnM.GWS
             drawCommand &= ~Command.EraseControl;
             drawCommand &= ~Command.RemoveControl;
             drawCommand &= ~Command.RestoreControl;
-            drawCommand &= ~Command.FirstDraw;
+            drawCommand &= ~Command.AddMode;
             SyncCommand();
         }
-#endregion
+        #endregion
 
-#region ADD - REMOVE COMMAD
+        #region ADD - REMOVE COMMAD
         public void AddCommands(params Command[] commands)
         {
             if (commands.Length == 0)
@@ -159,9 +161,9 @@ namespace MnM.GWS
 
             SyncCommand();
         }
-#endregion
+        #endregion
 
-#region FLUSH
+        #region FLUSH
         public void Flush()
         {
             drawCommand = calculatedDrawCommand = 0;
@@ -175,7 +177,7 @@ namespace MnM.GWS
             ShapeID = null;
             RecentlyDrawn.Clear();
         }
-#endregion
+        #endregion
     }
 }
 #endif

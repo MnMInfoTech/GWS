@@ -2,6 +2,8 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +11,6 @@ using System.Linq;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     /// <summary>
     /// Represents an object which provides a certain list of colors to form a spectrum using a specified stop positions.
     /// </summary>
@@ -32,7 +33,7 @@ namespace MnM.GWS
         /// </summary>
         public readonly string ID;
 
-        readonly int[] Colors;
+        readonly int[] SpectrumColors;
         readonly int[] Positions;
 
         byte valid;
@@ -56,29 +57,29 @@ namespace MnM.GWS
         {
             match = matchSize;
             Positions = null;
-            Colors = null;
+            SpectrumColors = null;
             valid = 1;
             switch (colors.Length)
             {
                 case 0:
-                    Colors = new int[] { (int)Rgba.Black, (int)Rgba.Silver, (int)Rgba.Gray };
+                    SpectrumColors = new int[] { (int)Rgba.Black, (int)Rgba.Silver, (int)Rgba.Gray };
                     break;
                 case 1:
-                    Colors = new int[] { colors[0], colors[0].Darken(0.25f), colors[0].Darken(0.5f) };
+                    SpectrumColors = new int[] { colors[0], colors[0].Darken(0.25f), colors[0].Darken(0.5f) };
                     break;
                 case 2:
-                    Colors = new int[] { colors[0], GWS.Colors.Blend(colors[0], colors[1], .5f), colors[1] };
+                    SpectrumColors = new int[] { colors[0], Colors.Blend(colors[0], colors[1], .5f), colors[1] };
                     break;
                 default:
-                    Colors = colors;
+                    SpectrumColors = colors;
                     break;
             }
 
             Gradient = gradient;
-            var value = Colors[0].GetHashCode();
+            var value = SpectrumColors[0].GetHashCode();
 
-            for (int i = 1; i < Colors.Length; i++)
-                value = Numbers.Combine(value.GetHashCode(), Colors[i].GetHashCode());
+            for (int i = 1; i < SpectrumColors.Length; i++)
+                value = Numbers.Combine(value.GetHashCode(), SpectrumColors[i].GetHashCode());
 
             ID = string.Format(toString, Gradient, value);
             if (stops?.Count > 0)
@@ -131,18 +132,18 @@ namespace MnM.GWS
         /// <param name="index">Index to get a calculated color</param>
         /// <returns></returns>
         public int this[int index] =>
-            Colors[index];
+            SpectrumColors[index];
 
         /// <summary>
         /// numenr of colors in this style.
         /// </summary>
-        public int Count => Colors.Length;
+        public int Count => SpectrumColors.Length;
 
         /// <summary>
         /// Gets the last color in list.
         /// </summary>
         public int EndColor =>
-            Colors[Colors.Length - 1];
+            SpectrumColors[SpectrumColors.Length - 1];
 
         public bool Valid => valid != 0;
 
@@ -201,7 +202,7 @@ namespace MnM.GWS
         /// <returns></returns>
         public BrushStyle Change(int g)
         {
-            return new BrushStyle(Colors, g, Positions);
+            return new BrushStyle(SpectrumColors, g, Positions);
         }
 
         /// <summary>
@@ -211,7 +212,7 @@ namespace MnM.GWS
         /// <returns></returns>
         public BrushStyle Change(BrushType g)
         {
-            return new BrushStyle(Colors, g, Positions);
+            return new BrushStyle(SpectrumColors, g, Positions);
         }
 
         /// <summary>
@@ -220,8 +221,8 @@ namespace MnM.GWS
         /// <returns></returns>
         public BrushStyle Invert()
         {
-            var colors = new int[Colors.Length];
-            Colors.CopyTo(colors, 0);
+            var colors = new int[SpectrumColors.Length];
+            SpectrumColors.CopyTo(colors, 0);
             Array.Reverse(colors);
             if (Positions != null)
                 return new BrushStyle(colors, Gradient, Positions);
@@ -247,7 +248,7 @@ namespace MnM.GWS
 
             if (Span == 0 || position <= 0)
             {
-                color = Colors[0];
+                color = SpectrumColors[0];
                 goto assignColor;
             }
             if (position == -1 || Span == -1)
@@ -260,7 +261,7 @@ namespace MnM.GWS
 
             if (Count < 3 || Span == 0)
             {
-                color1 = Colors[0];
+                color1 = SpectrumColors[0];
                 color2 = EndColor;
                 goto Blend;
             }
@@ -288,12 +289,12 @@ namespace MnM.GWS
             if (f < 0)
                 f = 0;
 
-            color1 = Colors[f];
+            color1 = SpectrumColors[f];
             ++f;
             if (f > Count - 1)
-                color1 = Colors[--f];
+                color1 = SpectrumColors[--f];
 
-            color2 = Colors[f];
+            color2 = SpectrumColors[f];
             Span = (float)Math.Ceiling(pos);
         #endregion
 
@@ -322,10 +323,10 @@ namespace MnM.GWS
             c1 = (uint)color1;
             c2 = (uint)color2;
             invAlpha = 255 - alpha;
-            rb = ((invAlpha * (c1 & GWS.Colors.RBMASK)) + (alpha * (c2 & GWS.Colors.RBMASK))) >> 8;
-            ag = (invAlpha * ((c1 & GWS.Colors.AGMASK) >> 8)) + (alpha * (GWS.Colors.ONEALPHA | ((c2 & GWS.Colors.GMASK) >> 8)));
+            rb = ((invAlpha * (c1 & Colors.RBMASK)) + (alpha * (c2 & Colors.RBMASK))) >> 8;
+            ag = (invAlpha * ((c1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((c2 & Colors.GMASK) >> 8)));
 
-            color = (int)((rb & GWS.Colors.RBMASK) | (ag & GWS.Colors.AGMASK));
+            color = (int)((rb & Colors.RBMASK) | (ag & Colors.AGMASK));
         #endregion
 
         assignColor:
@@ -341,9 +342,9 @@ namespace MnM.GWS
         #region CLONE
         public BrushStyle Clone()
         {
-            if (Colors == null)
+            if (SpectrumColors == null)
                 return BrushStyle.Empty;
-            BrushStyle f = new BrushStyle(Colors.ToArray(), Gradient, Positions);
+            BrushStyle f = new BrushStyle(SpectrumColors.ToArray(), Gradient, Positions);
             return f;
         }
         object ICloneable.Clone() =>
@@ -355,7 +356,7 @@ namespace MnM.GWS
         #region IENUMERABLE
         public IEnumerator<int> GetEnumerator()
         {
-            foreach (var item in Colors)
+            foreach (var item in SpectrumColors)
             {
                 yield return item;
             }
@@ -419,6 +420,6 @@ namespace MnM.GWS
             Hover = new BrushStyle(BrushType.Horizontal, Rgba.GradientActiveCaption);
         }
     }
-#endif
 }
+#endif
 

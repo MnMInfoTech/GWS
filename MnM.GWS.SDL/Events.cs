@@ -3,48 +3,23 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 
-#if Window
-using System;
-using System.Runtime.InteropServices;
-using System.Text;
-
-/*
- * We have used some part of the below class and structs definitions from the...
- 
- 1.
+/* We have used some part of the below class and structs definitions from the...
  * OpenTK - https://github.com/opentk/opentk
    *Copyright (c) 2006-2019 Stefanos Apostolopoulos for the Open Toolkit project.
    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- 2.
- * AND - C# Wrapper for SDL2 - https://github.com/flibitijibibo/SDL2-CS/blob/master/src/SDL2.cs
- *
- * Copyright (c) 2013-2020 Ethan Lee.
- *
- * This software is provided 'as-is', without any express or implied warranty.
- * In no event will the authors be held liable for any damages arising from
- * the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- * claim that you wrote the original software. If you use this software in a
- * product, an acknowledgment in the product documentation would be
- * appreciated but is not required.
- *
- * 2. Altered source versions must be plainly marked as such, and must not be
- * misrepresented as being the original software.
- *
- * 3. This notice may not be removed or altered from any source distribution.
- *
- * Ethan "flibitijibibo" Lee <flibitijibibo@flibitijibibo.com>
  */
+// Author: Manan Adhvaryu.
 
-namespace MnM.GWS
+#if Window
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+
+using MnM.GWS.Advanced;
+
+namespace MnM.GWS.SDL
 {
     class TickEventArgs : EventArgs, ITickEventArgs
     {
@@ -551,7 +526,7 @@ namespace MnM.GWS
             MouseButton button = 0, int clicks = 0, int delta = 0, Vector dragStart = default(Vector)) :
             this(x, y)
         {
-            State = state;
+            Status = state;
             Clicks = clicks;
             Clicked = clicks > 0;
             Delta = delta;
@@ -559,20 +534,19 @@ namespace MnM.GWS
             DragStartY = dragStart.Y;
         }
 
-        internal void SetButton(MouseButton button, GWS.State state)
+        internal void SetButton(MouseButton button, State state)
         {
             if (button < 0 || button > MouseButton.LastButton)
             {
                 throw new ArgumentOutOfRangeException();
             }
-
             switch (state)
             {
-                case GWS.State.Pressed:
+                case State.Pressed:
                     this.state.EnableBit((int)button);
                     break;
 
-                case GWS.State.Released:
+                case State.Released:
                     this.state.DisableBit((int)button);
                     break;
             }
@@ -587,7 +561,7 @@ namespace MnM.GWS
 
             return
                 state.ReadBit((int)button) ?
-                GWS.State.Pressed : GWS.State.Released;
+                State.Pressed : State.Released;
         }
 
         /// <summary>
@@ -614,7 +588,7 @@ namespace MnM.GWS
         public Vector Position => new Vector(X, Y);
         public MouseButton Button { get; internal set; }
 
-        public virtual MouseState State { get; internal set; }
+        public virtual MouseState Status { get; internal set; }
         public int Clicks { get; internal set; }
         public virtual int Delta { get; internal set; }
         public bool Clicked { get; internal set; }
@@ -685,7 +659,7 @@ namespace MnM.GWS
         {
         }
 
-        public override MouseState State
+        public override MouseState Status
         {
             get => MouseState.Move;
             internal set { }
@@ -725,8 +699,8 @@ namespace MnM.GWS
 
         public bool IsPressed
         {
-            get { return GetButton(Button) == GWS.State.Pressed; }
-            internal set { SetButton(Button, value ? GWS.State.Pressed : GWS.State.Released); }
+            get { return GetButton(Button) == State.Pressed; }
+            internal set { SetButton(Button, value ? State.Pressed : State.Released); }
         }
 
         public override string ToString()
@@ -734,7 +708,7 @@ namespace MnM.GWS
             return string.Format(toStr, X, Y, Button, IsPressed);
         }
 
-        public override MouseState State
+        public override MouseState Status
         {
             get => IsPressed ? MouseState.Down : MouseState.Up;
             internal set { }
@@ -798,7 +772,7 @@ namespace MnM.GWS
         /// </summary>
         public float DeltaPrecise { get; internal set; }
 
-        public override MouseState State
+        public override MouseState Status
         {
             get => MouseState.Wheel;
             internal set { }
@@ -988,7 +962,7 @@ namespace MnM.GWS
         /// </summary>
         public State LeftButton
         {
-            get { return IsButtonDown(MouseButton.Left) ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsButtonDown(MouseButton.Left) ? State.Pressed : State.Released; }
         }
 
         /// <summary>
@@ -997,7 +971,7 @@ namespace MnM.GWS
         /// </summary>
         public State MiddleButton
         {
-            get { return IsButtonDown(MouseButton.Middle) ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsButtonDown(MouseButton.Middle) ? State.Pressed : State.Released; }
         }
 
         /// <summary>
@@ -1006,7 +980,7 @@ namespace MnM.GWS
         /// </summary>
         public State RightButton
         {
-            get { return IsButtonDown(MouseButton.Right) ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsButtonDown(MouseButton.Right) ? State.Pressed : State.Released; }
         }
 
         /// <summary>
@@ -1015,7 +989,7 @@ namespace MnM.GWS
         /// </summary>
         public State XButton1
         {
-            get { return IsButtonDown(MouseButton.Button1) ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsButtonDown(MouseButton.Button1) ? State.Pressed : State.Released; }
         }
 
         /// <summary>
@@ -1024,7 +998,7 @@ namespace MnM.GWS
         /// </summary>
         public State XButton2
         {
-            get { return IsButtonDown(MouseButton.Button2) ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsButtonDown(MouseButton.Button2) ? State.Pressed : State.Released; }
         }
 
         /// <summary>
@@ -1279,7 +1253,7 @@ namespace MnM.GWS
         // Allocate enough ints to store all keyboard keys
         private const int IntSize = sizeof(int) * 8;
 
-        private const int NumInts = ((int)GWS.SdlKeys.LastKey + IntSize - 1) / IntSize;
+        private const int NumInts = ((int)SdlKeys.LastKey + IntSize - 1) / IntSize;
         // The following line triggers bogus CS0214  gmcs 2.0.1, sigh...
         private unsafe fixed int Keys[NumInts];
 
@@ -1321,7 +1295,7 @@ namespace MnM.GWS
         /// <param name="code">The scan code to check.</param>
         public bool IsKeyDown(short code)
         {
-            return code >= 0 && code < (short)GWS.SdlKeys.LastKey && ReadBit(code);
+            return code >= 0 && code < (short)SdlKeys.LastKey && ReadBit(code);
         }
 
         /// <summary>
@@ -2673,12 +2647,12 @@ namespace MnM.GWS
         private bool IsAxisValid(GamePadAxes axis)
         {
             int index = (int)axis;
-            return index >= 0 && index < SdlFactory.MaxAxisCount;
+            return index >= 0 && index < NativeFactory.MaxAxisCount;
         }
 
         private bool IsDPadValid(int index)
         {
-            return index >= 0 && index < SdlFactory.MaxDPadCount;
+            return index >= 0 && index < NativeFactory.MaxDPadCount;
         }
 
         IGamePadThumbSticks IGamePadState.ThumbSticks => ThumbSticks;
@@ -2736,39 +2710,39 @@ namespace MnM.GWS
         public int Buttons => (int)buttons;
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the up button.
+        /// Gets the <see cref="State"/> for the up button.
         /// </summary>
         /// <value><c>ButtonState.Pressed</c> if the up button is pressed; otherwise, <c>ButtonState.Released</c>.</value>
         public State Up
         {
-            get { return IsUp ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsUp ? State.Pressed : State.Released; }
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the down button.
+        /// Gets the <see cref="State"/> for the down button.
         /// </summary>
         /// <value><c>ButtonState.Pressed</c> if the down button is pressed; otherwise, <c>ButtonState.Released</c>.</value>
         public State Down
         {
-            get { return IsDown ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsDown ? State.Pressed : State.Released; }
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the left button.
+        /// Gets the <see cref="State"/> for the left button.
         /// </summary>
         /// <value><c>ButtonState.Pressed</c> if the left button is pressed; otherwise, <c>ButtonState.Released</c>.</value>
         public State Left
         {
-            get { return IsLeft ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsLeft ? State.Pressed : State.Released; }
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the right button.
+        /// Gets the <see cref="State"/> for the right button.
         /// </summary>
         /// <value><c>ButtonState.Pressed</c> if the right button is pressed; otherwise, <c>ButtonState.Released</c>.</value>
         public State Right
         {
-            get { return IsRight ? GWS.State.Pressed : GWS.State.Released; }
+            get { return IsRight ? State.Pressed : State.Released; }
         }
 
         /// <summary>
@@ -3097,7 +3071,7 @@ namespace MnM.GWS
     }
 
     /// <summary>
-    /// Describes the <see cref="GWS.State"/> of <see cref="GamePad"/> <see cref="PadButtons"/>.
+    /// Describes the <see cref="State"/> of <see cref="GamePad"/> <see cref="PadButtons"/>.
     /// </summary>
     struct GamePadButtons : IEquatable<GamePadButtons>, IGamePadButtons
     {
@@ -3115,7 +3089,7 @@ namespace MnM.GWS
         public int Buttons => (int)buttons;
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the A button.
+        /// Gets the <see cref="State"/> for the A button.
         /// </summary>
         public State A
         {
@@ -3123,7 +3097,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the B button.
+        /// Gets the <see cref="State"/> for the B button.
         /// </summary>
         public State B
         {
@@ -3131,7 +3105,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the X button.
+        /// Gets the <see cref="State"/> for the X button.
         /// </summary>
         public State X
         {
@@ -3139,7 +3113,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the Y button.
+        /// Gets the <see cref="State"/> for the Y button.
         /// </summary>
         public State Y
         {
@@ -3147,7 +3121,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the Back button.
+        /// Gets the <see cref="State"/> for the Back button.
         /// </summary>
         public State Back
         {
@@ -3155,7 +3129,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the big button.
+        /// Gets the <see cref="State"/> for the big button.
         /// This button is also known as Home or Guide.
         /// </summary>
         public State BigButton
@@ -3164,7 +3138,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the left shoulder button.
+        /// Gets the <see cref="State"/> for the left shoulder button.
         /// </summary>
         public State LeftShoulder
         {
@@ -3172,7 +3146,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the left stick button.
+        /// Gets the <see cref="State"/> for the left stick button.
         /// This button represents a left stick that is pressed in.
         /// </summary>
         public State LeftStick
@@ -3181,7 +3155,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the right shoulder button.
+        /// Gets the <see cref="State"/> for the right shoulder button.
         /// </summary>
         public State RightShoulder
         {
@@ -3189,7 +3163,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the right stick button.
+        /// Gets the <see cref="State"/> for the right stick button.
         /// This button represents a right stick that is pressed in.
         /// </summary>
         public State RightStick
@@ -3198,7 +3172,7 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the <see cref="GWS.State"/> for the starth button.
+        /// Gets the <see cref="State"/> for the starth button.
         /// </summary>
         public State Start
         {
@@ -3239,51 +3213,51 @@ namespace MnM.GWS
         public override string ToString()
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            if (A == GWS.State.Pressed)
+            if (A == State.Pressed)
             {
                 sb.Append("A");
             }
-            if (B == GWS.State.Pressed)
+            if (B == State.Pressed)
             {
                 sb.Append("B");
             }
-            if (X == GWS.State.Pressed)
+            if (X == State.Pressed)
             {
                 sb.Append("X");
             }
-            if (Y == GWS.State.Pressed)
+            if (Y == State.Pressed)
             {
                 sb.Append("Y");
             }
-            if (Back == GWS.State.Pressed)
+            if (Back == State.Pressed)
             {
                 sb.Append("Bk");
             }
-            if (Start == GWS.State.Pressed)
+            if (Start == State.Pressed)
             {
                 sb.Append("St");
             }
-            if (BigButton == GWS.State.Pressed)
+            if (BigButton == State.Pressed)
             {
                 sb.Append("Gd");
             }
-            if (Back == GWS.State.Pressed)
+            if (Back == State.Pressed)
             {
                 sb.Append("Bk");
             }
-            if (LeftShoulder == GWS.State.Pressed)
+            if (LeftShoulder == State.Pressed)
             {
                 sb.Append("L");
             }
-            if (RightShoulder == GWS.State.Pressed)
+            if (RightShoulder == State.Pressed)
             {
                 sb.Append("R");
             }
-            if (LeftStick == GWS.State.Pressed)
+            if (LeftStick == State.Pressed)
             {
                 sb.Append("Ls");
             }
-            if (RightStick == GWS.State.Pressed)
+            if (RightStick == State.Pressed)
             {
                 sb.Append("Rs");
             }
@@ -3331,7 +3305,7 @@ namespace MnM.GWS
 
         private State GetButton(PadButtons b)
         {
-            return (buttons & b) != 0 ? GWS.State.Pressed : GWS.State.Released;
+            return (buttons & b) != 0 ? State.Pressed : State.Released;
         }
     }
 
@@ -3608,13 +3582,13 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// Gets the current <see cref="GWS.State"/> of the specified button.
+        /// Gets the current <see cref="State"/> of the specified button.
         /// </summary>
-        /// <returns><see cref="GWS.State.Pressed"/> if the specified button is pressed; otherwise, <see cref="GWS.State.Released"/>.</returns>
+        /// <returns><see cref="State.Pressed"/> if the specified button is pressed; otherwise, <see cref="State.Released"/>.</returns>
         /// <param name="button">The button to query.</param>
         public State GetButton(int button)
         {
-            return (buttons & ((long)1 << button)) != 0 ? GWS.State.Pressed : GWS.State.Released;
+            return (buttons & ((long)1 << button)) != 0 ? State.Pressed : State.Released;
         }
 
         /// <summary>

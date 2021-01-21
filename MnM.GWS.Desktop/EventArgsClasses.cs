@@ -1,6 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/* Licensed under the MIT/X11 license.
+* Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
+* This notice may not be removed from any source distribution.
+* See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
+#if MS && (GWS || Window)
 using System.Windows.Forms;
 
 namespace MnM.GWS.Desktop
@@ -91,7 +94,7 @@ namespace MnM.GWS.Desktop
 
         public int X => x;
         public int Y => y;
-        public MouseState State => mouseState;
+        public MouseState Status => mouseState;
         public MouseButton Button => button;
         public int Clicks => clicks;
         public int Delta => delta;
@@ -116,5 +119,5 @@ namespace MnM.GWS.Desktop
         public char KeyChar { get => keyChar; set => keyChar = value; }
     }
     #endregion
-
 }
+#endif

@@ -2,17 +2,17 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-
+// Author: Mukesh Adhvaryu.
+#if Texts || Functions
 namespace MnM.GWS
 {
-#if Texts || Functions
     using System;
     using System.Collections;
     using System.Collections.Generic;
 
     public class Range : IRange
     {
-    #region variables
+#region variables
         [field: NonSerialized]
         protected int start;
 
@@ -21,9 +21,9 @@ namespace MnM.GWS
 
         [field: NonSerialized]
         public event EventHandler<EventArgs> SelectionChanged;
-    #endregion
+#endregion
 
-    #region constructors
+#region constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="Range"/> class.
         /// </summary>
@@ -73,9 +73,9 @@ namespace MnM.GWS
             this.start = start;
             this.end = end;
         }
-    #endregion
+#endregion
 
-    #region properties
+#region properties
         public virtual int Start
         {
             get => Math.Min(start, end ?? start);
@@ -131,15 +131,15 @@ namespace MnM.GWS
           end != null && end < start;
         public bool Forward =>
           end != null && end > start;
-    #endregion
+#endregion
 
-    #region protected/internal methods
+#region protected/internal methods
         protected internal virtual void OnSelectionChanged(EventArgs e) =>
             SelectionChanged?.Invoke(this, e);
         protected virtual void OnClear() { }
-    #endregion
+#endregion
 
-    #region public methods
+#region public methods
         public void Set(int? start = null, int? end = null, bool raiseChangeEvent = true)
         {
             this.start = start ?? this.start;
@@ -206,9 +206,9 @@ namespace MnM.GWS
             this[index];
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();
-    #endregion
+#endregion
 
-    #region static members
+#region static members
         public static Range Empty
         {
             get
@@ -219,7 +219,7 @@ namespace MnM.GWS
             }
         }
         static Range empty;
-    #endregion
+#endregion
     }
-#endif
 }
+#endif

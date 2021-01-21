@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 
 //The following are just a namespaces allocation statements.
 using System;
@@ -11,268 +12,746 @@ using System.IO;
 namespace MnM.GWS.Standard { }
 namespace MnM.GWS.Advanced { }
 
-
-#if Standard
-namespace MnM.GWS.Standard
-#elif Advanced
-namespace MnM.GWS.Advanced
-#else
 namespace MnM.GWS
-#endif
 {
-    /*Please remove this file when you use either standard or advaced version of GWS implementation
-     * This is a dummy file just tells you to either obtain standrard or advanced version of GWS from M&M Info-Tech or
-     * to implement your own version.
-    */
-#if !(Standard || Advanced)
-    public partial class NativeFactory : _Factory
+    public partial class NativeFactory : IFactory
     {
-        static string goforStandard = @"
-            Implement your own version of {0} interface and supply instance here!. Alteranatively, you can download fully implemented standard version from http://mnminfotech.co.uk.";
-
-        static string goforSdl = @"
-            Implement your own version of {0} or similiar Windowing System here!. Alteranatively, you can download fully implemented standard version from http://mnminfotech.co.uk.";
-
+        #region VARIABLES
         public static readonly IFactory Instance = new NativeFactory();
-        protected NativeFactory()
+        protected static readonly bool initialized;
+        #endregion
+
+        #region CONSTRUCTORS
+        NativeFactory()
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IFactory"));
+            Initialize();
         }
+        static NativeFactory()
+        {
+            InitializeWindowingSystem(ref initialized);
+        }
+        partial void Initialize();
+        static partial void InitializeWindowingSystem(ref bool initialized);
+        partial void Initialize()
+        {
+#if!(Standard || Advanced)
+            throw new Exception(
+                "You must implement abstract layer by yourself or get implemented Standard or " +
+                "Advanced version from http://mnminfotech.co.uk by placing requirement.");
+#endif
+        }
+        #endregion
+
+        #region IMAGE PROCESSOR
+        public IImageProcessor newImageProcessor()
+        {
+            IImageProcessor imageProcessor = null;
+            newImageProcessor(ref imageProcessor);
+            return imageProcessor;
+        }
+        partial void newImageProcessor(ref IImageProcessor imageProcessor);
+        partial void newImageProcessor(ref IImageProcessor imageProcessor) =>
+            imageProcessor = new StbImageProcessor();
+        #endregion
+
+        #region CONVERTER
+        public IConverter newConverter()
+        {
+            IConverter converter = null;
+            newConverter(ref converter);
+            return converter;
+        }
+        partial void newConverter(ref IConverter converter);
+        partial void newConverter(ref IConverter converter) =>
+            converter = new Converter();
+        #endregion
+
+        #region MISC
+        public IAnimatedGifFrame newAnimatedGifFrame(byte[] data, int delay)
+        {
+            IAnimatedGifFrame animatedGifFrame = null;
+            newAnimatedGifFrame(ref animatedGifFrame, data, delay);
+            return animatedGifFrame;
+        }
+        partial void newAnimatedGifFrame(ref IAnimatedGifFrame animatedGifFrame, byte[] data, int delay);
+        partial void newAnimatedGifFrame(ref IAnimatedGifFrame animatedGifFrame, byte[] data, int delay)
+        {
+            animatedGifFrame= STBImage.GetAnimatedGifFrame(data, delay);
+        }
+        #endregion
 
 #if GWS || Window
         #region SURFACE
-        public override ISurface newSurface(int width, int height)
+        public ISurface newSurface(int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ISurface"));
+            ISurface surface = null;
+            newSurface(ref surface, width, height);
+            return surface;
         }
-        public override unsafe ISurface newSurface(IntPtr pixels, int width, int height)
+        partial void newSurface(ref ISurface surface, int width, int height);
+        
+        public unsafe ISurface newSurface(IntPtr pixels, int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ISurface"));
+            ISurface surface = null;
+            newSurface(ref surface, pixels, width, height);
+            return surface;
         }
-        public override ISurface newSurface(int[] pixels, int width, int height, bool makeCopy = false)
+        partial void newSurface(ref ISurface surface, IntPtr pixels, int width, int height);
+
+        public ISurface newSurface(int[] pixels, int width, int height, bool makeCopy = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ISurface"));
+            ISurface surface = null;
+            newSurface(ref surface, pixels, width, height, makeCopy);
+            return surface;
         }
-        public override ISurface newSurface(int width, int height, byte[] pixels, bool makeCopy = false)
+        partial void newSurface(ref ISurface surface, int[] pixels, int width, int height, bool makeCopy = false);
+
+        public ISurface newSurface(int width, int height, byte[] pixels, bool makeCopy = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ISurface"));
+            ISurface surface = null;
+            newSurface(ref surface, width, height, pixels, makeCopy);
+            return surface;
         }
+        partial void newSurface(ref ISurface surface, int width, int height, byte[] pixels, bool makeCopy = false);
         #endregion
 
         #region IMAGE
-        public override IImage newImage(int width, int height)
+        public IImage newImage(int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
+            IImage image = null;
+            newImage(ref image, width, height);
+            return image;
         }
-        public override IImage newImage(IntPtr pixels, int width, int height)
+        partial void newImage(ref IImage image, int width, int height);
+
+        public unsafe IImage newImage(IntPtr pixels, int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
+            IImage image = null;
+            newImage(ref image, pixels, width, height);
+            return image;
         }
-        public override IImage newImage(int[] pixels, int width, int height, bool makeCopy = false)
+        partial void newImage(ref IImage image, IntPtr pixels, int width, int height);
+
+        public IImage newImage(int[] pixels, int width, int height, bool makeCopy = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
+            IImage image = null;
+            newImage(ref image, pixels, width, height, makeCopy);
+            return image;
         }
-        public override IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false)
+        partial void newImage(ref IImage image, int[] pixels, int width, int height, bool makeCopy = false);
+
+        public IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IImage"));
+            IImage image = null;
+            newImage(ref image, width, height, pixels, makeCopy);
+            return image;
         }
+        partial void newImage(ref IImage image, int width, int height, byte[] pixels, bool makeCopy = false);
         #endregion
 
         #region CANVAS
-        public override ICanvas newCanvas(IRenderTarget window)
+        public ICanvas newCanvas(IRenderTarget window)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICanvas"));
+            ICanvas canvas = null;
+            newCanvas(ref canvas, window);
+            return canvas;
         }
+        partial void newCanvas(ref ICanvas canvas, IRenderTarget window);
         #endregion
 
-        #region RENDER TARGET
-#if Window
-        public override IRenderTarget newRenderTarget(IRenderWindow window)
+        #region NATIVE WINDOW
+        public INativeTarget newNativeTarget(int x, int y, int w, int h)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IRenderTarget"));
+            INativeTarget target = null;
+            newNativeTarget(ref target, x, y, w, h);
+            return target;
         }
-#endif
-        #endregion
-
-        #region NATIVE WINDPW
-        public override INativeTarget newNativeTarget(int x, int y, int w, int h)
-        {
-            throw new NotImplementedException(string.Format(goforStandard, "INativeWindow"));
-        }
+        partial void newNativeTarget(ref INativeTarget target, int x, int y, int w, int h);
         #endregion
 
         #region FORM
-        public override IForm newForm(int x, int y, int w, int h)
+        public IForm newForm(int x, int y, int w, int h)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IForm"));
+            IForm form = null;
+            newForm(ref form, x, y, w, h);
+            return form;
+        }
+        partial void newForm(ref IForm form, int x, int y, int w, int h);
+        partial void newForm(ref IForm form, int x, int y, int w, int h)
+        {
+            form = new NativeForm(x, y, w, h);
+        }
+
+        public IForm newForm(INativeTarget target)
+        {
+            IForm form = null;
+            newForm(ref form, target);
+            return form;
+        }
+        partial void newForm(ref IForm form, INativeTarget target);
+        partial void newForm(ref IForm form, INativeTarget target)
+        {
+            form = new NativeForm(target);
         }
         #endregion
 
         #region BRUSH
-        public override IBrush newBrush(BrushStyle style, int width, int height)
+        public IBrush newBrush(BrushStyle style, int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IBrush"));
+            IBrush brush = null;
+            newBrush(ref brush, style, width, height);
+            return brush;
         }
-        public override ITextureBrush newBrush(IntPtr data, int width, int height)
+        partial void newBrush(ref IBrush brush, BrushStyle style, int width, int height);
+        public ITextureBrush newBrush(IntPtr data, int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IBrush"));
+            ITextureBrush brush = null;
+            newBrush(ref brush, data, width, height);
+            return brush;
         }
+        partial void newBrush(ref ITextureBrush brush, IntPtr data, int width, int height);
         #endregion
 
         #region TO PEN
-        public override IReadable ToPen(IPenContext context, int? w = null, int? h = null)
+        public IReadable ToPen(IPenContext context, int? w = null, int? h = null)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ISurface, ICanvas, IBrush, IObjCollection"));
+            IReadable brush = null;
+            ToPen(ref brush, context, w, h);
+            return brush;
         }
-        #endregion
-
-        #region OBJECT COLLECTION
-        public override IObjCollection newObjectCollection(IImage buffer)
-        {
-            throw new NotImplementedException(string.Format(goforStandard, "IObjCollection"));
-        }
+        partial void ToPen(ref IReadable readable, IPenContext context, int? w = null, int? h = null);
         #endregion
 
         #region FONT
-        public override IFont newFont(Stream fontStream, int fontSize)
+        public IFont newFont(Stream fontStream, int fontSize)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IFont"));
+            IFont font = null;
+            newFont(ref font, fontStream, fontSize);
+            return font;
         }
-
-        public override IShapeParser newShapeParser()
+        partial void newFont(ref IFont font, Stream fontStream, int fontSize);
+        partial void newFont(ref IFont font, Stream fontStream, int fontSize)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IShapeParser"));
+            font = new Font(fontStream, fontSize);
         }
         #endregion
 
-        #region LINE
-        public override ILine newLine(float x1, float y1, float x2, float y2)
+        #region SHAPE PARSER
+        public IShapeParser newShapeParser()
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ILine"));
+            IShapeParser shapeParser = null;
+            newShapeParser(ref shapeParser);
+            return shapeParser;
+        }
+        partial void newShapeParser(ref IShapeParser shapeParser);
+        #endregion
+
+        #region LINE
+        public ILine newLine(float x1, float y1, float x2, float y2)
+        {
+            ILine line = null;
+            newLine(ref line, x1, y1, x2, y2);
+            return line;
+        }
+        partial void newLine(ref ILine line, float x1, float y1, float x2, float y2);
+        partial void newLine(ref ILine line, float x1, float y1, float x2, float y2)
+        {
+            line = new Line(x1, y1, x2, y2);
         }
         #endregion
 
         #region CURVE
-        public override ICurve newCurve(float x, float y, float width, float height,
+        public ICurve newCurve(float x, float y, float width, float height,
             float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF))
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICurve"));
+            ICurve curve = null;
+            newCurve(ref curve, x, y, width, height, startAngle, endAngle, type, rotation, scale);
+            return curve;
+        }
+        partial void newCurve(ref ICurve curve, float x, float y, float width, float height,
+            float startAngle = 0, float endAngle = 0, CurveType type = 0, Rotation rotation = default(Rotation), VectorF scale = default(VectorF));
+        partial void newCurve(ref ICurve curve, float x, float y, float width, float height, float startAngle, float endAngle, 
+            CurveType type, Rotation rotation, VectorF scale)
+        {
+            curve = new Curve(x, y, width, height, startAngle, endAngle, type, rotation, scale);
         }
 
-        public override ICurve newCurve(IConic conic, VectorF[] pieTriangle, CurveType type)
+        public ICurve newCurve(IConic conic, VectorF[] pieTriangle, CurveType type)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ICurve"));
+            ICurve curve = null;
+            newCurve(ref curve, conic, pieTriangle, type);
+            return curve;
+        }
+        partial void newCurve(ref ICurve curve, IConic conic, VectorF[] pieTriangle, CurveType type);
+        partial void newCurve(ref ICurve curve, IConic conic, VectorF[] pieTriangle, CurveType type)
+        {
+            curve = new Curve(conic, pieTriangle, type);
         }
         #endregion
 
         #region CONIC
-        public override IConic newConic(Rotation rotation, float x, float y, float width, float height, 
+        public IConic newConic(Rotation rotation, float x, float y, float width, float height,
             float startAngle = 0, float endAngle = 0, float tiltAngle = 0)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IConic"));
+            IConic conic = null;
+            newConic(ref conic, rotation, x, y, width, height, startAngle, endAngle, tiltAngle);
+            return conic;
+        }
+        partial void newConic(ref IConic conic, Rotation rotation, float x, float y, float width, float height,
+            float startAngle = 0, float endAngle = 0, float tiltAngle = 0);
+        partial void newConic(ref IConic conic, Rotation rotation, float x, float y, float width, float height, float startAngle, float endAngle, float tiltAngle)
+        {
+            conic = new Conic(rotation, x, y, width, height, startAngle, endAngle, tiltAngle);
         }
         #endregion
 
         #region TETRAGON
-        public override ITetragon newTetragon(VectorF first, VectorF second, VectorF third, VectorF fourth)
+        public ITetragon newTetragon(VectorF first, VectorF second, VectorF third, VectorF fourth)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ITetragon"));
+            ITetragon tetragon = null;
+            newTetragon(ref tetragon, first, second, third, fourth);
+            return tetragon;
+        }
+        partial void newTetragon(ref ITetragon tetragon, VectorF first, VectorF second, VectorF third, VectorF fourth);
+        partial void newTetragon(ref ITetragon tetragon, VectorF first, VectorF second, VectorF third, VectorF fourth)
+        {
+            tetragon = new Tetragon(first, second, third, fourth);
         }
         #endregion
 
         #region BEZIER
-        public override IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points)
+        public IBezier newBezier(BezierType type, ICollection<float> pointValues, IList<VectorF> points)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IBezier"));
+            IBezier bezier = null;
+            newBezier(ref bezier, type, pointValues, points);
+            return bezier;
+        }
+        partial void newBezier(ref IBezier bezier, BezierType type, ICollection<float> pointValues, IList<VectorF> points);
+        partial void newBezier(ref IBezier bezier, BezierType type, ICollection<float> pointValues, IList<VectorF> points)
+        {
+            bezier = new Bezier(type, pointValues, points);
         }
         #endregion
 
         #region TRIANGLE
-        public override ITriangle newTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+        public ITriangle newTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "ITriangle"));
+            ITriangle triangle = null;
+            newTriangle(ref triangle, x1, y1, x2, y2, x3, y3);
+            return triangle;
+        }
+        partial void newTriangle(ref ITriangle triangle, float x1, float y1, float x2, float y2, float x3, float y3);
+        partial void newTriangle(ref ITriangle triangle, float x1, float y1, float x2, float y2, float x3, float y3)
+        {
+            triangle = new Triangle(x1, y1, x2, y2, x3, y3);
         }
         #endregion
 
         #region BOX
-        public override IBox newBox(int x, int y, int width, int height)
+        public IBox newBox(int x, int y, int width, int height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IBox"));
+            IBox box = null;
+            newBox(ref box, x, y, width, height);
+            return box;
+        }
+        partial void newBox(ref IBox box, int x, int y, int width, int height);
+        partial void newBox(ref IBox box, int x, int y, int width, int height)
+        {
+            box = new Box(x, y, width, height);
         }
         #endregion
 
         #region BOXF
-        public override IBoxF newBoxF(float x, float y, float width, float height)
+        public IBoxF newBoxF(float x, float y, float width, float height)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IBoxF"));
+            IBoxF box = null;
+            newBoxF(ref box, x, y, width, height);
+            return box;
+        }
+        partial void newBoxF(ref IBoxF box, float x, float y, float width, float height);
+        partial void newBoxF(ref IBoxF box, float x, float y, float width, float height)
+        {
+            box = new BoxF(x, y, width, height);
         }
         #endregion
 
         #region SHAPE
-        public override IFigure newFigure(IEnumerable<VectorF> shape, string name)
+        public IFigure newFigure(IEnumerable<VectorF> shape, string name)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IFigure"));
+            IFigure figure = null;
+            newFigure(ref figure, shape, name);
+            return figure;
+        }
+        partial void newFigure(ref IFigure figure, IEnumerable<VectorF> shape, string name);
+        partial void newFigure(ref IFigure figure, IEnumerable<VectorF> shape, string name)
+        {
+            figure = new Figure(shape, name);
         }
         #endregion
 
         #region GLYPHS
-        public override IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY)
+        public IGlyphs newGlyphs(string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IGlyphs"));
+            IGlyphs glyphs = null;
+            newGlyphs(ref glyphs, text, area, resultGlyphs, minHBY);
+            return glyphs;
+        }
+        partial void newGlyphs(ref IGlyphs glyphs, string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY);
+        partial void newGlyphs(ref IGlyphs glyphs, string text, RectangleF area, IList<IGlyph> resultGlyphs, float minHBY)
+        {
+            glyphs = new Glyphs(text, area, resultGlyphs, minHBY);
         }
         #endregion
 
         #region ROUNDBOX
-        public override IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false)
+        public IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IRoundBox"));
+            IRoundBox box = null;
+            newRoundBox(ref box, x, y, w, h, cornerRadius, positiveLocation);
+            return box;
+        }
+        partial void newRoundBox(ref IRoundBox box, float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false);
+        partial void newRoundBox(ref IRoundBox box, float x, float y, float w, float h, float cornerRadius, bool positiveLocation)
+        {
+            box = new RoundBox(x, y, w, h, cornerRadius, positiveLocation);
         }
         #endregion
 
         #region POLYGON
-        public override IPolygon newPolygon(IList<VectorF> polyPoints)
+        public IPolygon newPolygon(IList<VectorF> polyPoints)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IPolygon"));
+            IPolygon polygon = null;
+            newPolygon(ref polygon, polyPoints);
+            return polygon;
+        }
+        partial void newPolygon(ref IPolygon polygon, IList<VectorF> polyPoints);
+        partial void newPolygon(ref IPolygon polygon, IList<VectorF> polyPoints)
+        {
+            polygon = new Polygon(polyPoints);
         }
         #endregion
 
         #region TEXT
-        public override IText newText(IList<IGlyph> glyphs, ITextStyle drawStyle = null, int? dstX = null, int? dstY = null)
+        public IText newText(IList<IGlyph> glyphs, ITextStyle drawStyle = null, int? dstX = null, int? dstY = null)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IText"));
+            IText text = null;
+            newText(ref text, glyphs, drawStyle, dstX, dstY);
+            return text;
+        }
+        partial void newText(ref IText text, IList<IGlyph> glyphs, ITextStyle drawStyle = null, int? dstX = null, int? dstY = null);
+        partial void newText(ref IText text, IList<IGlyph> glyphs, ITextStyle drawStyle, int? dstX, int? dstY)
+        {
+            text = new Text(glyphs, drawStyle, dstX, dstY);
         }
 
-        public override IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null)
+        public IText newText(IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null)
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IText"));
+            IText glyphs = null;
+            newText(ref glyphs, font, text, dstX, dstY, drawStyle);
+            return glyphs;
+        }
+        partial void newText(ref IText glyphs, IFont font, string text, int dstX, int dstY, ITextStyle drawStyle = null);
+        partial void newText(ref IText glyphs, IFont font, string text, int dstX, int dstY, ITextStyle drawStyle)
+        {
+            glyphs = new Text(font, text, dstX, dstY, drawStyle);
         }
         #endregion
 
         #region BOUNDARY
-        public override IBoundary newBoundary()
+        public IBoundary newBoundary()
         {
-            throw new NotImplementedException(string.Format(goforStandard, "IBoundary"));
+            IBoundary boundary = null;
+            newBoundary(ref boundary);
+            return boundary;
+        }
+        partial void newBoundary(ref IBoundary boundary);
+        partial void newBoundary(ref IBoundary boundary)
+        {
+            boundary = new Boundary();
         }
         #endregion
 
-        #region PUSH, PUMP, POLL EVENTS
-        public override void PushEvent(IEvent e)
+        #region PEN
+        public IReadable newPen(int color)
         {
-            throw new NotImplementedException(string.Format(goforSdl, "SDL"));
+            IReadable readable = null;
+            newPen(ref readable, color);
+            return readable;
         }
-        public override void PumpEvents()
+        partial void newPen(ref IReadable readable, int color);
+        partial void newPen(ref IReadable readable, int color)
         {
-            throw new NotImplementedException(string.Format(goforSdl, "SDL"));
-        }
-        public override bool PollEvent(out IEvent e)
-        {
-            throw new NotImplementedException(string.Format(goforSdl, "SDL"));
+            readable = Pen.CreateInstance(color);
         }
         #endregion
 
+        #region POLY FILL
+        public IPolyFill newPolyFill()
+        {
+            IPolyFill polyFill = null;
+            newPolyFill(ref polyFill);
+            return polyFill;
+        }
+        partial void newPolyFill(ref IPolyFill polyFill);
+        partial void newPolyFill(ref IPolyFill polyFill)
+        {
+            polyFill = new PolyFill();
+        }
+        #endregion
+
+        #region COLOR
+        public Rgba newColor(byte r, byte g, byte b, byte a = 255) =>
+            new Rgba(r, g, b, a);
+        #endregion
+
+        #region DISPOSE
+        public void Dispose()
+        {
+            Dispose2();
+        }
+        partial void Dispose2();
+        #endregion
 #endif
     }
-#else
-        partial class NativeFactory { }
+
+#if Window
+    partial class NativeFactory
+    {
+        #region PROPERTIES
+        public IScreen PrimaryScreen
+        {
+            get
+            {
+                IScreen screen = null;
+                GetScreen(ref screen);
+                return screen;
+            }
+        }
+        partial void GetScreen(ref IScreen screen);
+
+        public int DefaultWinFlag
+        {
+            get
+            {
+                int winflag = 0;
+                GetDefaultWinFlag(ref winflag);
+                return winflag;
+            }
+        }
+        partial void GetDefaultWinFlag(ref int winflag);
+
+        public int FullScreenWinFlag
+        {
+            get
+            {
+                int winflag = 0;
+                GetScreenFlag(ref winflag);
+                return winflag;
+            }
+        }
+        partial void GetScreenFlag(ref int winflag);
+
+        public IScreens AvailableScreens
+        {
+            get
+            {
+                IScreens screens = null;
+                GetScreens(ref screens);
+                return screens;
+            }
+        }
+        partial void GetScreens(ref IScreens screens);
+
+        public uint[] PixelFormats
+        {
+            get
+            {
+                uint[] pixelFormats = null;
+                GetPixelFormats(ref pixelFormats);
+                return pixelFormats;
+            }
+        }
+        partial void GetPixelFormats(ref uint[] pixelFormats);
+
+        public uint PixelFormat
+        {
+            get
+            {
+                uint pixelFormat = 0;
+                GetPixelFormat(ref pixelFormat);
+                return pixelFormat;
+            }
+        }
+        partial void GetPixelFormat(ref uint pixelFormats);
+
+        public bool Initialized => initialized;
+        public OS OS
+        {
+            get
+            {
+                OS os = 0;
+                GetOS(ref os);
+                return os;
+            }
+        }
+        partial void GetOS(ref OS os);
+        public string LastError
+        {
+            get
+            {
+                string error = null;
+                GetLastError(ref error);
+                return error;
+            }
+        }
+        partial void GetLastError(ref string error);
+        #endregion
+
+        #region TEXTURE
+        public ITexture newTexture(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null)
+        {
+            ITexture texture = null;
+            newTexture(ref texture, window, w, h, isPrimary, textureAccess);
+            return texture;
+        }
+        partial void newTexture(ref ITexture texture, IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false, TextureAccess? textureAccess = null);
+       
+        public ITexture newTexture(IRenderWindow window, ICopyable info, bool isPrimary = false, TextureAccess? textureAccess = null)
+        {
+            ITexture texture = null;
+            newTexture(ref texture, window, info, isPrimary, textureAccess);
+            return texture;
+        }
+        partial void newTexture(ref ITexture texture, IRenderWindow window, ICopyable info, bool isPrimary = false, TextureAccess? textureAccess = null);
+        #endregion
+
+        #region WINDOW
+        public IWindow newWindow(string title = null, int? width = null, int? height = null,
+            int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null, RendererFlags? renderFlags = null)
+        {
+            IWindow window = null;
+            newWindow(ref window, title, width, height, x, y, flags, display, renderFlags);
+            return window;
+        }
+        partial void newWindow(ref IWindow window, string title = null, int? width = null, int? height = null,
+            int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null, RendererFlags? renderFlags = null);
+
+
+        public IWindow newWindow(IExternalTarget control)
+        {
+            IWindow window = null;
+            newWindow(ref window, control);
+            return window;
+        }
+        partial void newWindow(ref IWindow window, IExternalTarget control);
+
+        public int GetWindowID(IntPtr window)
+        {
+            int id = 0;
+            GetWindowID2(ref id, window);
+            return id;
+        }
+        partial void GetWindowID2(ref int id, IntPtr window);
+
+
+        public void SetCursorPos(int x, int y) =>
+            SetCursorPos2(x, y);
+        partial void SetCursorPos2(int x, int y);
+
+        public void DisableScreenSaver() =>
+            DisableScreenSaver2();
+        partial void DisableScreenSaver2();
+        #endregion
+
+        #region RENDER TARGET
+        public IRenderTarget newRenderTarget(IRenderWindow window)
+        {
+            IRenderTarget target = null;
+            newRenderTarget(ref target, window);
+            return target;
+        }
+        partial void newRenderTarget(ref IRenderTarget target, IRenderWindow window);
+        #endregion
+
+        #region OPENGL CONTEXT
+        public IGLContext newGLContext(IWindow window)
+        {
+            IGLContext target = null;
+            newGLContext(ref target, window);
+            return target;
+        }
+
+        partial void newGLContext(ref IGLContext gLContext, IWindow window);
+        #endregion
+
+        #region SAVE AS BITMAP
+        public unsafe bool SaveAsBitmap(IBlockable image, string file, Command command = Command.Screen)
+        {
+            if (image == null)
+                return false;
+
+            image.CopyTo(out IntPtr data, 0, 0, image.Width, image.Height, command);
+            if (data == IntPtr.Zero)
+                return false;
+            bool success = false;
+            SaveAsBitmap(ref success, data, image.Width, image.Height, file);
+            return success;
+        }
+        partial void SaveAsBitmap(ref bool success, IBlockable image, string file, Command command = Command.Screen);
+
+        public unsafe bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file)
+        {
+            if (Pixels == IntPtr.Zero)
+                return false;
+
+            bool success = false;
+            SaveAsBitmap(ref success, Pixels, width, height, file);
+            return success;
+        }
+        partial void SaveAsBitmap(ref bool success, IntPtr Pixels, int width, int height, string file);
+        #endregion
+
+        #region CURSOR
+        public int ConvertToSystemCursorID(CursorType cursorType)
+        {
+            int cursorID = 0;
+            GetCursorID(ref cursorID, cursorType);
+            return cursorID;
+        }
+        partial void GetCursorID(ref int systemCursorID, CursorType cursorType);
+
+        public void SetCursor(IntPtr cursor) =>
+            SetCursor2(cursor);
+        partial void SetCursor2(IntPtr cursor);
+        #endregion
+
+        #region EVENTS
+        public void PushEvent(IEvent e) =>
+            PushEvent2(e);
+        partial void PushEvent2(IEvent e);
+        public void PumpEvents() =>
+            PumpEvents2();
+        partial void PumpEvents2();
+
+        public bool PollEvent(out IEvent e)
+        {
+            e = null;
+            bool success = false;
+            PollEvent2(ref success, ref e);
+            return success;
+        }
+        partial void PollEvent2(ref bool success, ref IEvent e);
+        #endregion
+
+        #region WAV PLAYER
+        public ISound newWavPlayer()
+        {
+            ISound sound = null;
+            newWavPlayer(ref sound);
+            return sound;
+        }
+        partial void newWavPlayer(ref ISound sound);
+        #endregion
+    }
 #endif
 }

@@ -2,13 +2,19 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
-// Author: Mukesh Adhvaryu.
-using System;
+// Author: Manan Adhvaryu.
+
+#if MS
+using MnM.GWS.Desktop;
 
 namespace MnM.GWS
 {
-    public class LoopEventArgs : EventArgs
+    partial class NativeFactory
     {
-        public bool Repeat { get; set; }
+        partial void newNativeTarget(ref INativeTarget target, int x, int y, int w, int h)
+        {
+            target = new NativeTarget(x, y, w, h);
+        }
     }
 }
+#endif

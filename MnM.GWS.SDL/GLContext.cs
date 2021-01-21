@@ -2,12 +2,13 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 
 #if Window
 
 using System;
 
-namespace MnM.GWS
+namespace MnM.GWS.SDL
 {
     public enum GlContextAttribute
     {
@@ -36,13 +37,7 @@ namespace MnM.GWS
         ShareWithCurrentContext = 22,
     }
 
-#if AllHidden
-    partial class SdlFactory
-    {
-#else
-    public
-#endif
-        sealed class GLContext : IGLContext
+    sealed class GLContext : IGLContext
     {
         #region variables
         IntPtr window;
@@ -56,7 +51,7 @@ namespace MnM.GWS
         {
             var gl = new GLContext();
             gl.window = window.Handle;
-            gl.Handle = SdlFactory.CreateGLContext(window.Handle);
+            gl.Handle = NativeFactory.CreateGLContext(window.Handle);
             return gl;
         }
         #endregion
@@ -68,12 +63,12 @@ namespace MnM.GWS
             get
             {
                 MakeCurrent();
-                return SdlFactory.GetGLSwapInterval();
+                return NativeFactory.GetGLSwapInterval();
             }
             set
             {
                 MakeCurrent();
-                SdlFactory.SetGLSwapInterval(value);
+                NativeFactory.SetGLSwapInterval(value);
             }
         }
         public bool IsCurrent =>
@@ -83,29 +78,29 @@ namespace MnM.GWS
             get
             {
                 MakeCurrent();
-                return SdlFactory.GetGLAttribute((GlContextAttribute)attribute);
+                return NativeFactory.GetGLAttribute((GlContextAttribute)attribute);
             }
             set
             {
                 MakeCurrent();
-                SdlFactory.SetGLAttribute((GlContextAttribute)attribute, value);
+                NativeFactory.SetGLAttribute((GlContextAttribute)attribute, value);
             }
         }
         #endregion
 
         #region RESET ATTRIBUTES
         public void Reset() =>
-            SdlFactory.ResetGLAttributes();
+            NativeFactory.ResetGLAttributes();
         #endregion
 
         #region GET CURRENT
         public void GetCurrent() =>
-            SdlFactory.GetCurrentGLContext();
+            NativeFactory.GetCurrentGLContext();
         #endregion
 
         #region GET FUNCTION
         public IntPtr GetFunction(string fxName) =>
-            SdlFactory.GetGLFunction(fxName);
+            NativeFactory.GetGLFunction(fxName);
         #endregion
 
         #region BIND - UNBIND
@@ -116,14 +111,14 @@ namespace MnM.GWS
             w = width ?? texture.Width;
             h = height ?? texture.Height;
 
-            SdlFactory.BindGLTexture(texture.Handle, &w, &h);
+            NativeFactory.BindGLTexture(texture.Handle, &w, &h);
             this.texture = texture;
         }
         public void UnbindTexture()
         {
             if (texture != null)
             {
-                SdlFactory.UnbindGLTexture(texture.Handle);
+                NativeFactory.UnbindGLTexture(texture.Handle);
                 texture = null;
             }
         }
@@ -133,7 +128,7 @@ namespace MnM.GWS
         public void MakeCurrent()
         {
             if (!IsCurrent)
-                SdlFactory.MakeGLCurrent(window, Handle);
+                NativeFactory.MakeGLCurrent(window, Handle);
             current = Handle;
         }
         #endregion
@@ -142,15 +137,12 @@ namespace MnM.GWS
         public void Swap()
         {
             MakeCurrent();
-            SdlFactory.SwapGLWindow(window);
+            NativeFactory.SwapGLWindow(window);
         }
         #endregion
 
         public void Dispose() =>
-            SdlFactory.DestroyGLContext(Handle);
-        }
-#if AllHidden
+            NativeFactory.DestroyGLContext(Handle);
     }
-#endif
 }
 #endif

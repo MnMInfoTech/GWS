@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1093,17 +1094,17 @@ namespace MnM.GWS
         /// <summary>
         /// Remove all values from the collection.
         /// </summary>
-        void Clear();
+        void RemoveAll();
     }
 
     /// <summary>
     /// Object containing a collection of objects of type IRenderable.
     /// </summary>
-    public partial interface IObjCollection : IObjCollection<IRenderable>, IID
+    public partial interface IObjCollection : IObjCollection<IRenderable>
     {
         #region PROPERTIES
         /// <summary>
-        /// Retries drawing information such as last drawn area, fill mode, stroke mode etc. etc for a given element.
+        /// Returs an existing drawing information object which holds latest drawing information for a given element.
         /// </summary>
         /// <param name="shape">The element for which the drawing information is sought for</param>
         /// <returns></returns>
@@ -1114,46 +1115,26 @@ namespace MnM.GWS
         /// </summary>
         bool AddMode { get; }
 
-        /// <summary>
-        /// Gives enumearable of items held at the current page in this collection.
-        /// Note: For standard version there is only one page so maintaing a something like a tab control is not possible in the version.
-        /// Advanced version has support for multiple pages.
-        /// </summary>
-        IEnumerable<IRenderable> Items { get; }
+        ///// <summary>
+        ///// Gives enumearable of items held at the current page in this collection.
+        ///// Note: For standard version there is only one page so maintaing a something like a tab control is not possible in the version.
+        ///// Advanced version has support for multiple pages.
+        ///// </summary>
+        //IEnumerable<IRenderable> Items { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        IEnumerable<ISettings> InfoItems { get; }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //IEnumerable<ISettings> InfoItems { get; }
         #endregion
 
         #region METHODS
-        /// <summary>
-        /// Refreshes given element on this path. This renderer has a built-in support for the following kind of elements:
-        /// 1. IShape
-        /// 2. IDrawable
-        /// 3. ISelfDrawable
-        /// <param name="shape">Element which is to be refreshed.</param>
-        void Refresh(IRenderable shape);
-
-        /// <summary>
-        /// Returs an existing drawing information object for a given element after it is added in this collection to hold the current drawing information.
-        /// </summary>
-        /// <param name="shape">Shape for which render information is sought.</param>
-        /// <returns></returns>
-        ISettings GetInfo(IRenderable shape);
-
         /// <summary>
         /// Removes an element wchich has given ID from this collection if it exist.
         /// </summary>
         /// <param name="shapeID"></param>
         /// <returns></returns>
         bool Remove(string shapeID);
-
-        /// <summary>
-        /// Removes all existing elements from the current page of this collection.
-        /// </summary>
-        void RemoveAll();
 
         /// <summary>
         /// Gets all elements in this colleciton satisfying given condition.
@@ -1192,7 +1173,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which holds a control collection to maintain its child controls.
     /// </summary>
-    public interface IContainer: IRefreshable
+    public partial interface IContainer: IRefreshable
     {
         /// <summary>
         /// A collection that keeps all child controls to be maintained.
@@ -1201,7 +1182,6 @@ namespace MnM.GWS
     }
     #endregion
 
-#if Advanced
     #region IBUFFER-COLLECTION
     public interface IBuffers : IDisposable
     {
@@ -1251,27 +1231,7 @@ namespace MnM.GWS
         /// </summary>
         void RemoveBuffers();
     }
-
-    public interface IBufferCollection : IBuffers, IEnumerable<ICanvas>, IDisposable
-    {
-        /// <summary>
-        /// Gets the active buffer in this collection now.
-        /// </summary>
-        ICanvas Current { get; }
-
-        /// <summary>
-        /// Lets user to change the primary buffer held in this object. Please note that it is not a part of collection itself.
-        /// </summary>
-        /// <param name="primary">The buffer intended to be the primary buffer for this collection</param>
-        void ChangePrimary(ICanvas primary);
-
-        /// <summary>
-        /// This event gets invoked whenever curret active buffer gets changed.
-        /// </summary>
-        event EventHandler<IEventArgs> BufferChanged;
-    }
     #endregion
-#endif
 
 #endif
 }

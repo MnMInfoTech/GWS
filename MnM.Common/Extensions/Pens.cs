@@ -2,11 +2,11 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 
 namespace MnM.GWS
 {
-
-#if (GWS || Window)
     public static partial class Pens
     {
         #region RESET
@@ -401,5 +401,5 @@ namespace MnM.GWS
         public static IReadable HoverForegroundPen { get; private set; }
         #endregion
     }
-#endif
 }
+#endif

@@ -2,43 +2,44 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
+#if Data
 
 using System;
 using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if Data
-    #region ISOURCE
+#region ISOURCE
     public interface ISource
     {
         object UnderlyingSource { get; set; }
     }
-    #endregion
+#endregion
 
-    #region IROWSOURCE
+#region IROWSOURCE
     public interface IRowSource : ISource
     {
         string DisplayMember { get; set; }
         string ValueMember { get; set; }
     }
-    #endregion
+#endregion
 
-    #region ISOURCE-BOUND-COTROL
+#region ISOURCE-BOUND-COTROL
     public interface ISourceBoundControl
     {
         ISource Source { get; }
     }
-    #endregion
+#endregion
 
-    #region IROWSOURCE -BOUND-CONTROL
+#region IROWSOURCE -BOUND-CONTROL
     public interface IRowSourceBoundControl : ISourceBoundControl
     {
         new IRowSource Source { get; }
     }
-    #endregion
+#endregion
 
-    #region IDATARELATION
+#region IDATARELATION
     /// <summary>
     /// Object explaining the relation and sources of data.
     /// </summary>
@@ -80,9 +81,9 @@ namespace MnM.GWS
         /// <param name="field"></param>
         void CopyFrom(IDataRelation field);
     }
-    #endregion
+#endregion
 
-    #region IDATABINDER
+#region IDATABINDER
     /// <summary>
     /// Object defining the relationship with the bound data.
     /// </summary>
@@ -119,9 +120,9 @@ namespace MnM.GWS
         /// <param name="source">Source of Data.</param>
         void CopyFrom(IDataBinder source);
     }
-    #endregion
+#endregion
 
-    #region IDATABOUNDELEMENT
+#region IDATABOUNDELEMENT
     public interface IDataBoundElement
     {
         /// <summary>
@@ -142,9 +143,9 @@ namespace MnM.GWS
         /// <value>The field value.</value>
         string FieldValue { get; set; }
     }
-    #endregion
+#endregion
 
-    #region IDATABOUND CONTROL
+#region IDATABOUND CONTROL
     /// <summary>
     /// Object bound to data using IDataBoundElement
     /// </summary>
@@ -155,7 +156,7 @@ namespace MnM.GWS
         /// </summary>
         bool LockResizing { get; }
     }
-    #endregion
-#endif
+#endregion
 }
+#endif
 

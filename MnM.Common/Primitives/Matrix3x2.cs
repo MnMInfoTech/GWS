@@ -1,20 +1,20 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file  the project root for more information.
-
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     /// <summary>
     /// A structure encapsulating a 3x2 matrix.
     /// </summary>
     public struct Matrix3x2 : IMatrix3x2, IEquatable<Matrix3x2>
     {
-        #region VARIABLES
+#region VARIABLES
         /// <summary>
         /// The first element of the first row
         /// </summary>
@@ -46,9 +46,9 @@ namespace MnM.GWS
         /// Returns the multiplicative identity matrix.
         /// </summary>
         public static readonly Matrix3x2 Identity = new Matrix3x2(1f, 0f, 0f, 1f, 0f, 0f);
-        #endregion
+#endregion
 
-        #region CONSTRUCTOR
+#region CONSTRUCTOR
         /// <summary>
         /// Constructs a Matrix3x2 from the given components.
         /// </summary>
@@ -61,9 +61,9 @@ namespace MnM.GWS
             M20 = m20;
             M21 = m21;
         }
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         /// <summary>
         /// Returns whether the matrix is the identity matrix.
         /// </summary>
@@ -94,9 +94,9 @@ namespace MnM.GWS
                 M21 = value.Y;
             }
         }
-        #endregion
+#endregion
 
-        #region OPERATORS
+#region OPERATORS
         /// <summary>
         /// Calculates the determinant for this matrix. 
         /// The determinant is calculated by expanding the matrix with a third column whose values are (0,0,1).
@@ -232,9 +232,9 @@ namespace MnM.GWS
 
             return m;
         }
-        #endregion
+#endregion
 
-        #region EQUALITY
+#region EQUALITY
         /// <summary>
         /// Returns a boolean indicating whether the given matrices are equal.
         /// </summary>
@@ -302,7 +302,7 @@ namespace MnM.GWS
                              M10.GetHashCode() + M11.GetHashCode() +
                              M20.GetHashCode() + M21.GetHashCode());
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Returns a String representing this matrix instance.
@@ -316,7 +316,7 @@ namespace MnM.GWS
                                  M20, M21);
         }
 
-        #region IMATRIX3x2
+#region IMATRIX3x2
         float IMatrix3x2.M00
         {
             get => M00;
@@ -353,7 +353,7 @@ namespace MnM.GWS
             get => Translation;
             set => Translation = new VectorF(value);
         }
-        #endregion
+#endregion
     }
-#endif
 }
+#endif

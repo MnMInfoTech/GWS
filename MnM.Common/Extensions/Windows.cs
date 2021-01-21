@@ -2,10 +2,11 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
+#if (GWS || Window)
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     public static partial class Windows
     {
         #region UIOBJECT
@@ -275,20 +276,20 @@ namespace MnM.GWS
 
         #region MOUSEEVENTARGS
         public static bool Move(this IMouseEventArgs e) =>
-            e.State == MouseState.Move;
+            e.Status == MouseState.Move;
         public static bool Up(this IMouseEventArgs e) =>
-            e.State == MouseState.Up;
+            e.Status == MouseState.Up;
         public static bool Down(this IMouseEventArgs e) =>
-            e.State == MouseState.Down;
+            e.Status == MouseState.Down;
         public static bool Enter(this IMouseEventArgs e) =>
-            e.State == MouseState.Enter || e.Enter;
+            e.Status == MouseState.Enter || e.Enter;
 
         public static bool Click(this IMouseEventArgs e) =>
-            e.State == MouseState.Click;
+            e.Status == MouseState.Click;
         public static bool DoubleClick(this IMouseEventArgs e) =>
-            e.State == MouseState.DoubleClick;
+            e.Status == MouseState.DoubleClick;
         public static bool Wheel(this IMouseEventArgs e) =>
-            e.State == MouseState.Wheel;
+            e.Status == MouseState.Wheel;
         public static bool None(this IMouseEventArgs e) =>
             e.Button == MouseButton.None;
         public static bool Left(this IMouseEventArgs e) =>
@@ -342,8 +343,8 @@ namespace MnM.GWS
             e.Up() && e.Right();
 
         public static bool DragStartedWithin(this IMouseEventArgs e, IRectangle area) =>
-            e.State.HasFlag(MouseState.DragBegin) && area.Contains(e.DragStartX, e.DragStartY);
+            e.Status.HasFlag(MouseState.DragBegin) && area.Contains(e.DragStartX, e.DragStartY);
         #endregion
     }
-#endif
 }
+#endif

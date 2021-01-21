@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,13 +15,7 @@ namespace MnM.GWS
 
         #region INSTANCE VARIABLE
         readonly static string sysFontpath;
-
-#if (Window)
-        static IWindowFactory Instance;
-
-#else
-       static  IFactory Instance;
-#endif
+        static IFactory Instance;
         public static IEventArgs EmptyArgs = new _EventArgs();
         #endregion
 
@@ -39,11 +34,7 @@ namespace MnM.GWS
                 return;
             Instance?.Dispose();
             Instance = null;
-#if Window
-            Instance = factory as IWindowFactory;
-#else
             Instance = factory;
-#endif
             Operations.Converters["GWS"] = factory.newConverter();
             ImageProcessor = Instance.newImageProcessor();
             ShapeParser = Instance.newShapeParser();
@@ -108,11 +99,8 @@ namespace MnM.GWS
             ImageProcessor.Dispose();
             Operations.Converters.Remove("GWS");
         }
-    }
 
 #if GWS || Window
-    partial class Factory
-    {
         #region PROPERTIES
         /// <summary>
         /// Returns a default system font available in GWS.
@@ -385,13 +373,13 @@ namespace MnM.GWS
 
         #region FORM
         public static IForm newForm(int x, int y, int w, int h) =>
-            Instance.newForm(x, y, w, h);
+            Instance.newForm(Instance.newNativeTarget(x, y, w, h));
 
         public static IForm newForm(int formW, int formH) =>
-            Instance.newForm(formX, formY, formW, formH);
+            Instance.newForm(Instance.newNativeTarget(formX, formY, formW, formH));
 
         public static IForm newForm() =>
-            Instance.newForm(formX, formY, formW, formH);
+            Instance.newForm(Instance.newNativeTarget(formX, formY, formW, formH));
         #endregion
 
         #region TO PEN
@@ -454,47 +442,6 @@ namespace MnM.GWS
         {
             return Instance.newPen(color);
         }
-        #endregion
-
-        #region OBJECT-COLLECTION
-        /// <summary>
-        /// Creates colletion that holds renderable controls on a given buffer.
-        /// </summary>
-        /// <param name="buffer">Parent buffer block.</param>
-        /// <returns></returns>
-        public static IObjCollection newObjectCollection(IImage buffer)
-        {
-            return Instance.newObjectCollection(buffer);
-        }
-        #endregion
-
-        #region BUFFER COLLECTION
-#if Advanced
-        /// <summary>
-        /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
-        /// </summary>
-        /// <returns>IBufferCollection</returns>
-        public static IBufferCollection newBufferCollection() =>
-            Instance.newBufferCollection();
-
-        /// <summary>
-        /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
-        /// </summary>
-        /// <param name="primary">Primary buffer for this instance to use.
-        /// If no null value is provided then ChangePrimary method will not be able to change the primary buffer value.
-        /// As we have already provided dedicated primary buffer here.</param>
-        /// <returns>IBufferCollection</returns>
-        public static IBufferCollection newBufferCollection(ICanvas primary) =>
-            Instance.newBufferCollection(primary);
-
-        /// <summary>
-        /// Creates a collection to hold buffers to enable user to maintain and use multiple buffers with any parent window and graphics.
-        /// </summary>
-        /// <param name="capacity">Initiali capacity of the collection. the default is 4</param>
-        /// <returns></returns>
-        public static IBufferCollection newBufferCollection(int capacity) =>
-            Instance.newBufferCollection(capacity);
-#endif
         #endregion
 
         #region POLY FILL
@@ -1376,33 +1323,6 @@ namespace MnM.GWS
              Instance.newText(font, text, dstX, dstY, drawStyle);
         #endregion
 
-        #region PUSH, PUMP, POLL EVENTS
-        /// <summary>
-        /// Push the specified event to the active window.
-        /// </summary>
-        /// <param name="e">Event to push on</param>
-        public static void PushEvent(IEvent e)
-        {
-            Instance.PushEvent(e);
-        }
-
-        /// <summary>
-        /// Instructs Window manager to start pumping events to eligble window.
-        /// </summary>
-        public static void PumpEvents()
-        {
-            Instance.PumpEvents();
-        }
-
-        public static bool PollEvent(out IEvent e)
-        {
-            e = null;
-            if (Instance == null)
-                return false;
-            return Instance.PollEvent(out e);
-        }
-        #endregion
-
         #region BRUSH
         /// <summary>
         /// Creates a new brush of certain width and height using specified fill style.
@@ -1576,7 +1496,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="externalWindow">External window</param>
         /// <returns></returns>
-        public static IWindow newWindow(IExternalWindow externalWindow)
+        public static IWindow newWindow(IExternalTarget externalWindow)
         {
             return Instance.newWindow(externalWindow);
         }
@@ -1714,7 +1634,7 @@ namespace MnM.GWS
         /// <param name="image">Image which is to be saved</param>
         /// <param name="file">Path of a file where data is to be saved</param>
         /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        public static bool SaveAsBitmap(IBlockable image, string file, Command command = Command.DirectScreen)
+        public static bool SaveAsBitmap(IBlockable image, string file, Command command = Command.Screen)
         {
             return Instance.SaveAsBitmap(image, file, command);
         }
@@ -1807,7 +1727,34 @@ namespace MnM.GWS
             return Instance.newWavPlayer();
         }
         #endregion
+
+        #region PUSH, PUMP, POLL EVENTS
+        /// <summary>
+        /// Push the specified event to the active window.
+        /// </summary>
+        /// <param name="e">Event to push on</param>
+        public static void PushEvent(IEvent e)
+        {
+            Instance.PushEvent(e);
+        }
+
+        /// <summary>
+        /// Instructs Window manager to start pumping events to eligble window.
+        /// </summary>
+        public static void PumpEvents()
+        {
+            Instance.PumpEvents();
+        }
+
+        public static bool PollEvent(out IEvent e)
+        {
+            e = null;
+            if (Instance == null)
+                return false;
+            return Instance.PollEvent(out e);
+        }
+        #endregion
+#endif
 #endif
     }
-#endif
 }

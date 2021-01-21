@@ -2,11 +2,12 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if (GWS || Window)
 using System;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
     /// <summary>
     /// Source: https://phys.libretexts.org/Bookshelves/Astronomy_and_Cosmology_TextMaps/Map%3A_Celestial_Mechanics_(Tatum)/2%3A_Conic_Sections/2.8%3A_Fitting_a_Conic_Section_Through_Five_Points
     /// </summary>
@@ -140,5 +141,5 @@ namespace MnM.GWS
             return angle;
         }
     }
-#endif
 }
+#endif

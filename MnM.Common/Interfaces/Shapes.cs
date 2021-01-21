@@ -2,13 +2,13 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Mukesh Adhvaryu.
+#if (GWS || Window)
 using System;
 using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if (GWS || Window)
-
     #region ISHAPE
     public interface IShape : IID, IDisposable
     {
@@ -530,16 +530,5 @@ namespace MnM.GWS
     public interface ISearch : IRenderable, IBackground, IForeground
     { }
     #endregion
-
-#if Advanced
-    #region IFOCUSRECT
-    public interface IFocusRect 
-    {
-        void Show(int x, int y, int w, int h);
-        void Hide();
-    }
-    #endregion
-#endif
-
-#endif
 }
+#endif

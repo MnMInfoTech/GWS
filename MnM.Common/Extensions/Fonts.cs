@@ -2,6 +2,8 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+#if GWS || Window
 
 using System;
 using System.Collections.Generic;
@@ -9,10 +11,9 @@ using System.Linq;
 
 namespace MnM.GWS
 {
-#if GWS || Window
- public static partial class Fonts
+    public static partial class Fonts
     {
-    #region MEASURE TEXT
+        #region MEASURE TEXT
         public static IGlyphs MeasureText(this IFont font, string text, float destX, float destY, ITextStyle drawStyle = null)
         {
             if (font == null || string.IsNullOrEmpty(text))
@@ -33,9 +34,9 @@ namespace MnM.GWS
 
             return Factory.newGlyphs(default(string), Area, ResultGlyphs, minHBY);
         }
-    #endregion
+        #endregion
 
-    #region PARSE GLYPH
+        #region PARSE GLYPH
         public static IList<VectorF> ParseGlyph(this IEnumerable<VectorF> Points, IList<int> Contours, int glyphHeight, int offsetX, int offsetY)
         {
             IList<VectorF> points = new Collection<VectorF>();
@@ -72,10 +73,10 @@ namespace MnM.GWS
             Curves.GetBezierPoints(4, ref points, Start, controlPoint1, endPoint);
             Start = endPoint;
         }
-    #endregion
+        #endregion
 
-    #region DECOMPOSE
-        static void Decompose<T>(VectorF[] Points, IList<int> Contours, ref T points, ref VectorF Start) where T: ICollection<VectorF>
+        #region DECOMPOSE
+        static void Decompose<T>(VectorF[] Points, IList<int> Contours, ref T points, ref VectorF Start) where T : ICollection<VectorF>
         {
             var firstIndex = 0;
 
@@ -153,7 +154,7 @@ namespace MnM.GWS
             }
         }
 
-    #endregion
+        #endregion
+    }
 }
 #endif
-}

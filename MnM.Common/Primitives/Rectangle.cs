@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 using System;
 using System.Runtime.InteropServices;
 
@@ -30,7 +31,7 @@ namespace MnM.GWS
         /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
         /// <param name="w">Width of the rectangle.</param>
         /// <param name="h">Height of the rectangle.</param>
-        public Rectangle(int x, int y, int w, int h)
+        public unsafe Rectangle(int x, int y, int w, int h)
         {
             X = x;
             Y = y;
@@ -199,7 +200,7 @@ namespace MnM.GWS
                 pen = Pens.Black;
             var invert = pen.Invert;
             pen.Invert = true;
-            command |= Command.DirectScreen;
+            command |= Command.Screen;
             var boundary = Factory.newBoundary();
             buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
             Renderer.ProcessLine(X, Y, X, Y + Height, action, command);
