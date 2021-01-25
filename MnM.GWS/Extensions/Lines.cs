@@ -280,9 +280,10 @@ namespace MnM.GWS
 
             direction = min > max;
             bool Negative = direction;
+
             start = (int)min;
             end = (int)max;
-            if(Scanning)
+            if (Scanning)
             {
                 if (min - start > 0)
                     ++start;

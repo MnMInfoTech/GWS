@@ -31,11 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\GWS-Window.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\Texts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\BenchMarks.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Matrixs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Windows.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Buffers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\DrawParams.cs" />
@@ -59,9 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Matrix3x2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rectangle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RectangleF.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Angles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Blocks.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Rects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Vectors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Events.cs" />
@@ -78,7 +72,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Enums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Numbers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Operations.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Texts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Common.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Lot.cs" />

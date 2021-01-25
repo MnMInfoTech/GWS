@@ -8,7 +8,7 @@ using System;
  namespace MnM.GWS
 {
     #region IEVENTPUSHER
-    public interface IEventPusher
+    public interface IEventPusher: IID
     {
         void PushEvent(IEventInfo e);
         event EventHandler<IEventInfo> EventPushed;
@@ -186,7 +186,7 @@ using System;
         /// <summary>
         /// Underlying surface object to draw.
         /// </summary>
-        IImage Graphics { get; }
+        IGraphics Graphics { get; }
     }
     #endregion
 
@@ -357,7 +357,7 @@ using System;
     public interface IMinimalWindowEvents
     {
         event EventHandler<ICancelEventArgs> LostFocus;
-        event EventHandler<IEventArgs> GotFocus;
+        event EventHandler<ICancelEventArgs> GotFocus;
         event EventHandler<IEventArgs> Minimized;
         event EventHandler<IEventArgs> Maximized;
         event EventHandler<IEventArgs> Restored;
@@ -367,8 +367,7 @@ using System;
     }
     #endregion
 
-    #region EVENTS
-    public interface IEvents: IMinimalWindowEvents
+    public interface IMinimalEvents2 : IMinimalEvents
     {
         event EventHandler<IEventArgs> Moved;
         event EventHandler<IKeyEventArgs> PreviewKeyDown;
@@ -384,6 +383,11 @@ using System;
         event EventHandler<IEventArgs> JoystickConnected;
         event EventHandler<IEventArgs> JoystickDisconnected;
     }
+
+
+    #region EVENTS
+    public interface IEvents : IMinimalWindowEvents, IMinimalEvents2
+    { }
     #endregion
 #endif
 
@@ -392,7 +396,6 @@ using System;
     public interface IWindowEvents
     {
         event EventHandler<IEventArgs> Closed;
-        event EventHandler<IEventArgs> Load;
         event EventHandler<IEventArgs> TitleChanged;
         event EventHandler<IEventArgs> WindowBorderChanged;
         event EventHandler<IEventArgs> WindowStateChanged;

@@ -5,10 +5,11 @@
 // Author: Manan Adhvaryu.
 #if Window
 using System;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public abstract partial class _Window : _Host, IWindow
+    public abstract partial class _Window : _Events, IWindow
     {
         #region VARIABLES
         readonly ICanvas Primary;
@@ -16,12 +17,13 @@ namespace MnM.GWS
         protected bool IsEventPusher;
         protected bool previousCursorVisible = true;
         protected bool cursorVisible;
-        protected bool firstShow;
+        bool firstShow;
         protected Rectangle bounds;
         protected bool focused;
 
         readonly DrawEventArgs DrawEventArgs = new DrawEventArgs();
         readonly EventInfo Event = new EventInfo();
+        protected volatile bool isDisposed;
         readonly IExternalTarget Target;
         #endregion
 
@@ -69,16 +71,31 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        protected sealed override ICanvas Buffer => Current;
-        public sealed override string ID => Name;
-        public sealed override Rectangle Bounds => bounds;
+        public IObjCollection Objects =>
+            Canvas.Objects;
+        public virtual string Text { get; set; }
+        public string Name { get; protected set; }
+        public override string ID => Name;
+        public Rectangle Bounds => bounds;
         public GwsWindowFlags GwsWindowFlags { get; private set; }
         public IGLContext GLContext { get; private set; }
         public int WindowID { get; private set; }
         public int X => bounds.X;
         public int Y => bounds.Y;
-        public abstract Size MinSize { get; set; }
-        public abstract Size MaxSize { get; set; }
+        public IPenContext Background
+        {
+            get => Canvas.Background;
+            set => Canvas.Background = value;
+        }
+        public int Width => bounds.Width;
+        public int Height => bounds.Height;
+        public bool IsContainer =>
+            true;
+        public bool IsDisposed => isDisposed;
+        public virtual bool FocusOnHover { get; set; }
+        public virtual int TabIndex { get; set; }
+        public RendererFlags RendererFlags { get; protected set; }
+
         public bool IsWindow => true;
         public bool IsMouseDragging { get; protected set; }
         public bool Transparent => Transparency != 0f;
@@ -86,20 +103,98 @@ namespace MnM.GWS
         public virtual float Transparency { get; set; }
         public virtual WindowState WindowState { get; protected set; }
         public virtual WindowBorder WindowBorder { get; protected set; }
-        public override string Text { get; set; }
         public virtual VectorF Scale { get; set; }
         public virtual bool CursorVisible { get; set; }
         protected CursorType? ResizeCursor { get; set; }
+
+        public abstract IntPtr Handle { get; }
+        public abstract bool Focused { get; }
+        public abstract Size MinSize { get; set; }
+        public abstract Size MaxSize { get; set; }
         public abstract uint PixelFormat { get; }
         public abstract ISound Sound { get; }
         public abstract bool Visible { get; set; }
         public abstract bool Enabled { get; set; }
+        protected ICanvas Canvas => Current;
+        #endregion
+
+        #region RENDER
+        public bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null)
+        {
+            return Canvas.Render(Renderable, Settings, suspendUpdate);
+        }
+        #endregion
+
+        #region UPDATE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void Update(Command command = 0, IRectangle boudary = null) =>
+            Canvas.Update(command, boudary);
+        #endregion
+
+        #region COPY TO
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
+            int destLen, int destW, int destX, int destY, Command command = 0, string shapeID = null)
+        {
+            return Canvas.CopyTo(copyX, copyY, copyW, copyH, destination, destLen, destW, destX, destY, command, shapeID);
+        }
+        #endregion
+
+        #region FOCUS
+        public abstract bool Focus();
+        #endregion
+
+        #region REFRESH
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void Refresh()
+        {
+            if (Width == 0 || Height == 0 || !Visible)
+                return;
+            DrawEventArgs.Graphics = Canvas;
+            OnPaint(DrawEventArgs);
+            Canvas.Update(0, new Rectangle(0, 0, Width, Height));
+        }
+        #endregion
+
+        #region RESIZE
+        public virtual void Resize(int? width, int? height)
+        {
+            if (width == null && height == null)
+                return;
+
+            if (width == Width && Height == height)
+                return;
+
+            var w = width ?? Width;
+            var h = height ?? Height;
+            OnResize(new SizeEventArgs(w, h));
+        }
+
+        protected override void OnResize(ISizeEventArgs e)
+        {
+            bounds = new Rectangle(Bounds.X, Bounds.Y, e.Width, e.Height);
+            Primary?.Resize(e.Width, e.Height);
+            Resize2();
+            base.OnResize(e);
+        }
+        partial void Resize2();
+        #endregion
+
+        #region CLEAR
+        public IRectangle Clear(int x, int y, int width, int height, Command command) =>
+            Canvas.Clear(x, y, width, height, command);
+        #endregion
+
+        #region CONSOLIDATE
+        public IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, IImageData backBuffer, Command Command, IntPtr? Pen, string shapeID) =>
+            Canvas.Consolidate(copyX, copyY, copyW, copyH, destination, dstLen, dstW, dstX, dstY, backBuffer, Command, Pen, shapeID);
         #endregion
 
         #region SHOW - HIDE
-        public override void Show() =>
+        public void Show() =>
             ChangeVisible(true);
-        public override void Hide() =>
+        public void Hide() =>
             ChangeVisible(false);
         protected virtual void ChangeVisible(bool value)
         {
@@ -107,6 +202,7 @@ namespace MnM.GWS
             if (!firstShow && value)
             {
                 firstShow = true;
+                Refresh();
                 OnFirstShown(e);
             }
             OnVisibleChanged(e);
@@ -154,39 +250,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region REFRESH
-        public override void Refresh()
-        {
-            if (!Visible)
-                return;
-            base.Refresh();
-        }
-        #endregion
-
-        #region RESIZE
-        public override void Resize(int? width, int? height)
-        {
-            if (width == null && height == null)
-                return;
-
-            if (width == Width && Height == height)
-                return;
-
-            var w = width ?? Width;
-            var h = height ?? Height;
-            OnResize(new SizeEventArgs(w, h));
-        }
-
-        protected override void OnResize(ISizeEventArgs e)
-        {
-            bounds = new Rectangle(Bounds.X, Bounds.Y, e.Width, e.Height);
-            Primary?.Resize(e.Width, e.Height);
-            Resize2();
-            base.OnResize(e);
-        }
-        partial void Resize2();
-        #endregion
-
         #region MOVE
         public abstract void Move(int? x = null, int? y = null);
         #endregion
@@ -220,11 +283,26 @@ namespace MnM.GWS
                 case GwsEvent.Close:
                     OnClosed(e.Args);
                     break;
+                case GwsEvent.Minimized:
+                    OnMinimized(Factory.EmptyArgs);
+                    break;
+                case GwsEvent.Maximized:
+                    OnMaximized(Factory.EmptyArgs);
+                    break;
+                case GwsEvent.Restored:
+                    OnRestored(Factory.EmptyArgs);
+                    break;
+
                 case GwsEvent.Resized:
                     //case GwsEvent.SIZE_CHANGED:
                     base.PushEvent(e);
                     break;
                 default:
+#if Advanced
+                    Canvas?.PushEvent(e);
+                    if (e.Handled)
+                        return;
+#endif
                     if (IsEventPusher)
                         Target.PushEvent(e);
                     else
@@ -235,64 +313,26 @@ namespace MnM.GWS
         protected abstract IEventArgs ParseEvent(IEvent @event);
         #endregion
 
-        #region EVENT DECLARATION WINDOW
-        public event EventHandler<IEventArgs> Load;
-        public event EventHandler<IEventArgs> TitleChanged;
-        public event EventHandler<IEventArgs> WindowBorderChanged;
-        public event EventHandler<IEventArgs> WindowStateChanged;
-        public event EventHandler<ICancelEventArgs> Closing;
-        public event EventHandler<IEventArgs> Closed;
-#if Advanced
-        public event EventHandler<IEventArgs> BufferChanged;
-#endif
-        #endregion
-
-        #region EVENT EXPOSING METHODS
-        protected override void OnVisibleChanged(IEventArgs e)
-        {
-            base.OnVisibleChanged(e);
-        }
-        protected override void OnFirstShown(IEventArgs e)
-        {
-            Refresh();
-            base.OnFirstShown(e);
-        }
-        protected override void OnGotFocus(IEventArgs e)
-        {
-            if (!previousCursorVisible)
-            {
-                previousCursorVisible = true;
-                CursorVisible = false;
-            }
-            base.OnGotFocus(e);
-        }
-        protected override void OnLostFocus(ICancelEventArgs e)
-        {
-            base.OnLostFocus(e);
-            if (e.Cancel)
-            {
-                focused = true;
-                return;
-            }
-            if (!previousCursorVisible)
-            {
-                previousCursorVisible = true;
-                CursorVisible = false;
-            }
-            focused = false;
-        }
-        protected virtual void OnTitleChanged(IEventArgs e) =>
+        #region WINDOW EVENT DECLARATION WINDOW
+        protected virtual void OnTitaleChanged(IEventArgs e) =>
             TitleChanged?.Invoke(this, e);
+        public event EventHandler<IEventArgs> TitleChanged;
+
         protected virtual void OnWindowBorderChanged(IEventArgs e) =>
             WindowBorderChanged?.Invoke(this, e);
+        public event EventHandler<IEventArgs> WindowBorderChanged;
+
         protected virtual void OnWindowStateChanged(IEventArgs e) =>
             WindowStateChanged?.Invoke(this, e);
-        protected virtual void OnClosed(IEventArgs e) =>
-            Closed?.Invoke(this, e);
+        public event EventHandler<IEventArgs> WindowStateChanged;
+
         protected virtual void OnClosing(ICancelEventArgs e) =>
             Closing?.Invoke(this, e);
-        protected virtual void OnLoad(IEventArgs e) =>
-            Load?.Invoke(this, e);
+        public event EventHandler<ICancelEventArgs> Closing;
+
+        protected virtual void OnClosed(IEventArgs e) =>
+            Closed?.Invoke(this, e);
+        public event EventHandler<IEventArgs> Closed;
         #endregion
 
         #region BACKGROUND CHANGED
@@ -303,6 +343,19 @@ namespace MnM.GWS
             BackgroundChanged?.Invoke(this, e);
         }
         public event EventHandler<IEventArgs> BackgroundChanged;
+        #endregion
+
+        #region IIMAGE
+        int ILength.Length =>
+            Canvas.Length;
+        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command command, string ShapeID, INotifier boundary) =>
+           Canvas.WritePixel(val, axis, horizontal, color, Alpha, command, ShapeID, boundary);
+        unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
+            int x, int y, float? Alpha, byte* imageAlphas, Command command, string ShapeID, INotifier boundary) =>
+            Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, ShapeID, boundary);
+        IRectangle IPastable.CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY,
+            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID, IntPtr alphaBytes) =>
+            Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command, ShapeID, alphaBytes);
         #endregion
     }
 }

@@ -40,7 +40,7 @@ namespace Test
             //graphics.Window = window;
             //window.Transparency = .5f;
             window.Paint += Window_PaintBackground;
-            window.Load += Window_Load;
+            window.FirstShown += Window_Load;
             window.KeyPress += Window_KeyPress;
             window.MouseDown += Window_MouseDown;
             window.MouseUp += Window_MouseUp;
@@ -135,7 +135,7 @@ namespace Test
                 var ellipse = Factory.newCurve(0, 0, 500, 400);
                 Rectangle rc;
                 int x = 0, y = 0;
-                var img = Factory.newSurface(300, 300);
+                var img = Factory.newImage(300, 300);
 
                 Settings.Command = Command.Backdrop;
                 img.DrawEllipse(10, 10, 200, 200);
@@ -244,7 +244,7 @@ namespace Test
             }
             else
             {
-                var img = Factory.newSurface(300, 300);
+                var img = Factory.newImage(300, 300);
                 img.DrawEllipse(10, 10, 200, 200);
                 //surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
                 //surface.DrawImage(img, 600, 500, 10, 10, 400, 400);

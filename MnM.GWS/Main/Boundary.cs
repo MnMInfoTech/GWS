@@ -192,8 +192,8 @@ namespace MnM.GWS
                 pen = ((IBackground)buffer).Background as IReadable;
             else
                 pen = Pens.Black;
-            var invert = pen.Invert;
-            pen.Invert = true;
+            //var invert = pen.Invert;
+            //pen.Invert = true;
             command |= Command.Screen;
             var boundary = Factory.newBoundary();
             buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
@@ -201,7 +201,7 @@ namespace MnM.GWS
             Renderer.ProcessLine(X2, Y4, X3, Y1, action, command);
             Renderer.ProcessLine(X2, Y4, X4, Y2, action, command);
             Renderer.ProcessLine(X1, Y3, X4, Y2, action, command);
-            pen.Invert = invert;
+            //pen.Invert = invert;
             (buffer as IUpdatable)?.Update(command, boundary);
         }
         #endregion

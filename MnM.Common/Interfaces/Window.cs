@@ -16,11 +16,6 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region INATIVE-FORM
-    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer
-    { }
-    #endregion
-
     #region IRENDER TARGET
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
@@ -48,27 +43,17 @@ namespace MnM.GWS
     #endregion
 
 #if (GWS || Window)
-    #region IELEMENT
-    /// <summary>
-    /// Represents an object which has a place in GWS object eco system.
-    /// This is an entry point interface to be in the GWS object eco system.
-    /// A minimum required interface to inherit in order to make your control work in the GWS.
-    /// It must have an ID, a name Name and area to work upon.
-    /// </summary>
-    public partial interface IElement : IID, IRenderable, IRecognizable, IPoint, ISize, IMinSizable
-    {
-        /// <summary>
-        /// Gets bounds of this object.
-        /// </summary>
-        Rectangle Bounds { get; }
-    }
+    #region INATIVE-FORM
+    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer
+    { }
     #endregion
 
     #region IFORM
     /// <summary>
     /// Represents an object which represents window.
     /// </summary>
-    public partial interface IForm : INativeForm, IImage, IContainer, IUpdatable, IResizable, IClearable, IPastable, IDisposed,
+    public partial interface IForm : INativeForm, IGraphics, IConsolidator,
+        IContainer, IUpdatable, IResizable, IClearable, IPastable, IDisposed,
         IShowable, IHideable, IRecognizable, IBackground, IMinimalEvents,
         IMinimalWindowEvents
     { }
@@ -94,13 +79,29 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IELEMENT
+    /// <summary>
+    /// Represents an object which has a place in GWS object eco system.
+    /// This is an entry point interface to be in the GWS object eco system.
+    /// A minimum required interface to inherit in order to make your control work in the GWS.
+    /// It must have an ID, a name Name and area to work upon.
+    /// </summary>
+    public partial interface IElement : IID, IRenderable, IRecognizable, IPoint, ISize, IMinSizable
+    {
+        /// <summary>
+        /// Gets bounds of this object.
+        /// </summary>
+        Rectangle Bounds { get; }
+    }
+    #endregion
+
     #region ICHILD
     public interface IChild : IRenderable
     {
         /// <summary>
         /// Gets or sets Parent window this object belongs to.
         /// </summary>
-        IImage Window { get; set; }
+        IGraphics Window { get; set; }
     }
     #endregion
 

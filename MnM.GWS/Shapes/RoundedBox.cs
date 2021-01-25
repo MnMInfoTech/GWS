@@ -37,46 +37,31 @@ namespace MnM.GWS
             /// <param name="w">Width of the rectangle.</param>
             /// <param name="h">Height of the rectangle.</param>
             /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
-            public RoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false) : this()
+            public RoundBox(float x, float y, float w, float h, float cornerRadius, RoundBoxOption option = 0) : this()
             {
                 ID = "RoundBox".NewID();
                 X = x;
                 Y = y;
                 Width = w;
                 Height = h;
-
-                if (positiveLocation)
-                {
-                    if (X < 0)
-                    {
-                        Width += X;
-                        X = 0;
-                    }
-                    if (Y < 0)
-                    {
-                        Height += Y;
-                        Y = 0;
-                    }
-                }
-
                 CornerRadius = cornerRadius;
-                points = Curves.RoundedBoxPoints(X, Y, Width, Height, CornerRadius);
+                points = Curves.RoundedBoxPoints(X, Y, Width, Height, CornerRadius, option);
             }
 
             /// <summary>
             /// Creates a new rect identical to the area of specifed rectangle.
             /// </summary>
             /// <param name="area">Area to match bounds from.</param>
-            public RoundBox(Rectangle area, float cornerRadius) :
-                this(area.X, area.Y, area.Width, area.Height, cornerRadius)
+            public RoundBox(Rectangle area, float cornerRadius, RoundBoxOption option = 0) :
+                this(area.X, area.Y, area.Width, area.Height, cornerRadius, option)
             { }
 
             /// <summary>
             /// Creates a new rect identical to the area of specifed rectangle.
             /// </summary>
             /// <param name="area">Area to copy bounds from.</param>
-            public RoundBox(RectangleF area, float cornerRadius) :
-                this(area.X, area.Y, area.Width, area.Height, cornerRadius)
+            public RoundBox(RectangleF area, float cornerRadius, RoundBoxOption option = 0) :
+                this(area.X, area.Y, area.Width, area.Height, cornerRadius, option)
             { }
 
             /// <summary>
@@ -84,8 +69,8 @@ namespace MnM.GWS
             /// </summary>
             /// <param name="xy">Location of the box.</param>
             /// <param name="wh">Size of the box.</param>
-            public RoundBox(VectorF xy, SizeF wh, float cornerRadius) :
-                this(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius)
+            public RoundBox(VectorF xy, SizeF wh, float cornerRadius, RoundBoxOption option = 0) :
+                this(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius, option)
             { }
 
             /// <summary>
@@ -93,8 +78,8 @@ namespace MnM.GWS
             /// </summary>
             /// <param name="xy">Location of the box.</param>
             /// <param name="wh">Size of the box.</param>
-            public RoundBox(Vector xy, Size wh, float cornerRadius) :
-                this(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius)
+            public RoundBox(Vector xy, Size wh, float cornerRadius, RoundBoxOption option = 0) :
+                this(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius, option)
             { }
 
             /// <summary>
@@ -105,19 +90,9 @@ namespace MnM.GWS
             /// <param name="right">Far right horizontal co-rodinate of the rectangle.</param>
             /// <param name="bottom">Far bottom horizontal co-rodinate of the rectangle.</param>
             /// <returns>RectF</returns>
-            public static RoundBox FromLTRB(float x, float y, float right, float bottom, float cornerRadius, bool correct = true)
+            public static RoundBox FromLTRB(float x, float y, float right, float bottom, float cornerRadius, RoundBoxOption option = 0)
             {
-                if (!correct)
-                    return new RoundBox(x, y, right - x, bottom - y, cornerRadius);
-                Numbers.Order(ref x, ref right);
-                Numbers.Order(ref y, ref bottom);
-                var w = right - x;
-                if (w == 0)
-                    w = 1;
-                var h = bottom - y;
-                if (h == 0)
-                    h = 1;
-                return new RoundBox(x, y, w, h, cornerRadius);
+                return new RoundBox(x, y, right - x, bottom - y, cornerRadius, option);
             }
             #endregion
 

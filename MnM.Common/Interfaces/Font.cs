@@ -259,7 +259,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets a Buffer image to be drawn to screen.
         /// </summary>
-        ISurface Image { get; set; }
+        IImage Image { get; set; }
 #endif
         /// <summary>
         //  Creates a new instance of this class with the same value as an existing instance.

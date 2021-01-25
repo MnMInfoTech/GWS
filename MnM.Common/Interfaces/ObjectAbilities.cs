@@ -46,10 +46,6 @@ namespace MnM.GWS
     {
         object Clone(int width, int height);
     }
-    public interface ICloneable<T> : ICloneable
-    {
-        new T Clone();
-    }
     #endregion
 
     #region IDISPOSABLE
@@ -174,9 +170,17 @@ namespace MnM.GWS
     public interface IWritable : IBlockable
     {
         /// <summary>
-        /// Indicates if nothing can be written on this object now.
+        /// Renders any element on this given object. This renderer has a built-in support for the following kind of elements:
+        /// 1. IDrawable
+        /// 2. IFigurable
+        /// 3. IShape
+        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
+        /// Once you have handled it return true otherwise false.
         /// </summary>
-        bool CanNotWrite { get; }
+        /// <param name="Renderable">Renderable object which is to be rendered</param>
+        /// <param name="Settings">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
+        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
+        bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null);
 
         /// <summary>
         /// Writes pixel to this block at given axial position using specified color.
@@ -206,12 +210,6 @@ namespace MnM.GWS
         /// <param name="ShapeID">ID of shape which pixel line is being written for.</param>
         unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha, byte* imageAlphas, Command Command, string ShapeID, INotifier boundary);
-
-        /// <summary>
-        /// Clears indices of last drawn pixels. 
-        /// Only useful when a shape is drawn with Distinct flag of enum : Command.
-        /// </summary>
-        void ClearPixelRecord();
     }
     #endregion
      
@@ -286,6 +284,32 @@ namespace MnM.GWS
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
         IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH,
             Command Command, string ShapeID, IntPtr alphaBytes = default(IntPtr));
+    }
+    #endregion
+
+    #region ICOSOLIDATOR
+    public interface IConsolidator 
+    {
+        /// <summary>
+        /// Copies consolidated data to target destination. Very useful for mixing 2 images.
+        /// Where this image serves as foreground image and backBuffer serves as background image. 
+        /// </summary>
+        /// <param name="copyX"></param>
+        /// <param name="copyY"></param>
+        /// <param name="copyW"></param>
+        /// <param name="copyH"></param>
+        /// <param name="destination"></param>
+        /// <param name="dstLen"></param>
+        /// <param name="dstW"></param>
+        /// <param name="dstX"></param>
+        /// <param name="dstY"></param>
+        /// <param name="backBuffer"></param>
+        /// <param name="Command"></param>
+        /// <param name="Pen"></param>
+        /// <param name="shapeID"></param>
+        /// <returns></returns>
+        IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null, string shapeID = null);
     }
     #endregion
 
@@ -457,21 +481,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IELMENTFINDER
-    public interface IElementFinder
-    {
-        /// <summary>
-        /// Finds an element from this collection if it exists on a given x and y coordinates.
-        /// the test is applied on a last drawn area rather than an actual area of each element so if an element is not drawn yet, 
-        /// it can not be found!
-        /// </summary>
-        /// <param name="x">X coordinate to search for</param>
-        /// <param name="y">Y coordinate to search for</param>
-        /// <returns></returns>
-        IRenderable FindElement(int x, int y);
-    }
-    #endregion
-
     #region IROTATESCALABLE
     public interface IScalable
     {
@@ -561,27 +570,21 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets an active object from the perspective of handling user inputs.
         /// </summary>
-        IEventPusher ActiveObject { get; set; }
+        IEventPusher ActiveObject { get; }
 
         /// <summary>
-        /// Gets th actual location when the drag operation started.
+        /// Sets focus to given element in this collection so that it can receive user inputs.
         /// </summary>
-        Vector DragLocation { get; }
+        /// <param name="shape">An element to get focus</param>
+        /// <returns>False if the element can not be focused.</returns>
+        bool Focus(IRenderable shape);
 
         /// <summary>
-        /// Gets current status in relation to mouse dragging routine.
+        /// Removes focus from given element in this collection so that it can no longer receive user inputs.
         /// </summary>
-        MouseDrag MouseDrag { get; }
-
-        /// <summary>
-        /// Gets latest element which the mouse last hovered on.
-        /// </summary>
-        IRenderable HoveredItem { get; }
-
-        /// <summary>
-        /// Gets the current element which the mouse is drawgging now.
-        /// </summary>
-        IRenderable DraggedItem { get; }
+        /// <param name="shape">An element to lose focus</param>
+        /// <returns>False if the element can not be focused.</returns>
+        bool Unfocus(IRenderable shape);
     }
     #endregion
 

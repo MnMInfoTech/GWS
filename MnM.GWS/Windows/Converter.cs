@@ -242,13 +242,7 @@ namespace MnM.GWS
 
                 if (t.IsAssignableFrom(typeof(IImage)))
                 {
-                    result = (T)Factory.newSurface(bytes);
-                    return true;
-                }
-                else if (t.IsAssignableFrom(typeof(ISurface)) ||
-                    t.IsAssignableFrom(typeof(ISurface)))
-                {
-                    result = (T)Factory.newSurface(bytes);
+                    result = (T)Factory.newImage(bytes);
                     return true;
                 }
             }

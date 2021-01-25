@@ -132,7 +132,6 @@ namespace MnM.GWS
             drawCommand &= ~Command.CheckForCloseness;
             drawCommand &= ~Command.FillSinglePointLine;
             drawCommand &= ~Command.EraseControl;
-            drawCommand &= ~Command.RemoveControl;
             drawCommand &= ~Command.RestoreControl;
             drawCommand &= ~Command.AddMode;
             SyncCommand();

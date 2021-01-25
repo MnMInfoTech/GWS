@@ -9,6 +9,16 @@
     <Import_RootNamespace>MnM.GWS</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Angles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Texts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Boundary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Brush.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Image.cs" />
@@ -35,9 +45,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Windows\Converter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Pen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\EventArgsT.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\PaintEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\DrawEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EventArgs\SizeEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Host.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PolyFill.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Font.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Glyph.cs" />
@@ -64,7 +73,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)ImageProcessing\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Extensions\" />
     <Folder Include="$(MSBuildThisFileDirectory)Windows\" />
   </ItemGroup>
 </Project>

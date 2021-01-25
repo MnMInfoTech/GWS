@@ -138,6 +138,7 @@ namespace MnM.GWS
         /// <param name="p2"></param>
         /// <param name="Center"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static VectorF GetEllipsePoint(float angle, VectorF p1, VectorF p2, VectorF Center)
         {
             Angles.SinCos(angle, out float sin, out float cos);
@@ -158,6 +159,7 @@ namespace MnM.GWS
             return new VectorF(x, y);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static VectorF[] GetEllipsePoints( float Cx, float Cy, float Rx, float Ry, bool pieAngle = false, Rotation angle = default(Rotation))
         {
             bool WMajor = Rx > Ry;
@@ -194,24 +196,52 @@ namespace MnM.GWS
             x = CX + cosrx;
             y = CX + sinry;
         }
-        public static void GetCircleArc(float x, float y, float w, VectorAction<float> action, int startAngle, int endAngle, int step = 1)
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetCirclePoint(float angle, float CX, float CY, float Radius, out float x, out float y)
         {
-            var radius = w / 2f;
-            var cx = x + radius;
+            Angles.SinCos(angle, out float sin, out float cos);
+            float cosrx, sinry;
+
+            cosrx = Radius * cos;
+            sinry = Radius * sin;
+            x = CX + cosrx;
+            y = CY + sinry;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetCircleArc(float Cx, float Cy, float radius, VectorAction<float> action, int startAngle, int endAngle, int step = 1)
+        {
             float px, py;
             if (step < 1)
                 step = 1;
             Numbers.Order(ref startAngle, ref endAngle);
             for (int i = startAngle; i <= endAngle; i += step)
             {
-                GetCirclePoint(i, cx, radius, out px, out py);
+                GetCirclePoint(i, Cx, Cy, radius, out px, out py);
                 action(px, py);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetCircleArc(float Cx, float Cy, float radius, ICollection<VectorF> list, int startAngle, int endAngle, int step = 1) 
+        {
+            float px, py;
+            if (step < 1)
+                step = 1;
+            Numbers.Order(ref startAngle, ref endAngle);
+            for (int i = startAngle; i <= endAngle; i += step)
+            {
+                GetCirclePoint(i, Cx, Cy, radius, out px, out py);
+                list.Add(new VectorF(px, py));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static VectorF GetEllipsePoint(this IConic e, float angle, bool pieAngle) =>
             GetEllipsePoint(angle, e.Cx, e.Cy, e.Rx, e.Ry, e.Rotation, pieAngle);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static VectorF GetEllipsePoint(this IConic e, float angle, bool pieAngle, Rotation userAngle) =>
             GetEllipsePoint(angle, e.Cx, e.Cy, e.Rx, e.Ry, userAngle, pieAngle);
         #endregion
@@ -959,31 +989,42 @@ namespace MnM.GWS
         #endregion
 
         #region ROUNDED RECTANGLE POINTS
-        public static IList<VectorF> RoundedBoxPoints(float x, float y, float width, float height, float cornerRadius)
+        public static IList<VectorF> RoundedBoxPoints(float x, float y, float width, float height, float cornerRadius, RoundBoxOption option)
         {
-            cornerRadius = Math.Min(cornerRadius, Math.Min(width / 2, height / 2) - 1);
-            var r = x + width;
-            var b = y + height;
+            cornerRadius = Math.Min(cornerRadius, Math.Min(width / 2f, height / 2f) - 1);
+            Collection<VectorF> pixels = new Collection<VectorF>(100);
+            bool l = (option & RoundBoxOption.Left) == RoundBoxOption.Left;
+            bool t = (option & RoundBoxOption.Top) == RoundBoxOption.Top;
+            bool r = (option & RoundBoxOption.Right) == RoundBoxOption.Right;
+            bool b = (option & RoundBoxOption.Bottom) == RoundBoxOption.Bottom;
+            bool banner = (option & RoundBoxOption.Banner) == RoundBoxOption.Banner;
+            bool all = option == 0 ||  ((l && t && r && b) || !(l || t || r || b));
 
-            VectorF p1 = new VectorF(x, y + cornerRadius);
-            VectorF p2 = new VectorF(x, y);
-            VectorF p3 = new VectorF(x + cornerRadius, y);
+            var right = x + width;
+            var bottom = y + height;
+            var radius = cornerRadius;
+           
+            if (all || l)
+                pixels.AddRange(GetArcPoints(181, 270, banner, x + radius, y + radius, radius, radius));
+            else
+                pixels.Add(new VectorF(x, y));
+           
+            if (all || t)
+                pixels.AddRange(GetArcPoints(271, 360, banner, right - radius, y + radius, radius, radius));
+            else
+                pixels.Add(new VectorF(x + width, y));
+
+            if (all || r)
+                pixels.AddRange(GetArcPoints(1, 90, banner, right - radius, bottom - radius, radius, radius));
+            else
+                pixels.Add(new VectorF(x + width, y + height));
+
+            if (all || b)
+                pixels.AddRange(GetArcPoints(91, 180, banner, x + radius, bottom - radius, radius, radius));
+            else
+                pixels.Add(new VectorF(x, y + height));
             
-            VectorF p4 = new VectorF(r - cornerRadius, y);
-            VectorF p5 = new VectorF(r, y);
-            VectorF p6 = new VectorF(r, y + cornerRadius);
-
-            VectorF p7 = new VectorF(r, b - cornerRadius);
-            VectorF p8 = new VectorF(r, b);
-            VectorF p9 = new VectorF(r - cornerRadius, b);
-
-            VectorF p10 = new VectorF(x + cornerRadius, b);
-            VectorF p11 = new VectorF(x, b);
-            VectorF p12 = new VectorF(x, b - cornerRadius);
-
-            var source = new VectorF[] { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12 };
-
-            return GetBezierPoints(4, BezierType.Quadratric, source, false);
+            return pixels;
         }
         #endregion
 

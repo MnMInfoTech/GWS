@@ -176,80 +176,59 @@ namespace MnM.GWS
         Screen = 0x2000000,
 
         /// <summary>
-        /// Only when rendering directly on screen, by default rendered pixels are kept from being over-written. 
-        /// This option removes that protection so that they can be re-writen during subsequent animation draw. 
-        /// </summary>
-        ScreenNoPixelLock = Screen | 0x4000000,
-
-        /// <summary>
         /// Tells GWS to apply animation.
         /// </summary>
-        Animate = Screen | 0x8000000,
+        Animate = Screen | 0x4000000,
 
         /// <summary>
         /// Erases specified shape from the memory block. Advanced version only.
         /// </summary>
-        EraseControl = 0x10000000,
-
-        /// <summary>
-        /// Removes specified shape from the collection and memory block. Advanced version only.
-        /// </summary>
-        RemoveControl = EraseControl | 0x20000000,
+        EraseControl = 0x8000000,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
         /// </summary>
-        RestoreControl = 0x40000000,
-
-        /// <summary>
-        /// Tells GWS to render shape in disabled state.
-        /// </summary>
-        DisableControl = 0x80000000,
-
-        /// <summary>
-        /// Tells GWS that this control is in invisible state.
-        /// </summary>
-        InvisibleControl = 0x100000000,
+        RestoreControl = 0x10000000,
 
         /// <summary>
         /// Tells GWS that shape is being drawn first time.
         /// </summary>
-        AddMode = 0x200000000,
+        AddMode = 0x20000000,
 
         /// <summary>
         /// Gets or sets a flag to determine that rendering of shape is done i backdrop mode or not. Pro version only.
         /// </summary>
-        BackgroundBuffer = 0x400000000,
+        BackgroundBuffer = 0x40000000,
 
         /// <summary>
         /// Pushes drawing of added controls to background and brings background to the front. Pro version only.
         /// </summary>
-        SwapZOrder = 0x800000000,
+        SwapZOrder = 0x80000000,
 
         /// <summary>
         /// Excludes everything drawn on background buffer for rendering on screen. Pro version only.
         /// </summary>
-        SkipBackground = 0x1000000000,
+        SkipBackground = 0x100000000,
 
         /// <summary>
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. Pro version only.
         /// </summary>
-        SkipForeground = 0x2000000000,
+        SkipForeground = 0x200000000,
 
         /// <summary>
         /// When resized, the image inside is also resizes to fit the size without losing quality. Pro version only.
         /// </summary>
-        NoQualityLoss = 0x4000000000,
+        NoQualityLoss = 0x400000000,
 
         /// <summary>
         /// Updates screen without copying data from underlying buffer.  
         /// </summary>
-        UpdateScreenOnly = 0x8000000000,
+        UpdateScreenOnly = 0x800000000,
 
         /// <summary>
         /// Copies data from underlying buffer but does not update screen.
         /// </summary>
-        CopyPixelsOnly = 0x10000000000,
+        CopyPixelsOnly = 0x1000000000,
     }
     #endregion
 

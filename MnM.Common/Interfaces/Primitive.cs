@@ -4,6 +4,7 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 
+using System;
 using System.Collections.Generic;
 
 namespace MnM.GWS
@@ -122,7 +123,7 @@ namespace MnM.GWS
 #if (GWS || Window)
 
     #region IBOUNDARY
-    public interface IBoundary : IRectangle, INotifier, IEnumerable<Vector>, ICloneable<IBoundary>
+    public interface IBoundary : IRectangle, INotifier, IEnumerable<Vector>, ICloneable
     {
         /// <summary>
         /// Tests if given location lies within the bounds of this object.
@@ -177,6 +178,8 @@ namespace MnM.GWS
         /// <param name="buffer">Buffer which to draw boundary on.</param>
         /// <param name="command">Command to control boundary drawing.</param>
         void Draw(IWritable buffer, Command command = 0);
+
+        new IBoundary Clone();
     }
     #endregion
 

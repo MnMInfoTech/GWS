@@ -17,6 +17,7 @@ namespace MnM.GWS
         readonly static string sysFontpath;
         static IFactory Instance;
         public static IEventArgs EmptyArgs = new _EventArgs();
+        public static ICancelEventArgs EmptyCancelArgs = new _CancelEventArgs();
         #endregion
 
         #region CONSTRUCTOR
@@ -90,6 +91,10 @@ namespace MnM.GWS
         #endregion
 
         class _EventArgs : EventArgs, IEventArgs { }
+        class _CancelEventArgs: EventArgs, ICancelEventArgs
+        {
+            public bool Cancel { get; set; }
+        }
         public static void Dispose()
         {
             Instance.Dispose();
@@ -126,89 +131,6 @@ namespace MnM.GWS
         public static Rgba newColor(byte r, byte g, byte b, byte a = 255)
         {
             return Instance.newColor(r, g, b, a);
-        }
-        #endregion
-
-        #region SURFACE
-        /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// </param>
-        /// <returns>IBuffer</returns>
-        public static ISurface newSurface(int width, int height)
-        {
-            return Instance.newSurface(width, height);
-        }
-
-        /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="pixels">Pointer containing data to use. Please note that the array will be converted to int[] first.
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// </param>
-        /// <param name="makeCopy">If true then copy the buffer array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel pointer supplied.
-        /// </param>
-        /// <returns>IBuffer</returns>
-        public static ISurface newSurface(IntPtr pixels, int width, int height)
-        {
-            return Instance.newSurface(pixels, width, height);
-        }
-
-        /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="pixels">pixel array containing color data/// </param>
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// <param name="makeCopy">If true then copy the pixel array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel array supplied.
-        /// </param>
-        /// <returns>IBuffer</returns>
-        public static ISurface newSurface(int[] pixels, int width, int height, bool makeCopy = false)
-        {
-            return Instance.newSurface(pixels, width, height, makeCopy);
-        }
-
-        /// <summary>
-        /// Creates a new GWS Buffer object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// <param name="pixels">pixel array containing color data/// </param>
-        /// <param name="makeCopy">If true then copy the pixel array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel array supplied.
-        /// </param>
-        /// <returns>IBuffer</returns>
-        public static ISurface newSurface(int width, int height, byte[] pixels, bool makeCopy = false)
-        {
-            return Instance.newSurface(width, height, pixels, makeCopy);
-        }
-
-        /// <summary>
-        /// Creates a new GWS Graphics object and fills it with the data received from the disk image file located on a given path.
-        /// </summary>
-        /// <param name="path">Path of the disk image file to use as a initial source of Graphics object</param>
-        /// <returns>IGraphics</returns>
-        public static ISurface newSurface(string path)
-        {
-            var tuple = Renderer.ReadImage(path);
-            return newSurface(tuple.Item2, tuple.Item3, tuple.Item1);
-        }
-
-        /// <summary>
-        /// Creates a new GWS Graphics object and fills it with the supplied buffer. 
-        /// Actually internal memory buffer is set to refer the buffer supplied.
-        /// </summary>
-        /// <param name="pixels">Byte array to use as internal memory buffer</param>
-        /// <returns>Graphics object</returns>
-        public static ISurface newSurface(byte[] pixels)
-        {
-            var tuple = Renderer.ReadImage(pixels);
-            return newSurface(tuple.Item2, tuple.Item3, tuple.Item1);
         }
         #endregion
 
@@ -256,12 +178,11 @@ namespace MnM.GWS
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
         /// <param name="pixels">pixel array containing color data/// </param>
-        /// <param name="makeCopy">If true then copy the pixel array into internal memory buffer
         /// otherwise set an internal menory buffer referring to the pixel array supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        public static IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false) =>
-            Instance.newImage(width, height, pixels, makeCopy);
+        public static IImage newImage(int width, int height, byte[] pixels) =>
+            Instance.newImage(width, height, pixels);
 
         /// <summary>
         /// Creates a new GWS Graphics object and fills it with the data received from the disk image file located on a given path.
@@ -1218,40 +1139,40 @@ namespace MnM.GWS
         /// <param name="w">Width of the rectangle.</param>
         /// <param name="h">Height of the rectangle.</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
-        public static IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false)
+        public static IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, RoundBoxOption option = 0)
         {
-            return Instance.newRoundBox(x, y, w, h, cornerRadius, positiveLocation);
+            return Instance.newRoundBox(x, y, w, h, cornerRadius, option);
         }
 
         /// <summary>
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to match bounds from.</param>
-        public static IRoundBox newRoundBox(Rectangle area, float cornerRadius) =>
-            newRoundBox(area.X, area.Y, area.Width, area.Height, cornerRadius);
+        public static IRoundBox newRoundBox(Rectangle area, float cornerRadius, RoundBoxOption option = 0) =>
+            newRoundBox(area.X, area.Y, area.Width, area.Height, cornerRadius, option);
 
         /// <summary>
         /// Creates a new rect identical to the area of specifed rectangle.
         /// </summary>
         /// <param name="area">Area to copy bounds from.</param>
-        public static IRoundBox newRoundBox(RectangleF area, float cornerRadius) =>
-            newRoundBox(area.X, area.Y, area.Width, area.Height, cornerRadius);
+        public static IRoundBox newRoundBox(RectangleF area, float cornerRadius, RoundBoxOption option = 0) =>
+            newRoundBox(area.X, area.Y, area.Width, area.Height, cornerRadius, option);
 
         /// <summary>
         /// Creates a box matching the specifiedlocation and size.
         /// </summary>
         /// <param name="xy">Location of the box.</param>
         /// <param name="wh">Size of the box.</param>
-        public static IRoundBox newRoundBox(VectorF xy, SizeF wh, float cornerRadius) =>
-            newRoundBox(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius);
+        public static IRoundBox newRoundBox(VectorF xy, SizeF wh, float cornerRadius, RoundBoxOption option = 0) =>
+            newRoundBox(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius, option);
 
         /// <summary>
         /// Creates a box matching the specifiedlocation and size.
         /// </summary>
         /// <param name="xy">Location of the box.</param>
         /// <param name="wh">Size of the box.</param>
-        public static IRoundBox newRoundBox(Vector xy, Size wh, float cornerRadius) =>
-            newRoundBox(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius);
+        public static IRoundBox newRoundBox(Vector xy, Size wh, float cornerRadius, RoundBoxOption option = 0) =>
+            newRoundBox(xy.X, xy.Y, wh.Width, wh.Height, cornerRadius, option);
 
         /// <summary>
         /// Creates a new rect with specifed left, top, right and bottom parameters.
@@ -1261,19 +1182,9 @@ namespace MnM.GWS
         /// <param name="right">Far right horizontal co-rodinate of the rectangle.</param>
         /// <param name="bottom">Far bottom horizontal co-rodinate of the rectangle.</param>
         /// <returns>RectF</returns>
-        public static IRoundBox FromLTRB(float x, float y, float right, float bottom, float cornerRadius, bool correct = true)
+        public static IRoundBox FromLTRB(float x, float y, float right, float bottom, float cornerRadius, RoundBoxOption option = 0)
         {
-            if (!correct)
-                return newRoundBox(x, y, right - x, bottom - y, cornerRadius);
-            Numbers.Order(ref x, ref right);
-            Numbers.Order(ref y, ref bottom);
-            var w = right - x;
-            if (w == 0)
-                w = 1;
-            var h = bottom - y;
-            if (h == 0)
-                h = 1;
-            return newRoundBox(x, y, w, h, cornerRadius);
+            return newRoundBox(x, y, right - x, bottom - y, cornerRadius);
         }
         #endregion
 

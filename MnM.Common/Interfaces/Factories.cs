@@ -45,54 +45,6 @@ namespace MnM.GWS
         IReadable ToPen(IPenContext context, int? w = null, int? h = null);
         #endregion
 
-        #region SURFACE
-        /// <summary>
-        /// Creates a new Surface object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// </param>
-        /// <returns>IBuffer</returns>
-        ISurface newSurface(int width, int height);
-
-        /// <summary>
-        /// Creates a new Surface object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="pixels">Pointer containing data to use. Please note that the array will be converted to int[] first.
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// </param>
-        /// <param name="makeCopy">If true then copy the buffer array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel pointer supplied.
-        /// </param>
-        /// <returns>IBuffer</returns>
-        ISurface newSurface(IntPtr pixels, int width, int height);
-
-        /// <summary>
-        /// Creates a new Surface object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="pixels">pixel array containing color data/// </param>
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// <param name="makeCopy">If true then copy the pixel array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel array supplied.
-        /// </param>
-        /// <returns>IBuffer</returns>
-        ISurface newSurface(int[] pixels, int width, int height, bool makeCopy = false);
-
-        /// <summary>
-        /// Creates a new Surface object of given width and height with pixels provided by buffer.
-        /// </summary>
-        /// <param name="width">Required width</param>
-        /// <param name="height">Requred height</param>
-        /// <param name="pixels">pixel array containing color data/// </param>
-        /// <param name="makeCopy">If true then copy the pixel array into internal memory buffer
-        /// otherwise set an internal menory buffer referring to the pixel array supplied.
-        /// </param>
-        /// <returns>IBuffer</returns>
-        ISurface newSurface(int width, int height, byte[] pixels, bool makeCopy = false);
-        #endregion
-
         #region IMAGE
         /// <summary>
         /// Creates a new Image object of given width and height with pixels provided by buffer.
@@ -130,11 +82,10 @@ namespace MnM.GWS
         /// <param name="width">Required width</param>
         /// <param name="height">Requred height</param>
         /// <param name="pixels">pixel array containing color data/// </param>
-        /// <param name="makeCopy">If true then copy the pixel array into internal memory buffer
         /// otherwise set an internal menory buffer referring to the pixel array supplied.
         /// </param>
         /// <returns>IBuffer</returns>
-        IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false);
+        IImage newImage(int width, int height, byte[] pixels);
         #endregion
 
         #region CANVAS
@@ -373,7 +324,7 @@ namespace MnM.GWS
         /// <param name="w">Width of the rectangle.</param>
         /// <param name="h">Height of the rectangle.</param>
         /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
-        IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false);
+        IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, RoundBoxOption option  = 0);
         #endregion
 
         #region POLYGON

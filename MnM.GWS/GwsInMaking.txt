@@ -2,6 +2,7 @@
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
 
 This Library could not be possible without the following online open-source code snippets, articles and blogs.
 We pulled almost impossible task to narrow down what exactly is needed rather than what is the best.
@@ -13,7 +14,7 @@ Core project foundation (SDL is heart and brain of this library - zillion thanks
 
 Windowing System (Windowing classes structure is inspired heavily from OpenTK and SFML OOP approach - 
 	although we choose to go with SDL's ability to decide which backend to use for window creation so we ditched the factory pattern 
-	used  OpenTK which  turn made a completely different structure and code than OpenTK):
+	used in OpenTK which in turn made a completely different structure and code than OpenTK):
 	01. https://wiki.libsdl.org
 	02. Source Inspiration : https://github.com/opentk/opentk
 

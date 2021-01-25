@@ -81,40 +81,6 @@ namespace MnM.GWS
         #endregion
 
 #if GWS || Window
-        #region SURFACE
-        public ISurface newSurface(int width, int height)
-        {
-            ISurface surface = null;
-            newSurface(ref surface, width, height);
-            return surface;
-        }
-        partial void newSurface(ref ISurface surface, int width, int height);
-        
-        public unsafe ISurface newSurface(IntPtr pixels, int width, int height)
-        {
-            ISurface surface = null;
-            newSurface(ref surface, pixels, width, height);
-            return surface;
-        }
-        partial void newSurface(ref ISurface surface, IntPtr pixels, int width, int height);
-
-        public ISurface newSurface(int[] pixels, int width, int height, bool makeCopy = false)
-        {
-            ISurface surface = null;
-            newSurface(ref surface, pixels, width, height, makeCopy);
-            return surface;
-        }
-        partial void newSurface(ref ISurface surface, int[] pixels, int width, int height, bool makeCopy = false);
-
-        public ISurface newSurface(int width, int height, byte[] pixels, bool makeCopy = false)
-        {
-            ISurface surface = null;
-            newSurface(ref surface, width, height, pixels, makeCopy);
-            return surface;
-        }
-        partial void newSurface(ref ISurface surface, int width, int height, byte[] pixels, bool makeCopy = false);
-        #endregion
-
         #region IMAGE
         public IImage newImage(int width, int height)
         {
@@ -140,13 +106,13 @@ namespace MnM.GWS
         }
         partial void newImage(ref IImage image, int[] pixels, int width, int height, bool makeCopy = false);
 
-        public IImage newImage(int width, int height, byte[] pixels, bool makeCopy = false)
+        public IImage newImage(int width, int height, byte[] pixels)
         {
             IImage image = null;
-            newImage(ref image, width, height, pixels, makeCopy);
+            newImage(ref image, width, height, pixels);
             return image;
         }
-        partial void newImage(ref IImage image, int width, int height, byte[] pixels, bool makeCopy = false);
+        partial void newImage(ref IImage image, int width, int height, byte[] pixels);
         #endregion
 
         #region CANVAS
@@ -404,16 +370,16 @@ namespace MnM.GWS
         #endregion
 
         #region ROUNDBOX
-        public IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false)
+        public IRoundBox newRoundBox(float x, float y, float w, float h, float cornerRadius, RoundBoxOption option)
         {
             IRoundBox box = null;
-            newRoundBox(ref box, x, y, w, h, cornerRadius, positiveLocation);
+            newRoundBox(ref box, x, y, w, h, cornerRadius, option);
             return box;
         }
-        partial void newRoundBox(ref IRoundBox box, float x, float y, float w, float h, float cornerRadius, bool positiveLocation = false);
-        partial void newRoundBox(ref IRoundBox box, float x, float y, float w, float h, float cornerRadius, bool positiveLocation)
+        partial void newRoundBox(ref IRoundBox box, float x, float y, float w, float h, float cornerRadius, RoundBoxOption option = 0);
+        partial void newRoundBox(ref IRoundBox box, float x, float y, float w, float h, float cornerRadius, RoundBoxOption option)
         {
-            box = new RoundBox(x, y, w, h, cornerRadius, positiveLocation);
+            box = new RoundBox(x, y, w, h, cornerRadius, option);
         }
         #endregion
 

@@ -48,6 +48,11 @@ namespace MnM.GWS
         protected volatile bool IsResizing;
 
         /// <summary>
+        /// Indicates if this canvas supports background buffer.
+        /// </summary>
+        protected volatile bool supportsBackBuffer;
+
+        /// <summary>
         /// Stores indices of written pixels to prevent over-writing.
         /// </summary>
         protected readonly HashSet<int> DrawnIndices = new HashSet<int>();
@@ -63,12 +68,11 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        protected _Image(int width, int height, string id = null)
+        protected _Image(int width, int height)
         {
             this.width = width;
             this.height = height;
             length = width * height;
-            this.id = id ?? "Image".NewID();
             Data = new int[length];
             originalHeight = height;
             originalWidth = width;
@@ -78,34 +82,41 @@ namespace MnM.GWS
         {
             if (data == null)
                 return;
-            Array.Copy(data, 0, Data, 0, length);
+            if (makeCopy)
+                Array.Copy(data, 0, Data, 0, length);
+            else
+                Data = data;
         }
-        protected unsafe _Image(int w, int h, byte[] data, bool makeCopy = false) :
-            this(w / 4, h, null)
+        protected unsafe _Image(int w, int h, byte[] data) :
+            this(w / 4, h)
         {
             if (data == null)
                 return;
             fixed (byte* src = data)
             {
                 fixed (int* dst = Data)
-                {
                     Blocks.Copy((int*)src, 0, dst, 0, length);
-                }
             }
         }
-        protected unsafe _Image(IntPtr data, int w, int h, bool makeCopy = false) :
-            this(w, h, null)
+        protected unsafe _Image(IntPtr data, int w, int h) :
+            this(w, h)
         {
             int* src = (int*)data;
             fixed (int* dst = Data)
-            {
                 Blocks.Copy(src, 0, dst, 0, length);
-            }
         }
         #endregion
 
         #region PROPERTIES
-        public string ID => id;
+        public string ID
+        {
+            get
+            {
+                if (id == null)
+                    id = "Image".NewID();
+                return id;
+            }
+        }
         public bool IsDisposed => isDisposed;
         public int Width => width;
         public int Height => height;
@@ -116,14 +127,28 @@ namespace MnM.GWS
                 return p;
         }
         protected abstract unsafe int* Pen { get; }
-        public bool CanNotWrite => isDisposed || IsResizing;
 #if Advanced
-        public abstract bool SupportBackgroundBuffer { get; set; }
         public abstract bool Clipped { get; }
         public abstract IRectangle ClipRectangle { get; set; }
+        public abstract IEventPusher ActiveObject { get; }
+        bool IImageData.SupportBackgroundBuffer =>
+            supportsBackBuffer;
 #endif
-#endregion
+        #endregion
 
+        #region RENDER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null);
+        #endregion
+#if Advanced
+        #region GET DATA
+        public virtual void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false)
+        {
+            Pixels = Data;
+            Alphas = null;
+        }
+        #endregion
+#endif
         #region WRITE PIXEL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe virtual void WritePixel(int val, int axis, bool horizontal, int srcColor, float? Alpha, Command Command, string ShapeID, INotifier RecentlyDrawn)
@@ -445,16 +470,22 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region CLEAR PIXEL RECORD
-        public void ClearPixelRecord() =>
-            DrawnIndices.Clear();
+        #region CLEAR
+        public abstract IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command command = Command.None);
         #endregion
 
-#if Advanced
-        #region GET DATA
-        public abstract void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false);
+        #region COPY FROM
+        public abstract IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command Command, string ShapeID, IntPtr alphaBytes = default);
         #endregion
-#endif
+
+        #region RESIZE
+        public abstract void Resize(int? newWidth = null, int? newHeight = null);
+        #endregion
+
+        #region CLONE
+        public abstract object Clone();
+        #endregion
+
         #region DISPOSE
         public virtual void Dispose()
         {

@@ -34,7 +34,7 @@ namespace MnM.GWS.Desktop
         CurveType curveType = 0;
         IFont gwsFont;
         ITextureBrush textureBrush;
-        ISurface Original;
+        IImage Original;
         static Demo instance;
         static IForm Window;
         System.Drawing.Font MsFont;
@@ -107,6 +107,12 @@ namespace MnM.GWS.Desktop
             {
                 cmbZRotateDirection.Items.Add(item);
             }
+            var rbo = Enum.GetValues(typeof(RoundBoxOption));
+            foreach (var item in rbo)
+            {
+                chkRoundBoxOption.Items.Add(item);
+            }
+            chkRoundBoxOption.SelectedIndex = 0;
 
             chkLstLinePattern.Items.Add(Command.None);
             chkLstLinePattern.Items.Add(Command.Breshenham);
@@ -332,6 +338,7 @@ namespace MnM.GWS.Desktop
 
             chkLstCurveOption.ItemCheck += CurveOptionCheck;
             chkLstLinePattern.ItemCheck += LineOptionCheck;
+            chkRoundBoxOption.Click += Draw;
 
             chkCenter.Click += ShapeCenterCheck;
             chkCompare.CheckedChanged += ShowCompareForm;
@@ -366,7 +373,7 @@ namespace MnM.GWS.Desktop
                 case GwsEvent.MouseUp:
                     DrawCoordinates(this, e.Args as IMouseEventArgs);
                     break;
-                case GwsEvent.MouseWheel:
+                case GwsEvent.MouseMotion:
                     ShowCoordinates(this, e.Args as IMouseEventArgs);
                     break;
                 default:
@@ -565,7 +572,7 @@ namespace MnM.GWS.Desktop
             {
                 if ((numRotate.Value != 0 && numRotate.Value != 360 && numRotate.Value != 360) || numScale.Value != 0)
                 {
-                    Original = (Canvas as ICloneable).Clone() as ISurface;
+                    Original = (Canvas as ICloneable).Clone() as IImage;
                     var sz = Canvas.RotateAndScale(out IntPtr data,
                         new Rotation((float)numRotate.Value), chkCenter.Checked, (float)numScale.Value);
                     GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height, 0, null);
@@ -619,7 +626,15 @@ namespace MnM.GWS.Desktop
             Settings.FillMode = pse;
             Settings.Stroke = stroke;
             Settings.StrokeMode = strokeMode;
-
+            //Settings.Command |= Command.Screen;
+            RoundBoxOption rbo = 0;
+            if(cmbShape.Text == "RoundedArea")
+            {
+                foreach (var item in chkRoundBoxOption.CheckedItems)
+                {
+                    rbo |= (RoundBoxOption)item;
+                }
+            }
             if (chkOddEvenStroking.Checked)
                 Settings.Command |= Command.KeepFillRuleForStroking;
             else
@@ -743,7 +758,7 @@ namespace MnM.GWS.Desktop
                     break;
 
                 case "RoundedArea":
-                    GwsMethod = () => Canvas.DrawRoundedBox(x, y, w, h, (float)numCornerRadius.Value, Settings);
+                    GwsMethod = () => Canvas.DrawRoundedBox(x, y, w, h, (float)numCornerRadius.Value, Settings, rbo);
                     break;
 
                 case "Rhombus":
@@ -1118,7 +1133,8 @@ namespace MnM.GWS.Desktop
             this.lblArcs = new System.Windows.Forms.Label();
             this.pnlRoundRC = new System.Windows.Forms.Panel();
             this.numCornerRadius = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblRoundedBoxOption = new System.Windows.Forms.Label();
+            this.lblCornerRadius = new System.Windows.Forms.Label();
             this.pnlTrapezium = new System.Windows.Forms.Panel();
             this.numSizeDiff = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
@@ -1135,6 +1151,8 @@ namespace MnM.GWS.Desktop
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label12 = new System.Windows.Forms.Label();
             this.cmbStrokeMode = new System.Windows.Forms.ComboBox();
+            this.chkRoundBoxOption = new System.Windows.Forms.CheckedListBox();
+
             this.label7 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -1521,17 +1539,19 @@ namespace MnM.GWS.Desktop
             // pnlRoundRC
             // 
             this.pnlRoundRC.Controls.Add(this.numCornerRadius);
-            this.pnlRoundRC.Controls.Add(this.label1);
-            this.pnlRoundRC.Location = new System.Drawing.Point(106, 75);
+            this.pnlRoundRC.Controls.Add(this.chkRoundBoxOption);
+            this.pnlRoundRC.Controls.Add(this.lblCornerRadius);
+            this.pnlRoundRC.Controls.Add(this.lblRoundedBoxOption);
+            this.pnlRoundRC.Location = new System.Drawing.Point(106, 15);
             this.pnlRoundRC.Name = "pnlRoundRC";
-            this.pnlRoundRC.Size = new System.Drawing.Size(88, 48);
+            this.pnlRoundRC.Size = new System.Drawing.Size(88, 110);
             this.pnlRoundRC.TabIndex = 94;
             this.pnlRoundRC.Visible = false;
             // 
             // numCornerRadius
             // 
             this.numCornerRadius.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numCornerRadius.Location = new System.Drawing.Point(6, 22);
+            this.numCornerRadius.Location = new System.Drawing.Point(6, 15);
             this.numCornerRadius.Maximum = new decimal(new int[] {
             200,
             0,
@@ -1551,16 +1571,36 @@ namespace MnM.GWS.Desktop
             0,
             0,
             0});
+
+            //
+            // cmbRoundBoxOption
             // 
-            // label1
+            this.chkRoundBoxOption.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.chkRoundBoxOption.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkRoundBoxOption.Location = new System.Drawing.Point(6, 52);
+            this.chkRoundBoxOption.Size = new System.Drawing.Size(78, 65);
+            this.chkRoundBoxOption.CheckOnClick = true;
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(1, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(87, 13);
-            this.label1.TabIndex = 109;
-            this.label1.Text = "Corner Radius";
+            // lblCornerRadius
+            // 
+            this.lblRoundedBoxOption.AutoSize = true;
+            this.lblRoundedBoxOption.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRoundedBoxOption.Location = new System.Drawing.Point(5, 37);
+            this.lblRoundedBoxOption.Name = "lblRoundedBoxOption";
+            this.lblRoundedBoxOption.Size = new System.Drawing.Size(87, 13);
+            this.lblRoundedBoxOption.TabIndex = 109;
+            this.lblRoundedBoxOption.Text = "Box Options";
+
+            // 
+            // lblCornerRadius
+            // 
+            this.lblCornerRadius.AutoSize = true;
+            this.lblCornerRadius.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCornerRadius.Location = new System.Drawing.Point(5, 0);
+            this.lblCornerRadius.Name = "lblCornerRadius";
+            this.lblCornerRadius.Size = new System.Drawing.Size(87, 13);
+            this.lblCornerRadius.TabIndex = 109;
+            this.lblCornerRadius.Text = "Corner Radius";
             // 
             // pnlTrapezium
             // 
@@ -1726,7 +1766,7 @@ namespace MnM.GWS.Desktop
             this.cmbShape.Name = "cmbShape";
             this.cmbShape.Size = new System.Drawing.Size(184, 23);
             this.cmbShape.TabIndex = 35;
-            // 
+
             // numStroke
             // 
             this.numStroke.BackColor = System.Drawing.SystemColors.InactiveCaption;
@@ -2211,6 +2251,7 @@ namespace MnM.GWS.Desktop
         private System.Windows.Forms.ComboBox cmbStrokeMode;
         private System.Windows.Forms.ComboBox cmbZRotateDirection;
         private System.Windows.Forms.CheckedListBox chkLstLinePattern;
+        private System.Windows.Forms.CheckedListBox chkRoundBoxOption;
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox grpArcPie;
@@ -2220,7 +2261,7 @@ namespace MnM.GWS.Desktop
         private System.Windows.Forms.GroupBox grpZRotation;
         private System.Windows.Forms.GroupBox pnlBezier;
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblCornerRadius;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
@@ -2234,6 +2275,7 @@ namespace MnM.GWS.Desktop
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label lblArce;
         private System.Windows.Forms.Label lblArcs;
+        private System.Windows.Forms.Label lblRoundedBoxOption;
         private System.Windows.Forms.Label lblH;
         private System.Windows.Forms.Label lblLinePattern;
         private System.Windows.Forms.Label lblSize;

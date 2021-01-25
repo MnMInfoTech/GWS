@@ -161,6 +161,18 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region ROUNDBOX OPTION
+    [Flags]
+    public enum RoundBoxOption
+    {
+        Normal = 0,
+        Left = 0x1,
+        Top = 0x2,
+        Right = 0x4,
+        Bottom = 0x8,
+        Banner = 0x10,
+    }
+    #endregion
     #region BEZIER TYPE
     public enum BezierType
     {

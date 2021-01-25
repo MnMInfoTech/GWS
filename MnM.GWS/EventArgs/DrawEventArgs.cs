@@ -10,10 +10,10 @@ namespace MnM.GWS
 {
     public class DrawEventArgs : EventArgs, IDrawEventArgs
     {
-        public IImage Graphics { get; internal set; }
+        public IGraphics Graphics { get; internal set; }
         internal DrawEventArgs() { }
 
-        public DrawEventArgs(IImage graphics)
+        public DrawEventArgs(IGraphics graphics)
         {
             Graphics = graphics;
         }

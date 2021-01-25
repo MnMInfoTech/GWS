@@ -100,9 +100,9 @@ namespace MnM.GWS
     public interface IImageData : IBlockable
     {
         /// <summary>
-        /// Gets or sets a flag to determine if background buffer support is activated or not.
+        /// Gets a flag to determine if background buffer support is activated or not.
         /// </summary>
-        bool SupportBackgroundBuffer { get; set; }
+        bool SupportBackgroundBuffer { get; }
 
         /// <summary>
         /// Gets Internally stored pixels and alpha values for entire memory block.
@@ -114,6 +114,14 @@ namespace MnM.GWS
     #endregion
 
 #if (GWS || Window)
+
+    #region IGRAPHICS
+    /// <summary>
+    /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
+    /// </summary>
+    public interface IGraphics : IWritable, ICopyable, IDisposed
+    { }
+    #endregion
 
     #region ILOCK-UNLOCK
     public interface ILockUnlock
@@ -131,41 +139,16 @@ namespace MnM.GWS
     #endregion
 
     #region IIMAGE
-    public partial interface IImage : IWritable, ICopyable, IRenderable, IDisposed
-    {
-        /// <summary>
-        /// Copies consolidated data to target destination. Very useful for mixing 2 images.
-        /// Where this image serves as foreground image and backBuffer serves as background image. 
-        /// </summary>
-        /// <param name="copyX"></param>
-        /// <param name="copyY"></param>
-        /// <param name="copyW"></param>
-        /// <param name="copyH"></param>
-        /// <param name="destination"></param>
-        /// <param name="dstLen"></param>
-        /// <param name="dstW"></param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="backBuffer"></param>
-        /// <param name="Command"></param>
-        /// <param name="Pen"></param>
-        /// <param name="shapeID"></param>
-        /// <returns></returns>
-        IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null, string shapeID = null);
-    }
-    #endregion
-
-    #region ISURFACE
     /// <summary>
     /// Represents writable and copiable memory block object which can also render shapes.
     /// </summary>
-    public partial interface ISurface : IImage, IClearable, IPastable, ICloneable, IResizable
+    public partial interface IImage : IGraphics, IConsolidator, IClearable, 
+        IPastable, IResizable, IRenderable, ICloneable, IDisposed
     { }
     #endregion
 
     #region ICANVAS
-    public partial interface ICanvas : ISurface, IContainer, IUpdatable, IRefreshable, IBackground
+    public partial interface ICanvas : IImage, IContainer, IUpdatable, IRefreshable, IBackground
     {
         event EventHandler<IEventArgs> BackgroundChanged;
     }
