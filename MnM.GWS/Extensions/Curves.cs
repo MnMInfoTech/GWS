@@ -991,7 +991,7 @@ namespace MnM.GWS
         #region ROUNDED RECTANGLE POINTS
         public static IList<VectorF> RoundedBoxPoints(float x, float y, float width, float height, float cornerRadius, RoundBoxOption option)
         {
-            cornerRadius = Math.Min(cornerRadius, Math.Min(width / 2f, height / 2f) - 1);
+            
             Collection<VectorF> pixels = new Collection<VectorF>(100);
             bool l = (option & RoundBoxOption.Left) == RoundBoxOption.Left;
             bool t = (option & RoundBoxOption.Top) == RoundBoxOption.Top;
@@ -1003,24 +1003,38 @@ namespace MnM.GWS
             var right = x + width;
             var bottom = y + height;
             var radius = cornerRadius;
-           
+            float cx = x + width / 2f;
+            float cy = y + height / 2f;
+
             if (all || l)
-                pixels.AddRange(GetArcPoints(181, 270, banner, x + radius, y + radius, radius, radius));
+            {
+                pixels.AddRange(GetArcPoints(181, 269, banner, x + radius, y + radius, radius, radius));
+                pixels.Add(new VectorF(cx, y));
+            }
             else
                 pixels.Add(new VectorF(x, y));
-           
+
             if (all || t)
-                pixels.AddRange(GetArcPoints(271, 360, banner, right - radius, y + radius, radius, radius));
+            {
+                pixels.AddRange(GetArcPoints(271, 359, banner, right - radius, y + radius, radius, radius));
+                pixels.Add(new VectorF(right, cy));
+            }
             else
                 pixels.Add(new VectorF(x + width, y));
 
             if (all || r)
-                pixels.AddRange(GetArcPoints(1, 90, banner, right - radius, bottom - radius, radius, radius));
+            {
+                pixels.AddRange(GetArcPoints(1, 89, banner, right - radius, bottom - radius, radius, radius));
+                pixels.Add(new VectorF(cx, bottom));
+            }
             else
                 pixels.Add(new VectorF(x + width, y + height));
 
             if (all || b)
-                pixels.AddRange(GetArcPoints(91, 180, banner, x + radius, bottom - radius, radius, radius));
+            {
+                pixels.AddRange(GetArcPoints(91, 179, banner, x + radius, bottom - radius, radius, radius));
+                pixels.Add(new VectorF(x, cy));
+            }
             else
                 pixels.Add(new VectorF(x, y + height));
             

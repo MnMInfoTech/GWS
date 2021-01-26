@@ -1052,7 +1052,8 @@ namespace MnM.GWS
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="Command">Draw command to control the copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IRectangle CopyTo(this IBlockable source, IBlockable block, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command Command = 0)
+        public static unsafe IRectangle CopyTo(this IBlockable source, IBlockable block, int dstX, int dstY, 
+            int copyX, int copyY, int copyW, int copyH, Command Command = 0)
         {
             #region INITIALIZE VARIABLES
             IRectangle dstRc = Rectangle.Empty;
@@ -1071,7 +1072,6 @@ namespace MnM.GWS
             copyW = copy.Width;
             copyH = copy.Height;
             bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
-            
             #endregion
 
             #region EXTRACT DATA FROM SOURCE
@@ -1220,7 +1220,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IRectangle CopyTo(this IBlockable source, IBlockable block, int dstX, int dstY, Rectangle area, Command command = 0) =>
+        public static IRectangle CopyTo(this IBlockable source, IBlockable block, int dstX, int dstY, IRectangle area, Command command = 0) =>
             source.CopyTo(block, dstX, dstY, area.X, area.Y, area.Width, area.Height, command);
 
         /// <summary>
@@ -1232,7 +1232,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IRectangle CopyTo(this IBlockable source, IBlockable block, Rectangle area, Command command = 0) =>
+        public static IRectangle CopyTo(this IBlockable source, IBlockable block, IRectangle area, Command command = 0) =>
             source.CopyTo(block, area.X, area.Y, area.X, area.Y, area.Width, area.Height, command);
 
         /// <summary>
@@ -1457,10 +1457,13 @@ namespace MnM.GWS
                 BlockCopy action = (srcIndex, dstIndex, copyLength, x, y, cmd) => 
                     Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength, cmd);
                 dstRc = Blocks.CopyBlock(copyX, copyY, copyW, copyH, srcW * srcH, srcW, srcH, dstX, dstY, block.Width, block.Length, action, command);
+                goto Update;
             }
-            else if (block is IPastable)
+
+            var area = new ShapeArea(copyX, copyY, copyW, copyH, ShapeID);
+            if (block is IPastable)
             {
-                dstRc = ((IPastable)block).CopyFrom(source, srcW, srcH, dstX, dstY, new ShapeArea(copyX, copyY, copyW, copyH, ShapeID), command);
+                dstRc = ((IPastable)block).CopyFrom(source, srcW, srcH, dstX, dstY, area, command);
             }
             else
             {
@@ -1469,6 +1472,7 @@ namespace MnM.GWS
                    dstRc = image.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, command);
                 }
             }
+            Update:
             if(dstRc.Valid && block is IUpdatable)
                 ((IUpdatable)block).Update(command, dstRc);
             return dstRc;
