@@ -548,10 +548,10 @@ namespace MnM.GWS.Desktop
             var boundary = Factory.newBoundary();
             int color = Rgba.Red.Color;
             txtPts.Text += "," + e.X + "," + e.Y;
-            Window.WritePixel(e.X, e.Y, true, color, null, Command.Animate, null, boundary);
-            Window.WritePixel(e.X, e.Y + 1, true, color, null, Command.Animate, null, boundary);
-            Window.WritePixel(e.X + 1, e.Y, true, color, null, Command.Animate, null, boundary);
-            Window.WritePixel(e.X + 1, e.Y + 1, true, color, null, Command.Animate, null, boundary);
+            Window.WritePixel(e.X, e.Y, true, color, null, Command.Animate, boundary);
+            Window.WritePixel(e.X, e.Y + 1, true, color, null, Command.Animate, boundary);
+            Window.WritePixel(e.X + 1, e.Y, true, color, null, Command.Animate, boundary);
+            Window.WritePixel(e.X + 1, e.Y + 1, true, color, null, Command.Animate, boundary);
             Window.Update(Command.UpdateScreenOnly, boundary);
         }
         private void ShowCompareForm(object sender, System.EventArgs e)

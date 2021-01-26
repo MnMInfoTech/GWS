@@ -109,12 +109,15 @@ namespace MnM.GWS.Desktop
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH,
-            Command Command, string ShapeID, IntPtr alphaBytes = default(IntPtr))
+        public unsafe IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+            Command Command, IntPtr alphaBytes = default(IntPtr))
         {
             if (IsDisposed)
                 return Rectangle.Empty;
-
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
             var dstRc = Blocks.CopyBlock((int*)source, copyX, copyY, copyW, copyH, srcW * srcH, srcW,
                 srcH, Screen, dstX, dstY, width, length, Command, (byte*)alphaBytes);
 
@@ -125,11 +128,16 @@ namespace MnM.GWS.Desktop
 
         #region COPY TO       
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.Synchronized)]
-        public unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, Command Command = 0, string shapeID = null)
+        public unsafe IRectangle CopyTo(IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = 0)
         {
             if (IsDisposed)
                 return Rectangle.Empty;
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
+
             return Blocks.CopyBlock(Screen, copyX, copyY, copyW, copyH, length,
                 width, height, (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
         }
@@ -172,7 +180,7 @@ namespace MnM.GWS.Desktop
             Pointer.Resize(width, height);
             Bitmap = new Bitmap(Pointer.Width, Pointer.Height, Pointer.Width * 4,
                 PixelFormat.Format32bppArgb, Pointer.Handle);
-            Window.CopyTo(0, 0, width, height, Pointer.Handle, length, width, 0, 0, Command.Backdrop);
+            Window.CopyTo( Pointer.Handle, length, width, 0, 0, new Rectangle( 0, 0, width, height), Command.Backdrop);
             Update(0, new Rectangle(0, 0, width, height));
         }
 
