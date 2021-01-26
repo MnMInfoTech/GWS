@@ -18,12 +18,12 @@ namespace MnM.GWS
 
 
     #region IRECENTLYDRAWN
-    public interface IRecentlyDrawn
+    public interface IDrawnArea
     {
         /// <summary>
         /// Gets recently drawn area since last rendering operation.
         /// </summary>
-        IBoundary RecentlyDrawn { get; }
+        IBoundary Boundary { get; }
     }
     #endregion
 
@@ -62,7 +62,7 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public partial interface ISettings : IPolyInfo, IRecentlyDrawn, IShapeID, ISettingsReceiver, IBounds, IRotatable
+    public partial interface ISettings : IPolyInfo, IDrawnArea, IShapeID, ISettingsReceiver, IBounds, IRotatable
     {  
         /// <summary>
         /// Gets or sets fill mode settings for this object.

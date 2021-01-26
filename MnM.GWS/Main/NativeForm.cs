@@ -77,16 +77,17 @@ namespace MnM.GWS
             #endregion
 
             #region WRITE PIXEL
-            public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, string ShapeID, INotifier boundary)
+            public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, INotifier boundary)
             {
-                Canvas.WritePixel(val, axis, horizontal, color, Alpha, Command, ShapeID, boundary);
+                Canvas.WritePixel(val, axis, horizontal, color, Alpha, Command, boundary);
             }
             #endregion
 
             #region WRITE LINE
-            public unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal, int x, int y, float? Alpha, byte* imageAlphas, Command Command, string ShapeID, INotifier boundary)
+            public unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal, int x, int y, 
+                float? Alpha, byte* imageAlphas, Command Command, INotifier boundary)
             {
-                Canvas.WriteLine(colors, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, Command, ShapeID, boundary);
+                Canvas.WriteLine(colors, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, Command, boundary);
             }
             #endregion
 

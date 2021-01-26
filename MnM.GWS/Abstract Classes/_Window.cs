@@ -348,11 +348,11 @@ namespace MnM.GWS
         #region IIMAGE
         int ILength.Length =>
             Canvas.Length;
-        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command command, string ShapeID, INotifier boundary) =>
-           Canvas.WritePixel(val, axis, horizontal, color, Alpha, command, ShapeID, boundary);
+        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command command, INotifier boundary) =>
+           Canvas.WritePixel(val, axis, horizontal, color, Alpha, command, boundary);
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, Command command, string ShapeID, INotifier boundary) =>
-            Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, ShapeID, boundary);
+            int x, int y, float? Alpha, byte* imageAlphas, Command command, INotifier boundary) =>
+            Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
         IRectangle IPastable.CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY,
             IRectangle copyArea, Command command, IntPtr alphaBytes) =>
             Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);

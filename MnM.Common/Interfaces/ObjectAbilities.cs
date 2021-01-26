@@ -191,8 +191,8 @@ namespace MnM.GWS
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="ShapeID">ID of shape which pixel is being written for.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, string ShapeID, INotifier boundary);
+        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, INotifier boundary);
 
         /// <summary>
         /// Writes line to the this block at given position specified by x and y parameters by reading specified source
@@ -207,9 +207,9 @@ namespace MnM.GWS
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
         /// <param name="Command">Command to control pixel line writing.</param>
-        /// <param name="ShapeID">ID of shape which pixel line is being written for.</param>
+        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
         unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, Command Command, string ShapeID, INotifier boundary);
+            int x, int y, float? Alpha, byte* imageAlphas, Command Command, INotifier boundary);
     }
     #endregion
      

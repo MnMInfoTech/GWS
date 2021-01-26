@@ -17,7 +17,7 @@ namespace MnM.GWS
         #region CONSTRUCTORS
         internal Settings(string shapeID, IPenContext context)
         {
-            RecentlyDrawn = Factory.newBoundary();
+            Boundary = Factory.newBoundary();
             ShapeID = shapeID;
             drawCommand = Command.OddEven;
             PenContext = context;
@@ -58,24 +58,14 @@ namespace MnM.GWS
         public Rotation Rotation { get; set; }
         public string ShapeID 
         {
-            get => RecentlyDrawn.ShapeID;
-            set => RecentlyDrawn.ShapeID = value; 
+            get => Boundary.ShapeID;
+            set => Boundary.ShapeID = value; 
         }
         public StrokeMode StrokeMode { get; set; }
         public VectorF Scale { get; set; }
         public IPenContext PenContext { get; set; }
-        public int X
-        {
-            get => RecentlyDrawn.DstX;
-            set => RecentlyDrawn.DstX = value;
-        }
-        public int Y
-        {
-            get => RecentlyDrawn.DstY;
-            set => RecentlyDrawn.DstY = value;
-        }
         public IRectangle Bounds { get; set; }
-        public IBoundary RecentlyDrawn { get; private set; }
+        public IBoundary Boundary { get; private set; }
         public Size Clip { get; set; }
         #endregion
 
@@ -107,10 +97,14 @@ namespace MnM.GWS
 
             if (settings is IPoint)
             {
-                X = ((IPoint)settings).X;
-                Y = ((IPoint)settings).Y;
+                Boundary.DstX = ((IPoint)settings).X;
+                Boundary.DstY = ((IPoint)settings).Y;
             }
-
+            if (settings is IDrawnArea)
+            {
+                Boundary.DstX = ((IDrawnArea)settings).Boundary.DstX;
+                Boundary.DstY = ((IDrawnArea)settings).Boundary.DstY;
+            }
             if (settings is ISettings)
             {
                 var info = settings as ISettings;
@@ -121,7 +115,7 @@ namespace MnM.GWS
                 Rotation = info.Rotation;
                 drawCommand = info.Command;
                 CleanCommand();
-                RecentlyDrawn.Copy(info.RecentlyDrawn);
+                Boundary.Copy(info.Boundary);
                 PenContext = info.PenContext;
             }
         Flush:
@@ -183,10 +177,10 @@ namespace MnM.GWS
             fillMode = FillMode.Original;
             Rotation = Rotation.Empty;
             Scale = VectorF.Empty;
-            X = Y = 0;
+            Boundary.DstX = Boundary.DstY = 0;
             Bounds = Rectangle.Empty;
             ShapeID = null;
-            RecentlyDrawn.Clear();
+            Boundary.Clear();
         }
         #endregion
     }

@@ -151,19 +151,21 @@ namespace MnM.GWS
 #endif
         #region WRITE PIXEL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe virtual void WritePixel(int val, int axis, bool horizontal, int srcColor, float? Alpha, Command Command, string ShapeID, INotifier RecentlyDrawn)
+        public unsafe virtual void WritePixel(int val, int axis, bool horizontal, int srcColor, float? Alpha, Command Command, INotifier RecentlyDrawn)
         {
             bool Opaque = (Command & Command.Opaque) == Command.Opaque;
             if (IsResizing || isDisposed || srcColor == 0 && !Opaque)
                 return;
 
             int i;
-            int x = horizontal ? val : axis;
-            int y = horizontal ? axis : val;
-            //x += RecentlyDrawn.DstX;
-            //y += RecentlyDrawn.DstY;
+            int dstX = horizontal ? val : axis;
+            int dstY = horizontal ? axis : val;
+        
+            string ShapeID = RecentlyDrawn.ShapeID;
+            dstX += RecentlyDrawn.DstX;
+            dstY += RecentlyDrawn.DstY;
 
-            if (x < 0 || y < 0 || x >= width || y >= height)
+            if (dstX < 0 || dstY < 0 || dstX >= width || dstY >= height)
                 return;
 
             bool CalculateOnly = (Command & Command.CalculateOnly) == (Command.CalculateOnly);
@@ -175,7 +177,7 @@ namespace MnM.GWS
             bool Distinct = (Command & Command.Distinct) == (Command.Distinct);
             bool DirectScreen = (Command & Command.Screen) == Command.Screen;
 
-            i = x + y * width;
+            i = dstX + dstY * width;
 
             if (Distinct)
             {
@@ -214,20 +216,20 @@ namespace MnM.GWS
             dst[i] = srcColor;
 
         Notify:
-            RecentlyDrawn.Notify(x, y, x + 1, y + 1);
+            RecentlyDrawn.Notify(dstX, dstY, dstX + 1, dstY + 1);
         }
         #endregion
 
         #region WRITE LINE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe virtual void WriteLine(int* src, int srcIndex, int srcW, int copyLength, bool horizontal,
-            int dstX, int dstY, float? Alpha, byte* srcAlphas, Command Command, string ShapeID, INotifier RecentlyDrawn)
+            int dstX, int dstY, float? Alpha, byte* srcAlphas, Command Command, INotifier RecentlyDrawn)
         {
             if (IsResizing || isDisposed)
                 return;
-
-            //dstX += RecentlyDrawn.DstX;
-            //dstY += RecentlyDrawn.DstY;
+            string ShapeID = RecentlyDrawn.ShapeID;
+            dstX += RecentlyDrawn.DstX;
+            dstY += RecentlyDrawn.DstY;
 
             #region CORRECT LINE
             if (horizontal)

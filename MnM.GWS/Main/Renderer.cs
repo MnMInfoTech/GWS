@@ -60,7 +60,7 @@ namespace MnM.GWS
                 Settings = i < slen ? SettingsList[i] : null;
                 if(!writable.Render(Renderable, Settings, true))
                     break;
-                Boundary.Merge(Settings.RecentlyDrawn);
+                Boundary.Merge(Settings.Boundary);
                 ++i;
                 ++j;
             }
@@ -83,7 +83,7 @@ namespace MnM.GWS
             {
                 if (!writable.Render(Shape.Renderable, Shape.Settings, true))
                     break;
-                Boundary.Merge(Shape.Settings.RecentlyDrawn);
+                Boundary.Merge(Shape.Settings.Boundary);
                 ++j;
             }
 
@@ -756,57 +756,226 @@ namespace MnM.GWS
         #endregion
 
         #region WRITE PIXEL
-        ///// <summary>
-        ///// Writes pixel to the this block at given co-ordinates of location using specified color.
-        ///// </summary>
-        ///// <param name="buffer">Memory block to write pixel to.</param>
-        ///// <param name="x">X cordinate on 2d buffer memory block</param>
-        ///// <param name="y">Y cordinate on 2d buffer memory block</param>
-        ///// <param name="color">colour of pixel.</param>
-        ///// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
-        ///// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
-        ///// <param name="Command">Command to control pixel writing.</param>
-        ///// <param name="ShapeID">ID of shape which pixel is being written for.</param>
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static void WritePixel(this IWritable buffer, float x, float y, int color, int dstOffsetX, int dstOffsetY, Command Command, string ShapeID)
-        //{
-        //    x += dstOffsetX;
-        //    y += dstOffsetY;
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position of axis -Y cordinate if horizontal otherwise X.</param>
+        /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="pen">Color to write at given location.</param>
+        /// <param name="Command">Command to control pixel writing.</param>
+        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen, Command Command, INotifier boundary)
+        {
+            int intVal = (int)val;
 
-        //    int x0 = (int)x;
-        //    int y0 = (int)y;
+            float alpha = val - intVal;
+             
+            int x = horizontal ? intVal : axis;
+            int y = horizontal ? axis : intVal;
 
-        //    bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+            int color = pen.ReadPixel(x, y);
 
-        //    if (!Antialiased)
-        //    {
-        //        buffer.WritePixel(x0, y0, true, color, null, Command, ShapeID);
-        //        return;
-        //    }
+            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
 
-        //    float alpha1 = x - x0;
-        //    float alpha2 = y - y0;
+            if (alpha == 0 || !Antialiased)
+            {
+                buffer.WritePixel(x, y, true, color, null, Command, boundary);
+            }
+            else if (horizontal)
+            {
+                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary);
+                buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary);
+            }
+            else
+            {
+                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary);
+                buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary);
+            }
+        }
 
-        //    if (alpha1 == 0 || alpha2 == 0)
-        //    {
-        //        bool horizontal = alpha1 != 0 ? true : false;
-        //        if (horizontal)
-        //            buffer.WritePixel(x, y0, true, color, 0, 0, Command, ShapeID);
-        //        else
-        //            buffer.WritePixel(y, x0, false, color, 0, 0, Command, ShapeID);
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        var invAlpha1 = 1 - alpha1;
-        //        var invAlpha2 = 1 - alpha2;
+        /// <summary>
+        /// Writes pixel to this block at given axial position using specified color.
+        /// </summary>
+        /// <param name="val">Position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position of axis -Y cordinate if horizontal otherwise X.</param>
+        /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="color">Color to write at given location.</param>
+        /// <param name="Command">Command to control pixel writing.</param>
+        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color, Command Command, INotifier boundary)
+        {
+            int intVal = (int)val;
 
-        //        buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, Command, ShapeID);
-        //        buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, Command, ShapeID);
-        //        buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, Command, ShapeID);
-        //        buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, Command, ShapeID);
-        //    }
-        //}
+            float alpha = val - intVal;
+
+            int x = horizontal ? intVal : axis;
+            int y = horizontal ? axis : intVal;
+
+            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+
+            if (alpha == 0 || !Antialiased)
+            {
+                buffer.WritePixel(x, y, true, color, null, Command, boundary);
+            }
+            else if (horizontal)
+            {
+                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary);
+                buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary);
+            }
+            else
+            {
+                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary);
+                buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary);
+            }
+        }
+
+        /// <summary>
+        /// Writes pixel to the this block at given co-ordinates of location using specified color.
+        /// </summary>
+        /// <param name="buffer">Memory block to write pixel to.</param>
+        /// <param name="x">X cordinate on 2d buffer memory block</param>
+        /// <param name="y">Y cordinate on 2d buffer memory block</param>
+        /// <param name="color">colour of pixel.</param>
+        /// <param name="dstOffsetX">X co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
+        /// <param name="Command">Command to control pixel writing.</param>
+        /// <param name="ShapeID">ID of shape which pixel is being written for.</param>
+
+        /// <summary>
+        /// Writes pixel to the this block at given co-ordinates of location using specified color.
+        /// </summary>
+        /// <param name="x">X cordinate on 2d buffer memory block</param>
+        /// <param name="y">Y cordinate on 2d buffer memory block</param>
+        /// <param name="color">colour of pixel.</param>
+        /// <param name="Command">Command to control pixel writing.</param>
+        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePixel(this IWritable buffer, float x, float y, int color, Command Command, INotifier boundary)
+        {
+            int x0 = (int)x;
+            int y0 = (int)y;
+
+            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+
+            if (!Antialiased)
+            {
+                buffer.WritePixel(x0, y0, true, color, null, Command, boundary);
+                return;
+            }
+
+            float alpha1 = x - x0;
+            float alpha2 = y - y0;
+
+            if (alpha1 == 0 || alpha2 == 0)
+            {
+                bool horizontal = alpha1 != 0 ? true : false;
+                if (horizontal)
+                    buffer.WritePixel(x0, y0, true, color, alpha1, Command, boundary);
+                else
+                    buffer.WritePixel(y0, x0, false, color, alpha2, Command, boundary);
+                return;
+            }
+            else
+            {
+                var invAlpha1 = 1 - alpha1;
+                var invAlpha2 = 1 - alpha2;
+
+                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, Command, boundary);
+                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, Command, boundary);
+                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, Command, boundary);
+                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, Command, boundary);
+            }
+        }
+        #endregion
+
+        #region WRITE LINE
+        /// <summary>
+        /// Writes line to the this block at given position specified by start and end parameters by reading specified readable pen.
+        /// </summary>
+        /// <param name="start">Start position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="axis">Position of axis -Y cordinate if horizontal otherwise X.</param>
+        /// <param name="Horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
+        /// <param name="start">Start position on axis - X cordinate if horizontal otherwise Y.</param>
+        /// <param name="pen">Readable source to read pixels from.</param>
+        ///<param name="Alpha">Value by which blending should happen if it is supplied.</param>
+        /// <param name="Command">Command to control pixel writing.</param>
+        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void WriteLine(this IWritable buffer, float start, int axis, bool Horizontal, float end, 
+            IReadable pen, float? Alpha, Command Command, INotifier boundary)
+        {
+            if (float.IsNaN(start) && float.IsNaN(end))
+                return;
+          
+            #region CORRECT START - END
+            if (start > end)
+            {
+                float temp = end;
+                end = start;
+                start = temp;
+            }
+
+
+            int iStart = (int)start;
+            int iEnd = (int)end;
+
+            int Start = iStart;
+            int End = iEnd;
+
+            if (start - iStart != 0)
+                ++Start;
+
+            if (end - iEnd != 0)
+                ++End;
+            #endregion
+
+            #region PARSE COMMAND
+            bool NotSoClose = true;
+            bool IsPoint = start == end;
+            var CheckForCloseness = (Command & Command.CheckForCloseness) == (Command.CheckForCloseness);
+            var LineOnly = (Command & Command.DrawLineOnly) == (Command.DrawLineOnly);
+            var EndsOnly = (Command & Command.DrawEndsOnly) == (Command.DrawEndsOnly) || IsPoint;
+            var CalculateOnly = (Command & Command.CalculateOnly) == (Command.CalculateOnly);
+            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+
+            int Length = End - Start;
+            if (CheckForCloseness)
+                NotSoClose = (end - start) >= .5f;
+            else
+                NotSoClose = true;
+            #endregion
+
+            if (!EndsOnly && NotSoClose)
+            {
+                int srcIndex = 0;
+                int[] source;
+                byte[] sourceAlphas;
+
+                if (!CalculateOnly)
+                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length, out sourceAlphas);
+
+                int dstX = Horizontal ? Start : axis;
+                int dstY = Horizontal ? axis : Start;
+                fixed (int* src = source)
+                {
+                    fixed (byte* srcAlphas = sourceAlphas)
+                    {
+                        buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, srcAlphas, Command, boundary);
+                    }
+                }
+            }
+
+            if (!LineOnly)
+            {
+                buffer.WritePixel(start, axis, Horizontal, pen, Command, boundary);
+                if (!NotSoClose)
+                    return;
+                buffer.WritePixel(end, axis, Horizontal, pen, Command, boundary);
+            }
+        }
         #endregion
 
         #region CREATE FILL ACTION
@@ -823,116 +992,7 @@ namespace MnM.GWS
         {
             action = (start, axis, Horizontal, end, Alpha, Command) =>
             {
-                if (float.IsNaN(start) && float.IsNaN(end))
-                    return;
-
-                if (start > end)
-                {
-                    float temp = end;
-                    end = start;
-                    start = temp;
-                }
-
-                bool NotSoClose = true;
-
-                int iStart = (int)start;
-                int iEnd = (int)end;
-
-                int Start = iStart;
-                int End = iEnd;
-
-                if (start - iStart != 0)
-                    ++Start;
-
-                if (end - iEnd != 0)
-                    ++End;
-
-                bool IsPoint = start == end;
-                var CheckForCloseness = (Command & Command.CheckForCloseness) == (Command.CheckForCloseness);
-                var LineOnly = (Command & Command.DrawLineOnly) == (Command.DrawLineOnly);
-                var EndsOnly = (Command & Command.DrawEndsOnly) == (Command.DrawEndsOnly) || IsPoint;
-                var CalculateOnly = (Command & Command.CalculateOnly) == (Command.CalculateOnly);
-                bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
-
-                int Length = End - Start;
-                if (CheckForCloseness)
-                    NotSoClose = (end - start) >= .5f;
-                else
-                    NotSoClose = true;
-
-                if (!EndsOnly && NotSoClose)
-                {
-                    int srcIndex = 0;
-                    int[] source;
-                    byte[] sourceAlphas;
-
-                    if (!CalculateOnly)
-                        pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length, out sourceAlphas);
-
-                    int dstX = Horizontal ? Start : axis;
-                    int dstY = Horizontal ? axis : Start;
-                    fixed (int* src = source)
-                    {
-                        fixed (byte* srcAlphas = sourceAlphas)
-                        {
-                            buffer.WriteLine(src, srcIndex, Length, Length, Horizontal,
-                            dstX + boundary.DstX, dstY + boundary.DstY, Alpha, srcAlphas, Command, boundary.ShapeID, boundary);
-                        }
-                    }
-                }
-
-                if (!LineOnly)
-                {
-                    int x, y, color;
-
-                    x = Horizontal ? iStart : axis;
-                    y = Horizontal ? axis : iStart;
-                    color = pen.ReadPixel(x, y);
-
-                    x += boundary.DstX;
-                    y += boundary.DstY;
-                    float alpha = start - iStart;
-
-                    if (alpha == 0 || !Antialiased)
-                    {
-                        buffer.WritePixel(x, y, true, color, null, Command, boundary.ShapeID, boundary);
-                    }
-                    else if (Horizontal)
-                    {
-                        buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary.ShapeID, boundary);
-                        buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary.ShapeID, boundary);
-                    }
-                    else
-                    {
-                        buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary.ShapeID, boundary);
-                        buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary.ShapeID, boundary);
-                    }
-
-                    if (NotSoClose)
-                    {
-                        x = Horizontal ? iEnd : axis;
-                        y = Horizontal ? axis : iEnd;
-                        color = pen.ReadPixel(x, y);
-                        x += boundary.DstX;
-                        y += boundary.DstY;
-                        alpha = end - iEnd;
-
-                        if (alpha == 0 || !Antialiased)
-                        {
-                            buffer.WritePixel(x, y, true, color, null, Command, boundary.ShapeID, boundary);
-                        }
-                        else if (Horizontal)
-                        {
-                            buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary.ShapeID, boundary);
-                            buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary.ShapeID, boundary);
-                        }
-                        else
-                        {
-                            buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary.ShapeID, boundary);
-                            buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary.ShapeID, boundary);
-                        }
-                    }
-                }
+                buffer.WriteLine(start, axis, Horizontal, end, pen, Alpha, Command, boundary);
             };
         }
         #endregion
@@ -949,33 +1009,7 @@ namespace MnM.GWS
         {
             action = (val, axis, horizontal, Command) =>
             {
-                int intVal = (int)val;
-
-                float alpha = val - intVal;
-
-                int x = horizontal ? intVal : axis;
-                int y = horizontal ? axis : intVal;
-
-                int color = pen.ReadPixel(x, y);
-
-                x += boundary.DstX;
-                y += boundary.DstY;
-                bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
-
-                if (alpha == 0 || !Antialiased)
-                {
-                    buffer.WritePixel(x, y, true, color, null, Command, boundary.ShapeID, boundary);
-                }
-                else if (horizontal)
-                {
-                    buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary.ShapeID, boundary);
-                    buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary.ShapeID, boundary);
-                }
-                else
-                {
-                    buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary.ShapeID, boundary);
-                    buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary.ShapeID, boundary);
-                }
+                buffer.WritePixel(val, axis, horizontal, pen, Command, boundary);
             };
         }
         #endregion
@@ -1113,6 +1147,7 @@ namespace MnM.GWS
 
             var writable = (IWritable)block;
             var boundary = Factory.newBoundary();
+            boundary.ShapeID = ID;
             int x, y, r, b, srcIndex, copyLen;
 
             if (src != null)
@@ -1131,7 +1166,7 @@ namespace MnM.GWS
                 }
                 while (y < b)
                 {
-                    writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, ID, boundary);
+                    writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, boundary);
                     srcIndex += srcW;
                 }
                 dstRc = boundary.GetBounds();
@@ -1158,7 +1193,7 @@ namespace MnM.GWS
                         src = p;
                     fixed (byte* p = pixelAlphas)
                         srcAlphas = p;
-                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, srcAlphas, Command, ID, boundary);
+                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, srcAlphas, Command, boundary);
                     ++y;
                 }
                 dstRc = boundary.GetBounds();
@@ -2960,8 +2995,8 @@ namespace MnM.GWS
             if (settings == null)
                 settings = Factory.newSettings();
 
-            settings.RecentlyDrawn.DstX = dstX;
-            settings.RecentlyDrawn.DstY = dstY;
+            settings.Boundary.DstX = dstX;
+            settings.Boundary.DstY = dstY;
             buffer.Render(text, settings);
         }
         #endregion
