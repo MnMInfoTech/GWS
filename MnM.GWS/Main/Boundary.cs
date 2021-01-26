@@ -54,6 +54,9 @@ namespace MnM.GWS
         /// </summary>
         volatile int Y4 = 0;
 
+        volatile int dstX;
+
+        volatile int dstY;
 
         public static Boundary Empty = new Boundary();
 
@@ -70,6 +73,17 @@ namespace MnM.GWS
         public int Height => Y2 - Y1;
         public int X => X1;
         public int Y => Y1;
+        public string ShapeID { get; set; }
+        public int DstX 
+        { 
+            get => dstX;
+            set => dstX = value;
+        }
+        public int DstY 
+        { 
+            get => dstY;
+            set => dstY = value; 
+        }
         #endregion
 
         #region CONTAINS
@@ -196,7 +210,7 @@ namespace MnM.GWS
             //pen.Invert = true;
             command |= Command.Screen;
             var boundary = Factory.newBoundary();
-            buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
+            buffer.CreatePixelAction(pen, out action, boundary);
             Renderer.ProcessLine(X1, Y3, X3, Y1, action, command);
             Renderer.ProcessLine(X2, Y4, X3, Y1, action, command);
             Renderer.ProcessLine(X2, Y4, X4, Y2, action, command);

@@ -160,6 +160,8 @@ namespace MnM.GWS
             int i;
             int x = horizontal ? val : axis;
             int y = horizontal ? axis : val;
+            //x += RecentlyDrawn.DstX;
+            //y += RecentlyDrawn.DstY;
 
             if (x < 0 || y < 0 || x >= width || y >= height)
                 return;
@@ -223,6 +225,9 @@ namespace MnM.GWS
         {
             if (IsResizing || isDisposed)
                 return;
+
+            //dstX += RecentlyDrawn.DstX;
+            //dstY += RecentlyDrawn.DstY;
 
             #region CORRECT LINE
             if (horizontal)
@@ -337,8 +342,8 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe virtual IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, Command Command = Command.None, string shapeID = null)
+        public unsafe virtual IRectangle CopyTo(IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = Command.None)
         {
             if (IsResizing || isDisposed)
                 return Rectangle.Empty;
@@ -351,6 +356,10 @@ namespace MnM.GWS
             #endregion
 
             #region VARIABLE INITIALIZATION
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
             int* texture = (int*)destination;
             int srcColor, dstColor;
             int* data = Screen(DirectScreen);
@@ -401,8 +410,8 @@ namespace MnM.GWS
         #endregion
 
         #region CONSOLIDATE
-        public unsafe virtual IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IImageData BackgroundBuffer, Command Command = Command.None, IntPtr? Pen = null, string shapeID = null)
+        public unsafe virtual IRectangle Consolidate(IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IRectangle copyArea, IImageData BackgroundBuffer, Command Command = Command.None, IntPtr? Pen = null)
         {
             if (IsResizing || isDisposed)
                 return Rectangle.Empty;
@@ -416,6 +425,13 @@ namespace MnM.GWS
             #endregion
 
             #region VARIABLE INITIALIZATION
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
+            string ShapeID = null;
+            if (copyArea is IShapeID)
+                ShapeID = ((IShapeID)copyArea).ShapeID;
             int* texture = (int*)destination;
             int srcColor, dstColor;
             int srcIndex, dstIndex;
@@ -475,7 +491,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY FROM
-        public abstract IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command Command, string ShapeID, IntPtr alphaBytes = default);
+        public abstract IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default);
         #endregion
 
         #region RESIZE

@@ -78,6 +78,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Eval.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rgba.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rotation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\ShapeArea.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Size.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SizeF.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Span.cs" />

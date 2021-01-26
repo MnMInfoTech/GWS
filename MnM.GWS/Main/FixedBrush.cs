@@ -35,7 +35,7 @@ namespace MnM.GWS
             Length = Width * Height;
             PenData = new int[Length];
             fixed (int* p = PenData)
-                pen.CopyTo(0, 0, Width, Height, (IntPtr)p, Length, Width, 0, 0, 0);
+                pen.CopyTo((IntPtr)p, Length, Width, 0, 0, new Rectangle(0,0, Width, Height), 0);
             if (Settings != null)
                 (pen as ISettingsReceiver)?.Receive(Settings, true);
         }
@@ -114,9 +114,14 @@ namespace MnM.GWS
                 srcIndex = 0;
             }
         }
-        public unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY,
-            Command command, string ShapeID)
+        public unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea,
+            Command command)
         {
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
+
             int* src;
             fixed (int* p = PenData)
                 src = p;

@@ -171,11 +171,15 @@ namespace MnM.GWS
             #endregion
 
             #region COPY TO
-            public unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr dest, int dstLen,
-                int dstW, int dstX, int dstY, Command command = Command.Opaque, string shapeID = null)
+            public unsafe IRectangle CopyTo(IntPtr dest, int dstLen,
+                int dstW, int dstX, int dstY, IRectangle copyArea, Command command = Command.Opaque)
             {
                 int length;
                 int* dst = (int*)dest;
+                int copyX = copyArea.X;
+                int copyY = copyArea.Y;
+                int copyW = copyArea.Width;
+                int copyH = copyArea.Height;
 
                 var x = copyX;
                 var r = x + copyW;

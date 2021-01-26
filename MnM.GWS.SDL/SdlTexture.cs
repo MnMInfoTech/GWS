@@ -84,15 +84,20 @@ namespace MnM.GWS.SDL
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command command)
+        public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command)
         {
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
+
             var dstRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
             IntPtr textureData;
             int lockedLength;
             Lock(dstRC, out textureData, out lockedLength);
             if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo(copyX, copyY, dstRC.Width, dstRC.Height, textureData, lockedLength, Width, 0, 0, 0, null);
+                ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, new Rectangle(copyX, copyY, dstRC.Width, dstRC.Height), 0);
             }
             else if (source is IPixels)
             {
@@ -115,7 +120,7 @@ namespace MnM.GWS.SDL
             Handle = CreateHandle(null, null, width ?? Width, height ?? Height, out Size s);
             this.width = s.Width;
             this.height = s.Height;
-            CopyFrom(Window, 0, 0, 0, 0, s.Width, s.Height, 0);
+            CopyFrom(Window, 0, 0, new Rectangle(0, 0, s.Width, s.Height), 0);
         }
         #endregion
 

@@ -73,11 +73,15 @@ namespace MnM.GWS.SDL
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH,
-            Command Command, string ShapeID, IntPtr alphaBytes = default(IntPtr))
+        public unsafe IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+            Command Command, IntPtr alphaBytes = default(IntPtr))
         {
             if (IsDisposed)
                 return Rectangle.Empty;
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
 
             var dstRc = Blocks.CopyBlock((int*)source, copyX, copyY, copyW, copyH, srcW * srcH, srcW,
                 srcH, Screen, dstX, dstY, Width, Length, Command, (byte*)alphaBytes);
@@ -89,11 +93,15 @@ namespace MnM.GWS.SDL
 
         #region COPY TO       
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, Command Command = 0, string shapeID = null)
+        public unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = 0)
         {
             if (IsDisposed)
                 return Rectangle.Empty;
+            int copyX = copyArea.X;
+            int copyY = copyArea.Y;
+            int copyW = copyArea.Width;
+            int copyH = copyArea.Height;
+
             return Blocks.CopyBlock(Screen, copyX, copyY, copyW, copyH, length, width, height,
                 (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
         }
@@ -116,7 +124,7 @@ namespace MnM.GWS.SDL
             length = width * height;
             if (Window == null)
                 return;
-            var rc = Window.CopyTo(0, 0, width, height, Source, length, width, 0, 0, Command.Backdrop, null);
+            var rc = Window.CopyTo(Source, length, width, 0, 0, new Rectangle(0,0, width, height), Command.Backdrop);
             NativeFactory.UpdateWindow(Window.Handle, new Rectangle(rc.X, rc.Y, rc.Width, rc.Height));
         }
         #endregion

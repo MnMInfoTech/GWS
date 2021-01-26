@@ -269,7 +269,7 @@ namespace MnM.GWS
                     fixed (int* d = data)
                     {
                         pixels = (IntPtr)d;
-                        buffer.CopyTo(0, 0, buffer.Width, buffer.Height, pixels, buffer.Length, buffer.Width, 0, 0, 0, null);
+                        buffer.CopyTo( pixels, buffer.Length, buffer.Width, 0, 0, new Rectangle( 0, 0, buffer.Width, buffer.Height),0);
                         if(ttype == typeof(string) || ttype == typeof(byte[]))
                             Factory.ImageProcessor.Write(pixels, buffer.Width, buffer.Height, buffer.Length, 4, ms, 0);
                     }

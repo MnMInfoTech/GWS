@@ -17,10 +17,10 @@ namespace MnM.GWS
         #region CONSTRUCTORS
         internal Settings(string shapeID, IPenContext context)
         {
+            RecentlyDrawn = Factory.newBoundary();
             ShapeID = shapeID;
             drawCommand = Command.OddEven;
             PenContext = context;
-            RecentlyDrawn = Factory.newBoundary();
         }
         #endregion
 
@@ -56,12 +56,24 @@ namespace MnM.GWS
             }
         }
         public Rotation Rotation { get; set; }
-        public string ShapeID { get; set; }
+        public string ShapeID 
+        {
+            get => RecentlyDrawn.ShapeID;
+            set => RecentlyDrawn.ShapeID = value; 
+        }
         public StrokeMode StrokeMode { get; set; }
         public VectorF Scale { get; set; }
         public IPenContext PenContext { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int X
+        {
+            get => RecentlyDrawn.DstX;
+            set => RecentlyDrawn.DstX = value;
+        }
+        public int Y
+        {
+            get => RecentlyDrawn.DstY;
+            set => RecentlyDrawn.DstY = value;
+        }
         public IRectangle Bounds { get; set; }
         public IBoundary RecentlyDrawn { get; private set; }
         public Size Clip { get; set; }

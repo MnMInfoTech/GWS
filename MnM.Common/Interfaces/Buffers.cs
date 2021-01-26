@@ -306,12 +306,9 @@ namespace MnM.GWS
         /// <param name="source"></param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
+        /// <param name="copyArea">Area in source to copy.</param>
         /// <param name="command">Draw command to to control copy task</param>
-        void CopyFrom(IBlockable source, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command command = 0);
+        void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command = 0);
 
         /// <summary>
         /// Uploads a portion of this texture specified by rectangle area to the screen.

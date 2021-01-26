@@ -28,13 +28,8 @@ namespace MnM.GWS
     #endregion
 
     #region IPOLYDRAW INFO
-    public interface IPolyInfo: IDrawParams
+    public interface IPolyInfo: IDrawParams, ICommand
     {
-        /// <summary>
-        /// Gets or sets command to apply on buffers while writing them for rendering a shape.
-        /// </summary>
-        Command Command { get; set; }
-
         /// <summary>
         /// Gets the size of current buffer on which shape is being rendered.
         /// </summary>
@@ -42,13 +37,23 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region SETTINGS0
-    public interface ISettings0: IPolyInfo, IRecentlyDrawn
+    #region SHAPEID
+    public interface IShapeID
     {
         /// <summary>
-        /// Gets or sets an ID of current shape associated with current rendering process.
+        /// Gets an ID of current shape associated with current rendering process.
         /// </summary>
         string ShapeID { get; }
+    }
+    #endregion
+
+    #region ICOMMAND
+    public interface ICommand
+    {
+        /// <summary>
+        /// Gets or sets command to apply on buffers while writing them for rendering a shape.
+        /// </summary>
+        Command Command { get; set; }
     }
     #endregion
 
@@ -57,23 +62,8 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public partial interface ISettings : ISettings0, ISettingsReceiver, IPoint, IBounds, IRotatable
+    public partial interface ISettings : IPolyInfo, IRecentlyDrawn, IShapeID, ISettingsReceiver, IBounds, IRotatable
     {  
-        /// <summary>
-        /// Gets or sets an ID of current shape associated with current rendering process.
-        /// </summary>
-        new string ShapeID { get; set; }
-
-        /// <summary>
-        /// Gets X co-ordinate of the location this object. 
-        /// </summary>
-        new int X { get; set; }
-
-        /// <summary>
-        /// Gets Y co-ordinate of the location of this object.
-        /// </summary>
-        new int Y { get; set; }
-
         /// <summary>
         /// Gets or sets fill mode settings for this object.
         /// </summary> 

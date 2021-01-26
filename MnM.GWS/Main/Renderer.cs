@@ -819,8 +819,7 @@ namespace MnM.GWS
         /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void CreateFillAction(this IWritable buffer, IReadable pen, out FillAction action,
-            int dstOffsetX, int dstOffsetY, string ShapeID, INotifier boundary)
+        public unsafe static void CreateFillAction(this IWritable buffer, IReadable pen, out FillAction action, INotifier boundary)
         {
             action = (start, axis, Horizontal, end, Alpha, Command) =>
             {
@@ -877,7 +876,7 @@ namespace MnM.GWS
                         fixed (byte* srcAlphas = sourceAlphas)
                         {
                             buffer.WriteLine(src, srcIndex, Length, Length, Horizontal,
-                            dstX + dstOffsetX, dstY + dstOffsetY, Alpha, srcAlphas, Command, ShapeID, boundary);
+                            dstX + boundary.DstX, dstY + boundary.DstY, Alpha, srcAlphas, Command, boundary.ShapeID, boundary);
                         }
                     }
                 }
@@ -890,23 +889,23 @@ namespace MnM.GWS
                     y = Horizontal ? axis : iStart;
                     color = pen.ReadPixel(x, y);
 
-                    x += dstOffsetX;
-                    y += dstOffsetY;
+                    x += boundary.DstX;
+                    y += boundary.DstY;
                     float alpha = start - iStart;
 
                     if (alpha == 0 || !Antialiased)
                     {
-                        buffer.WritePixel(x, y, true, color, null, Command, ShapeID, boundary);
+                        buffer.WritePixel(x, y, true, color, null, Command, boundary.ShapeID, boundary);
                     }
                     else if (Horizontal)
                     {
-                        buffer.WritePixel(x, y, true, color, 1 - alpha, Command, ShapeID, boundary);
-                        buffer.WritePixel(x + 1, y, true, color, alpha, Command, ShapeID, boundary);
+                        buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary.ShapeID, boundary);
+                        buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary.ShapeID, boundary);
                     }
                     else
                     {
-                        buffer.WritePixel(y, x, false, color, 1 - alpha, Command, ShapeID, boundary);
-                        buffer.WritePixel(y + 1, x, false, color, alpha, Command, ShapeID, boundary);
+                        buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary.ShapeID, boundary);
+                        buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary.ShapeID, boundary);
                     }
 
                     if (NotSoClose)
@@ -914,23 +913,23 @@ namespace MnM.GWS
                         x = Horizontal ? iEnd : axis;
                         y = Horizontal ? axis : iEnd;
                         color = pen.ReadPixel(x, y);
-                        x += dstOffsetX;
-                        y += dstOffsetY;
+                        x += boundary.DstX;
+                        y += boundary.DstY;
                         alpha = end - iEnd;
 
                         if (alpha == 0 || !Antialiased)
                         {
-                            buffer.WritePixel(x, y, true, color, null, Command, ShapeID, boundary);
+                            buffer.WritePixel(x, y, true, color, null, Command, boundary.ShapeID, boundary);
                         }
                         else if (Horizontal)
                         {
-                            buffer.WritePixel(x, y, true, color, 1 - alpha, Command, ShapeID, boundary);
-                            buffer.WritePixel(x + 1, y, true, color, alpha, Command, ShapeID, boundary);
+                            buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary.ShapeID, boundary);
+                            buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary.ShapeID, boundary);
                         }
                         else
                         {
-                            buffer.WritePixel(y, x, false, color, 1 - alpha, Command, ShapeID, boundary);
-                            buffer.WritePixel(y + 1, x, false, color, alpha, Command, ShapeID, boundary);
+                            buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary.ShapeID, boundary);
+                            buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary.ShapeID, boundary);
                         }
                     }
                 }
@@ -946,8 +945,7 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreatePixelAction(this IWritable buffer, IReadable pen, out PixelAction action,
-            int dstOffsetX, int dstOffsetY, string ShapeID, INotifier boundary)
+        public static void CreatePixelAction(this IWritable buffer, IReadable pen, out PixelAction action, INotifier boundary)
         {
             action = (val, axis, horizontal, Command) =>
             {
@@ -960,23 +958,23 @@ namespace MnM.GWS
 
                 int color = pen.ReadPixel(x, y);
 
-                x += dstOffsetX;
-                y += dstOffsetY;
+                x += boundary.DstX;
+                y += boundary.DstY;
                 bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
 
                 if (alpha == 0 || !Antialiased)
                 {
-                    buffer.WritePixel(x, y, true, color, null, Command, ShapeID, boundary);
+                    buffer.WritePixel(x, y, true, color, null, Command, boundary.ShapeID, boundary);
                 }
                 else if (horizontal)
                 {
-                    buffer.WritePixel(x, y, true, color, 1 - alpha, Command, ShapeID, boundary);
-                    buffer.WritePixel(x + 1, y, true, color, alpha, Command, ShapeID, boundary);
+                    buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary.ShapeID, boundary);
+                    buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary.ShapeID, boundary);
                 }
                 else
                 {
-                    buffer.WritePixel(y, x, false, color, 1 - alpha, Command, ShapeID, boundary);
-                    buffer.WritePixel(y + 1, x, false, color, alpha, Command, ShapeID, boundary);
+                    buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary.ShapeID, boundary);
+                    buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary.ShapeID, boundary);
                 }
             };
         }
@@ -1039,6 +1037,7 @@ namespace MnM.GWS
             copyW = copy.Width;
             copyH = copy.Height;
             bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
+            
             #endregion
 
             #region EXTRACT DATA FROM SOURCE
@@ -1074,7 +1073,8 @@ namespace MnM.GWS
                 int[] temp = new int[srcLen];
                 fixed (int* p = temp)
                 {
-                    ((ICopyable)source).CopyTo(copyX, copyY, copyW, copyH, (IntPtr)p, srcLen, srcW, 0, 0, Command);
+                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0, 
+                        new ShapeArea(copyX, copyY, copyW, copyH, ID), Command);
                     src = p;
                 }
                 copyX = copyY = 0;
@@ -1086,7 +1086,8 @@ namespace MnM.GWS
             {
                 if (src != null)
                 {
-                    dstRc = ((IPastable)block).CopyFrom((IntPtr)src, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, Command, null, (IntPtr)srcAlphas);
+                    dstRc = ((IPastable)block).CopyFrom((IntPtr)src, srcW, srcH, dstX, dstY, 
+                        new ShapeArea( copyX, copyY, copyW, copyH, ID), Command, (IntPtr)srcAlphas);
                     goto Update;
                 }
             }
@@ -1130,7 +1131,7 @@ namespace MnM.GWS
                 }
                 while (y < b)
                 {
-                    writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, null, boundary);
+                    writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, ID, boundary);
                     srcIndex += srcW;
                 }
                 dstRc = boundary.GetBounds();
@@ -1157,7 +1158,7 @@ namespace MnM.GWS
                         src = p;
                     fixed (byte* p = pixelAlphas)
                         srcAlphas = p;
-                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, srcAlphas, Command, null, boundary);
+                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, srcAlphas, Command, ID, boundary);
                     ++y;
                 }
                 dstRc = boundary.GetBounds();
@@ -1238,7 +1239,7 @@ namespace MnM.GWS
                 srcLen = w * h;
                 srcW = w;
                 srcH = h;
-                return ((ICopyable)source).CopyTo(x, y, w, h, (IntPtr)dst, srcLen, srcW, 0, 0, Command);
+                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, new Rectangle(x, y, w, h), Command);
             }
 
             #region EXTRACT DATA FROM SOURCE
@@ -1326,7 +1327,7 @@ namespace MnM.GWS
             fixed (int* p = data)
             {
                 IntPtr pixels = (IntPtr)p;
-                image.CopyTo(0, 0, image.Width, image.Height, pixels, image.Length, image.Width, 0, 0, 0, null);
+                image.CopyTo(pixels, image.Length, image.Width, 0, 0, new Rectangle(0, 0, image.Width, image.Height), 0);
                 writer.Write(pixels, image.Width, image.Height, image.Length, pitch, dest, format, quality);
             }
         }
@@ -1410,7 +1411,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control image drawig operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID)
+            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID = null)
         {
             IRectangle dstRc;
             if (block is IPixels)
@@ -1424,7 +1425,7 @@ namespace MnM.GWS
             }
             else if (block is IPastable)
             {
-                dstRc = ((IPastable)block).CopyFrom(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command, ShapeID);
+                dstRc = ((IPastable)block).CopyFrom(source, srcW, srcH, dstX, dstY, new ShapeArea(copyX, copyY, copyW, copyH, ShapeID), command);
             }
             else
             {
@@ -2959,8 +2960,8 @@ namespace MnM.GWS
             if (settings == null)
                 settings = Factory.newSettings();
 
-            settings.X = dstX;
-            settings.Y = dstY;
+            settings.RecentlyDrawn.DstX = dstX;
+            settings.RecentlyDrawn.DstY = dstY;
             buffer.Render(text, settings);
         }
         #endregion
@@ -3033,7 +3034,7 @@ namespace MnM.GWS
                 else if(source is ICopyable)
                 {
                     data = (IntPtr)dst;
-                    ((ICopyable)source).CopyTo(0, 0, srcW, srcH, data, dstLen, dstW, 0, 0, Command.Opaque, null);
+                    ((ICopyable)source).CopyTo(data, dstLen, dstW, 0, 0, new Rectangle( 0, 0, srcW, srcH), Command.Opaque);
                 }
                 return size;
             }
@@ -3047,7 +3048,7 @@ namespace MnM.GWS
             }
             else if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo(0, 0, srcW, srcH, (IntPtr)src, srcLen, srcW, 0, 0, 0, null);
+                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Rectangle(0, 0, srcW, srcH), 0);
             }
             else
             {
@@ -3275,7 +3276,7 @@ namespace MnM.GWS
             }
             else if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo(0, 0, srcW, srcH, (IntPtr)src, srcLen, srcW, 0, 0, 0, null);
+                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Rectangle(0, 0, srcW, srcH), 0);
             }
             else
             {

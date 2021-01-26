@@ -126,6 +126,21 @@ namespace MnM.GWS
     public interface IBoundary : IRectangle, INotifier, IEnumerable<Vector>, ICloneable
     {
         /// <summary>
+        /// Gets or sets X co-ordinate of the draw location.
+        /// </summary>
+        new int DstX { get; set; }
+
+        /// <summary>
+        /// Gets or sets Y co-ordinate of the draw location.
+        /// </summary>
+        new int DstY { get; set; }
+
+        /// <summary>
+        /// Gets or sets an ID of current shape associated with current rendering process.
+        /// </summary>
+        new string ShapeID { get; set; }
+        
+        /// <summary>
         /// Tests if given location lies within the bounds of this object.
         /// </summary>
         /// <param name="x">X co-ordinate of the locaiton.</param>

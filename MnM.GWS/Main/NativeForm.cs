@@ -62,10 +62,10 @@ namespace MnM.GWS
             #endregion
 
             #region CONSOLIDATE
-            public IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
-                int dstW, int dstX, int dstY, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null, string shapeID = null)
+            public IRectangle Consolidate(IntPtr destination, int dstLen,
+                int dstW, int dstX, int dstY, IRectangle copyArea, IImageData backBuffer, Command Command = 0, IntPtr? Pen = null)
             {
-                return Canvas.Consolidate(copyX, copyY, copyW, copyH, destination, dstLen, dstW, dstX, dstY, backBuffer, Command, Pen, shapeID);
+                return Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
             }
             #endregion
 
@@ -91,9 +91,9 @@ namespace MnM.GWS
             #endregion
 
             #region COPY TO
-            public IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY, Command command, string ShapeID = null)
+            public IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command command = 0)
             {
-                return Canvas.CopyTo(copyX, copyY, copyW, copyH, destination, dstLen, dstW, dstX, dstY, command, ShapeID);
+                return Canvas.CopyTo(destination, dstLen, dstW, dstX, dstY, copyArea, command);
             }
             #endregion
 
@@ -112,9 +112,9 @@ namespace MnM.GWS
             #endregion
 
             #region COPY FROM
-            public IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH, Command Command, string ShapeID, IntPtr alphaBytes = default)
+            public IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default)
             {
-                return Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, Command, ShapeID, alphaBytes);
+                return Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyArea, Command, alphaBytes);
             }
             #endregion
 

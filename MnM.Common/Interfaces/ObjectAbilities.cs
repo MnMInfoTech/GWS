@@ -214,8 +214,18 @@ namespace MnM.GWS
     #endregion
      
     #region INOTIFIER
-    public interface INotifier
+    public interface INotifier: IShapeID
     {
+        /// <summary>
+        /// Gets X co-ordinate of the draw location.
+        /// </summary>
+        int DstX { get; }
+
+        /// <summary>
+        /// Gets Y co-ordinate of the draw location.
+        /// </summary>
+        int DstY { get; }
+
         /// <summary>
         /// Incorporates given perimeter specified by x1, y1, x2, y2 parameters.
         /// </summary>
@@ -258,8 +268,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <param name="alphaBytes">Alpha channel information(optional).</param>
         /// <returns>Area covered by this operation.</returns>
-        unsafe IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen, int dstW, int dstX, int dstY,
-            Command command, string ShapeID = null);
+        unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command command = 0);
     }
     #endregion
 
@@ -282,8 +291,8 @@ namespace MnM.GWS
         /// <param name="Command">Draw command to to control copy task</param>
         /// <param name="ShapeID">ID of shape which pixels are being received from.</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
-        IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, int copyX, int copyY, int copyW, int copyH,
-            Command Command, string ShapeID, IntPtr alphaBytes = default(IntPtr));
+        IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+            Command Command, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 
@@ -294,10 +303,6 @@ namespace MnM.GWS
         /// Copies consolidated data to target destination. Very useful for mixing 2 images.
         /// Where this image serves as foreground image and backBuffer serves as background image. 
         /// </summary>
-        /// <param name="copyX"></param>
-        /// <param name="copyY"></param>
-        /// <param name="copyW"></param>
-        /// <param name="copyH"></param>
         /// <param name="destination"></param>
         /// <param name="dstLen"></param>
         /// <param name="dstW"></param>
@@ -306,10 +311,9 @@ namespace MnM.GWS
         /// <param name="backBuffer"></param>
         /// <param name="Command"></param>
         /// <param name="Pen"></param>
-        /// <param name="shapeID"></param>
         /// <returns></returns>
-        IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null, string shapeID = null);
+        IRectangle Consolidate(IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IRectangle copyArea, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null);
     }
     #endregion
 

@@ -202,7 +202,7 @@ namespace MnM.GWS
             pen.Invert = true;
             command |= Command.Screen;
             var boundary = Factory.newBoundary();
-            buffer.CreatePixelAction(pen, out action, 0, 0, null, boundary);
+            buffer.CreatePixelAction(pen, out action, boundary);
             Renderer.ProcessLine(X, Y, X, Y + Height, action, command);
             Renderer.ProcessLine(X, Y + Height, X + Width, Y + Height, action, command);
             Renderer.ProcessLine(X + Width, Y + Height, X + Width, Y, action, command);

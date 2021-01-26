@@ -133,10 +133,10 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual IRectangle CopyTo(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
-            int destLen, int destW, int destX, int destY, Command command = 0, string shapeID = null)
+        public virtual IRectangle CopyTo(IntPtr destination,
+            int destLen, int destW, int destX, int destY, IRectangle copyArea, Command command = 0)
         {
-            return Canvas.CopyTo(copyX, copyY, copyW, copyH, destination, destLen, destW, destX, destY, command, shapeID);
+            return Canvas.CopyTo(destination, destLen, destW, destX, destY, copyArea, command);
         }
         #endregion
 
@@ -186,9 +186,9 @@ namespace MnM.GWS
         #endregion
 
         #region CONSOLIDATE
-        public IRectangle Consolidate(int copyX, int copyY, int copyW, int copyH, IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, IImageData backBuffer, Command Command, IntPtr? Pen, string shapeID) =>
-            Canvas.Consolidate(copyX, copyY, copyW, copyH, destination, dstLen, dstW, dstX, dstY, backBuffer, Command, Pen, shapeID);
+        public IRectangle Consolidate(IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, IImageData backBuffer, Command Command, IntPtr? Pen) =>
+            Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
         #endregion
 
         #region SHOW - HIDE
@@ -354,8 +354,8 @@ namespace MnM.GWS
             int x, int y, float? Alpha, byte* imageAlphas, Command command, string ShapeID, INotifier boundary) =>
             Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, ShapeID, boundary);
         IRectangle IPastable.CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID, IntPtr alphaBytes) =>
-            Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyX, copyY, copyW, copyH, command, ShapeID, alphaBytes);
+            IRectangle copyArea, Command command, IntPtr alphaBytes) =>
+            Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
         #endregion
     }
 }
