@@ -58,7 +58,7 @@ namespace MnM.GWS
             public static readonly Box Empty = new Box();
 
             byte valid;
-            string id;
+            int id;
             const string toStr = "x:{0}, y:{1}, w:{2}, h:{3}";
             #endregion
 
@@ -70,7 +70,7 @@ namespace MnM.GWS
             /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
             /// <param name="w">Width of the rectangle.</param>
             /// <param name="h">Height of the rectangle.</param>
-            public Box(int x, int y, int w, int h)
+            public Box(int x, int y, int w, int h): this()
             {
                 X = x;
                 Y = y;
@@ -80,7 +80,6 @@ namespace MnM.GWS
                     valid = Application.False;
                 else
                     valid = Application.True;
-                id = null;
             }
 
             /// <summary>
@@ -183,17 +182,18 @@ namespace MnM.GWS
             /// </summary>
             public int Cy => Y + Height / 2;
 
-            string IID<string>.ID
+        public int ID
+        {
+            get
             {
-                get
-                {
-                    if (id == null)
-                        id = "Rect".NewID();
-                    return id;
-                }
+                if (id == 0)
+                    id = this.NewID();
+                return id;
             }
-            public string Name => "Rect";
-            int IPoint.X => X;
+        }
+        public string TypeName => "Rect";
+        public string Name => TypeName + ID;
+        int IPoint.X => X;
             int IPoint.Y => Y;
             int ISize.Width => Width;
             int ISize.Height => Height;

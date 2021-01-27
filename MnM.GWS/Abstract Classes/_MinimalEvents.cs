@@ -13,8 +13,6 @@ namespace MnM.GWS
         readonly KeyPressEventArgs keyPressEventArgs = new KeyPressEventArgs();
         #endregion
 
-        public abstract string ID { get; }
-
         #region PUSH EVENT
         public virtual void PushEvent(IEventInfo e)
         {

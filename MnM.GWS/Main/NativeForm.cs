@@ -47,12 +47,10 @@ namespace MnM.GWS
                 get => Canvas.Background;
                 set => Canvas.Background = value;
             }
-            public override string ID => Target.ID;
             public bool IsDisposed => Target.IsDisposed;
             public IntPtr Handle => Target.Handle;
             public int Width => Canvas.Width;
             public int Height => Canvas.Height;
-            public string Name => Target.Name;
             public string Text
             {
                 get => Target.Text;

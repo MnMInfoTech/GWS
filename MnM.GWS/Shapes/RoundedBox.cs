@@ -23,7 +23,7 @@ namespace MnM.GWS
             public readonly float Width;
             public readonly float Height;
             public readonly float CornerRadius;
-
+        int id;
             const string toStr = "x:{0}, y:{1}, width:{2}, height:{3}, cornerRadius: {4}";
             IList<VectorF> points;
             #endregion
@@ -39,7 +39,6 @@ namespace MnM.GWS
             /// <param name="cornerRadius">Radius of a circle - convex hull of which is to be drawn on each corner</param>
             public RoundBox(float x, float y, float w, float h, float cornerRadius, RoundBoxOption option = 0) : this()
             {
-                ID = "RoundBox".NewID();
                 X = x;
                 Y = y;
                 Width = w;
@@ -102,9 +101,18 @@ namespace MnM.GWS
             public bool IsEmpty =>
                 Width == 0 && Height == 0;
             public bool IsSquare => Width == Height;
-            public string ID { get; private set; }
-            public string Name => "RoundBox";
-            float IRoundBox.CornerRadius => CornerRadius;
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
+        public string TypeName => "RoundBox";
+        public string Name => TypeName + ID;
+        float IRoundBox.CornerRadius => CornerRadius;
             public QuadType Type => QuadType.RoundBox;
             float IPointF.X => X;
             float IPointF.Y => Y;

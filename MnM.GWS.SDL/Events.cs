@@ -470,22 +470,22 @@ namespace MnM.GWS.SDL
         KeyState IKeyEventArgs.State => state;
         #endregion
     }
-    //class KeyPressEventArgs : EventArgs, IKeyPressEventArgs
-    //{
-    //    /// <summary>
-    //    /// Constructs a new instance.
-    //    /// </summary>
-    //    /// <param name="keyChar">The ASCII character that was typed.</param>
-    //    public KeyPressEventArgs(char keyChar)
-    //    {
-    //        KeyChar = keyChar;
-    //    }
+    class KeyPressEventArgs : EventArgs, IKeyPressEventArgs
+    {
+        /// <summary>
+        /// Constructs a new instance.
+        /// </summary>
+        /// <param name="keyChar">The ASCII character that was typed.</param>
+        public KeyPressEventArgs(char keyChar)
+        {
+            KeyChar = keyChar;
+        }
 
-    //    /// <summary>
-    //    /// Gets a <see cref="System.Char"/> that defines the ASCII character that was typed.
-    //    /// </summary>
-    //    public char KeyChar { get; internal set; }
-    //}
+        /// <summary>
+        /// Gets a <see cref="System.Char"/> that defines the ASCII character that was typed.
+        /// </summary>
+        public char KeyChar { get; set; }
+    }
 
     class MouseEventArgs : EventArgs, IMouseEventArgs
     {

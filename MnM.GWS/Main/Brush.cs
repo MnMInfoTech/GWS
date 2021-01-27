@@ -19,7 +19,6 @@ namespace MnM.GWS
             #region  VARIABLES
             protected int width, height, length, type;
             protected BrushStyle Style;
-            protected string id;
             protected bool InvertBrushColor;
             int Rx, Ry;
             bool MatchSize;
@@ -80,7 +79,6 @@ namespace MnM.GWS
 
                 brush = new Brush();
                 brush.Style = styl;
-                brush.id = styl.ID;
                 brush.type = styl.Gradient;
                 bool success = false;
                 brush.ResizeInternally(width, height, ref success);
@@ -96,7 +94,6 @@ namespace MnM.GWS
                 Brush brush;
 
                 brush = new Brush();
-                brush.id = "" + data;
                 brush.type = -1;
                 brush.width = width;
                 brush.height = height;
@@ -114,8 +111,6 @@ namespace MnM.GWS
             #endregion
 
             #region PROPERTIES
-            public string ID =>
-                id;
             public int Length =>
                 length;
             public int Width =>
@@ -235,7 +230,6 @@ namespace MnM.GWS
                 var brush = new Brush();
                 brush.type = type;
                 brush.Style = Style.Clone();
-                brush.id = id;
                 brush.width = width;
                 brush.height = height;
                 brush.length = length;

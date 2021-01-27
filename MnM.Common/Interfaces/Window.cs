@@ -20,14 +20,14 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public partial interface IRenderTarget : IID, IClearable, IPastable, IPixels,
+    public partial interface IRenderTarget : IClearable, IPastable, IPixels,
         IResizable, ICopyable, IUpdatable, IDisposed
     { }
     #endregion
 
     #region INATIVE TARGET
     public interface INativeTarget : IRenderTarget, IHandle, IDisposable,
-        IRecognizable, IShowable, IHideable, IRefreshable, IResizable, ITextDisplayer
+        IShowable, IHideable, IRefreshable, IResizable, ITextDisplayer
     {
         INativeForm Form { set; }
     }
@@ -53,7 +53,7 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IForm : INativeForm, IGraphics, IConsolidator,
         IContainer, IUpdatable, IResizable, IClearable, IPastable, IDisposed,
-        IShowable, IHideable, IRecognizable, IBackground, IMinimalEvents,
+        IShowable, IHideable, IBackground, IMinimalEvents,
         IMinimalWindowEvents
     { }
     #endregion
@@ -85,7 +85,7 @@ namespace MnM.GWS
     /// A minimum required interface to inherit in order to make your control work in the GWS.
     /// It must have an ID, a name Name and area to work upon.
     /// </summary>
-    public partial interface IElement : IID, IRenderable, IRecognizable, IPoint, ISize, IMinSizable
+    public partial interface IElement : IID, IRenderable, IPoint, ISize, IMinSizable
     {
         /// <summary>
         /// Gets bounds of this object.

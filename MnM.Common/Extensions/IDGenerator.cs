@@ -10,45 +10,32 @@ namespace MnM.GWS
 {
     public static class IDGenerator
     {
-        static readonly Dictionary<string, int> newIDs = new Dictionary<string, int>(100);
+        static volatile int uniqueID;
 
-        #region NEW ID
+        static readonly Dictionary<string, int> newNames = new Dictionary<string, int>(100);
+
+        #region NEW NAME
         /// <summary>
         /// Gets a new ID for a given object type.
         /// </summary>
         /// <param name="objType">Type name</param>
         /// <returns></returns>
-        public static string NewID(this string objType, bool increment = true)
+        public static string NewName(this string objType, bool increment = true)
         {
             if (objType == null)
                 return null;
-            if (!newIDs.ContainsKey(objType)) 
-                newIDs.Add(objType, 0);
+            if (!newNames.ContainsKey(objType)) 
+                newNames.Add(objType, 0);
             int newID;
             if (increment)
-                newID = ++newIDs[objType];
+                newID = ++newNames[objType];
             else
-                newID = newIDs[objType];
+                newID = newNames[objType];
             if (increment)
-                newIDs[objType] = newID;
+                newNames[objType] = newID;
             else
                 ++newID;
             return objType + (newID);
-        }
-
-        /// <summary>
-        /// Resets an internal counter of IDs for a given object type.
-        /// </summary>
-        /// <param name="objType">Type name</param>
-        /// <returns></returns>
-        public static void ResetID(this string objType)
-        {
-            if (objType == null)
-                return;
-            if (!newIDs.ContainsKey(objType))
-                return;
-
-            newIDs[objType] = 0;
         }
 
         /// <summary>
@@ -56,12 +43,12 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="objType">Type of object unique id is sought for</param>
         /// <returns>New ID</returns>
-        public static string NewID(this Type objType, bool increment = true)
+        public static string NewName(this Type objType, bool increment = true)
         {
             if (objType == null)
                 return null;
 
-            return NewID(objType.FullName, increment);
+            return NewName(objType.FullName, increment);
         }
 
         /// <summary>
@@ -69,13 +56,19 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="objType">Class name usually</param>
         /// <returns>New ID</returns>
-        public static string NewID(this object o, bool increment = true)
+        public static string NewName(this object o, bool increment = true)
         {
             if (o == null)
                 return null;
-            return NewID(o.GetType(), increment);
+            return NewName(o.GetType(), increment);
         }
         #endregion
 
+        #region NEW ID
+        public static int NewID(this IRenderable renderable) =>
+            ++uniqueID;
+        public static int AvailableID(this IRenderable renderable) =>
+            uniqueID + 1;
+        #endregion
     }
 }

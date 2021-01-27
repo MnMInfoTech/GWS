@@ -11,9 +11,10 @@ namespace MnM.GWS
 {
     public abstract class _Glyph : IGlyph
     {
+        int id;
+
         public _Glyph()
         {
-            ID = "Glyph".NewID();
         }
 
         #region PROPERTIES
@@ -23,8 +24,18 @@ namespace MnM.GWS
         public abstract int Y { get; set; }
         public abstract float Width { get; }
         public abstract float Height { get; }
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public Rectangle RecentlyDrawn { get; set; }
+        public virtual string TypeName => "Glyph";
+        public string Name => TypeName + ID;
         #endregion
 
         #region DRAW

@@ -467,7 +467,7 @@ namespace MnM.GWS
         IEnumerable<TObj> GetAll(Predicate<TObj> condition);
         #endregion
     }
-    public interface IObjDictionary<T> : IObjDictionary<T, string> where T : IID
+    public interface IObjDictionary<T> : IObjDictionary<T, int> where T : IID
     { }
     #endregion
 
@@ -1044,7 +1044,14 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="id">ID of object to return.</param>
         /// <returns></returns>
-        T this[string id] { get; }
+        T this[int id] { get; }
+
+        /// <summary>
+        /// Returns object from collection with given ID.
+        /// </summary>
+        /// <param name="name">Name of object to return.</param>
+        /// <returns></returns>
+        T this[string name] { get; }
 
         /// <summary>
         /// Tests for existence of object T in collection.
@@ -1058,7 +1065,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="itemID">ID of object required.</param>
         /// <returns>True if object present.</returns>
-        bool Contains(string itemID);
+        bool Contains(int itemID);
 
         /// <summary>
         /// Adds a shape object to this collection.
@@ -1114,28 +1121,9 @@ namespace MnM.GWS
         /// Indicates if the collection is currently adding an element or not.
         /// </summary>
         bool AddMode { get; }
-
-        ///// <summary>
-        ///// Gives enumearable of items held at the current page in this collection.
-        ///// Note: For standard version there is only one page so maintaing a something like a tab control is not possible in the version.
-        ///// Advanced version has support for multiple pages.
-        ///// </summary>
-        //IEnumerable<IRenderable> Items { get; }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //IEnumerable<ISettings> InfoItems { get; }
         #endregion
 
         #region METHODS
-        /// <summary>
-        /// Removes an element wchich has given ID from this collection if it exist.
-        /// </summary>
-        /// <param name="shapeID"></param>
-        /// <returns></returns>
-        bool Remove(string shapeID);
-
         /// <summary>
         /// Gets all elements in this colleciton satisfying given condition.
         /// </summary>

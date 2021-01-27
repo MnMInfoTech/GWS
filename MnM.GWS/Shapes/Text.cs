@@ -24,6 +24,7 @@ namespace MnM.GWS
         IList<IGlyph> Data;
         string text;
         float X, Y, Width, Height;
+        int id;
         #endregion
 
         #region CONSTRUCTORS
@@ -46,7 +47,6 @@ namespace MnM.GWS
                 DrawX = destX.Value;
             if (destY != null)
                 DrawY = destY.Value;
-            ID = "Text".NewID();
         }
 
         /// <summary>
@@ -65,7 +65,6 @@ namespace MnM.GWS
         {
             this.font = font;
             this.text = text;
-            ID = "Text".NewID();
             Change(drawStyle, destX, destY);
         }
         #endregion
@@ -81,8 +80,16 @@ namespace MnM.GWS
         public bool Changed { get; private set; }
         public int DrawX { get; private set; }
         public int DrawY { get; private set; }
-        public string Name => "Text";
-        public string ID { get; private set; }
+        public string TypeName => "Text";
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public string Value
         {
             get => text;
@@ -101,6 +108,7 @@ namespace MnM.GWS
                 Change();
             }
         }
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;
@@ -223,7 +231,7 @@ namespace MnM.GWS
         public object Clone()
         {
             var g = new Text();
-            g.ID = Name.NewID();
+            g.id = id;
 
             g.Data = Data.ToArray();
             g.drawStyle = drawStyle.Clone() as TextDrawStyle;

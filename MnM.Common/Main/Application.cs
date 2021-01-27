@@ -106,14 +106,15 @@ namespace MnM.GWS
         #region REGISTER - DE-REGISTER WINDOW
         public static void Register(this IEventProcessor window)
         {
-            var name = window.Name + "";
-            if (Windows.ContainsKey(name))
+            if (window == null)
                 return;
-            Windows.Add(name, window);
+            if (Windows.ContainsKey(window.ID))
+                return;
+            Windows.Add(window.ID, window);
         }
         public static void Deregister(this IEventProcessor window)
         {
-            Windows.Remove(window.Name + "");
+            Windows.Remove(window.ID + "");
         }
         public static bool GetWindow<T>(string name, out T window) where T : IEventProcessor
         {
@@ -130,7 +131,7 @@ namespace MnM.GWS
             return false;
         }
         public static bool Exists(this IEventProcessor window) =>
-            Windows.ContainsKey(window.Name + "");
+            Windows.ContainsKey(window.ID + "");
         public static T GetWindow<T>(Predicate<T> condition) where T : IEventProcessor
         {
             return Windows.Values.OfType<T>().FirstOrDefault(x => condition(x));

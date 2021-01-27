@@ -31,7 +31,7 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        string IID<string>.ID => Renderable.ID;
+        int IID<int>.ID => Renderable.ID;
         IRenderable IShape.Renderable => Renderable;
         ISettings IShape.Settings => Settings;
         #endregion
@@ -46,7 +46,7 @@ namespace MnM.GWS
 
         public override string ToString()
         {
-            var result = Renderable.ID;
+            var result = Renderable.ID + "";
 #if Advanced
             result += "," + Settings.ZOrder;
 #endif

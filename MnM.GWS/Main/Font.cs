@@ -271,8 +271,6 @@ namespace MnM.GWS
                     info.UnitsPerEm = unitsPerEm;
                     info.FullName = FullName;
                 }
-
-                id = Info.FullName;
                 kerning = kernTable != null;
             }
             #endregion
@@ -317,7 +315,7 @@ namespace MnM.GWS
             #region GET GLYPH
             public sealed override IGlyph GetGlyph(char character)
             {
-                var key = ID + "." + size + "." + character.ToString();
+                var key = id  + "." + size + "." + character.ToString();
                 if (Cache.ContainsKey(key))
                     return new Glyph(Cache[key]);
 

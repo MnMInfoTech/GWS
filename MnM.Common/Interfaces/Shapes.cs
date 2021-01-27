@@ -27,56 +27,56 @@ namespace MnM.GWS
         /// <summary>
         /// Get the point join rules of the shape named.
         /// </summary>
-        /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
+        /// <param name="TypeName">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns></returns>
-        PointJoin GetStrokeJoin(string Name);
+        PointJoin GetStrokeJoin(string TypeName);
 
         /// <summary>
         /// Returns the rule for joining close points for standard shapes. 
         /// </summary>
-        /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
+        /// <param name="TypeName">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns>True if Points should not be joined for the shape when they are too close.
-        bool DontJoinPointsIfTooClose(string Name);
+        bool DontJoinPointsIfTooClose(string TypeName);
 
         /// <summary>
         /// Gets the AfterStroke rule for the Shape named. So that is can be drawn correctly.
         /// </summary>
-        /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
+        /// <param name="TypeName">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns>AfterStroke Enum for Named shape. </returns>
-        AfterStroke GetAfterStroke(string Name);
+        AfterStroke GetAfterStroke(string TypeName);
 
         /// <summary>
         /// Get the rule for line drawing for the given shape.
         /// </summary>
-        /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
+        /// <param name="TypeName">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns>Returns the LineDraw enum used to decide how line is drawn.</returns>
-        Command GetLineDraw(string Name);
+        Command GetLineDraw(string TypeName);
 
         /// <summary>
         /// Gets lien skip information for outer and inner parameters.
         /// </summary>
-        /// <param name="Name">Name of shape which is being rendered.</param>
+        /// <param name="TypeName">Name of shape which is being rendered.</param>
         /// <param name="mode">Fill mode which shape will be drawn with.</param>
         /// <param name="forData0">Line skip option for outer perimeter.</param>
         /// <param name="forData2">Line skip option for inner perimeter.</param>
-        void GetLineSkip(string Name, FillMode mode, out SlopeType forData0, out SlopeType forData2);
+        void GetLineSkip(string TypeName, FillMode mode, out SlopeType forData0, out SlopeType forData2);
 
         /// <summary>
         /// Return the swap perimeters state. 
         /// Important for besier where inside and outside can swap due to the orientation of the line.!!!!or a bug!!!!
         /// </summary>
-        /// <param name="Name">Case sensitive name of shape as used in IRecognizable e.g. "BezierArc".</param>
+        /// <param name="TypeName">Case sensitive name of shape as used in IRecognizable e.g. "BezierArc".</param>
         /// <returns>True if perimeters do not need to be swapped.</returns>
-        bool NoNeedToSwapPerimeters(string Name);
+        bool NoNeedToSwapPerimeters(string TypeName);
 
         /// <summary>
         /// Gets the applicable fillmode for a given shape name depending on vakue of stroke
         /// </summary>
         /// <param name="current">Current fill mode</param>
-        /// <param name="Name">Name of the shape</param>
+        /// <param name="TypeName">Name of the shape</param>
         /// <param name="stroke">Value of stroke</param>
         /// <returns>Compitible fill mode to render the shape</returns>
-        FillMode GetFillMode(FillMode current, string Name, float stroke);
+        FillMode GetFillMode(FillMode current, string TypeName, float stroke);
     }
     #endregion
 
@@ -85,7 +85,7 @@ namespace MnM.GWS
     /// Represents an object which can rotate, offer perimeters(surround area represented by points in sequential order) and has bounds.
     /// And of course, must also implement IElement - the gateway interface.
     /// </summary>
-    public interface IFigure : IID, IFigurable, IRecognizable, IEnumerable<VectorF>
+    public interface IFigure : IID, IRecognizable, IFigurable, IEnumerable<VectorF>
     { }
     #endregion
 

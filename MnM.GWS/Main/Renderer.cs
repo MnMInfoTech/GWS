@@ -1059,7 +1059,7 @@ namespace MnM.GWS
             IRectangle dstRc = Rectangle.Empty;
             int* src = null;
             byte* srcAlphas = null;
-            string ID = (source as IID)?.ID;
+            int ID = (source as IID)?.ID?? 0;
             int srcLen = source.Length;
             int srcW = source.Width;
             int srcH = source.Height;
@@ -1251,7 +1251,7 @@ namespace MnM.GWS
             var copy = source.CompitibleRc(x, y, w, h);
             int* src = null;
             byte* srcAlphas = null;
-            string ID = (source as IID)?.ID;
+            int ID = (source as IID)?.ID?? 0;
             int srcLen = source.Length;
             int srcW = source.Width;
             int srcH = source.Height;
@@ -1446,7 +1446,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control image drawig operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID = null)
+            int copyX, int copyY, int copyW, int copyH, Command command, int ShapeID = 0)
         {
             IRectangle dstRc;
             if (block is IPixels)
@@ -1487,7 +1487,7 @@ namespace MnM.GWS
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY, Command command, string ShapeID) =>
+        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY, Command command, int ShapeID = 0) =>
             block.DrawImage(source, srcW, srcH, dstX, dstY, 0, 0, srcW, srcH, command, ShapeID);
 
         /// <summary>
@@ -1504,7 +1504,7 @@ namespace MnM.GWS
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
         public unsafe static void DrawImage(this IBlockable block, byte[] source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID)
+            int copyX, int copyY, int copyW, int copyH, Command command, int ShapeID = 0)
         {
             var srcLen = source.Length / 4;
             var rc = Rects.CompitibleRc(srcW, srcLen / srcW, copyX, copyY, copyW, copyH);
@@ -1528,7 +1528,7 @@ namespace MnM.GWS
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
         public unsafe static void DrawImage(this IBlockable block, int[] source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, string ShapeID)
+            int copyX, int copyY, int copyW, int copyH, Command command, int ShapeID = 0)
         {
             var rc = Rects.CompitibleRc(srcW, source.Length / srcW, copyX, copyY, copyW, copyH);
             var srcLen = source.Length;
@@ -3010,7 +3010,7 @@ namespace MnM.GWS
         /// Draws focus rectangle i.e. border around specified with dotted invert colors
         /// </summary>
         /// <param name="rc">Rectangle to draw focus around.</param>
-        public static void DrawFocusRect(this IImage block, Rectangle rc, ISettings info)
+        public static void DrawFocusRect(this IWritable block, IRectangle rc, ISettings info)
         {
             if (rc == null)
                 return;
@@ -3018,14 +3018,10 @@ namespace MnM.GWS
             int Y = rc.Y;
             int W = rc.Width;
             int H = rc.Height;
-            var Settings = info ?? Factory.newSettings("FocusRect");
+            var Settings = info ?? Factory.newSettings();
             Settings.Receive(null, true);
             info.FillMode = FillMode.DrawOutLine;
-            info.Command = Command.Dot | Command.InvertColor
-#if Advanced
-             | Command.NoBrushAutoSizing
-#endif
-             ;
+            info.Command = Command.Dot | Command.InvertColor | Command.NoBrushAutoSizing;
             Settings.PenContext = (block as IBackground)?.Background;
             block.DrawRectangle(X, Y, W, H, Settings);
         }

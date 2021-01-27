@@ -19,7 +19,8 @@ namespace MnM.GWS
     partial struct Polygon : IPolygon
     {
         public readonly float X, Y, Width, Height;
-        
+        int id;
+
         #region CONSTRUCTORS
         /// <summary>
         /// Creates a new polygon specified by a collection of points and angle of rotation if supplied.
@@ -34,7 +35,6 @@ namespace MnM.GWS
             Y = Bounds.Y;
             Width = Bounds.Width;
             Height = Bounds.Height;
-            ID = "Polygon".NewID();
         }
         /// <summary>
         /// Creates a new polygon specified by a collection of points and angle of rotation if supplied.
@@ -48,8 +48,17 @@ namespace MnM.GWS
 
         #region PROPRTIES
         public IList<VectorF> Points { get; private set; }
-        public string Name => "Polygon";
-        public string ID { get; private set; }
+        public string TypeName => "Polygon";
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

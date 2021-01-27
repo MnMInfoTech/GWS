@@ -25,6 +25,7 @@ namespace MnM.GWS
         readonly Line Line2;
         IList<ILine> Extra;
         readonly bool NegativeMotion;
+        int id;
 
         readonly static Collection<float> List1 = new Collection<float>(6);
         readonly static Collection<float> List2 = new Collection<float>(6);
@@ -56,7 +57,6 @@ namespace MnM.GWS
             else
             {
                 Type = CurveType.Full;
-                ID = Name.NewID();
             }
         }
 
@@ -139,7 +139,6 @@ namespace MnM.GWS
         public Curve(IConic conic, VectorF[] pie, CurveType type) : this()
         {
             Conic = conic;
-            ID = "Conic".NewID();
 
             if (pie == null || pie.Length < 3 || (!type.HasFlag(CurveType.Pie) && !type.HasFlag(CurveType.Arc)) || pie[1].Equals(pie[2]))
             {
@@ -183,7 +182,15 @@ namespace MnM.GWS
         public float Rx => Conic.Rx;
         public float Ry => Conic.Ry;
         public Rotation Rotation => Conic.Rotation;
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public ICurve AttachedCurve
         {
             get => attachedCurve;
@@ -193,7 +200,7 @@ namespace MnM.GWS
                 Extra = GetClosingLines();
             }
         }
-        public string Name
+        public string TypeName
         {
             get
             {
@@ -212,6 +219,7 @@ namespace MnM.GWS
                 return "Ellipse";
             }
         }
+        public string Name => TypeName + ID;
         public bool Full => Type == CurveType.Full;
         bool ICut.IsEmpty => Full;
         public VectorF[] PieTriangle

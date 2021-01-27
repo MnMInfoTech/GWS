@@ -25,12 +25,14 @@ namespace MnM.GWS
         readonly EventInfo Event = new EventInfo();
         protected volatile bool isDisposed;
         readonly IExternalTarget Target;
+        readonly string typeName;
         #endregion
 
         #region CONSTRUCTORS
         _Window(int width, int height)
         {
             bounds = new Rectangle(0, 0, width, height);
+            GetTypeName(out typeName);
         }
         protected _Window(IExternalTarget target) :
             this(target.Width, target.Height)
@@ -68,6 +70,13 @@ namespace MnM.GWS
             this.Register();
         }
         partial void InitializeBufferCollection();
+
+        /// <summary>
+        /// Gets type of this window.
+        /// Please make sure that it matched with window id coming from event from PollEvent.
+        /// </summary>
+        /// <param name="typeName"></param>
+        protected abstract void GetTypeName(out string typeName);
         #endregion
 
         #region PROPERTIES
@@ -75,7 +84,6 @@ namespace MnM.GWS
             Canvas.Objects;
         public virtual string Text { get; set; }
         public string Name { get; protected set; }
-        public override string ID => Name;
         public Rectangle Bounds => bounds;
         public GwsWindowFlags GwsWindowFlags { get; private set; }
         public IGLContext GLContext { get; private set; }
@@ -105,6 +113,7 @@ namespace MnM.GWS
         public virtual WindowBorder WindowBorder { get; protected set; }
         public virtual VectorF Scale { get; set; }
         public virtual bool CursorVisible { get; set; }
+        public string ID => typeName + WindowID;
         protected CursorType? ResizeCursor { get; set; }
 
         public abstract IntPtr Handle { get; }

@@ -9,9 +9,9 @@ namespace MnM.GWS
     public struct ShapeArea: IRectangle, IShapeID
     {
         public readonly int X, Y, Width, Height;
-        public readonly string ShapeID;
+        public readonly int ShapeID;
 
-        public ShapeArea(int x, int y, int w, int h, string shapeID = null)
+        public ShapeArea(int x, int y, int w, int h, int shapeID = 0)
         {
             X = x;
             Y = y;
@@ -24,6 +24,6 @@ namespace MnM.GWS
         int ISize.Height => Height;
         int IPoint.X => X;
         int IPoint.Y => Y;
-        string IShapeID.ShapeID => ShapeID;
+        int IShapeID.ShapeID => ShapeID;
     }
 }

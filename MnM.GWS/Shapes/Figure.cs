@@ -19,27 +19,36 @@ namespace MnM.GWS
     {
         #region VARIABLES
         public readonly IEnumerable<VectorF> Points;
-        public readonly string Name;
+        public readonly string TypeName;
+        int id;
         #endregion
 
         #region CONSTRUCTORS
-        public Figure(IEnumerable<VectorF> points, string shapeType)
+        public Figure(IEnumerable<VectorF> points, string shapeType): this()
         {
             Points = points;
-            Name = shapeType;
-            ID = (points is IID) ? (points as IID).ID :
-                (Name?? "Shape").NewID(); ;
+            TypeName = shapeType;
+            if (points is IID)
+                id = ((IID)points).ID;
         }
         public Figure(IFigure shape): this()
         {
             Points = shape;
-            Name = shape.Name;
-            ID = shape.ID;
+            TypeName = shape.TypeName;
+            id = shape.ID;
         }
         #endregion
 
         #region ISHAPE
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public IEnumerable<VectorF> Perimeter()
         {
             if (Points is IFigurable)
@@ -48,7 +57,8 @@ namespace MnM.GWS
         }
         IEnumerator<VectorF> IEnumerable<VectorF>.GetEnumerator() => Points.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Points.GetEnumerator();
-        string IRecognizable.Name => Name;
+        string IRecognizable.TypeName => TypeName;
+        public string Name => TypeName + ID;
         #endregion
     }
 #if AllHidden

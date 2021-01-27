@@ -25,6 +25,7 @@ namespace MnM.GWS
         public readonly IList<VectorF> Points;
         public readonly float X, Y, Width, Height;
         readonly byte Valid;
+        int id;
         #endregion
 
         #region CONSTRUCTORS
@@ -36,7 +37,7 @@ namespace MnM.GWS
         /// <param name="p3">Third point.</param>
         /// <param name="p4">Fourth point.</param>
         /// <param name="angle">Angle to apply rotation while creating the trapezium</param>
-        public Tetragon(VectorF p1, VectorF p2, VectorF p3, VectorF p4)
+        public Tetragon(VectorF p1, VectorF p2, VectorF p3, VectorF p4): this()
         {
             Points = new VectorF[] { p1, p2, p3, p4 };
             var Bounds = Points.ToArea();
@@ -46,7 +47,6 @@ namespace MnM.GWS
             Height = Bounds.Height;
             Valid = Application.True;
             Type = QuadType.Trapezium;
-            ID = "Tetragon".NewID();
         }
 
         /// <summary>
@@ -74,7 +74,6 @@ namespace MnM.GWS
             Height = h;
             Type = QuadType.Rhombus;
             Valid = Application.True;
-            ID = "Tetragon".NewID();
         }
 
         /// <summary>
@@ -217,15 +216,24 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public string Name
+        public string TypeName
         {
             get
             {
                 return Type + "";
             }
         }
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public QuadType Type { get; private set; }
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

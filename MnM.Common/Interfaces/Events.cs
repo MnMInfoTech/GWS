@@ -8,7 +8,7 @@ using System;
  namespace MnM.GWS
 {
     #region IEVENTPUSHER
-    public interface IEventPusher: IID
+    public interface IEventPusher
     {
         void PushEvent(IEventInfo e);
         event EventHandler<IEventInfo> EventPushed;
@@ -328,7 +328,7 @@ using System;
     #endregion
 
     #region IEVENT-PROCESSOR
-    public interface IEventProcessor : IRecognizable, IDisposable
+    public interface IEventProcessor : IID<string>, IDisposable
     {
         bool ProcessEvent(IEvent @event);
     }

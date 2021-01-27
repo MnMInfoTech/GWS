@@ -89,6 +89,7 @@ namespace MnM.GWS
         readonly static Collection<float> List1 = new Collection<float>();
         readonly static Collection<float> List2 = new Collection<float>();
         readonly bool valid;
+        int id;
         #endregion
 
         #region CONSTRUCTORS
@@ -108,7 +109,6 @@ namespace MnM.GWS
 
             if (!valid)
                 return;
-            ID = "Conic".NewID();
 
             StartAngle = startAngle;
             EndAngle = endAngle;
@@ -270,7 +270,17 @@ namespace MnM.GWS
         /// Indicates if radius on X axis is greater than Radius on Y axis.
         /// </summary>
         public bool WMajor => Rx > Ry;
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
+            public string TypeName => "Conic";
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Rx * 2;

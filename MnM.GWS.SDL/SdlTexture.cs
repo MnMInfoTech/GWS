@@ -35,7 +35,7 @@ namespace MnM.GWS.SDL
             width = s.Width;
             height = s.Height;
             length = width * height;
-            ID = this.NewID();
+            ID = this.NewName();
         }
         public SdlTexture(IRenderWindow window, ICopyable source, bool isPrimary = false,
             uint? pixelformat = null, TextureAccess? textureAccess = null) :

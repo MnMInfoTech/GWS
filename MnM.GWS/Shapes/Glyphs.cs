@@ -24,13 +24,13 @@ namespace MnM.GWS
         public readonly bool ContainsNewLine;
         public readonly string Text;
         public readonly float X, Y, Width, Height;
+        int id;
         public static readonly Glyphs Empty = new Glyphs();
         #endregion
 
         #region CONSTRUCTORS
-        public Glyphs(string text, RectangleF area, IList<IGlyph> glyphs, float minHBY, bool containsNewLine = false)
+        public Glyphs(string text, RectangleF area, IList<IGlyph> glyphs, float minHBY, bool containsNewLine = false): this()
         {
-            ID = "Glyphs".NewID();
             X = area.X;
             Y = area.Y;
             Width = area.Width;
@@ -53,9 +53,18 @@ namespace MnM.GWS
             get => Data[index];
             set => Data[index] = value;
         }
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public int Count => Data.Count;
-        public string Name => "Text";
+        public string TypeName => "Text";
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

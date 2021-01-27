@@ -44,7 +44,7 @@ namespace MnM.GWS.SDL
         {
             Window = window;
             this.Surface = GetHandle(Window.Handle);
-            ID = "Target".NewID();
+            ID = "Target".NewName();
             width = window.Width;
             height = window.Height;
             length = width * height;

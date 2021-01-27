@@ -78,13 +78,31 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IRECOGNIZABLE
+    /// <summary>
+    /// Represents an object which can be recognized by name in GWS.
+    /// </summary>
+    public interface IRecognizable
+    {
+        /// <summary>
+        /// Type Name of this object.
+        /// </summary>
+        string TypeName { get; }
+    }
+    #endregion
+
 #if (GWS || Window)
 
     #region IRENDERABLE
     /// <summary>
     ///Marker interface -  Represents an object which has a unique ID and can be rendered on screen.
-    public interface IRenderable : IID
-    { }
+    public interface IRenderable : IID, IRecognizable
+    {        
+        /// <summary>
+        /// Name of this object.
+        /// </summary>
+        string Name { get; }
+    }
     #endregion
 
     #region IFIGURABLE
@@ -138,7 +156,7 @@ namespace MnM.GWS
     #endregion
 
     #region IREADABLE
-    public interface IReadable : IBlockable, IPenContext, IID, ICopyable
+    public interface IReadable : IBlockable, IPenContext, ICopyable
     {
         bool Invert { get; set; }
 

@@ -24,7 +24,7 @@ namespace MnM.GWS
         public readonly float Y2;
         public readonly float M;
         public readonly float C;
-
+        int id;
         byte Valid;
 
         const string toStr = "{0}; {1}; {2}; {3}";
@@ -63,7 +63,6 @@ namespace MnM.GWS
             {
                 Type = LineType.Point;
             }
-            ID = "Line".NewID();
         }
 
         /// <summary>
@@ -265,13 +264,18 @@ namespace MnM.GWS
 
         #region PROPERTIES
         bool ILine.Valid => Valid != 0;
-        public string Name => "Line";
-        public string ID { get; private set; }
+        public string TypeName => "Line";
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
         public LineType Type { get; private set; }
-        //float IPointF.X => X1 > X2 ? X2 : X1;
-        //float IPointF.Y => Y1 > Y2 ? Y2 : Y1;
-        //float ISizeF.Width => X1 > X2 ? X1 - X2 : X2 - X1;
-        //float ISizeF.Height => Y1 > Y2 ? Y1 - Y2 : Y2 - Y1;
+        public string Name => TypeName + ID;
         #endregion
 
         #region CONTAINS

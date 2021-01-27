@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* Licensed under the MIT/X11 license.
+* Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
+* This notice may not be removed from any source distribution.
+* See license.txt for detailed licensing details. */
+// Author: Manan Adhvaryu.
+
+#if Window
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -7,7 +14,7 @@ namespace MnM.GWS.SDL
 {
     class SdlTextureTarget : ITextureTarget
     {
-        #region VARIABLES
+#region VARIABLES
         protected IntPtr Renderer;
         protected readonly IRenderWindow Window;
         protected volatile int width, height, length;
@@ -16,9 +23,9 @@ namespace MnM.GWS.SDL
         protected bool IsResizing;
         protected volatile int[] Data;
         const byte o = 0;
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         public SdlTextureTarget(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false,
             uint? pixelformat = null, TextureAccess? textureAccess = null)
         {
@@ -31,15 +38,15 @@ namespace MnM.GWS.SDL
             height = s.Height;
             length = width * height;
             Data = new int[length];
-            ID = this.NewID();
+            ID = this.NewName();
         }
         public SdlTextureTarget(IRenderWindow window, ICopyable source, bool isPrimary = false,
             uint? pixelformat = null, TextureAccess? textureAccess = null) :
             this(window, null, null, isPrimary, pixelformat, textureAccess)
         { }
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         public string ID { get; private set; }
         public bool IsPrimary { get; private set; }
         public IntPtr Handle { get; private set; }
@@ -62,9 +69,9 @@ namespace MnM.GWS.SDL
             Window.IsDisposed || Disposed;
         public RendererFlags RendererFlags =>
             Window.RendererFlags;
-        #endregion
+#endregion
 
-        #region COPY FROM
+#region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command)
         {
@@ -93,9 +100,9 @@ namespace MnM.GWS.SDL
             if ((command & Command.SuspendUpdate) != Command.SuspendUpdate)
                 Update(0, dstRC);
         }
-        #endregion
+#endregion
 
-        #region RESIZE
+#region RESIZE
         public unsafe void Resize(int? width = null, int? height = null)
         {
             DestoryTextureHandle(Handle);
@@ -104,9 +111,9 @@ namespace MnM.GWS.SDL
             this.height = s.Height;
             CopyFrom(Window, 0, 0, new Rectangle(0, 0, s.Width, s.Height), 0);
         }
-        #endregion
+#endregion
 
-        #region LOCK - UNLOCK
+#region LOCK - UNLOCK
         Rectangle Lock(Rectangle copyRc, out IntPtr textureData, out int lockedLength)
         {
             if (locked)
@@ -140,9 +147,9 @@ namespace MnM.GWS.SDL
             NativeFactory.UnlockTexture(Handle);
             locked = false;
         }
-        #endregion
+#endregion
 
-        #region UPDATE
+#region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Update(Command command = Command.None, IRectangle boundary = null)
         {
@@ -157,9 +164,9 @@ namespace MnM.GWS.SDL
             NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
             NativeFactory.UpdateRenderer(Renderer);
         }
-        #endregion
+#endregion
 
-        #region COPY FROM
+#region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
             Command Command, IntPtr alphaBytes = default(IntPtr))
@@ -177,9 +184,9 @@ namespace MnM.GWS.SDL
             Update(Command, dstRc);
             return dstRc;
         }
-        #endregion
+#endregion
 
-        #region COPY TO       
+#region COPY TO       
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = 0)
         {
@@ -193,9 +200,9 @@ namespace MnM.GWS.SDL
             return Blocks.CopyBlock(Screen, copyX, copyY, copyW, copyH, length, width, height,
                 (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
         }
-        #endregion
+#endregion
 
-        #region CLEAR
+#region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command Command = 0)
         {
@@ -207,9 +214,9 @@ namespace MnM.GWS.SDL
                 Update(0, rc);
             return rc;
         }
-        #endregion
+#endregion
 
-        #region CREATE - DESTROY
+#region CREATE - DESTROY
         protected IntPtr CreateHandle(uint? format, TextureAccess? access, int w, int h, out Size size)
         {
             Renderer = NativeFactory.GetRenderer(Window.Handle);
@@ -228,14 +235,15 @@ namespace MnM.GWS.SDL
             if (handle != IntPtr.Zero)
                 NativeFactory.DestroyTexture(handle);
         }
-        #endregion
+#endregion
 
-        #region DISPOSE
+#region DISPOSE
         public virtual void Dispose()
         {
             Disposed = true;
             DestoryTextureHandle(Handle);
         }
-        #endregion
+#endregion
     }
 }
+#endif

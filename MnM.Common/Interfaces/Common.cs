@@ -22,7 +22,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a unique ID which serves as a key to store or retrieve the object from store.
     /// </summary>
-    public interface IID : IID<string>
+    public interface IID : IID<int>
     { }
     #endregion
 
@@ -111,19 +111,6 @@ namespace MnM.GWS
         //    return null;
         //}
 
-    }
-    #endregion
-
-    #region IRECOGNIZABLE
-    /// <summary>
-    /// Represents an object which can be recognized by name in GWS.
-    /// </summary>
-    public interface IRecognizable
-    {
-        /// <summary>
-        /// Name of this object.
-        /// </summary>
-        string Name { get; }
     }
     #endregion
 

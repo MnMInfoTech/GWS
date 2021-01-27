@@ -33,7 +33,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents a font object to use for text drawing.
     /// </summary>
-    public interface IFont : IID
+    public interface IFont
     {
         /// <summary>
         /// Gets or sets the size of the font to draw text.
@@ -167,7 +167,7 @@ namespace MnM.GWS
     #endregion
 
     #region IGLYPHS
-    public interface IGlyphs : IDrawable, IEnumerable<IGlyph>, IRecognizable, IRectangleF
+    public interface IGlyphs : IDrawable, IEnumerable<IGlyph>, IRectangleF
     {
         /// <summary>
         /// Gets the child glyph at a given index

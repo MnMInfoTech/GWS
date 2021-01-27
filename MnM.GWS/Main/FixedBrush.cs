@@ -15,13 +15,11 @@ namespace MnM.GWS
         readonly public int Width;
         readonly public int Height;
         readonly public int Length;
-        static int id; 
         #endregion
 
         #region CONSTRUCTOR
         public unsafe FixedBrush(IReadable pen, IDrawParams Settings)
         {
-            ID = "FixedBrush" + (++id);
             if (pen == null)
             {
                 PenData = new int[0];
@@ -42,7 +40,6 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public string ID { get; private set; }
         int ISize.Width => Width;
         int ISize.Height => Height;
         int ILength.Length => Length;

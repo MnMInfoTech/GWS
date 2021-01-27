@@ -24,6 +24,7 @@ namespace MnM.GWS
         public readonly float Y;
         public readonly float Width;
         public readonly float Height;
+        int id;
 
 #region CONSTRUCTORS
         /// <summary>
@@ -81,14 +82,22 @@ namespace MnM.GWS
             Y = Bounds.Y;
             Width = Bounds.Width;
             Height = Bounds.Height;
-            ID = Name.NewID();
         }
 #endregion
 
 #region PROPERTIES
         public BezierType Option { get; private set; }
-        public string Name => "Bezier";
-        public string ID { get; private set; }
+        public string TypeName => "Bezier";
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

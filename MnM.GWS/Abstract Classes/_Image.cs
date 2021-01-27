@@ -40,7 +40,7 @@ namespace MnM.GWS
         /// <summary>
         /// ID of this object.
         /// </summary>
-        protected string id;
+        protected int id;
 
         /// <summary>
         /// Indicates if this object is currently being resized or not.
@@ -58,6 +58,8 @@ namespace MnM.GWS
         protected readonly HashSet<int> DrawnIndices = new HashSet<int>();
 
         protected readonly int originalWidth, originalHeight;
+
+        readonly string typeName;
 
         /// <summary>
         /// Represents byte value of 0.
@@ -108,12 +110,12 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public string ID
+        public int ID
         {
             get
             {
-                if (id == null)
-                    id = "Image".NewID();
+                if (id == 0)
+                    id = this.NewID();
                 return id;
             }
         }
@@ -126,6 +128,9 @@ namespace MnM.GWS
             fixed (int* p = Data)
                 return p;
         }
+        public virtual string TypeName => "Image";
+        public string Name => TypeName + ID;
+
         protected abstract unsafe int* Pen { get; }
 #if Advanced
         public abstract bool Clipped { get; }
@@ -161,7 +166,7 @@ namespace MnM.GWS
             int dstX = horizontal ? val : axis;
             int dstY = horizontal ? axis : val;
         
-            string ShapeID = RecentlyDrawn.ShapeID;
+            int ShapeID = RecentlyDrawn.ShapeID;
             dstX += RecentlyDrawn.DstX;
             dstY += RecentlyDrawn.DstY;
 
@@ -227,7 +232,7 @@ namespace MnM.GWS
         {
             if (IsResizing || isDisposed)
                 return;
-            string ShapeID = RecentlyDrawn.ShapeID;
+            int ShapeID = RecentlyDrawn.ShapeID;
             dstX += RecentlyDrawn.DstX;
             dstY += RecentlyDrawn.DstY;
 
@@ -431,7 +436,7 @@ namespace MnM.GWS
             int copyY = copyArea.Y;
             int copyW = copyArea.Width;
             int copyH = copyArea.Height;
-            string ShapeID = null;
+            int ShapeID = 0;
             if (copyArea is IShapeID)
                 ShapeID = ((IShapeID)copyArea).ShapeID;
             int* texture = (int*)destination;

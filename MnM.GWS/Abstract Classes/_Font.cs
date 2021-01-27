@@ -12,19 +12,16 @@ namespace MnM.GWS
     public abstract class _Font : IFont
     {
         #region VARIABLES
-        protected string id;
+        protected readonly int id;
+        static int uniqueid;
         #endregion
 
-        #region PROPERTIES
-        public string ID
+        public _Font()
         {
-            get
-            {
-                if (id == null)
-                    id = "Font".NewID();
-                return id;
-            }
+            id = (++uniqueid);
         }
+
+        #region PROPERTIES
         public virtual bool EnableKerning { get; set; }
         public virtual bool Hinting { get; set; }
         public abstract IFontInfo Info { get; }

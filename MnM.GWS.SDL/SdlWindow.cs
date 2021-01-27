@@ -131,6 +131,8 @@ namespace MnM.GWS.SDL
                 return false;
             }
         }
+        protected override void GetTypeName(out string typeName) =>
+            typeName ="Window";
         #endregion
 
         #region PROPERTIES

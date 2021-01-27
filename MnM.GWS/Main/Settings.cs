@@ -15,7 +15,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        internal Settings(string shapeID, IPenContext context)
+        internal Settings(int shapeID, IPenContext context)
         {
             Boundary = Factory.newBoundary();
             ShapeID = shapeID;
@@ -56,7 +56,7 @@ namespace MnM.GWS
             }
         }
         public Rotation Rotation { get; set; }
-        public string ShapeID 
+        public int ShapeID 
         {
             get => Boundary.ShapeID;
             set => Boundary.ShapeID = value; 
@@ -179,7 +179,7 @@ namespace MnM.GWS
             Scale = VectorF.Empty;
             Boundary.DstX = Boundary.DstY = 0;
             Bounds = Rectangle.Empty;
-            ShapeID = null;
+            ShapeID = 0;
             Boundary.Clear();
         }
         #endregion

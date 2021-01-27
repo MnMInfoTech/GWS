@@ -228,21 +228,21 @@ namespace MnM.GWS
         #endregion
 
         #region SETTINGS
-        public static Settings newSettings(string shapeID, IPenContext context) =>
+        public static Settings newSettings(int shapeID, IPenContext context) =>
             new Settings(shapeID, context);
         public static Settings newSettings(IPenContext context) =>
-            new Settings(null, context);
-        public static Settings newSettings(string shapeID) =>
+            new Settings(0, context);
+        public static Settings newSettings(int shapeID) =>
             new Settings(shapeID, null);
         public static Settings newSettings() =>
-            new Settings(null, null);
-        public static Settings newSettings(string shapeID, IPenContext context, Command Command)
+            new Settings(0, null);
+        public static Settings newSettings(int shapeID, IPenContext context, Command Command)
         {
             var settings = new Settings(shapeID, context);
             settings.Command = Command;
             return settings;
         }
-        public static Settings newSettings(string shapeID, Command Command)
+        public static Settings newSettings(int shapeID, Command Command)
         {
             var settings = new Settings(shapeID, null);
             settings.Command = Command;
@@ -250,13 +250,13 @@ namespace MnM.GWS
         }
         public static Settings newSettings(IPenContext context, Command Command)
         {
-            var settings = new Settings(null, context);
+            var settings = new Settings(0, context);
             settings.Command = Command;
             return settings;
         }
         public static Settings newSettings(Command Command)
         {
-            var settings = new Settings(null, null);
+            var settings = new Settings(0, null);
             settings.Command = Command;
             return settings;
         }

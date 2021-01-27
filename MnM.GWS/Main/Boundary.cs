@@ -73,7 +73,7 @@ namespace MnM.GWS
         public int Height => Y2 - Y1;
         public int X => X1;
         public int Y => Y1;
-        public string ShapeID { get; set; }
+        public int ShapeID { get; set; }
         public int DstX 
         { 
             get => dstX;

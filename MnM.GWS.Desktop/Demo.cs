@@ -575,7 +575,7 @@ namespace MnM.GWS.Desktop
                     Original = (Canvas as ICloneable).Clone() as IImage;
                     var sz = Canvas.RotateAndScale(out IntPtr data,
                         new Rotation((float)numRotate.Value), chkCenter.Checked, (float)numScale.Value);
-                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height, 0, null);
+                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height, 0);
                     return;
                 }
             }

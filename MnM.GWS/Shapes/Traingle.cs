@@ -19,7 +19,8 @@ namespace MnM.GWS
      partial  struct Triangle : ITriangle 
     {
         public readonly float X, Y, Width, Height;
-        
+        int id;
+
         #region CONSTRUCTORS
         /// <summary>
         /// Creates a new trianle formed by three points specified by x1, y1, x2, y2, x3, y3 and angle of rotation if supplied.
@@ -41,7 +42,6 @@ namespace MnM.GWS
             Y = Bounds.Y;
             Width = Bounds.Width;
             Height = Bounds.Height;
-            ID = "Triangle".NewID();
         }
 
         /// <summary>
@@ -94,9 +94,18 @@ namespace MnM.GWS
 
         public VectorF Centre { get; private set; }
         public float Area { get; private set; }
-        public string Name => "Triangle";
+        public string TypeName => "Triangle";
         public Rotation Rotation { get; private set; }
-        public string ID { get; private set; }
+        public int ID
+        {
+            get
+            {
+                if (id == 0)
+                    id = this.NewID();
+                return id;
+            }
+        }
+        public string Name => TypeName + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;
