@@ -688,7 +688,7 @@ namespace MnM.GWS
     #endregion
 
     #region IBLINKER
-    public interface IBlinker : IRenderable, IChild, ITimerBase, ISettingsHolder
+    public interface IAnimation : IRenderable, IChild, ITimerBase, ISettingsHolder
     { }
     #endregion
 #endif
