@@ -350,14 +350,14 @@ using System;
         event EventHandler<IMouseEventArgs> AppClicked;
         event EventHandler<ISizeEventArgs> Resized;
         event EventHandler<IDrawEventArgs> Paint;
+        event EventHandler<ICancelEventArgs> LostFocus;
+        event EventHandler<ICancelEventArgs> GotFocus;
     }
     #endregion
 
     #region IMINIMAL-WINDOW-EVENTS
     public interface IMinimalWindowEvents
     {
-        event EventHandler<ICancelEventArgs> LostFocus;
-        event EventHandler<ICancelEventArgs> GotFocus;
         event EventHandler<IEventArgs> Minimized;
         event EventHandler<IEventArgs> Maximized;
         event EventHandler<IEventArgs> Restored;

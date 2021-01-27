@@ -297,7 +297,7 @@ namespace MnM.GWS
 #endif
 #if Window && GWS
     #region ITEXTURE
-    public partial interface ITexture : ISize, IResizable, IDisposable
+    public partial interface ITexture : ISize, IResizable, IDisposable, IUpdatable
     {
         /// <summary>
         /// Copies portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
@@ -309,12 +309,6 @@ namespace MnM.GWS
         /// <param name="copyArea">Area in source to copy.</param>
         /// <param name="command">Draw command to to control copy task</param>
         void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command = 0);
-
-        /// <summary>
-        /// Uploads a portion of this texture specified by rectangle area to the screen.
-        /// </summary>
-        /// <param name="area"></param>
-        void Upload(Rectangle area);
     }
     public interface ITexture2 : ITexture
     {
@@ -325,6 +319,8 @@ namespace MnM.GWS
         void Bind();
         void Unbind();
     }
+    public interface ITextureTarget : ITexture, IRenderTarget
+    { }
     #endregion
 #endif
 }

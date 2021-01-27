@@ -9,6 +9,7 @@
     <Import_RootNamespace>MnM.GWS.SDL</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)SdlTextureTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdlWindowSurface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdlAudio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums.cs" />

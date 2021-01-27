@@ -14,7 +14,7 @@ namespace MnM.GWS.SDL
 {
     sealed class SdlWindow : _Window, IWindow
     {
-#region VARIABLES
+        #region VARIABLES
         const int defaultWidth = 300;
         const int defaultHeight = 300;
 
@@ -39,9 +39,9 @@ namespace MnM.GWS.SDL
         bool Valid;
         bool firstShow;
         static readonly object Sync = new object();
-#endregion
+        #endregion
 
-#region CONSTRUCTORS
+        #region CONSTRUCTORS
         public SdlWindow(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
             RendererFlags? renderFlags = null) :
@@ -131,9 +131,9 @@ namespace MnM.GWS.SDL
                 return false;
             }
         }
-#endregion
+        #endregion
 
-#region PROPERTIES
+        #region PROPERTIES
         public sealed override IntPtr Handle => handle;
         public override bool Focused =>
             focused && !disabled && visible;
@@ -237,9 +237,9 @@ namespace MnM.GWS.SDL
                 }
             }
         }
-#endregion
+        #endregion
 
-#region FOCUS
+        #region FOCUS
         public bool Has(Vector p)
         {
             if (Transparency >= 1f)
@@ -282,14 +282,14 @@ namespace MnM.GWS.SDL
             NativeFactory.RaiseWindow(Handle);
             return true;
         }
-#endregion
+        #endregion
 
-#region CREATE GL CONTEXT
+        #region CREATE GL CONTEXT
         //public GLContext CreateGLContext() =>
         //    GLContext.Create(this);
-#endregion
+        #endregion
 
-#region SHOW HIDE
+        #region SHOW HIDE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void ChangeVisible(bool value)
         {
@@ -315,9 +315,9 @@ namespace MnM.GWS.SDL
             }
             base.ChangeVisible(value);
         }
-#endregion
+        #endregion
 
-#region CLOSE
+        #region CLOSE
         protected override void OnClosed(IEventArgs e)
         {
             Valid = false;
@@ -332,9 +332,9 @@ namespace MnM.GWS.SDL
             handle = IntPtr.Zero;
             base.OnClosed(e);
         }
-#endregion
+        #endregion
 
-#region RESIZE
+        #region RESIZE
         public override void Resize(int? width = null, int? height = null)
         {
             var w = width ?? Width;
@@ -346,9 +346,9 @@ namespace MnM.GWS.SDL
             }
             base.Resize(Width, Height);
         }
-#endregion
+        #endregion
 
-#region PRIVATE METHODS
+        #region PRIVATE METHODS
         void grabCursor(bool grab)
         {
             NativeFactory.ShowCursor(!grab ? 0 : 1);
@@ -363,9 +363,9 @@ namespace MnM.GWS.SDL
                 NativeFactory.WarpMouseInWindow(Handle, (int)Math.Round(mouseState.X / scale), (int)Math.Round(mouseState.Y / scale));
             }
         }
-#endregion
+        #endregion
 
-#region CURSOR
+        #region CURSOR
         public override void SetCursor(int x, int y)
         {
             NativeFactory.ShowCursor(1);
@@ -377,9 +377,9 @@ namespace MnM.GWS.SDL
             NativeFactory.ShowCursor(0);
         public override void ContainMouse(bool flag) =>
             NativeFactory.SetWindowGrab(Handle, flag);
-#endregion
+        #endregion
 
-#region CHANGE
+        #region CHANGE
         public override void ChangeScreen(int screenIndex) { }
         public override void ChangeState(WindowState value)
         {
@@ -440,9 +440,9 @@ namespace MnM.GWS.SDL
             bounds = new Rectangle(_x, _y, bounds.Width, bounds.Height);
             NativeFactory.SetWindowPosition(Handle, X, Y);
         }
-#endregion
+        #endregion
 
-#region EVENT ARGS
+        #region EVENT ARGS
         readonly MouseButtonEventArgs mouseDownArgs = new MouseButtonEventArgs();
         readonly MouseButtonEventArgs mouseUpArgs = new MouseButtonEventArgs();
         readonly MouseMoveEventArgs mouseMoveArgs = new MouseMoveEventArgs();
@@ -458,9 +458,9 @@ namespace MnM.GWS.SDL
         Keyboard keyState = new Keyboard();
 
         Mouse pMouseState = new Mouse();
-#endregion
+        #endregion
 
-#region INPUT PROCESSING
+        #region INPUT PROCESSING
         public bool CanProcessEvent =>
             !IsDisposed && Visible && Enabled && Valid;
         protected override IEventArgs ParseEvent(IEvent @event)
@@ -700,9 +700,9 @@ namespace MnM.GWS.SDL
                     return null;
             }
         }
-#endregion
+        #endregion
 
-#region MISC
+        #region MISC
         /// <summary>
         /// Call this method to simulate KeyDown/KeyUp events
         /// on platforms that do not generate key events for
@@ -781,7 +781,7 @@ namespace MnM.GWS.SDL
             return flag;
         }
 
-#endregion
+        #endregion
     }
 }
 #endif

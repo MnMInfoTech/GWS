@@ -317,14 +317,14 @@ namespace MnM.GWS
         internal unsafe static extern IntPtr GetWindowSurface(IntPtr window);
 
         [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurface", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        internal static extern int UpdateWindowSurface(IntPtr window);
+        internal static extern int UpdateWindow(IntPtr window);
 
         [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        static extern int UpdateWindowSurfaceRects(IntPtr window, Rectangle[] rects, int numrects);
+        internal static extern int UpdateWindow(IntPtr window, Rectangle[] rects, int numrects);
 
         internal static int UpdateWindow(IntPtr window, params Rectangle[] rectangles)
         {
-            return UpdateWindowSurfaceRects(window, rectangles, rectangles.Length);
+            return UpdateWindow(window, rectangles, rectangles.Length);
         }
 
         [DllImport(libSDL, EntryPoint = "SDL_CreateRGBSurfaceWithFormatFrom", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -398,6 +398,9 @@ namespace MnM.GWS
         internal static extern int SetRenderTarget(IntPtr renderer, IntPtr texture);
 
         [DllImport(libSDL, EntryPoint = "SDL_LockTexture", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int LockTexture(IntPtr texture, Rectangle rect, out IntPtr pixels, out int pitch);
+
+        [DllImport(libSDL, EntryPoint = "SDL_LockTexture", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int LockTexture(IntPtr texture, IntPtr rect, out IntPtr pixels, out int pitch);
 
         [DllImport(libSDL, EntryPoint = "SDL_UnlockTexture", CallingConvention = CallingConvention.Cdecl)]
@@ -437,6 +440,9 @@ namespace MnM.GWS
 
         [DllImport(libSDL, EntryPoint = "SDL_UpdateTexture", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern int UpdateTexture(IntPtr texture, Rectangle rect, IntPtr pixels, int pitch);
+
+        [DllImport(libSDL, EntryPoint = "SDL_UpdateTexture", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int UpdateTexture(IntPtr texture, IntPtr rect, IntPtr pixels, int pitch);
         #endregion
 
         #region RENDERER BINDINGS
@@ -500,6 +506,21 @@ namespace MnM.GWS
 
         [DllImport(libSDL, EntryPoint = "SDL_RenderReadPixels", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal unsafe static extern int ReadPixels(IntPtr renderer, IntPtr rect, uint format, int* pixels, int pitch);
+
+        [DllImport(libSDL, EntryPoint = "SDL_SetRenderDrawColor", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int SetDrawColor(IntPtr renderer, int r, int g, int b, int a);
+
+        internal static int SetDrawColor(IntPtr renderer, int color)
+        {
+            int r = (byte)((color >> Colors.RShift) & 0xFF);
+            int g = (byte)((color >> Colors.GShift) & 0xFF);
+            int b = (byte)((color >> Colors.BShift) & 0xFF);
+            int a = (byte)((color >> Colors.AShift) & 0xFF);
+            return SetDrawColor(renderer, r, g, b, a);
+        }
+
+        [DllImport(libSDL, EntryPoint = "SDL_SetRenderDrawColor", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int DrawPoint(IntPtr renderer, int x, int y);
         #endregion
 
         #region WINDOW - RENDERER BINDINGS

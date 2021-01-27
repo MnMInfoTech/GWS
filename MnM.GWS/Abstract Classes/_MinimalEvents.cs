@@ -134,6 +134,14 @@ namespace MnM.GWS
         protected virtual void OnPaint(IDrawEventArgs e) =>
             Paint?.Invoke(this, e);
         public event EventHandler<IDrawEventArgs> Paint;
+
+        protected virtual void OnLostFocus(ICancelEventArgs e) =>
+            LostFocus?.Invoke(this, e);
+        public event EventHandler<ICancelEventArgs> LostFocus;
+
+        protected virtual void OnGotFocus(ICancelEventArgs e) =>
+            GotFocus?.Invoke(this, e);
+        public event EventHandler<ICancelEventArgs> GotFocus;
         #endregion
 
         #region DISPOSE

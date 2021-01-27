@@ -52,14 +52,6 @@ namespace MnM.GWS
         #endregion
 
         #region EVENT DECLARATION
-        protected virtual void OnLostFocus(ICancelEventArgs e) =>
-            LostFocus?.Invoke(this, e);
-        public event EventHandler<ICancelEventArgs> LostFocus;
-      
-        protected virtual void OnGotFocus(ICancelEventArgs e) =>
-            GotFocus?.Invoke(this, e);
-        public event EventHandler<ICancelEventArgs> GotFocus;
-
         protected virtual void OnMouseDoubleClick(IMouseEventArgs e) =>
             MouseDoubleClick?.Invoke(this, e);
         public event EventHandler<IMouseEventArgs> MouseDoubleClick;

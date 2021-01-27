@@ -37,9 +37,6 @@ namespace MnM.GWS.SDL
         /// 
         /// </summary>
         IntPtr Surface;
-
-#if Advanced
-#endif
         #endregion
 
         #region CONSTRUCTORS
@@ -107,28 +104,6 @@ namespace MnM.GWS.SDL
         }
         #endregion
 
-        #region RESIZE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Resize(int? newWidth = null, int? newHeight = null)
-        {
-            if ((newWidth == null && newHeight == null) ||
-                (newWidth == width && newHeight == height))
-                return;
-
-            Surface = NativeFactory.GetWindowSurface(Window.Handle);
-            SdlSurfaceInfo sdlSurface = Surface.ToObj<SdlSurfaceInfo>();
-            Source = sdlSurface.Pixels;
-
-            width = sdlSurface.Width;
-            height = sdlSurface.Height;
-            length = width * height;
-            if (Window == null)
-                return;
-            var rc = Window.CopyTo(Source, length, width, 0, 0, new Rectangle(0,0, width, height), Command.Backdrop);
-            NativeFactory.UpdateWindow(Window.Handle, new Rectangle(rc.X, rc.Y, rc.Width, rc.Height));
-        }
-        #endregion
-
         #region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command Command = 0)
@@ -149,12 +124,36 @@ namespace MnM.GWS.SDL
         {
             if (RecentlyDrawn == null || !RecentlyDrawn.Valid)
                 return;
+            
             Rectangle rc;
             if (RecentlyDrawn is IBoundary)
                 rc = new Rectangle(((IBoundary)RecentlyDrawn).GetBounds(6, 6));
             else
                 rc = new Rectangle(RecentlyDrawn);
+
             NativeFactory.UpdateWindow(Window.Handle, rc);
+        }
+        #endregion
+
+        #region RESIZE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Resize(int? newWidth = null, int? newHeight = null)
+        {
+            if ((newWidth == null && newHeight == null) ||
+                (newWidth == width && newHeight == height))
+                return;
+
+            Surface = NativeFactory.GetWindowSurface(Window.Handle);
+            SdlSurfaceInfo sdlSurface = Surface.ToObj<SdlSurfaceInfo>();
+            Source = sdlSurface.Pixels;
+
+            width = sdlSurface.Width;
+            height = sdlSurface.Height;
+            length = width * height;
+            if (Window == null)
+                return;
+            var rc = Window.CopyTo(Source, length, width, 0, 0, new Rectangle(0, 0, width, height), Command.Backdrop);
+            NativeFactory.UpdateWindow(Window.Handle, new Rectangle(rc.X, rc.Y, rc.Width, rc.Height));
         }
         #endregion
 

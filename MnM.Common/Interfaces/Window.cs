@@ -22,8 +22,7 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IRenderTarget : IID, IClearable, IPastable, IPixels,
         IResizable, ICopyable, IUpdatable, IDisposed
-    {
-    }
+    { }
     #endregion
 
     #region INATIVE TARGET
