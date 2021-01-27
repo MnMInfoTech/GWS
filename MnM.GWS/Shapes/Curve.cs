@@ -57,6 +57,7 @@ namespace MnM.GWS
             else
             {
                 Type = CurveType.Full;
+                Name = TypeName.NewName();
             }
         }
 
@@ -167,6 +168,7 @@ namespace MnM.GWS
             StartAngle = pieP2.GetAngle(pieP1.X, pieP1.Y);
             EndAngle = pieP3.GetAngle(pieP1.X, pieP1.Y);
             Extra = GetClosingLines();
+            Name = TypeName.NewName();
         }
         #endregion
 
@@ -219,7 +221,7 @@ namespace MnM.GWS
                 return "Ellipse";
             }
         }
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         public bool Full => Type == CurveType.Full;
         bool ICut.IsEmpty => Full;
         public VectorF[] PieTriangle

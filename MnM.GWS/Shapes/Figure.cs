@@ -30,12 +30,14 @@ namespace MnM.GWS
             TypeName = shapeType;
             if (points is IID)
                 id = ((IID)points).ID;
+            Name = TypeName.NewName();
         }
         public Figure(IFigure shape): this()
         {
             Points = shape;
             TypeName = shape.TypeName;
             id = shape.ID;
+            Name = TypeName.NewName();
         }
         #endregion
 
@@ -58,7 +60,7 @@ namespace MnM.GWS
         IEnumerator<VectorF> IEnumerable<VectorF>.GetEnumerator() => Points.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => Points.GetEnumerator();
         string IRecognizable.TypeName => TypeName;
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         #endregion
     }
 #if AllHidden

@@ -15,6 +15,7 @@ namespace MnM.GWS
 
         public _Glyph()
         {
+            Name = TypeName.NewName();
         }
 
         #region PROPERTIES
@@ -35,7 +36,7 @@ namespace MnM.GWS
         }
         public Rectangle RecentlyDrawn { get; set; }
         public virtual string TypeName => "Glyph";
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         #endregion
 
         #region DRAW

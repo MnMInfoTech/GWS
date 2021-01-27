@@ -45,13 +45,14 @@ namespace MnM.GWS
                 Height = h;
                 CornerRadius = cornerRadius;
                 points = Curves.RoundedBoxPoints(X, Y, Width, Height, CornerRadius, option);
-            }
+            Name = TypeName.NewName();
+        }
 
-            /// <summary>
-            /// Creates a new rect identical to the area of specifed rectangle.
-            /// </summary>
-            /// <param name="area">Area to match bounds from.</param>
-            public RoundBox(Rectangle area, float cornerRadius, RoundBoxOption option = 0) :
+        /// <summary>
+        /// Creates a new rect identical to the area of specifed rectangle.
+        /// </summary>
+        /// <param name="area">Area to match bounds from.</param>
+        public RoundBox(Rectangle area, float cornerRadius, RoundBoxOption option = 0) :
                 this(area.X, area.Y, area.Width, area.Height, cornerRadius, option)
             { }
 
@@ -111,7 +112,7 @@ namespace MnM.GWS
             }
         }
         public string TypeName => "RoundBox";
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IRoundBox.CornerRadius => CornerRadius;
             public QuadType Type => QuadType.RoundBox;
             float IPointF.X => X;

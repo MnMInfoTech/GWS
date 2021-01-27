@@ -35,6 +35,7 @@ namespace MnM.GWS
             Y = Bounds.Y;
             Width = Bounds.Width;
             Height = Bounds.Height;
+            Name = TypeName.NewName();
         }
         /// <summary>
         /// Creates a new polygon specified by a collection of points and angle of rotation if supplied.
@@ -58,7 +59,7 @@ namespace MnM.GWS
                 return id;
             }
         }
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

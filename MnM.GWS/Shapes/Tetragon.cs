@@ -47,6 +47,7 @@ namespace MnM.GWS
             Height = Bounds.Height;
             Valid = Application.True;
             Type = QuadType.Trapezium;
+            Name = TypeName.NewName();
         }
 
         /// <summary>
@@ -74,6 +75,7 @@ namespace MnM.GWS
             Height = h;
             Type = QuadType.Rhombus;
             Valid = Application.True;
+            Name = TypeName.NewName();
         }
 
         /// <summary>
@@ -233,7 +235,7 @@ namespace MnM.GWS
             }
         }
         public QuadType Type { get; private set; }
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

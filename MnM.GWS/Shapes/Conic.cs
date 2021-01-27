@@ -128,6 +128,7 @@ namespace MnM.GWS
             
             DefineBoundary(Rotation, ref A, ref B, ref C, ref D, ref E, ref F,
                 ref YMax, ref XMax, ref YStart, ref XStart, ref YEnd, ref XEnd, ref TopXGreater, ref RightYGreater);
+            Name = TypeName.NewName();
         }
 
         /// <summary>
@@ -280,7 +281,7 @@ namespace MnM.GWS
             }
         }
             public string TypeName => "Conic";
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Rx * 2;

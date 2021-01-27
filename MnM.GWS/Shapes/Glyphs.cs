@@ -44,6 +44,7 @@ namespace MnM.GWS
                 Text = new string(glyphs.Select(x => x.Character).ToArray());
             else
                 Text = text;
+            Name = TypeName.NewName();
         }
         #endregion
 
@@ -64,7 +65,7 @@ namespace MnM.GWS
         }
         public int Count => Data.Count;
         public string TypeName => "Text";
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

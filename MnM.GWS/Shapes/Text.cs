@@ -47,6 +47,7 @@ namespace MnM.GWS
                 DrawX = destX.Value;
             if (destY != null)
                 DrawY = destY.Value;
+            Name = TypeName.NewName();
         }
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace MnM.GWS
                 Change();
             }
         }
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

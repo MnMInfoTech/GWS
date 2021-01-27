@@ -42,6 +42,7 @@ namespace MnM.GWS
             Y = Bounds.Y;
             Width = Bounds.Width;
             Height = Bounds.Height;
+            Name = TypeName.NewName();
         }
 
         /// <summary>
@@ -105,7 +106,7 @@ namespace MnM.GWS
                 return id;
             }
         }
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

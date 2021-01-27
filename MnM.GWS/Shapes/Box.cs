@@ -80,16 +80,17 @@ namespace MnM.GWS
                     valid = Application.False;
                 else
                     valid = Application.True;
-            }
+            Name = TypeName.NewName();
+        }
 
-            /// <summary>
-            /// Creates a new rect with specifed parameters.
-            /// </summary>
-            /// <param name="x">Far left horizontal co-rodinate of the rectangle.</param>
-            /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
-            /// <param name="w">Width of the rectangle.</param>
-            /// <param name="h">Height of the rectangle.</param>
-            public Box(float x, float y, float w, float h) :
+        /// <summary>
+        /// Creates a new rect with specifed parameters.
+        /// </summary>
+        /// <param name="x">Far left horizontal co-rodinate of the rectangle.</param>
+        /// <param name="y">Far top horizontal co-rodinate of the rectangle.</param>
+        /// <param name="w">Width of the rectangle.</param>
+        /// <param name="h">Height of the rectangle.</param>
+        public Box(float x, float y, float w, float h) :
                 this(x.Round(), y.Round(), w.Round(), h.Round())
             { }
 
@@ -192,7 +193,7 @@ namespace MnM.GWS
             }
         }
         public string TypeName => "Rect";
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         int IPoint.X => X;
             int IPoint.Y => Y;
             int ISize.Width => Width;

@@ -63,6 +63,7 @@ namespace MnM.GWS
             {
                 Type = LineType.Point;
             }
+            Name = TypeName.NewName();
         }
 
         /// <summary>
@@ -275,7 +276,7 @@ namespace MnM.GWS
             }
         }
         public LineType Type { get; private set; }
-        public string Name => TypeName + ID;
+        public string Name { get; private set; }
         #endregion
 
         #region CONTAINS
