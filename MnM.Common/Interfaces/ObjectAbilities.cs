@@ -610,6 +610,31 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IELEMENTFINDER
+    public interface IElementFinder
+    {
+        /// <summary>
+        /// Finds an element from this collection if it exists on a given x and y coordinates.
+        /// the test is applied on a last drawn area rather than an actual area of each element so if an element is not drawn yet, 
+        /// it can not be found!
+        /// </summary>
+        /// <param name="x">X coordinate to search for</param>
+        /// <param name="y">Y coordinate to search for</param>
+        /// <returns></returns>
+        IRenderable FindElement(int x, int y);
+
+        /// <summary>
+        /// Checks any part of given element is rendered at given location or not.
+        /// </summary>
+        /// <param name="renderable">Element to check for.</param>
+        /// <param name="x">X coordinate to search for</param>
+        /// <param name="y">Y coordinate to search for</param>
+        /// <returns>True if any part of element is rendered at the given location otherwise not.</returns>
+        bool CheckElement(IRenderable renderable, int x, int y);
+
+    }
+    #endregion
+
     #region IWINDOWABLE
     public interface IWindowable : IRefreshable, ISize, IFocusable, IMoveable, IPoint,
         IResizable, IOVerlap, IMinMaxSizable, IShowable, IHideable, IVisible2, IMinimalEvents, IDisposable
@@ -660,6 +685,11 @@ namespace MnM.GWS
         /// </summary>
         Rectangle Bounds { get; }
     }
+    #endregion
+
+    #region IBLINKER
+    public interface IBlinker : IRenderable, IChild, ITimerBase, ISettingsHolder
+    { }
     #endregion
 #endif
 }

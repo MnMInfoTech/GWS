@@ -34,7 +34,6 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public string ID { get; private set; }
         public int Interval
         {
             get => interval;

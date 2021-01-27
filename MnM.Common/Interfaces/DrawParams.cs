@@ -57,13 +57,9 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ISETTINGS
-    /// <summary>
-    /// Reprsents an object which represents location and draw parameters information as well.
-    /// It also facilitates modification of location and draw parameters.
-    /// </summary>
-    public partial interface ISettings : IPolyInfo, IDrawnArea, IShapeID, ISettingsReceiver, IBounds, IRotatable
-    {  
+    #region ICOMMON-SETTINGS
+    public interface IDrawSettings : IDrawParams, IDrawnArea, IBounds, IRotatable
+    {
         /// <summary>
         /// Gets or sets fill mode settings for this object.
         /// </summary> 
@@ -98,7 +94,16 @@ namespace MnM.GWS
         /// Gets or sets the supplied foreground context to be used for rendering.
         /// </summary>
         IPenContext PenContext { get; set; }
+    }
+    #endregion
 
+    #region ISETTINGS
+    /// <summary>
+    /// Reprsents an object which represents location and draw parameters information as well.
+    /// It also facilitates modification of location and draw parameters.
+    /// </summary>
+    public partial interface ISettings : IDrawSettings, IPolyInfo,  IShapeID, ISettingsReceiver
+    {          
         ///// <summary>
         ///// Gets pe created using current PenContext.
         ///// </summary>
@@ -115,5 +120,10 @@ namespace MnM.GWS
         void Flush();
     }
     #endregion
+
+    public interface ISettingsHolder
+    {
+        IDrawSettings DrawSettings { get; }
+    }
 }
 #endif

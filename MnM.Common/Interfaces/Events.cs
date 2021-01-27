@@ -29,18 +29,8 @@ using System;
     /// <summary>
     /// Represents an argument object to relay mouse input information.
     /// </summary>
-    public interface IMouseEventArgs : IInputEventArgs
+    public interface IMouseEventArgs : IInputEventArgs, IPoint
     {
-        /// <summary>
-        /// X cor-ordinate of the location of mouse.
-        /// </summary>
-        int X { get; }
-
-        /// <summary>
-        /// Y cor-ordinate of the location of mouse.
-        /// </summary>
-        int Y { get; }
-
         /// <summary>
         /// Indicates state of mouse - i.e up or down or hovering or clicked etc.
         /// </summary>

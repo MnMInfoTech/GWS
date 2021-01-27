@@ -94,6 +94,29 @@ namespace MnM.GWS
         /// <summary>
         /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
         /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, ISettings Settings, IBoundary Boundary)
+        {
+            int i = 0;
+            foreach (var Renderable in Renderables)
+            {
+                if (!writable.Render(Renderable, Settings, true))
+                    break;
+                Boundary.Merge(Settings.Boundary);
+                ++i;
+            }
+            bool ok = i != 0;
+            if (Boundary.Valid && writable is IUpdatable)
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly, Boundary);
+
+            return ok;
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
         /// <param name="ExecutionTime">Time to complete rendering process for all shapes in miliseconds.</param>
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
