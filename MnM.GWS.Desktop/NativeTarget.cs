@@ -11,9 +11,17 @@ using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
-namespace MnM.GWS.Desktop
+using MnM.GWS.Desktop;
+
+namespace MnM.GWS
 {
-    public class NativeTarget : Form, INativeTarget
+#if HideNativeObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
+        class NativeTarget : Form, INativeTarget
     {
         #region VARIABLES
         /// <summary>
@@ -351,5 +359,8 @@ namespace MnM.GWS.Desktop
         delegate void DelTextChange(string text);
         #endregion
     }
+#if HideNativeObjects
+    }
+#endif
 }
 #endif

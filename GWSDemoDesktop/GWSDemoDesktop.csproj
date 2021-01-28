@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;AllHidden;Window;GWS;MS;</DefineConstants>
+    <DefineConstants>TRACE;HideGWSObjects;Window;GWS;MS;HideNativeObjects;</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
   </PropertyGroup>

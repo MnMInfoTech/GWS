@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -355,7 +355,7 @@ namespace MnM.GWS
         float IPointF.Y => Y1 > Y2 ? Y2 : Y1;
         #endregion
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

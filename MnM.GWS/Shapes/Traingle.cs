@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -144,7 +144,7 @@ namespace MnM.GWS
             GetEnumerator();
         #endregion
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

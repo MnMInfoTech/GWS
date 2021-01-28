@@ -9,7 +9,7 @@ using System.IO;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -35,7 +35,7 @@ namespace MnM.GWS
             public void Write(IntPtr pixels, int width, int height, int len, int pitch, Stream dest, ImageFormat format, int quality = 50) =>
                 STBImage.Processor.Write(pixels, width, height, len, pitch, dest, format, quality);
         }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

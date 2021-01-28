@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 namespace MnM.GWS
 {
 
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
         /// <summary>
@@ -218,7 +218,7 @@ namespace MnM.GWS
         }
         public bool Valid => Valid;
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

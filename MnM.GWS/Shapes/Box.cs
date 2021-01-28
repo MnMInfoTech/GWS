@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
         /// <summary>
@@ -273,7 +273,7 @@ namespace MnM.GWS
             public override string ToString() =>
                 string.Format(toStr, X, Y, Width, Height);
         }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

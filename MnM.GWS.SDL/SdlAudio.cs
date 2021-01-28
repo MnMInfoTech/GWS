@@ -9,11 +9,20 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace MnM.GWS.SDL
+using MnM.GWS.SDL;
+
+namespace MnM.GWS
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void AudioCallback(IntPtr userdata, byte* stream, int len);
-    abstract class SdlSoundBase : _Sound
+
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
+     abstract class SdlSoundBase : _Sound
     {
         protected static readonly string[] devices = new string[0];
         protected static readonly string[] drivers = new string[0];
@@ -242,6 +251,20 @@ namespace MnM.GWS.SDL
         #endregion
 
     }
+#if HideSdlObjects
+    }
+#endif
+
+}
+
+namespace MnM.GWS
+{
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
     unsafe class SdlAudio : SdlSoundBase, IAudio
     {
         #region VARIABLES
@@ -375,6 +398,19 @@ namespace MnM.GWS.SDL
         }
         #endregion
     }
+#if HideSdlObjects
+    }
+#endif
+}
+
+namespace MnM.GWS
+{
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
     unsafe class SdlSound : SdlSoundBase, ISound
     {
         #region VARIABLES
@@ -432,5 +468,9 @@ namespace MnM.GWS.SDL
         }
         #endregion
     }
+
+#if HideSdlObjects
+    }
+#endif
 }
 #endif

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -267,7 +267,7 @@ namespace MnM.GWS
             partial void Dispose2();
             #endregion
         }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

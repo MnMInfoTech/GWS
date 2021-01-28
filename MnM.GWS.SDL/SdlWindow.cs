@@ -10,8 +10,16 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MnM.GWS.SDL
+using MnM.GWS.SDL;
+
+namespace MnM.GWS
 {
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
     sealed class SdlWindow : _Window, IWindow
     {
         #region VARIABLES
@@ -785,5 +793,9 @@ namespace MnM.GWS.SDL
 
         #endregion
     }
+
+#if HideSdlObjects
+    }
+#endif
 }
 #endif

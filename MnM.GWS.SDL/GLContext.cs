@@ -8,7 +8,7 @@
 
 using System;
 
-namespace MnM.GWS.SDL
+namespace MnM.GWS
 {
     public enum GlContextAttribute
     {
@@ -36,6 +36,13 @@ namespace MnM.GWS.SDL
         ContextProfileMAsk = 21,
         ShareWithCurrentContext = 22,
     }
+
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
 
     sealed class GLContext : IGLContext
     {
@@ -144,5 +151,8 @@ namespace MnM.GWS.SDL
         public void Dispose() =>
             NativeFactory.DestroyGLContext(Handle);
     }
+#if HideSdlObjects
+    }
+#endif
 }
 #endif

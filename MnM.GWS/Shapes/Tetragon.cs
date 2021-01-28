@@ -13,7 +13,7 @@ namespace MnM.GWS
     /// <summary>
     /// Tetragon structure to create Rhombus, Box or Trapezium (defined as per the definition in British English).
     /// </summary>
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -261,7 +261,7 @@ namespace MnM.GWS
 
         public static implicit operator bool(Tetragon t) => t.Valid != 0;
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

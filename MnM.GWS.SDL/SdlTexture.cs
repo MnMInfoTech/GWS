@@ -8,8 +8,14 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace MnM.GWS.SDL
+namespace MnM.GWS
 {
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
     class SdlTexture : ITexture, ITexture2
     {
         #region VARIABLES
@@ -211,5 +217,9 @@ namespace MnM.GWS.SDL
         }
         #endregion
     }
+
+#if HideSdlObjects
+    }
+#endif
 }
 #endif

@@ -12,7 +12,7 @@ using System.Text;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -115,7 +115,7 @@ namespace MnM.GWS
                X, Y, slot.Width, slot.Height);
         }
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

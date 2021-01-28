@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -63,7 +63,7 @@ namespace MnM.GWS
         public string Name { get; private set; }
         #endregion
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

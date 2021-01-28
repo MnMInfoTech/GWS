@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -475,7 +475,7 @@ namespace MnM.GWS
         }
         #endregion
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -122,7 +122,7 @@ namespace MnM.GWS
             Points.GetEnumerator();
 #endregion
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

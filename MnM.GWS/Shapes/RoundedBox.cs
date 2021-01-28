@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -145,7 +145,7 @@ namespace MnM.GWS
                 return string.Format(toStr, X, Y, Width, Height, CornerRadius);
             }
         }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }

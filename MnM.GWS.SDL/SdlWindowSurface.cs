@@ -7,9 +7,16 @@
 using System;
 using System.Runtime.CompilerServices;
 
+using MnM.GWS.SDL;
 
-namespace MnM.GWS.SDL
+namespace MnM.GWS
 {
+#if HideSdlObjects
+    partial class NativeFactory
+    {
+#else
+    public
+#endif
     class SdlWindowSurface : IRenderTarget
     {
         #region VARIABLES
@@ -163,5 +170,9 @@ namespace MnM.GWS.SDL
         }
         #endregion
     }
+
+#if HideSdlObjects
+    }
+#endif
 }
 #endif

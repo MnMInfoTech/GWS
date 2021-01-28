@@ -14,7 +14,7 @@ namespace MnM.GWS
     /// Defines conic section Ax2 + Bxy + Cy2 +  Dx + Ey + F = 0 where A, B, C, D, E and F are constants. 
     /// </summary>
 
-#if AllHidden
+#if HideGWSObjects
     partial class NativeFactory
     {
 #else
@@ -447,7 +447,7 @@ namespace MnM.GWS
         }
         #endregion
     }
-#if AllHidden
+#if HideGWSObjects
     }
 #endif
 }
