@@ -164,11 +164,23 @@ namespace MnM.GWS
 #endif
                 base.PushEvent(e);
             }
-            #endregion
+        #endregion
+
+        #region ROTATE -FLIP
+        public Size RotateAndScale(out IntPtr Data, Rotation angle, bool antiAliased = true, float scale = 1)
+        {
+            return Canvas.RotateAndScale(out Data, angle, antiAliased, scale);
         }
 
+        public Size Flip(out IntPtr Data, FlipMode flipMode)
+        {
+            return Canvas.Flip(out Data, flipMode);
+        }
+        #endregion
+    }
+
 #if Advanced
-        partial class NativeForm : IContainer, IImageData
+    partial class NativeForm : IContainer, IImageData
         {
             #region PROPERTIES
             public IRectangle ClipRectangle

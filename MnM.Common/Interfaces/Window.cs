@@ -53,7 +53,7 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IForm : INativeForm, IGraphics, IConsolidator,
         IContainer, IUpdatable, IResizable, IClearable, IPastable, IDisposed,
-        IShowable, IHideable, IBackground, IMinimalEvents,
+        IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents
     { }
     #endregion

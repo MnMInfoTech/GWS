@@ -200,6 +200,18 @@ namespace MnM.GWS
             Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
         #endregion
 
+        #region ROTATE -FLIP
+        public Size RotateAndScale(out IntPtr Data, Rotation angle, bool antiAliased = true, float scale = 1)
+        {
+            return Canvas.RotateAndScale(out Data, angle, antiAliased, scale);
+        }
+
+        public Size Flip(out IntPtr Data, FlipMode flipMode)
+        {
+            return Canvas.Flip(out Data, flipMode);
+        }
+        #endregion
+
         #region SHOW - HIDE
         public void Show() =>
             ChangeVisible(true);

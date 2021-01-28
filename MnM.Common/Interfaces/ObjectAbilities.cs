@@ -141,6 +141,14 @@ namespace MnM.GWS
     { }
     #endregion
 
+    #region IRENDERABLE-BLOCK
+    public interface IRenderableBlock: IDrawable
+    {
+        IPoint CopyPoint { get; set; }
+        ISize CopySize { get; set; }
+    }
+    #endregion
+
     #region ISETTINGS-RECEIVER
     /// <summary>
     /// Represents an object which supports offset rendering/ reading.
