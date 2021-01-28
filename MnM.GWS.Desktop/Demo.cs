@@ -34,13 +34,13 @@ namespace MnM.GWS.Desktop
         CurveType curveType = 0;
         IFont gwsFont;
         ITextureBrush textureBrush;
-        IImage Original;
         static Demo instance;
         static IForm Window;
         System.Drawing.Font MsFont;
         System.Drawing.Font dfMsFont = new System.Drawing.Font("Tahoma", 12);
         System.Drawing.Brush MsBrush;
         ISettings Settings = Factory.newSettings();
+        bool Original;
         #endregion
 
         #region CONSTRUCTORS
@@ -172,7 +172,7 @@ namespace MnM.GWS.Desktop
             SetDrawingParams();
             SetGwsMethod();
 
-            if (Original != null)
+            if (Original)
                 description = "Entire Image Rotation ";
 
             if (chkCompare.Checked)
@@ -181,16 +181,18 @@ namespace MnM.GWS.Desktop
                 MsMethod = null;
             }
             var rc = Settings.Boundary;
-            Window.Clear(rc.X, rc.Y, rc.Width, rc.Height, Command.SuspendUpdate);
+
+            Window.Clear(rc.X, rc.Y, rc.Width, rc.Height, Command.SuspendUpdate |(Original? Command.Screen:0));
 
             if (GwsMethod != null)
             {
                 VoidMethod method = () => Text = description + Benchmarks.Execute(GwsMethod, description, MSBridge.BUnit);
                 method.Invoke();
             }
-            if (Original != null)
+            if (Original)
             {
-                Window.DrawImage(Original, 0, 0);
+                Window.Update(Command.CopyPixelsOnly, new Rectangle(0, 0, Window.Width, Window.Height));
+                Original = false;
             }
         }
         #endregion
@@ -346,7 +348,7 @@ namespace MnM.GWS.Desktop
             chkImageOperation.CheckedChanged += (s, e) =>
               {
                   if (!chkImageOperation.Checked)
-                      Original = null;
+                      Original = false;
               };
             btnTextureBrush.Click += SelectTextureBrush;
             btnClear.Click += ClearGraphics;
@@ -572,10 +574,11 @@ namespace MnM.GWS.Desktop
             {
                 if ((numRotate.Value != 0 && numRotate.Value != 360 && numRotate.Value != 360) || numScale.Value != 0)
                 {
-                    Original = (Canvas as ICloneable).Clone() as IImage;
                     var sz = Canvas.RotateAndScale(out IntPtr data,
                         new Rotation((float)numRotate.Value), chkCenter.Checked, (float)numScale.Value);
-                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height, 0);
+                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height, 
+                        Command.Screen | Command.UpdateScreenOnly);
+                    Original = true;
                     return;
                 }
             }
