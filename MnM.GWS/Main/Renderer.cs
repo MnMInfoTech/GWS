@@ -50,15 +50,76 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
         {
-            int slen = SettingsList.Length;
             var Boundary = Factory.newBoundary();
+            return writable.Render(Renderables, Boundary, SettingsList);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IList<ISettings> SettingsList)
+        {
+            var Boundary = Factory.newBoundary();
+            return writable.Render(Renderables, Boundary, SettingsList);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary Boundary, params ISettings[] SettingsList)
+        {
+            return writable.Render(Renderables, Boundary, (IList<ISettings>)SettingsList);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IReadOnlyList<ISettings> SettingsList, IBoundary Boundary)
+        {
+            int slen = SettingsList.Count;
             int i = 0;
             int j = -1;
             ISettings Settings;
             foreach (var Renderable in Renderables)
             {
                 Settings = i < slen ? SettingsList[i] : null;
-                if(!writable.Render(Renderable, Settings, true))
+                if (!writable.Render(Renderable, Settings, true))
+                    break;
+                Boundary.Merge(Settings.Boundary);
+                ++i;
+                ++j;
+            }
+
+            if (Boundary.Valid && writable is IUpdatable)
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+            return j != -1;
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary Boundary, IList<ISettings> SettingsList)
+        {
+            int slen = SettingsList.Count;
+            int i = 0;
+            int j = -1;
+            ISettings Settings;
+            foreach (var Renderable in Renderables)
+            {
+                Settings = i < slen ? SettingsList[i] : null;
+                if (!writable.Render(Renderable, Settings, true))
                     break;
                 Boundary.Merge(Settings.Boundary);
                 ++i;
@@ -754,15 +815,16 @@ namespace MnM.GWS
             var h = Settings.Bounds.Height + 1;
 
             IPenContext PenContext = Settings.PenContext;
-            bool Inverted = false;
-
             if (PenContext != null)
                 goto mks;
 
             if (PenContext == null && buffer is IBackground)
             {
-                PenContext = ((IBackground)buffer).Background;
-                Inverted = true;
+                if (shape is IRotatable)
+                    Settings.Rotation = ((IRotatable)shape).Rotation;
+                Pen = new FixedBrush(((IBackground)buffer).Background, Settings, w, h);
+                Settings.PenContext = Pen;
+                return Pen;
             }
 
         mks:
@@ -771,8 +833,6 @@ namespace MnM.GWS
                 Settings.Rotation = ((IRotatable)shape).Rotation;
 
             (Pen as ISettingsReceiver)?.Receive(Settings);
-            if (Inverted)
-                Pen.Invert = true;
             Settings.PenContext = Pen;
             return Pen;
         }

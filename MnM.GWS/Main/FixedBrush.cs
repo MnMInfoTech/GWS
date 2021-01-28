@@ -18,24 +18,40 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTOR
+        public FixedBrush(IPenContext context, IDrawParams Settings, int width, int height)
+        {
+            initialize(context, Settings, width, height, ref Width, ref Height, ref Length);
+        }
         public unsafe FixedBrush(IReadable pen, IDrawParams Settings)
         {
-            if (pen == null)
+            initialize(pen, Settings, pen.Width, pen.Height, ref Width, ref Height, ref Length);
+        }
+        unsafe void initialize(IPenContext context, IDrawParams Settings, int width, int height, ref int Width, ref int Height, ref int Length)
+        {
+            if(context == null)
             {
                 PenData = new int[0];
                 Width = Height = Length = 0;
                 return;
             }
+            Width = width;
+            Height = height;
+            Length = Width * Height;
+
+            IReadable pen;
+            if (context is IReadable)
+                pen = (IReadable)context;
+            else
+                pen = context.ToPen(width, height);
             if (Settings != null)
                 (pen as ISettingsReceiver)?.Receive(Settings);
-            Width = pen.Width;
-            Height = pen.Height;
-            Length = Width * Height;
+
             PenData = new int[Length];
             fixed (int* p = PenData)
-                pen.CopyTo((IntPtr)p, Length, Width, 0, 0, new Rectangle(0,0, Width, Height), 0);
+                pen.CopyTo((IntPtr)p, Length, Width, 0, 0, new Rectangle(0, 0, Width, Height), 0);
             if (Settings != null)
                 (pen as ISettingsReceiver)?.Receive(Settings, true);
+
         }
         #endregion
 
