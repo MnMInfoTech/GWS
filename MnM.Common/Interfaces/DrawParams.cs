@@ -16,8 +16,7 @@ namespace MnM.GWS
     { }
     #endregion
 
-
-    #region IRECENTLYDRAWN
+    #region IDRAWAREA
     public interface IDrawnArea
     {
         /// <summary>
@@ -28,7 +27,7 @@ namespace MnM.GWS
     #endregion
 
     #region IPOLYDRAW INFO
-    public interface IPolyInfo: IDrawParams, ICommand
+    public interface IPolySettings: IDrawParams, ICommand
     {
         /// <summary>
         /// Gets the size of current buffer on which shape is being rendered.
@@ -102,13 +101,8 @@ namespace MnM.GWS
     /// Reprsents an object which represents location and draw parameters information as well.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public partial interface ISettings : IDrawSettings, IPolyInfo,  IShapeID, ISettingsReceiver
+    public partial interface ISettings : IDrawSettings, IPolySettings,  IShapeID, ISettingsReceiver
     {          
-        ///// <summary>
-        ///// Gets pe created using current PenContext.
-        ///// </summary>
-        //IReadable Pen { get; }
-
         /// <summary>
         /// Cleans existing draw command by removing run time temporary redering options.
         /// </summary>
@@ -121,8 +115,14 @@ namespace MnM.GWS
     }
     #endregion
 
+    /// <summary>
+    /// Represents an object which holds public draw-settings.
+    /// </summary>
     public interface ISettingsHolder
     {
+        /// <summary>
+        /// Gets modifiable draw-settings object this object holds.
+        /// </summary>
         IDrawSettings DrawSettings { get; }
     }
 }

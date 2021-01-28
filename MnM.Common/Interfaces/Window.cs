@@ -104,44 +104,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IPOPUP-ITEM
-    public interface IPopupItem : IVisible
-    {
-        string Text { get; }
-    }
-    #endregion
-
-    #region IPOPUP
-    public interface IPopup : IElement, IWipeable, ISize,
-        IDisposable, IBackground, IForeground, IHoverBackground,
-        IHoverForeground, IReadOnlyList<IPopupItem>
-    {
-        /// <summary>
-        /// Gets or sets a flag to determine if this popup shoud hide on any item selection.
-        /// </summary>
-        bool HideOnClick { get; set; }
-
-        /// <summary>
-        /// Find an item on a given mouse coordinates along with the index it is situated in this popup object.
-        /// </summary>
-        /// <param name="e">Mouse coordinte argmetns</param>
-        /// <param name="item">Item found if at all</param>
-        /// <param name="index">Inde xof an item found</param>
-        /// <returns></returns>
-        bool FindItem(IMouseEventArgs e, out IPopupItem item, out int index);
-
-        /// <summary>
-        /// Fires when a mouse hovers on an item.
-        /// </summary>
-        event EventHandler<IPopupItemEventArgs> Hover;
-
-        /// <summary>
-        /// Fires when a mouse is clicked on an item.
-        /// </summary>
-        event EventHandler<IPopupItemEventArgs> Click;
-    }
-    #endregion
-
     #region IFOREGROUND
     public interface IForeground
     {
@@ -172,10 +134,10 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IPOPUP-HOST
-    public interface IPopupHost
+    #region IPOPUP-ITEM
+    public interface IPopupItem : IVisible
     {
-        IPopup ContextMenu { get; set; }
+        string Text { get; }
     }
     #endregion
 #endif

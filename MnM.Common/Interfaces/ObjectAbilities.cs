@@ -582,59 +582,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IINTERACTIVE
-    /// <summary>
-    /// Represents an object which is capable of keeping track of an element with in its collection of child elements for
-    /// the purpose of routing user inputs to it so that it can use them.
-    /// </summary>
-    public interface IInteractable
-    {
-        /// <summary>
-        /// Gets or sets an active object from the perspective of handling user inputs.
-        /// </summary>
-        IEventPusher ActiveObject { get; }
-
-        /// <summary>
-        /// Sets focus to given element in this collection so that it can receive user inputs.
-        /// </summary>
-        /// <param name="shape">An element to get focus</param>
-        /// <returns>False if the element can not be focused.</returns>
-        bool Focus(IRenderable shape);
-
-        /// <summary>
-        /// Removes focus from given element in this collection so that it can no longer receive user inputs.
-        /// </summary>
-        /// <param name="shape">An element to lose focus</param>
-        /// <returns>False if the element can not be focused.</returns>
-        bool Unfocus(IRenderable shape);
-    }
-    #endregion
-
-    #region IELEMENTFINDER
-    public interface IElementFinder
-    {
-        /// <summary>
-        /// Finds an element from this collection if it exists on a given x and y coordinates.
-        /// the test is applied on a last drawn area rather than an actual area of each element so if an element is not drawn yet, 
-        /// it can not be found!
-        /// </summary>
-        /// <param name="x">X coordinate to search for</param>
-        /// <param name="y">Y coordinate to search for</param>
-        /// <returns></returns>
-        IRenderable FindElement(int x, int y);
-
-        /// <summary>
-        /// Checks any part of given element is rendered at given location or not.
-        /// </summary>
-        /// <param name="renderable">Element to check for.</param>
-        /// <param name="x">X coordinate to search for</param>
-        /// <param name="y">Y coordinate to search for</param>
-        /// <returns>True if any part of element is rendered at the given location otherwise not.</returns>
-        bool CheckElement(IRenderable renderable, int x, int y);
-
-    }
-    #endregion
-
     #region IWINDOWABLE
     public interface IWindowable : IRefreshable, ISize, IFocusable, IMoveable, IPoint,
         IResizable, IOVerlap, IMinMaxSizable, IShowable, IHideable, IVisible2, IMinimalEvents, IDisposable
@@ -643,53 +590,6 @@ namespace MnM.GWS
 #endif
     {
     }
-    #endregion
-
-    #region IITEMIZED
-    public interface IItemized
-    {
-        /// <summary>
-        /// Gets child item at given index.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns>Item as given index in current page. Returns null if this object does not have children.</returns>
-        IRenderable GetItem(int index);
-    }
-
-    public interface IItemized<T> : IItemized where T: IRenderable
-    {
-        /// <summary>
-        /// Gets child item at given index.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns>Item as given index in current page. Returns null if this object does not have children.</returns>
-        new T GetItem(int index);
-    }
-    #endregion
-
-    #region IWIPEABLE
-    /// <summary>
-    /// Represents an object which can be drawn and then wiped off completely restoring the state of screen
-    /// exactly the same before it was drawn.
-    /// Use this interface only for object for which you know drawn area before hand.
-    /// </summary>
-    public interface IWipeable : IDrawable2, IShowable2, IHideable
-    {
-        /// <summary>
-        /// True if this popup is visible.
-        /// </summary>
-        bool Visible { get; }
-
-        /// <summary>
-        /// Gets the bounds of this object.
-        /// </summary>
-        Rectangle Bounds { get; }
-    }
-    #endregion
-
-    #region IBLINKER
-    public interface IAnimation : IRenderable, IChild, ITimerBase, ISettingsHolder
-    { }
     #endregion
 #endif
 }

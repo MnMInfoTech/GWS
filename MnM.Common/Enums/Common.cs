@@ -183,12 +183,12 @@ namespace MnM.GWS
         /// <summary>
         /// Erases specified shape from the memory block. Advanced version only.
         /// </summary>
-        EraseControl = 0x8000000,
+        Erase = 0x8000000,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
         /// </summary>
-        RestoreControl = 0x10000000,
+        Restore = 0x10000000,
 
         /// <summary>
         /// Tells GWS that shape is being drawn first time.

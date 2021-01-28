@@ -191,7 +191,7 @@ namespace MnM.GWS
     /// <summary>
     /// Fills a polygon structure with specified PolyFill enum option.
     /// </summary>
-    public interface IPolyFill : IPolyInfo, IDisposable
+    public interface IPolyFill : IPolySettings, IDisposable
     {
     #region PROPERTIES
         /// <summary>

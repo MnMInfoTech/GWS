@@ -1169,57 +1169,5 @@ namespace MnM.GWS
         IObjCollection Objects { get; }
     }
     #endregion
-
-    #region IBUFFER-COLLECTION
-    public interface IBuffers : IDisposable
-    {
-        /// <summary>
-        /// Gets the number of buffers present in the collection.
-        /// </summary>
-        int BufferCount { get; }
-
-        /// <summary>
-        /// Gets index of currently active buffer or sets a buffer on a given index in the collection active. 
-        /// If -1 is specified then main buffer gets activated as current buffer.
-        /// </summary>
-        int BufferIndex { get; }
-
-        /// <summary>
-        /// Adds new buffer in the collection.
-        /// </summary>
-        /// <param name="Canvas">If true, creates and adds ICanvas instance otherwise ISurface instance.</param>
-        /// <returns></returns>
-        int AddBuffer(bool Canvas = false);
-
-        /// <summary>
-        /// Removes buffer from the collection at a given buffer index.
-        /// </summary>
-        /// <param name="bufferIndex"></param>
-        void RemoveBuffer(int index);
-
-        /// <summary>
-        /// Lets user to switch to a buffer at a given index. i.e. to make that buffer currently active buffer for the purpose of performing pixel operations.
-        /// </summary>
-        /// <param name="index"></param>
-        void SwitchToBuffer(int index);
-
-        /// <summary>
-        /// Lets user to switch to the primary buffer which actually not part of the collection itself.
-        /// i.e. to make the primary buffer currently active buffer for the purpose of performing pixel operations.
-        /// </summary>
-        void SwitchToMainBuffer();
-
-        /// <summary>
-        /// Resizes all buffers to match the size of primary buffer.
-        /// </summary>
-        void ResizeBuffers();
-
-        /// <summary>
-        /// Removes all buffers from the collection except the main buffer.
-        /// </summary>
-        void RemoveBuffers();
-    }
-    #endregion
-
 #endif
 }

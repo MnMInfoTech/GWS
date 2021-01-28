@@ -1102,9 +1102,9 @@ namespace MnM.GWS
             {
                 src = (int*)((ITextureBrush)source).Source;
             }
-            else if (source is IFixedBrush)
+            else if (source is IBackgroundPen)
             {
-                fixed (int* p = ((IFixedBrush)source).PenData)
+                fixed (int* p = ((IBackgroundPen)source).PenData)
                     src = p;
             }
             if (source is IImageData)
