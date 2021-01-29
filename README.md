@@ -1,7 +1,7 @@
 # GWS (Graphics and Windowing System)
 GWS is a cross-platform C# 2D graphics library and abstracted Windowing System created as part of the infrastructure for M&M Info-tech Ltd's Control Technologies. As such it is actively developed and documented by M&M Info-tech Ltd. in collaboration with eBestow Technocracy Pvt Ltd.
 
-It is built on the .Net standard 1.6 platform which can work with Windows, Android, IOS, Mac, Linux, firebird etc.
+It targets .net5.0 which can work with Windows, Android, IOS, Mac, Linux, firebird etc.
 As for the Windowing support, we have provided one implementation of GWS with SDL. and another with Microsoft Windows. Binding projects MnM.GWS.SDL and MNM.GWS.Desktop are provided with all the requisite modules to make them work with SDL2.0 and Microsoft Windows respectively. You can learn more about SDL at https://www.libsdl.org/. (SDL demo project is included here).
 
 You can implement GWS to work with other Windowing systems for example SFML- https://www.sfml-dev.org/ by creating a binding layer with the system.
