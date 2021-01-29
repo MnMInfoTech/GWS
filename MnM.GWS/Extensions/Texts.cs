@@ -79,12 +79,13 @@ namespace MnM.GWS
         /// </summary>
         static string orLines = @"^.*({0}).*[\r\n]*$";
 
+#if NETSTANDARD2_0
         /// <summary>
         /// The no case
         /// </summary>
         public const StringComparison noCase =
             StringComparison.InvariantCultureIgnoreCase;
-
+#endif
         const string emailPattern = @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|"
            + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)"
            + @"@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$";
@@ -92,10 +93,10 @@ namespace MnM.GWS
         const string websitePattern = @"^(http|https|ftp|)\://|[a-zA-Z0-9\-\.]+\.[a-zA-Z](:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*[^\.\,\)\(\s]$";
 
         const string filePathPattern = @"^(?:[\w]\:|\\)(\\[a-z_\-\s0-9\.]+)+\.(txt|gif|pdf|doc|docx|xls|xlsx)$";
-        #endregion
+#endregion
 
 #if Collections || Texts
-        #region TO TEXT
+#region TO TEXT
         /// <summary>
         /// To the text.
         /// </summary>
@@ -204,9 +205,9 @@ namespace MnM.GWS
             }
 
         }
-        #endregion
+#endregion
 
-        #region TO TEXT ARRAY
+#region TO TEXT ARRAY
         /// <summary>
         /// To the text array.
         /// </summary>
@@ -281,11 +282,11 @@ namespace MnM.GWS
             }
             return sb.ToArray();
         }
-        #endregion
+#endregion
 #endif
 
 #if Texts
-        #region CONVERT CASE
+#region CONVERT CASE
         /// <summary>
         /// Converts the case.
         /// </summary>
@@ -424,7 +425,7 @@ namespace MnM.GWS
 
             switch (convertCase)
             {
-        #region sentence
+#region sentence
                 case CaseConversion.Sentence:
                     for (int i = start; i <= end; i++)
                     {
@@ -447,8 +448,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-        #endregion
-        #region title
+#endregion
+#region title
                 case CaseConversion.Title:
                     for (int i = start; i <= end; i++)
                     {
@@ -469,8 +470,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-        #endregion
-        #region upper
+#endregion
+#region upper
                 case CaseConversion.Upper:
                     for (int i = start; i <= end; i++)
                     {
@@ -487,8 +488,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-        #endregion
-        #region lower
+#endregion
+#region lower
                 case CaseConversion.Lower:
                     for (int i = start; i <= end; i++)
                     {
@@ -505,8 +506,8 @@ namespace MnM.GWS
                         }
                     }
                     break;
-        #endregion
-        #region toggle
+#endregion
+#region toggle
                 case CaseConversion.Toggle:
                     for (int i = start; i <= end; i++)
                     {
@@ -526,14 +527,14 @@ namespace MnM.GWS
                         }
                     }
                     break;
-        #endregion
+#endregion
                 default:
                     return;
             }
         }
-        #endregion
+#endregion
 
-        #region IS MATCHED
+#region IS MATCHED
         /// <summary>
         /// Determines whether the specified search text is matched.
         /// </summary>
@@ -584,9 +585,9 @@ namespace MnM.GWS
                 (search.Text, start ?? search.Start,
                 search.MatchWholeWord, count ?? search.Count, search.Comparison);
         }
-        #endregion
+#endregion
 
-        #region FIND - REPLACE
+#region FIND - REPLACE
         public static string GetSearchCondition<T>(this IEnumerable<T> SearchList, bool forFilter = false) where T: ISearchable
         {
             if (SearchList == null ||
@@ -601,7 +602,7 @@ namespace MnM.GWS
             return searchText;
         }
 
-        #region find single
+#region find single
         /// <summary>
         /// Finds the specified search text.
         /// </summary>
@@ -783,9 +784,9 @@ namespace MnM.GWS
             }
             return null;
         }
-        #endregion
+#endregion
 
-        #region search all - core functions
+#region search all - core functions
         /// <summary>
         /// Searches all.
         /// </summary>
@@ -892,9 +893,9 @@ namespace MnM.GWS
             }
             return list;
         }
-        #endregion
+#endregion
 
-        #region find all
+#region find all
         /// <summary>
         /// Finds all.
         /// </summary>
@@ -969,10 +970,10 @@ namespace MnM.GWS
         /// <param name="page">The page.</param>
         /// <param name="search">The search.</param>
         /// <returns>IEnumerable&lt;IRange&gt;.</returns>
-        #endregion
+#endregion
 
-        #region filter all
-        #region string
+#region filter all
+#region string
         /// <summary>
         /// Filters all.
         /// </summary>
@@ -1008,9 +1009,9 @@ namespace MnM.GWS
                 count ?? search.Count, search.Comparison, filter: true).
                 Select(x => wholeText.Select(x));
         }
-        #endregion
+#endregion
 
-        #region string builder
+#region string builder
         /// <summary>
         /// Filters all.
         /// </summary>
@@ -1045,19 +1046,19 @@ namespace MnM.GWS
                 search.MatchWholeWord, count ?? search.Count, search.Comparison, filter: true).
                 Select(x => wholeText.Select(x));
         }
-        #endregion
+#endregion
 
-        #region text editor/ page
+#region text editor/ page
 
         /// <summary>
         /// Filters all.
         /// </summary>
         /// <param name="page">The page.</param>
         /// <returns>IEnumerable&lt;System.String&gt;.</returns>
-        #endregion
-        #endregion
+#endregion
+#endregion
 
-        #region replace all
+#region replace all
         /// <summary>
         /// Replaces all.
         /// </summary>
@@ -1089,9 +1090,9 @@ namespace MnM.GWS
             list.ReplaceAll(ref sb, replaceText);
             data = sb.ToString();
         }
-        #endregion
+#endregion
 
-        #region important search functions
+#region important search functions
         /// <summary>
         /// Ands the or.
         /// </summary>
@@ -1254,10 +1255,10 @@ namespace MnM.GWS
         //{
 
         //}
-        #endregion
-        #endregion
+#endregion
+#endregion
 
-        #region SELECT / SUBSTRING
+#region SELECT / SUBSTRING
         /// <summary>
         /// Selects the specified range.
         /// </summary>
@@ -1398,9 +1399,9 @@ namespace MnM.GWS
                 return string.Join("\r\n", Regex.Split(data.Substring(start, count), RegexLineSplitter));
             return data.Substring(start, count);
         }
-        #endregion
+#endregion
 
-        #region ISLINECHAR 
+#region ISLINECHAR 
         public static bool IsLineChar(this char c) =>
             c == r || c == n;
         public static bool IsLineChar(this char? c) =>
@@ -1452,9 +1453,9 @@ namespace MnM.GWS
                 return Enumerables.AppendItem(data, r);
             return data;
         }
-        #endregion
+#endregion
 
-        #region WEB VALIDATION
+#region WEB VALIDATION
         public static bool IsValidEmail(this string email)
         {
             Regex regex = new Regex(emailPattern, RegexOptions.IgnoreCase);
@@ -1470,9 +1471,9 @@ namespace MnM.GWS
             Regex regex = new Regex(filePathPattern, RegexOptions.IgnoreCase);
             return regex.IsMatch(path);
         }
-        #endregion
+#endregion
 
-        #region WORD SELECTION
+#region WORD SELECTION
         /// <summary>
         /// Selects the word.
         /// </summary>
@@ -1662,11 +1663,11 @@ namespace MnM.GWS
                     Where(x => (x >= 48 && x <= 57)).ToArray());
             }
         }
-        #endregion
+#endregion
 #endif
 
 #if GWS || Window
-        #region MEASURE TEXT
+#region MEASURE TEXT
         public static void MeasureText(this IFont font, string text, float destX, float destY,
             out RectangleF Area, out IList<IGlyph> ResultGlyphs, out float minHBY, ITextStyle drawStyle = null)
         {
@@ -1684,7 +1685,7 @@ namespace MnM.GWS
 
             font.MeasureGlyphs(Glyphs, destX, destY, out Area, out ResultGlyphs, out minHBY, drawStyle);
         }
-        #endregion
+#endregion
 #endif
     }
 }

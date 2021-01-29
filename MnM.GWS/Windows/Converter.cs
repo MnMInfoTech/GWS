@@ -9,6 +9,8 @@ namespace MnM.GWS
         protected override bool ProcessUnknown<T>(Type t, string expression, out T result)
         {
             result = default(T);
+            var ttype = typeof(T);
+
 #if GWS || Window
             #region SIZE
             if (t == (typeof(Size)))
@@ -235,16 +237,13 @@ namespace MnM.GWS
             }
             #endregion
 
-            #region IMAGE
-            if (t.IsAssignableFrom(typeof(ICopyable)) || t.IsAssignableFrom(typeof(IImage)))
+            #region IMAGE  
+            if (ttype == typeof(IWritable) || ttype == typeof(IImage) || 
+                ttype.DeclaringType == typeof(_Image))
             {
                 byte[] bytes = Convert.FromBase64String(expression);
-
-                if (t.IsAssignableFrom(typeof(IImage)))
-                {
-                    result = (T)Factory.newImage(bytes);
-                    return true;
-                }
+                result = (T)Factory.newImage(bytes);
+                return true;
             }
             #endregion
 #endif
@@ -258,20 +257,35 @@ namespace MnM.GWS
             var ttype = typeof(T);
             var stype = (value).GetType();
 
-            if(stype.IsAssignableFrom(typeof(ICopyable)))
+            if (value is ICopyable || value is IPixels)
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    var buffer = value as ICopyable;
                     IntPtr pixels;
-
-                    int[] data = new int[buffer.Length];
-                    fixed (int* d = data)
+                    if (value is ICopyable)
                     {
-                        pixels = (IntPtr)d;
-                        buffer.CopyTo( pixels, buffer.Length, buffer.Width, 0, 0, new Rectangle( 0, 0, buffer.Width, buffer.Height),0);
-                        if(ttype == typeof(string) || ttype == typeof(byte[]))
-                            Factory.ImageProcessor.Write(pixels, buffer.Width, buffer.Height, buffer.Length, 4, ms, 0);
+                        var buffer = ((ICopyable)value);
+                        int[] data = new int[buffer.Length];
+                        fixed (int* d = data)
+                        {
+                            pixels = (IntPtr)d;
+                            buffer.CopyTo(pixels, buffer.Length, buffer.Width, 0, 0, new Rectangle(0, 0, buffer.Width, buffer.Height), 0);
+                            if (ttype == typeof(string) || ttype == typeof(byte[]))
+                                Factory.ImageProcessor.Write(pixels, buffer.Width, buffer.Height, buffer.Length, 4, ms, 0);
+                        }
+                    }
+                    else if(value is IPixels)
+                    {
+                        var buffer = ((IPixels)value);
+                        byte[] data = new byte[buffer.Length * 4];
+                        fixed (byte* d = data)
+                        {
+                            Blocks.CopyBlock((byte*)buffer.Source, 0, 0, buffer.Width, buffer.Height, buffer.Length, 
+                                buffer.Width, buffer.Height, d, 0, 0, buffer.Width, buffer.Height, 0);
+                            pixels = (IntPtr)d;
+                            if (ttype == typeof(string) || ttype == typeof(byte[]))
+                                Factory.ImageProcessor.Write(pixels, buffer.Width, buffer.Height, buffer.Length, 4, ms, 0);
+                        }
                     }
                     if (ttype == typeof(string))
                     {
@@ -280,7 +294,7 @@ namespace MnM.GWS
                     }
                     else if (ttype == typeof(int[]))
                     {
-                        result = (T)(object)data;
+                        result = (T)(object)value;
                     }
                     else if (ttype == typeof(byte[]))
                     {

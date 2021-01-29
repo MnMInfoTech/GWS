@@ -306,11 +306,7 @@ namespace MnM.GWS
         public static T ConcateEnumValue<T>(this Enum nameprefix, Enum namesuffix)
         {
             string s = EnumName(nameprefix) + EnumName(namesuffix);
-            if (typeof(T).BaseType == typeof(Enum))
-            {
-                return (T)Enum.Parse(typeof(T), s, true);
-            }
-            return default(T);
+            return (T)Enum.Parse(typeof(T), s, true);
         }
 
         /// <summary>

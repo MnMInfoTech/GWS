@@ -345,9 +345,23 @@ namespace MnM.GWS
         /// <returns>TimeSpan.</returns>
         public static TimeSpan Time(int Hours, int Minutes = 0, int Seconds = 0)
         {
-            if (Seconds > 59) Minutes += Math.DivRem(Seconds, 60, out Seconds);
-            if (Minutes > 59) Hours += Math.DivRem(Minutes, 60, out Minutes);
-            if (Hours > 23) Math.DivRem(Hours, 24, out Hours);
+            int unit;
+            if (Seconds > 59)
+            {
+                unit = Seconds / 60;
+                Seconds = Seconds % 60;
+                Minutes += unit;
+            }
+            if (Minutes > 59)
+            {
+                unit = Minutes / 60;
+                Minutes = Minutes / 60;
+                Hours += unit;
+            }
+            if (Hours > 23)
+            {
+                Hours /= 24;
+            }
             return new DateTime(1, 1, 1, Hours, Minutes, Seconds).TimeOfDay;
         }
         #endregion
