@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
+#if NETSTANDARD2_0
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,15 +13,15 @@ namespace MnM.GWS
 {
     public abstract class _Pair<K, V>: IPair<K, V>
     {
-        #region PROPERTIES
+#region PROPERTIES
         public abstract K Key { get; set; }
         public abstract V Value { get; set; }
         public abstract IList<K> PseudoKeys { get; }
         public abstract bool ReadOnlyKey { get; }
         public abstract bool ReadOnlyValue { get; }
-        #endregion
+#endregion
 
-        #region MATCH
+#region MATCH
         /// <summary>
         /// Matches the specified criteria.
         /// </summary>
@@ -196,9 +197,9 @@ namespace MnM.GWS
         {
             return (Operations.Compare(Value, 0, val));
         }
-        #endregion
+#endregion
 
-        #region HAS TYPE EQUAL
+#region HAS TYPE EQUAL
         /// <summary>
         /// Determines whether [has type equal] [the specified other].
         /// </summary>
@@ -218,9 +219,9 @@ namespace MnM.GWS
             if (!other.VerifyAs<IPair<K, V>>()) { return false; }
             return HasTypeEqual((IPair<K, V>)other);
         }
-        #endregion
+#endregion
 
-        #region EQUALITY
+#region EQUALITY
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
@@ -307,9 +308,9 @@ namespace MnM.GWS
         {
             return (a.Key != null);
         }
-        #endregion
+#endregion
 
-        #region INTERFACE
+#region INTERFACE
         /// <summary>
         /// Gets or sets the key.
         /// </summary>
@@ -413,6 +414,7 @@ namespace MnM.GWS
             }
             return 0;
         }
-        #endregion
+#endregion
     }
 }
+#endif

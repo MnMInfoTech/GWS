@@ -17,7 +17,9 @@ namespace MnM.GWS
         #region PROPERTIES
         public static string UsingDirectives => Instance.UsingDirectives;
         public static IKeywords Keywords => Instance.Keywords;
+#if NETSTANDARD2_0
         public static Genres Genres => Instance.Genres;
+#endif
         #endregion
 
         #region ATTACH
@@ -102,13 +104,14 @@ namespace MnM.GWS
         }
         #endregion
 
+#if NETSTANDARD2_0
         #region GET GENRE
         public static Genre GetGenre(string functionName)
         {
             return Instance.GetGenre(functionName);
         }
         #endregion
-
+#endif
         public static void Dispose()
         {
             Instance.Dispose();

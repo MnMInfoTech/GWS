@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
+#if NETSTANDARD2_0
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace MnM.GWS
 {
     public static partial class Dbs
     {
-        #region MEMBERS
+#region MEMBERS
         /// <summary>
         /// Gets the members.
         /// </summary>
@@ -23,7 +24,7 @@ namespace MnM.GWS
         /// <returns>IList&lt;System.String&gt;.</returns>
         public static IList<string> Members(this object element)
         {
-            #region ISource
+#region ISource
 #if Data
             if (element is ISourceBoundControl)
             {
@@ -35,9 +36,9 @@ namespace MnM.GWS
                 return (element as ISource).UnderlyingSource?.Members();
             }
 #endif
-            #endregion
+#endregion
 
-            #region data table
+#region data table
             if (element is DataTable)
             {
                 var dt = element as DataTable;
@@ -48,30 +49,30 @@ namespace MnM.GWS
                 }
                 return collection;
             }
-            #endregion
+#endregion
 
-            #region datarow
+#region datarow
             else if (element is DataRow)
             {
                 return (element as DataRow).Table.Members();
             }
-            #endregion
+#endregion
 
-            #region datarowview
+#region datarowview
             else if (element is DataRowView)
             {
                 return (element as DataRowView).DataView.Table.Members();
             }
-            #endregion
+#endregion
 
-            #region Idatareader
+#region Idatareader
             else if (element is IDataReader)
             {
                 return (element as IDataReader).GetSchemaTable().Members();
             }
-            #endregion
+#endregion
 
-            #region Idatarecord
+#region Idatarecord
             else if (element is IDataRecord)
             {
                 var record = element as IDataRecord;
@@ -83,16 +84,16 @@ namespace MnM.GWS
                 }
                 return collection;
             }
-            #endregion
+#endregion
 
-            #region IListsource
+#region IListsource
             else if (element is IListSource)
             {
                 (element as IListSource).GetList().Members();
             }
-            #endregion
+#endregion
 
-            #region PropertyDescriptorCollection
+#region PropertyDescriptorCollection
             else if (element is PropertyDescriptorCollection)
             {
                 var properties = element as PropertyDescriptorCollection;
@@ -104,23 +105,23 @@ namespace MnM.GWS
                 }
                 return collection;
             }
-            #endregion
+#endregion
 
-            #region ITypedList for binding source, data view etc
+#region ITypedList for binding source, data view etc
             else if (element is ITypedList)
             {
                 return (element as ITypedList).GetItemProperties(null).Members();
             }
-            #endregion
+#endregion
 
-            #region customtypedescriptor
+#region customtypedescriptor
             else if (element is ICustomTypeDescriptor)
             {
                 return (element as ICustomTypeDescriptor).GetProperties().Members();
             }
-            #endregion
+#endregion
 
-            #region ienumerable
+#region ienumerable
             else if (element is IEnumerable)
             {
                 foreach (var item in (element as IEnumerable))
@@ -130,9 +131,9 @@ namespace MnM.GWS
                 }
                 return Genre.Of(element).Members();
             }
-            #endregion
+#endregion
 
-            #region type
+#region type
             else if (element is Type)
             {
                 var properties = (element as Type).MyProperties();
@@ -143,9 +144,9 @@ namespace MnM.GWS
                 }
                 return collection;
             }
-            #endregion
+#endregion
 
-            #region genre
+#region genre
             else if (element is Genre)
             {
                 var genre = element as Genre;
@@ -159,24 +160,24 @@ namespace MnM.GWS
                 }
                 else Members(genre.Value);
             }
-            #endregion
+#endregion
 
-            #region primitive data type
+#region primitive data type
             else if (element.IsPrimitive())
             {
                 var dic = new Collection<string>(1);
                 dic.Add("Value");
                 return dic;
             }
-            #endregion
+#endregion
 
             else if (element == null)
                 return Genre.Of(element).Members();
             return Members(element.GetType());
         }
-        #endregion
+#endregion
 
-        #region OK
+#region OK
         /// <summary>
         /// Determines whether the specified column is ok.
         /// </summary>
@@ -204,9 +205,9 @@ namespace MnM.GWS
                 row[column] == null;
             return !notok;
         }
-        #endregion
+#endregion
 
-        #region VALUE OF
+#region VALUE OF
         /// <summary>
         /// Gets the value.
         /// </summary>
@@ -353,9 +354,9 @@ namespace MnM.GWS
         {
             return row.Row.ValueOf<T>(column);
         }
-        #endregion
+#endregion
 
-        #region SET VALUE OF
+#region SET VALUE OF
         /// <summary>
         /// Sets the value.
         /// </summary>
@@ -558,9 +559,9 @@ namespace MnM.GWS
         {
             return row.Row.SetValueOf(column, value);
         }
-        #endregion
+#endregion
 
-        #region internal methods
+#region internal methods
         /// <summary>
         /// Gets the string.
         /// </summary>
@@ -617,6 +618,7 @@ namespace MnM.GWS
                 return sb.ToString();
             }
         }
-        #endregion
+#endregion
     }
 }
+#endif

@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
+#if NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
 
@@ -10,12 +11,12 @@ namespace MnM.GWS
 {
     public abstract class _Lexicon<K, V, T> : Collection<T>, ILexicon<K, V, T> where T : IPair<K, V>
     {
-        #region VARIABLES
+#region VARIABLES
         KeyCollection keys;
         ValueCollection values;
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         /// <summary>
         /// Initializes a new instance of the <see cref="Genres"/> class.
         /// </summary>
@@ -34,9 +35,9 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="source">The source.</param>
         public _Lexicon(IEnumerable<T> source) : base(source) { }
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         /// <summary>
         /// Gets the keys.
         /// </summary>
@@ -64,9 +65,9 @@ namespace MnM.GWS
                 return values;
             }
         }
-        #endregion
+#endregion
 
-        #region nested classes
+#region nested classes
         /// <summary>
         /// Class KeyCollection. This class cannot be inherited.
         /// </summary>
@@ -162,6 +163,7 @@ namespace MnM.GWS
                 get { return true; }
             }
         }
-        #endregion
+#endregion
     }
 }
+#endif

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;</TargetFrameworks>
+    <TargetFrameworks>net5.0;</TargetFrameworks>
     <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>
@@ -20,6 +20,10 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
     <DefineConstants>TRACE;HideGWSObjects;Window;GWS;HideSdlObjects;</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
+    <DefineConstants>TRACE;HideGWSObjects;HideSdlObjects;Window;GWS;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

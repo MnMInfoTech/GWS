@@ -7,21 +7,27 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+#if NETSTANDARD2_0
 using System.Data;
+#endif
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+
+#if NETSTANDARD2_0
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using System.Text;
 
 namespace MnM.GWS
 {
     public static class Operations
     {
-        #region VARIABLES/ CONSTS
+#region VARIABLES/ CONSTS
         /// <summary>
         /// The find all binding
         /// </summary>
@@ -36,15 +42,19 @@ namespace MnM.GWS
              BindingFlags.Instance |
              BindingFlags.NonPublic | BindingFlags.Public;
 
+
+#if NETSTANDARD2_0
         /// <summary>
         /// The no case
         /// </summary>
         public const StringComparison noCase = StringComparison.InvariantCultureIgnoreCase;
+#endif
         public static readonly Dictionary<string, IConverter> Converters = new Dictionary<string, IConverter>(4);
         const int MaxAnsiCode = 255;
         #endregion
 
         #region COMPARE
+#if NETSTANDARD2_0
         /// <summary>
         /// Compares the specified criteria.
         /// </summary>
@@ -55,7 +65,7 @@ namespace MnM.GWS
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         public static bool Compare<T>(this T left, Criteria criteria, object right) =>
             Operator<T>.Compare(left, right, criteria);
-
+#endif
         /// <summary>
         /// Compares the specified criteria.
         /// </summary>
@@ -79,6 +89,7 @@ namespace MnM.GWS
         public static bool CompareRange<T>(this T left, MultCriteria criteria, T value1, T value2) =>
             Operator<T>.CompareRange(left, criteria, value1, value2);
 
+#if NETSTANDARD2_0
         /// <summary>
         /// Compares the range.
         /// </summary>
@@ -90,6 +101,7 @@ namespace MnM.GWS
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         public static bool CompareRange<T>(this T left, MultCriteria criteria, object value1, object value2) =>
             Operator<T>.CompareRange(left, criteria, value1, value2);
+#endif
 
         /// <summary>
         /// Compares the specified right.
@@ -112,6 +124,7 @@ namespace MnM.GWS
         public static T Operate<T>(this T left, MathOperator mop, T right) =>
             Operator<T>.Operate(left, mop, right);
 
+#if NETSTANDARD2_0
         /// <summary>
         /// Operates the specified mop.
         /// </summary>
@@ -122,6 +135,7 @@ namespace MnM.GWS
         /// <returns>T.</returns>
         public static T Operate<T>(this T left, MathOperator mop, object right) =>
             Operator<T>.Operate(left, mop, right);
+#endif
         #endregion
 
         #region ADD KEYWORD TO KEYWORDS
@@ -161,9 +175,10 @@ namespace MnM.GWS
             var t = typeof(T);
             keywords.Add(type, Enumerables.PrependItem(Enumerables.PrependItem(keys, t.Name), t.FullName));
         }
-        #endregion
+#endregion
+#if NETSTANDARD2_0
+#region ADD ASSEMBLEY TO KEYWORDS
 
-        #region ADD ASSEMBLEY TO KEYWORDS
         public static IEnumerable<Genre> AddAssembley(this IKeywords keywords, Assembly assembly, Type whereBaseTypeIsThis = null)
         {
             var types = assembly.GetTypes();
@@ -211,9 +226,9 @@ namespace MnM.GWS
             }
             return null;
         }
-        #endregion
+#endregion
 
-        #region GET / SET VALUE
+#region GET / SET VALUE
         /// <summary>
         /// Gets the value.
         /// </summary>
@@ -655,9 +670,9 @@ namespace MnM.GWS
             source.UnderlyingSource.SetValue(memberName, value, index);
         }
 #endif
-        #endregion
+#endregion
 
-        #region CONVERSION
+#region CONVERSION
         /// <summary>
         /// Converts to.
         /// </summary>
@@ -687,7 +702,7 @@ namespace MnM.GWS
             if (value == null)
                 return false;
 
-            #region verify as T
+#region verify as T
             if (value.VerifyAs<T>())
             {
                 result = (T)value;
@@ -698,28 +713,28 @@ namespace MnM.GWS
                 result = (((IConvert<T>)value).Convert());
                 return true;
             }
-            #endregion
+#endregion
 
             if (intendedType == null)
                 intendedType = typeof(T);
 
-            #region if same type return value itself
+#region if same type return value itself
             if (value.GetType() == intendedType)
             {
                 result = (T)(value);
                 return true;
             }
-            #endregion
+#endregion
 
-            #region string
+#region string
             if (value is string)
             {
                 var ok = (value as string).ConvertFromString(out result);
                 if (ok) return true;
             }
-            #endregion
+#endregion
 
-            #region  datetime - double
+#region  datetime - double
             else if (intendedType == typeof(double) && value is DateTime)
                 value = System.Convert.ChangeType
                        (((DateTime)(object)value).ToOADate(), intendedType);
@@ -727,9 +742,9 @@ namespace MnM.GWS
             else if (intendedType == typeof(DateTime) && value is double)
                 value = System.Convert.ChangeType
                        (DateTime.FromOADate((double)(object)value), intendedType);
-            #endregion
+#endregion
 
-            #region IEnumerable cast
+#region IEnumerable cast
             else if (value is IEnumerable)
             {
                 if (Genre.Of(result, false, false).HasIEnumerableInterface && intendedType != typeof(string))
@@ -769,9 +784,9 @@ namespace MnM.GWS
                     else if (value != null) value = value.ToString();
                 }
             }
-            #endregion
+#endregion
 
-            #region Type to Genre / typecode & vise versa
+#region Type to Genre / typecode & vise versa
             else if (value is Type)
             {
                 if (intendedType == typeof(Genre))
@@ -799,15 +814,15 @@ namespace MnM.GWS
                 else if (intendedType == typeof(string))
                     value = Enums.EnumName(((TypeCode)value));
             }
-            #endregion
+#endregion
 
-            #region nullable of generic
+#region nullable of generic
             else if (intendedType.IsValueType && intendedType.IsGenericType &&
                    intendedType.ToString().StartsWith("System.Nullable`1"))
             {
                 intendedType = Genre.Of(intendedType).GenricParams[0].Value;
             }
-            #endregion
+#endregion
 
             if (Converters.Count != 0)
             {
@@ -818,7 +833,7 @@ namespace MnM.GWS
                 }
             }
 
-            #region AT LAST USE SYSTEM.ICONVERTIBLE
+#region AT LAST USE SYSTEM.ICONVERTIBLE
             if (value is IConvertible)
             {
                 try
@@ -837,7 +852,7 @@ namespace MnM.GWS
                 }
                 catch { return false; }
             }
-            #endregion
+#endregion
         }
 
         /// <summary>
@@ -879,147 +894,9 @@ namespace MnM.GWS
                 (item == null && !typeof(T).IsValueType)) &&
                 typeof(T) != typeof(object));
         }
-        #endregion
+#endregion
 
-        #region IS NULL
-        /// <summary>
-        /// Determines whether [is null so as] [the specified other].
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value">The value.</param>
-        /// <param name="other">The other.</param>
-        /// <returns><c>true</c> if [is null so as] [the specified other]; otherwise, <c>false</c>.</returns>
-        public static bool IsNullSoAs<T>(this T value, T other)
-        {
-            return object.Equals(value, null) && object.Equals(other, null);
-        }
-
-        /// <summary>
-        /// Determines whether the specified value is null.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value">The value.</param>
-        /// <returns><c>true</c> if the specified value is null; otherwise, <c>false</c>.</returns>
-        public static bool IsNull<T>(this T value)
-        {
-            return object.Equals(value, null);
-        }
-
-        /// <summary>
-        /// Nots the null.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value">The value.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool NotNull<T>(this T value)
-        {
-            return !object.Equals(value, null);
-        }
-        #endregion
-
-        #region IS PRIMITIVE
-        /// <summary>
-        /// Determines whether the specified object is primitive.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns><c>true</c> if the specified object is primitive; otherwise, <c>false</c>.</returns>
-        public static bool IsPrimitive(this object obj)
-        {
-            return (obj is bool || obj is char || obj is sbyte ||
-                obj is byte || obj is short || obj is ushort || obj is int ||
-                obj is uint || obj is long || obj is ulong || obj is float ||
-                obj is double || obj is decimal || obj is DateTime || obj is string);
-        }
-
-        /// <summary>
-        /// Determines whether this instance is primitive.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns><c>true</c> if this instance is primitive; otherwise, <c>false</c>.</returns>
-        public static bool IsPrimitive<T>()
-        {
-            var t = typeof(T);
-            return (t == typeof(bool) || t == typeof(char) || t == typeof(sbyte) ||
-                t == typeof(byte) || t == typeof(short) || t == typeof(ushort) || t == typeof(int) ||
-                t == typeof(uint) || t == typeof(long) || t == typeof(ulong) || t == typeof(Single) ||
-                t == typeof(float) | t == typeof(double) || t == typeof(decimal) ||
-                t == typeof(DateTime) || t == typeof(string));
-        }
-        #endregion
-
-        #region BINDING FLAGS
-        /// <summary>
-        /// Values the specified flagtype.
-        /// </summary>
-        /// <param name="flagtype">The flagtype.</param>
-        /// <returns>BindingFlags.</returns>
-        public static BindingFlags Value(this BindingFlagType flagtype)
-        {
-            switch (flagtype)
-            {
-                case BindingFlagType.AllMember:
-                    return BindingFlags.Public | BindingFlags.Instance |
-                        BindingFlags.NonPublic;
-                case BindingFlagType.AllProperties:
-                    return BindingFlags.Public | BindingFlags.Instance |
-                        BindingFlags.NonPublic | BindingFlags.Static;
-                case BindingFlagType.AllStatic:
-                    return BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic;
-                case BindingFlagType.PublicInstance:
-                default:
-                    return BindingFlags.Public | BindingFlags.Instance;
-                case BindingFlagType.NonPublicInstance:
-                    return BindingFlags.Instance | BindingFlags.NonPublic;
-                case BindingFlagType.PublicStatic:
-                    return BindingFlags.Public | BindingFlags.Static;
-                case BindingFlagType.NonPublicStatic:
-                    return BindingFlags.Static | BindingFlags.NonPublic;
-                case BindingFlagType.TypeInitializer:
-                    return BindingFlags.Static | BindingFlags.Instance;
-                case BindingFlagType.PublicNonInherited:
-                    return BindingFlags.Public | BindingFlags.Instance |
-                       BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-                case BindingFlagType.ExactMatching:
-                    return BindingFlags.Public | BindingFlags.Instance |
-                       BindingFlags.NonPublic | BindingFlags.ExactBinding;
-            }
-        }
-        #endregion
-
-        #region CONSTRUCT HASH CODE
-        /// <summary>
-        /// Constructs the hash code.
-        /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>System.Int32.</returns>
-        public static int ConstructHashCode(int a, int b)
-        {
-            var A = a >= 0 ? 2 * a : -2 * a - 1;
-            var B = b >= 0 ? 2 * b : -2 * b - 1;
-            return A >= B ? A * A + A + B : A + B * B;
-        }
-        #endregion
-
-        #region EQUALS ANY OF
-        /// <summary>
-        /// Equalses any of.
-        /// </summary>
-        /// <param name="control">The control.</param>
-        /// <param name="controls">The controls.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool EqualsAnyOf(this IHandle control, params IHandle[] controls)
-        {
-            if (control == null || controls.Length == 0) return false;
-            foreach (var item in controls)
-            {
-                if (item == control) return true;
-            }
-            return false;
-        }
-        #endregion
-
-        #region MY INSTANCE
+#region MY INSTANCE
         /// <summary>
         /// Mies the instance.
         /// </summary>
@@ -1237,9 +1114,9 @@ namespace MnM.GWS
             }
             catch { return default(T); }
         }
-        #endregion
+#endregion
 
-        #region MY PROPERTY
+#region MY PROPERTY
         /// <summary>
         /// Mies the property.
         /// </summary>
@@ -1406,9 +1283,9 @@ namespace MnM.GWS
               (x) => new Tuple<string, object>(x.Name, x.GetValue(source, findAllBinding, null, null, CultureInfo.CurrentCulture)
               )).ToArray();
         }
-        #endregion
+#endregion
 
-        #region GET BASE TYPES & INTERFACE TYPES
+#region GET BASE TYPES & INTERFACE TYPES
         /// <summary>
         /// Gets the base types.
         /// </summary>
@@ -1531,9 +1408,153 @@ namespace MnM.GWS
                 types[i] = arguments[i].ParameterType;
             return types;
         }
-        #endregion
+#endregion
 
-        #region TYPE CODE
+
+#endif
+#region IS NULL
+        /// <summary>
+        /// Determines whether [is null so as] [the specified other].
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="other">The other.</param>
+        /// <returns><c>true</c> if [is null so as] [the specified other]; otherwise, <c>false</c>.</returns>
+        public static bool IsNullSoAs<T>(this T value, T other)
+        {
+            return object.Equals(value, null) && object.Equals(other, null);
+        }
+
+        /// <summary>
+        /// Determines whether the specified value is null.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value">The value.</param>
+        /// <returns><c>true</c> if the specified value is null; otherwise, <c>false</c>.</returns>
+        public static bool IsNull<T>(this T value)
+        {
+            return object.Equals(value, null);
+        }
+
+        /// <summary>
+        /// Nots the null.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value">The value.</param>
+        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        public static bool NotNull<T>(this T value)
+        {
+            return !object.Equals(value, null);
+        }
+#endregion
+
+#region IS PRIMITIVE
+        /// <summary>
+        /// Determines whether the specified object is primitive.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns><c>true</c> if the specified object is primitive; otherwise, <c>false</c>.</returns>
+        public static bool IsPrimitive(this object obj)
+        {
+            return (obj is bool || obj is char || obj is sbyte ||
+                obj is byte || obj is short || obj is ushort || obj is int ||
+                obj is uint || obj is long || obj is ulong || obj is float ||
+                obj is double || obj is decimal || obj is DateTime || obj is string);
+        }
+
+        /// <summary>
+        /// Determines whether this instance is primitive.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns><c>true</c> if this instance is primitive; otherwise, <c>false</c>.</returns>
+        public static bool IsPrimitive<T>()
+        {
+            var t = typeof(T);
+            return (t == typeof(bool) || t == typeof(char) || t == typeof(sbyte) ||
+                t == typeof(byte) || t == typeof(short) || t == typeof(ushort) || t == typeof(int) ||
+                t == typeof(uint) || t == typeof(long) || t == typeof(ulong) || t == typeof(Single) ||
+                t == typeof(float) | t == typeof(double) || t == typeof(decimal) ||
+                t == typeof(DateTime) || t == typeof(string));
+        }
+#endregion
+
+#region BINDING FLAGS
+        /// <summary>
+        /// Values the specified flagtype.
+        /// </summary>
+        /// <param name="flagtype">The flagtype.</param>
+        /// <returns>BindingFlags.</returns>
+        public static BindingFlags Value(this BindingFlagType flagtype)
+        {
+            switch (flagtype)
+            {
+                case BindingFlagType.AllMember:
+                    return BindingFlags.Public | BindingFlags.Instance |
+                        BindingFlags.NonPublic;
+                case BindingFlagType.AllProperties:
+                    return BindingFlags.Public | BindingFlags.Instance |
+                        BindingFlags.NonPublic | BindingFlags.Static;
+                case BindingFlagType.AllStatic:
+                    return BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic;
+                case BindingFlagType.PublicInstance:
+                default:
+                    return BindingFlags.Public | BindingFlags.Instance;
+                case BindingFlagType.NonPublicInstance:
+                    return BindingFlags.Instance | BindingFlags.NonPublic;
+                case BindingFlagType.PublicStatic:
+                    return BindingFlags.Public | BindingFlags.Static;
+                case BindingFlagType.NonPublicStatic:
+                    return BindingFlags.Static | BindingFlags.NonPublic;
+                case BindingFlagType.TypeInitializer:
+                    return BindingFlags.Static | BindingFlags.Instance;
+                case BindingFlagType.PublicNonInherited:
+                    return BindingFlags.Public | BindingFlags.Instance |
+                       BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
+
+#if NETSTANDARD2_0
+                case BindingFlagType.ExactMatching:
+                    return BindingFlags.Public | BindingFlags.Instance |
+                       BindingFlags.NonPublic | BindingFlags.ExactBinding;
+#endif
+            }
+        }
+#endregion
+
+#region CONSTRUCT HASH CODE
+        /// <summary>
+        /// Constructs the hash code.
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns>System.Int32.</returns>
+        public static int ConstructHashCode(int a, int b)
+        {
+            var A = a >= 0 ? 2 * a : -2 * a - 1;
+            var B = b >= 0 ? 2 * b : -2 * b - 1;
+            return A >= B ? A * A + A + B : A + B * B;
+        }
+#endregion
+
+#region EQUALS ANY OF
+        /// <summary>
+        /// Equalses any of.
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="controls">The controls.</param>
+        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
+        public static bool EqualsAnyOf(this IHandle control, params IHandle[] controls)
+        {
+            if (control == null || controls.Length == 0) return false;
+            foreach (var item in controls)
+            {
+                if (item == control) return true;
+            }
+            return false;
+        }
+#endregion
+
+#region TYPE CODE
         /// <summary>
         /// To the type.
         /// </summary>
@@ -1549,8 +1570,12 @@ namespace MnM.GWS
                     return typeof(byte);
                 case TypeCode.Char:
                     return typeof(char);
+
+
+#if NETSTANDARD2_0
                 case TypeCode.DBNull:
                     return typeof(DBNull);
+#endif
                 case TypeCode.DateTime:
                     return typeof(DateTime);
                 case TypeCode.Decimal:
@@ -1634,9 +1659,9 @@ namespace MnM.GWS
                     return false;
             }
         }
-        #endregion
+#endregion
 
-        #region INIT ARRAY
+#region INIT ARRAY
         /// <summary>
         /// Initializes the array.
         /// </summary>
@@ -1665,8 +1690,35 @@ namespace MnM.GWS
                 array.Add(item);
             return array;
         }
+#endregion
+
+
+#region INVERT CRITERIA
+        /// <summary>
+        /// Inverts the specified criteria.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>Criteria.</returns>
+        public static Criteria Invert(this Criteria criteria)
+        {
+            int i = criteria.EnumValue<int>();
+            return (Criteria)(-i - 1);
+        }
+
+        /// <summary>
+        /// Inverts the specified criteria.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>MultCriteria.</returns>
+        public static MultCriteria Invert(this MultCriteria criteria)
+        {
+            int i = criteria.EnumValue<int>();
+            return (MultCriteria)(-i - 1);
+        }
         #endregion
 
+
+#if NETSTANDARD2_0
         #region INVOKE METHOD
         /// <summary>
         /// Invokes the method.
@@ -1719,31 +1771,7 @@ namespace MnM.GWS
 
             return m;
         }
-        #endregion
-
-        #region INVERT CRITERIA
-        /// <summary>
-        /// Inverts the specified criteria.
-        /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        /// <returns>Criteria.</returns>
-        public static Criteria Invert(this Criteria criteria)
-        {
-            int i = criteria.EnumValue<int>();
-            return (Criteria)(-i - 1);
-        }
-
-        /// <summary>
-        /// Inverts the specified criteria.
-        /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        /// <returns>MultCriteria.</returns>
-        public static MultCriteria Invert(this MultCriteria criteria)
-        {
-            int i = criteria.EnumValue<int>();
-            return (MultCriteria)(-i - 1);
-        }
-        #endregion
+#endregion
 
         #region BYTE[] TO AND FROM OBJECT/BASE64 STRING
         /// <summary>
@@ -1794,7 +1822,9 @@ namespace MnM.GWS
                 return new BinaryFormatter().Deserialize(ms);
             }
         }
+        #endregion
 
+        #region TOBASE64STRING
         /// <summary>
         /// To the base64 string.
         /// </summary>
@@ -1808,9 +1838,11 @@ namespace MnM.GWS
                 return Convert.ToBase64String(ms.ToArray());
             }
         }
-        #endregion
 
-        #region STRUCT TO PTR
+#endregion
+        #endif
+
+#region STRUCT TO PTR
         public static IntPtr ToPtr<T>(this T obj)
         {
             if (obj == null)
@@ -1827,9 +1859,9 @@ namespace MnM.GWS
         {
             Marshal.FreeHGlobal(ptr);
         }
-        #endregion
+#endregion
 
-        #region UTF8
+#region UTF8
         public unsafe static IntPtr AllocUTF8(this string str)
         {
             if (string.IsNullOrEmpty(str))
@@ -1869,18 +1901,21 @@ namespace MnM.GWS
             Marshal.PtrToStringAnsi(ptr);
         public static bool ContainsUnicodeCharacter(this string input) =>
             input.Any(c => c > MaxAnsiCode);
-        #endregion
+#endregion
 
-        #region GET GCHANDLE
+#region GET GCHANDLE
         public static void GetPinnedArray(int width, int height, out int[] data, out IntPtr pixels, out GCHandle handle)
         {
             data = new int[width * height];
             handle = GCHandle.Alloc(data, GCHandleType.Pinned);
             pixels = handle.AddrOfPinnedObject();
         }
-        #endregion
+#endregion
 
-        #region private/ conversion methods
+
+
+#if NETSTANDARD2_0
+#region private/ conversion methods
         /// <summary>
         /// Tries the convert.
         /// </summary>
@@ -2033,14 +2068,14 @@ namespace MnM.GWS
             value = value.Trim();
             Type t = typeof(T);
 
-            #region type
+#region type
             if (t == typeof(Type))
             {
                 result = (T)(object)Type.GetType(value, false);
                 return true;
             }
-            #endregion
-            #region short
+#endregion
+#region short
             else if (t == typeof(Int16))
             {
                 if (Int16.TryParse(value, out Int16 i16))
@@ -2049,8 +2084,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region ushort
+#endregion
+#region ushort
             if (t == typeof(UInt16))
             {
                 if (UInt16.TryParse(value, out UInt16 ui16))
@@ -2059,8 +2094,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region int
+#endregion
+#region int
             else if (t == typeof(Int32))
             {
                 if (int.TryParse(value, out int i))
@@ -2069,8 +2104,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region uint
+#endregion
+#region uint
             else if (t == typeof(UInt32))
             {
                 if (UInt32.TryParse(value, out UInt32 ui32))
@@ -2079,8 +2114,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region long
+#endregion
+#region long
             else if (t == typeof(Int64))
             {
                 if (long.TryParse(value, out long l))
@@ -2089,8 +2124,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region ulong
+#endregion
+#region ulong
             else if (t == typeof(UInt64))
             {
                 if (UInt64.TryParse(value, out UInt64 ui64))
@@ -2099,8 +2134,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region float
+#endregion
+#region float
             else if (t == typeof(Single))
             {
                 if (Single.TryParse(value, out Single s))
@@ -2109,8 +2144,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region double
+#endregion
+#region double
             else if (t == typeof(Double))
             {
                 if (double.TryParse(value, out double d))
@@ -2119,8 +2154,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region bool
+#endregion
+#region bool
             else if (t == typeof(bool))
             {
                 if (string.Equals(value, "true", StringComparison.InvariantCultureIgnoreCase) ||
@@ -2130,8 +2165,8 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region datetime
+#endregion
+#region datetime
             else if (t == typeof(DateTime))
             {
                 if (DateTime.TryParse(value, out DateTime dt))
@@ -2140,15 +2175,15 @@ namespace MnM.GWS
                     return true;
                 }
             }
-            #endregion
-            #region enum
+#endregion
+#region enum
             else if (t == typeof(Enum))
             {
                 result = Enums.EnumValue<T>(value);
                 return true;
             }
-            #endregion
-            #region nullable of generic
+#endregion
+#region nullable of generic
             else if (t.IsValueType && t.IsGenericType &&
                    t.ToString().StartsWith("System.Nullable`1"))
             {
@@ -2156,15 +2191,15 @@ namespace MnM.GWS
                 result = (T)(object)Convert.ChangeType(value, t);
                 return true;
             }
-            #endregion
-            #region byte[]
+#endregion
+#region byte[]
             else if (t == typeof(byte[]))
             {
                 result = (T)(object)value.ToBytes();
                 return true;
             }
-            #endregion
-            #region else
+#endregion
+#region else
             else if (Converters.Count != 0)
             {
                 foreach (var converter in Converters.Values)
@@ -2173,18 +2208,18 @@ namespace MnM.GWS
                         return true;
                 }
             }
-            #endregion
+#endregion
             return false;
         }
-        #endregion
-
+#endregion
+#endif
         /// <summary>
         /// Class Operation.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         static class Operator<T>
         {
-            #region Variables
+#region Variables
             enum Status
             {
                 None,
@@ -2211,9 +2246,9 @@ namespace MnM.GWS
             /// The ctasks
             /// </summary>
             static Status[] ctasks = new Status[13];
-            #endregion
+#endregion
 
-            #region private methods
+#region private methods
             /// <summary>
             /// Creates the operator.
             /// </summary>
@@ -2604,9 +2639,9 @@ namespace MnM.GWS
                     return Numbers.NumCompare(a.ToString(), b.ToString()) < 0;
                 }
             }
-            #endregion
+#endregion
 
-            #region public methods
+#region public methods
             /// <summary>
             /// Operates the specified left.
             /// </summary>
@@ -2629,6 +2664,9 @@ namespace MnM.GWS
                 return left;
             }
 
+
+
+#if NETSTANDARD2_0
             /// <summary>
             /// Operates the specified left.
             /// </summary>
@@ -2644,6 +2682,7 @@ namespace MnM.GWS
 
                 return left;
             }
+#endif
 
             /// <summary>
             /// Compares the specified left.
@@ -2703,6 +2742,7 @@ namespace MnM.GWS
                 return false;
             }
 
+#if NETSTANDARD2_0
             /// <summary>
             /// Compares the range.
             /// </summary>
@@ -2725,7 +2765,7 @@ namespace MnM.GWS
                 }
                 return false;
             }
-
+#endif
             /// <summary>
             /// Compares the specified left.
             /// </summary>
@@ -2737,6 +2777,8 @@ namespace MnM.GWS
                 return Compare(left, right, Criteria.Equal);
             }
 
+
+#if NETSTANDARD2_0
             /// <summary>
             /// Compares the specified left.
             /// </summary>
@@ -2782,7 +2824,8 @@ namespace MnM.GWS
                 }
                 return false;
             }
-            #endregion
+# endif
+#endregion
         }
     }
 }

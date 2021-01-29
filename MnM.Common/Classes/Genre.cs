@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
+#if NETSTANDARD2_0
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace MnM.GWS
     /// </summary>
     public sealed class Genre : _Pair<string, Type>
     {
-        #region VARIABLES
+#region VARIABLES
         /// <summary>
         /// The listinterfaces
         /// </summary>
@@ -51,9 +52,9 @@ namespace MnM.GWS
         typeof ( IEnumerable<> ) ,
         typeof ( IEnumerable )
       };
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         /// <summary>
         /// Initializes a new instance of the <see cref="Genre"/> class.
         /// </summary>
@@ -137,7 +138,7 @@ namespace MnM.GWS
 
                 if (t.IsGenericType)
                 {
-                    #region process
+#region process
                     StringBuilder name = new StringBuilder();
                     StringBuilder fname = new StringBuilder();
                     StringBuilder qname = new StringBuilder();
@@ -240,7 +241,7 @@ namespace MnM.GWS
                     fname.Remove(fname.Length - 1, 1);
                     name.Remove(name.Length - 1, 1);
                     qname.Remove(qname.Length - 1, 1);
-                    #endregion
+#endregion
 
                     fname.Append(">");
                     name.Append(">");
@@ -260,9 +261,9 @@ namespace MnM.GWS
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region PROPRTIES
+#region PROPRTIES
         public static Type ListType
         {
             get => listType ?? typeof(Collection<>);
@@ -483,9 +484,9 @@ namespace MnM.GWS
         /// </summary>
         /// <value>The base types.</value>
         public Genres BaseTypes { get; set; }
-        #endregion
+#endregion
 
-        #region HYBRID GENRE
+#region HYBRID GENRE
         /// <summary>
         /// Hybrids the genre.
         /// </summary>
@@ -730,9 +731,9 @@ namespace MnM.GWS
             string s = GenericName + "[" + string.Join(",", abc) + "]";
             return Type.GetType(s, true);
         }
-        #endregion
+#endregion
 
-        #region CASCADE GENRE
+#region CASCADE GENRE
         /// <summary>
         /// Gets the t list or i enumerable genric parameters.
         /// </summary>
@@ -772,9 +773,9 @@ namespace MnM.GWS
                 return this;
             }
         }
-        #endregion
+#endregion
 
-        #region MATCH GENRE TLIST/ IEnumerable
+#region MATCH GENRE TLIST/ IEnumerable
         /// <summary>
         /// Matches the t list interface.
         /// </summary>
@@ -929,9 +930,9 @@ namespace MnM.GWS
                ListInterfaces[4] != null;
             return success;
         }
-        #endregion
+#endregion
 
-        #region ARRAY FROM GENRE
+#region ARRAY FROM GENRE
         /// <summary>
         /// Mies the array.
         /// </summary>
@@ -963,9 +964,9 @@ namespace MnM.GWS
             }
             return a;
         }
-        #endregion
+#endregion
 
-        #region MY INSTANCE
+#region MY INSTANCE
         /// <summary>
         /// Creates self instance.
         /// </summary>
@@ -1014,9 +1015,9 @@ namespace MnM.GWS
             if (Value.IsAbstract || Value.IsInterface) { return null; }
             return Value.MyInstance(mi, arguments.GetTypes(), arguments);
         }
-        #endregion
+#endregion
 
-        #region LIST FROM SEED GENRE
+#region LIST FROM SEED GENRE
         /// <summary>
         /// Mies the list.
         /// </summary>
@@ -1139,9 +1140,9 @@ namespace MnM.GWS
             }
             return instance;
         }
-        #endregion
+#endregion
 
-        #region LIST GENRE FROM GENRE
+#region LIST GENRE FROM GENRE
         /// <summary>
         /// Mies the list genre.
         /// </summary>
@@ -1172,9 +1173,9 @@ namespace MnM.GWS
                 return MyListGenre(GetList.MnMList);
             }
         }
-        #endregion
+#endregion
 
-        #region GET BLANK
+#region GET BLANK
         public string GetBlank(GetList kind)
         {
             Type tp;
@@ -1199,9 +1200,9 @@ namespace MnM.GWS
             }
             return tp.Namespace + "." + tp.Name;
         }
-        #endregion
+#endregion
 
-        #region INSTANCE OF
+#region INSTANCE OF
         public static Genre Of<T>()
         {
             return new Genre(typeof(T), true, true);
@@ -1234,6 +1235,7 @@ namespace MnM.GWS
             else
                 return new Genre(typeof(T), getbasetypes, getinterfaces);
         }
-        #endregion
+#endregion
     }
 }
+#endif

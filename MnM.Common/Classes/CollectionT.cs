@@ -4,15 +4,17 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-    public class Collection<T> : _Iterator<T>, IGwsCollection<T>, IArray<T>
+    public class Collection<T> : IGwsCollection<T>, IArray<T>
     {
         #region VARIABLES
         T[] iData;
         int Length;
+        int position = -1;
         #endregion
 
         #region CONSTRUCTORS
@@ -50,9 +52,9 @@ namespace MnM.GWS
                     Resize(Math.Max(value, Count * 2));
             }
         }
-        public override int Count => Length;
-        public override bool IsReadOnly => false;
-        public override T this[int index]
+        public int Count => Length;
+        public bool IsReadOnly => false;
+        public T this[int index]
         {
             get
             {
@@ -68,6 +70,20 @@ namespace MnM.GWS
             }
         }
         public T[] Data => iData;
+
+        /// <summary>
+        /// Gets the first element.
+        /// </summary>
+        public T First => this[0];
+
+        /// <summary>
+        /// Gets the last element.
+        /// </summary>
+        /// <value>The last.</value>
+        public T Last => this[Count - 1];
+
+        T IReadOnlyList<T>.this[int index]=>this[index];
+        object IReadOnlyList.this[int index] => this[index];
         #endregion
 
         #region INDEX OF
@@ -180,6 +196,31 @@ namespace MnM.GWS
                 Array.Resize(ref array, arrayIndex + length);
             Array.Copy(iData, 0, array, arrayIndex, length);
         }
+        public int CopyTo(ref T[] target, ISpan range, int arrayIndex)
+        {
+            if (target == null)
+                target = new T[0];
+
+            int len = target.Length;
+
+            if (arrayIndex >= 0 && arrayIndex <= target.Length)
+            {
+                int start = 0, count = Count;
+
+                if (range != null)
+                {
+                    range = new Span(range, count);
+                    start = range.Start; count = range.Count;
+                }
+                if (arrayIndex + count > target.Length)
+                {
+                    int resize = arrayIndex + count - target.Length;
+                    Array.Resize(ref target, target.Length + resize);
+                }
+                Array.Copy(iData, start, target, arrayIndex, count);
+            }
+            return target.Length - len;
+        }
         #endregion
 
         #region TRIM
@@ -227,8 +268,42 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region TO ARRAY
+        /// <summary>
+        /// To the array.
+        /// </summary>
+        /// <returns>T[].</returns>
+        public T[] ToArray()
+        {
+            T[] arr = null;
+            CopyTo(ref arr, new Span(0, Count), 0);
+            return arr;
+        }
+
+        /// <summary>
+        /// To the array.
+        /// </summary>
+        /// <returns>T[].</returns>
+        public T[] ToArray(ISpan range)
+        {
+            T[] arr = null;
+            CopyTo(ref arr, range, 0);
+            return arr;
+        }
+        #endregion
+
+        #region INDEX OK
+        /// <summary>
+        /// Verifies the specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <exception cref="System.Exception">Index is out of bound of array</exception>
+        public bool IndexOK(int index) =>
+            index >= 0 && index <= Count - 1;
+        #endregion
+        
         #region ENUMERATOR
-        public override IEnumerator<T> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             position = -1;
             for (int i = 0; i < Length; i++)
@@ -237,6 +312,8 @@ namespace MnM.GWS
                 yield return iData[i];
             }
         }
+        IEnumerator IEnumerable.GetEnumerator() =>
+            GetEnumerator();
         #endregion
     }
 }

@@ -7,7 +7,6 @@
 #if MS && (GWS || Window)
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
@@ -70,7 +69,7 @@ namespace MnM.GWS
         public NativeTarget(int x, int y, int w, int h)
         {
             Pointer = new Array<int>(w, h);
-            Bitmap = new Bitmap(w, h, w * 4, PixelFormat.Format32bppArgb, Pointer.Handle);
+            Bitmap = new Bitmap(w, h, w * 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
             width = Pointer.Width;
             height = Pointer.Height;
             length = Pointer.Length;
@@ -187,7 +186,7 @@ namespace MnM.GWS
             length = width * height;
             Pointer.Resize(width, height);
             Bitmap = new Bitmap(Pointer.Width, Pointer.Height, Pointer.Width * 4,
-                PixelFormat.Format32bppArgb, Pointer.Handle);
+                System.Drawing.Imaging. PixelFormat.Format32bppArgb, Pointer.Handle);
             Window.CopyTo( Pointer.Handle, length, width, 0, 0, new Rectangle( 0, 0, width, height), Command.Backdrop);
             Update(0, new Rectangle(0, 0, width, height));
         }

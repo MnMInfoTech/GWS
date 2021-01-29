@@ -3,6 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
+#if NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace MnM.GWS
 {
     public sealed class Genres: _Lexicon<string, Type, Genre>
     {
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         /// <summary>
         /// Initializes a new instance of the <see cref="Genres"/> class.
         /// </summary>
@@ -46,9 +47,9 @@ namespace MnM.GWS
             }
         }
 
-        #endregion
+#endregion
 
-        #region ADD
+#region ADD
         /// <summary>
         /// Adds the specified tp.
         /// </summary>
@@ -66,9 +67,9 @@ namespace MnM.GWS
             }
             
         }
-        #endregion
+#endregion
 
-        #region ADD RANGE
+#region ADD RANGE
         public void AddRange(IEnumerable<Type> collection)
         {
             foreach (var t in collection)
@@ -76,9 +77,9 @@ namespace MnM.GWS
                 Add(t);
             }
         }
-        #endregion
+#endregion
 
-        #region FIND GENRE FROM EXPRSSION
+#region FIND GENRE FROM EXPRSSION
         public Genre GetGenre(string Expression)
         {
             Entry<Genre> seek = this.Find(Criteria.StringEqualNoCase, Expression);
@@ -86,6 +87,7 @@ namespace MnM.GWS
                 return seek.Value;
             return null;
         }
-        #endregion
+#endregion
     }
 }
+#endif

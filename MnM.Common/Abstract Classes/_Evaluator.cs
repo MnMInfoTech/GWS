@@ -4,6 +4,8 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 
+
+#if NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ namespace MnM.GWS
 {
     public abstract class _Evaluator : IEvaluator
     {
-        #region variables
+#region variables
         readonly Collection<string> usings = new Collection<string>(100);
         readonly Dictionary<ValidateType, string> dateFormats =
             new Dictionary<ValidateType, string>(25);
@@ -28,7 +30,7 @@ namespace MnM.GWS
         public const string dateformat = "{0}-{1}-{2}";
         public const string timeformat = "{0}:{1}:{2}.{3}";
         public const string objectArrayExpr = "new object[]{{{0}}}";
-        #endregion
+#endregion
 
         protected _Evaluator()
         {
@@ -44,25 +46,25 @@ namespace MnM.GWS
             Genres.Trim();
         }
 
-        #region properties
+#region properties
         public string UsingDirectives =>
             string.Join(";", usings.Select((x => "using " + x))) + ";";
         public IKeywords Keywords { get; private set; }
         public Genres Genres { get; private set; }
-        #endregion
+#endregion
 
-        #region NEW KEYWORDS
+#region NEW KEYWORDS
         protected abstract IKeywords NewKeywords();
-        #endregion
+#endregion
 
-        #region REFRESH/ ADD REFERENCES
+#region REFRESH/ ADD REFERENCES
         public abstract void Init();
         public abstract void Refresh(params string[] assemblies);
         public void AddReferences(params string[] namespaces) =>
             usings.AddRange(namespaces);
-        #endregion
+#endregion
 
-        #region LIST FUNCTIONS
+#region LIST FUNCTIONS
         public Dictionary<string, Collection<string>> FunctionsByNameSpace()
         {
             Dictionary<string, Collection<string>> h = new Dictionary<string, Collection<string>>();
@@ -87,9 +89,9 @@ namespace MnM.GWS
         }
         public string[] ListOfFunctions() =>
             Genres.Where(x => x != null && x.HasIFxInterface).Select(y => y.Name).ToArray();
-        #endregion
+#endregion
 
-        #region COMPILE & EVALUATE
+#region COMPILE & EVALUATE
         public T Evaluate<T>(string value)
         {
             try
@@ -114,9 +116,9 @@ namespace MnM.GWS
                 return false;
             }
         }
-        #endregion
+#endregion
 
-        #region ABSTRACT METHODS
+#region ABSTRACT METHODS
         public abstract object Compile(string code);
         public abstract object Evaluate(string value);
         protected abstract void AddStandardUsings(IList<string> usings);
@@ -132,6 +134,7 @@ namespace MnM.GWS
         public abstract Genre GetGenre(string functionName);
 
         public virtual void Dispose() { }
-        #endregion
+#endregion
     }
 }
+#endif

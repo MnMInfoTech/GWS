@@ -3,6 +3,9 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
+
+
+#if NETSTANDARD2_0
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +15,7 @@ namespace MnM.GWS
 {
     public abstract class _Iterator<T> : IIterator<T>
     {
-        #region VARIABLES
+#region VARIABLES
         /// <summary>
         /// The position
         /// </summary>
@@ -23,9 +26,9 @@ namespace MnM.GWS
         /// The _current index
         /// </summary>
         protected internal int indexNow;
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         /// <summary>
         /// Initializes a new instance of the <see cref="_Iterator{T}"/> class.
         /// </summary>
@@ -39,9 +42,9 @@ namespace MnM.GWS
         /// Initializes this instance.
         /// </summary>
         protected virtual void initialize() { }
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         /// <summary>
         /// Gets or sets the <see cref="T"/> at the specified index.
         /// </summary>
@@ -105,9 +108,9 @@ namespace MnM.GWS
 
         protected internal int totalItems => itemsPerPage;
         object IReadOnlyList.this[int index] => this[index];
-        #endregion
+#endregion
 
-        #region TO ARRAY
+#region TO ARRAY
         /// <summary>
         /// To the array.
         /// </summary>
@@ -129,9 +132,9 @@ namespace MnM.GWS
             CopyTo(ref arr, range, 0);
             return arr;
         }
-        #endregion
+#endregion
 
-        #region INDEX OK
+#region INDEX OK
         /// <summary>
         /// Verifies the specified index.
         /// </summary>
@@ -139,9 +142,9 @@ namespace MnM.GWS
         /// <exception cref="System.Exception">Index is out of bound of array</exception>
         public bool IndexOK(int index) =>
             index >= 0 && index <= Count - 1;
-        #endregion
+#endregion
 
-        #region COPY TO    
+#region COPY TO    
         public int CopyTo(ref T[] target, ISpan range, int arrayIndex)
         {
             if (target == null) 
@@ -250,9 +253,9 @@ namespace MnM.GWS
             }
             return target.Length - len;
         }
-        #endregion
+#endregion
 
-        #region IENUMERABLE
+#region IENUMERABLE
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
@@ -273,6 +276,7 @@ namespace MnM.GWS
         /// </summary>
         /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        #endregion
+#endregion
     }
 }
+#endif

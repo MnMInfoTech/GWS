@@ -554,6 +554,7 @@ namespace MnM.GWS
         public static Entry<T> Find<T>(this IEnumerable<T> collection, Criteria criteria, T item, bool last = false) =>
             collection.FindItem(null, (x => Operations.Compare(x, criteria, item)), last);
 
+#if NETSTANDARD2_0
         /// <summary>
         /// Finds the specified criteria.
         /// </summary>
@@ -603,7 +604,7 @@ namespace MnM.GWS
             else
                 return Entry<T>.Blank;
         }
-
+#endif
         /// <summary>
         /// Gets the <see cref="Entry{T}"/> with the specified item.
         /// </summary>
@@ -642,6 +643,7 @@ namespace MnM.GWS
         public static Entry<T> Find<T>(this IEnumerable<T> items, Predicate<T> match, int startIndex, int count, bool last = false) =>
             items.FindItem(new Span(startIndex), match, last: last);
 
+                    #if NETSTANDARD2_0
         /// <summary>
         /// Gets the <see cref="IItem"/> with the specified item.
         /// </summary>
@@ -654,6 +656,7 @@ namespace MnM.GWS
                 return items.FindItem(null, x => val.Equals(x), last: last);
             return Entry<T>.Blank;
         }
+       
         /// <summary>
         /// Gets the <see cref="IItem"/> with the specified item.
         /// </summary>
@@ -667,9 +670,10 @@ namespace MnM.GWS
                 return items.FindItem(new Span(start), x => val.Equals(x), last: last);
             return Entry<T>.Blank;
         }
-        #endregion
+#endif
+#endregion
 
-        #region FIND - IFIND<K, V, T>
+#region FIND - IFIND<K, V, T>
         public static void Find<K, V, T>(this IEnumerable<T> items, ref Entry<T>[] array, int storeAt, T value, ISpan range, bool last = false) where T : IPair<K, V>
         {
             var result = items.FindItem(range, x => value.Equals(x), last);
@@ -746,6 +750,7 @@ namespace MnM.GWS
             IPair item, MatchBy option, bool last = false) where T : IPair<K, V> =>
             items.FindItem(null, (x) => (x.Match(criteria, item, option)), last);
 
+#if NETSTANDARD2_0
         /// <summary>
         /// Gets the <see cref="IItem"/> with the specified criteria.
         /// </summary>
@@ -787,6 +792,7 @@ namespace MnM.GWS
 
             return Entry<T>.Blank;
         }
+#endif
         #endregion
 
 #if Collections
@@ -1373,6 +1379,6 @@ namespace MnM.GWS
                 return Entry<T>.Blank;
             return new Entry<T>(value, index);
         }
-        #endregion
+#endregion
     }
 }
