@@ -30,7 +30,16 @@ namespace MnM.GWS
                 {
                     Angles.SinCos(start, out sin, out cos);
                     Values.Add(new Vector((int)(x + (x * sin)), (int)(y + (y * cos))));
-                    end -= step;
+                    end += step;
+                }
+            }
+            else
+            {
+                while (start <= end)
+                {
+                    Angles.SinCos(start, out sin, out cos);
+                    Values.Add(new Vector((int)(x + (x * sin)), (int)(y + (y * cos))));
+                    start += step;
                 }
             }
         }
