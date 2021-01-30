@@ -15,10 +15,10 @@ namespace MnM.GWS
         volatile int interval = 5;
         volatile bool Running = false;
         volatile bool TickOn = false;
-        volatile uint lastReading;
+        volatile uint speed;
         Stopwatch Watch;
-        readonly ElpasedEventArgs DefaultElpasedEventArgs = new ElpasedEventArgs(0);
-        public event EventHandler<IElpasedTimeEventArgs> Tick;
+        public event EventHandler<IEventArgs> Tick;
+        Unit unit;
         #endregion
 
         #region CONSTRUCTORS
@@ -46,11 +46,11 @@ namespace MnM.GWS
         }
         public Unit Unit
         {
-            get => DefaultElpasedEventArgs.Unit;
-            set => DefaultElpasedEventArgs.Unit = value;
+            get => unit;
+            set => unit = value;
         }
         public bool IsRunning => Running;
-        public uint LastReading => lastReading;
+        public uint Speed => speed;
         #endregion
 
         #region START - STOP
@@ -58,7 +58,7 @@ namespace MnM.GWS
         {
             if (Running)
                 return;
-            lastReading = 0;
+            speed = 0;
             Watch.Restart();
             Running = true;
             FireEvent(); 
@@ -68,7 +68,7 @@ namespace MnM.GWS
             Watch.Stop();
             Watch.Reset();
             Running = false;
-            lastReading = 0;
+            speed = 0;
         }
         #endregion
 
@@ -82,24 +82,23 @@ namespace MnM.GWS
                     if (Watch.ElapsedMilliseconds >= interval && !TickOn)
                     {
                         TickOn = true;
-                        lastReading = 0;
+                        speed = 0;
 
-                        switch (DefaultElpasedEventArgs.Unit)
+                        switch (unit)
                         {
                             case Unit.MilliSecond:
                             default:
-                                lastReading = (uint)Watch.ElapsedMilliseconds;
+                                speed = (uint)Watch.ElapsedMilliseconds;
                                 break;
                             case Unit.Tick:
-                                lastReading = (uint)Watch.ElapsedTicks;
+                                speed = (uint)Watch.ElapsedTicks;
                                 break;
                             case Unit.Second:
-                                lastReading = (uint)(Watch.ElapsedMilliseconds / 1000);
+                                speed = (uint)(Watch.ElapsedMilliseconds / 1000);
                                 break;
                         }
                         Watch.Restart();
-                        DefaultElpasedEventArgs.ElapsedTime = lastReading;
-                        Tick(this, DefaultElpasedEventArgs);
+                        Tick(this, Factory.EmptyArgs);
                         TickOn = false;
                     }
                 }
@@ -115,23 +114,10 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region EVENTARGS CLASS
-        class ElpasedEventArgs : IElpasedTimeEventArgs
-        {
-            public ElpasedEventArgs(uint time, Unit unit = Unit.MilliSecond)
-            {
-                ElapsedTime = time;
-                Unit = unit;
-            }
-            public uint ElapsedTime { get; internal set; }
-            public Unit Unit { get; internal set; }
-        }
-        #endregion
-
         #region TO STRING
         public override string ToString()
         {
-            return "{0} takes " + lastReading + " " + Unit.ToString() + "s.";
+            return "{0} takes " + speed + " " + Unit.ToString() + "s.";
         }
         #endregion
     }

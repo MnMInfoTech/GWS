@@ -95,7 +95,7 @@ namespace MnM.GWS
     #endregion
 
     #region ICHILD
-    public interface IChild : IRenderable
+    public interface IChild 
     {
         /// <summary>
         /// Gets or sets Parent window this object belongs to.

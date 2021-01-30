@@ -237,14 +237,20 @@ namespace MnM.GWS
     /// </summary>
     public interface ITimer : ITimerBase
     {
+        /// <summary>
+        /// Gets or sets unit of time measurement i.e milliseconds or seconds or microseconds.
+        /// </summary>
         Unit Unit { get; set; }
 
-        uint LastReading { get; }
+        /// <summary>
+        /// Gets speed measurement of latest execution of task performed in tick event.
+        /// </summary>
+        uint Speed { get; }
 
         /// <summary>
         /// Tick event which gets invoked by the interval specified.
         /// </summary>
-        event EventHandler<IElpasedTimeEventArgs> Tick;
+        event EventHandler<IEventArgs> Tick;
     }
 #endregion
 
