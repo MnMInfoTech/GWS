@@ -70,21 +70,21 @@ namespace MnM.GWS
 
         #region COPY BLOCK
         /// <summary>
-        /// 
+        /// Copies data from one  memory block to another: routine of copying must be provided through action delegate.
         /// </summary>
-        /// <param name="copyX"></param>
-        /// <param name="copyY"></param>
-        /// <param name="copyW"></param>
-        /// <param name="copyH"></param>
-        /// <param name="srcLen"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="dstW"></param>
-        /// <param name="dstLen"></param>
-        /// <param name="action"></param>
-        /// <param name="command"></param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="srcLen">Specifies the length of the source pointer.</param>
+        /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
+        /// <param name="srcH">Specifies the current height of the source block.</param>
+        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence.</param>
+        /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence.</param>
+        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
+        /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
+        /// <param name="action">BlockCopy action delegate to execute copy operation.</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Rectangle CopyBlock(int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
@@ -116,24 +116,24 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// 
+        /// Copies data from one  memory block to another.
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="copyX"></param>
-        /// <param name="copyY"></param>
-        /// <param name="copyW"></param>
-        /// <param name="copyH"></param>
-        /// <param name="srcLen"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
-        /// <param name="dst"></param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="dstW"></param>
-        /// <param name="dstLen"></param>
-        /// <param name="command"></param>
-        /// <param name="srcAlphas"></param>
-        /// <returns></returns>
+        /// <param name="src">Souece block to copy data from.</param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="srcLen">Specifies the length of the source pointer.</param>
+        /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
+        /// <param name="srcH">Specifies the current height of the source block.</param>
+        /// <param name="dst">Destination block to copy data to.</param>
+        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence.</param>
+        /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence.</param>
+        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
+        /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
+        /// <param name="srcAlphas">Alpha channel information of the source block.</param>
+        /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle CopyBlock(int* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
             int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null)
@@ -164,24 +164,23 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// 
+        /// Copies data from one  memory block to another.
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="copyX"></param>
-        /// <param name="copyY"></param>
-        /// <param name="copyW"></param>
-        /// <param name="copyH"></param>
-        /// <param name="srcLen"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
-        /// <param name="dst"></param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="dstW"></param>
-        /// <param name="dstLen"></param>
-        /// <param name="command"></param>
-        /// <param name="srcAlphas"></param>
-        /// <returns></returns>
+        /// <param name="src">Souece block to copy data from.</param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="srcLen">Specifies the length of the source pointer.</param>
+        /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
+        /// <param name="srcH">Specifies the current height of the source block.</param>
+        /// <param name="dst">Destination block to copy data to.</param>
+        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence.</param>
+        /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence.</param>
+        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
+        /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
+        /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle CopyBlock(byte* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
             byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command)
@@ -212,24 +211,23 @@ namespace MnM.GWS
         }
 
         /// <summary>
-        /// 
+        /// Copies data from one block to another.
         /// </summary>
-        /// <param name="src"></param>
-        /// <param name="copyX"></param>
-        /// <param name="copyY"></param>
-        /// <param name="copyW"></param>
-        /// <param name="copyH"></param>
-        /// <param name="srcLen"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
-        /// <param name="dst"></param>
-        /// <param name="dstX"></param>
-        /// <param name="dstY"></param>
-        /// <param name="dstW"></param>
-        /// <param name="dstLen"></param>
-        /// <param name="command"></param>
-        /// <param name="srcAlphas"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Type of elements in the array block.</typeparam>
+        /// <param name="src">Souece memory block to copy data from.</param>
+        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
+        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
+        /// <param name="copyW">Width of area in the source to copy.</param>
+        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="srcLen">Specifies the length of the source pointer.</param>
+        /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
+        /// <param name="srcH">Specifies the current height of the source block.</param>
+        /// <param name="dst">Destination memory block to copy data to.</param>
+        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence.</param>
+        /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence.</param>
+        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
+        /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
+        /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle CopyBlock<T>(T[] src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
             T[] dst, int dstX, int dstY, int dstW, int dstLen)
@@ -266,18 +264,19 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="src">Source memory block</param>
         /// <param name="srcIndex">Index in source from where copy operation should start</param>
-        /// <param name="dst"></param>
+        /// <param name="dst">Destination memory block to copy data to.</param>
         /// <param name="dstIndex">Index in destination where paste operation should start</param>
         /// <param name="length">Length of pixels to be copied</param>
         /// <param name="command">Command to control copy operation.
         /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
-        /// <param name="alphas"></param>
-        /// <param name="useDstIndexForAlphas"></param>
+        /// <param name="srcAlphas">Alpha channel information of the source block.</param>
+        /// <param name="useDstIndexForAlphas">If true, indices of destination block will be used to read source alpha information.</param>
         /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
-            Command command = Command.Opaque, byte* alphas = null, bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
+            Command command = Command.Opaque, byte* srcAlphas = null, 
+            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -322,7 +321,7 @@ namespace MnM.GWS
             }
             else
             {
-                bool HasAlphas = alphas != null;
+                bool HasAlphas = srcAlphas != null;
                 if (!HasAlphas)
                 {
                     if (Clear)
@@ -368,7 +367,7 @@ namespace MnM.GWS
                             if (Back && dstColor != 0)
                                 continue;
                             dst[dstIndex] = srcColor;
-                            alphas[alphaIdx] = 0;
+                            srcAlphas[alphaIdx] = 0;
                         }
                     }
                     else
@@ -378,7 +377,7 @@ namespace MnM.GWS
                             srcColor = src[srcIndex];
                             dstColor = dst[dstIndex];
                             alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
-                            alpha = alphas[alphaIdx];
+                            alpha = srcAlphas[alphaIdx];
 
                             if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0))
                                 continue;
@@ -414,8 +413,6 @@ namespace MnM.GWS
         /// <param name="length">Length of pixels to be copied</param>
         /// <param name="command">Command to control copy operation.
         /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
-        /// <param name="alphas"></param>
-        /// <param name="useDstIndexForAlphas"></param>
         /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

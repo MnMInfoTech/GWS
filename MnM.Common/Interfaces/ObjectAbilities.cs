@@ -282,17 +282,13 @@ namespace MnM.GWS
         /// <summary>
         /// Provides a paste routine to paste the specified chunk of data to a given destination pointer on a given location.
         /// </summary>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="destination">Specifies a pointer where the block should get copied</param>
         /// <param name="dstLen">Specifies the current length of the destination pointer</param>
         /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line</param>
         /// <param name="dstX">Specifies the X coordinate where the paste operation should commence</param>
-        /// <param name="dstY">specifies the Y coordinate from where the paste operation should commence</param>
+        /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence</param>
+        /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="command">Draw command to control the copy operation.</param>
-        /// <param name="alphaBytes">Alpha channel information(optional).</param>
         /// <returns>Area covered by this operation.</returns>
         unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command command = 0);
     }
@@ -310,12 +306,8 @@ namespace MnM.GWS
         /// <param name="srcH"></param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
+        /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="Command">Draw command to to control copy task</param>
-        /// <param name="ShapeID">ID of shape which pixels are being received from.</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
         IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
             Command Command, IntPtr alphaBytes = default(IntPtr));
