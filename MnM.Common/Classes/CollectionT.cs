@@ -95,6 +95,14 @@ namespace MnM.GWS
         {
             return Array.Exists(iData, (x => item.Equals(x)));
         }
+        public int IndexOf(Predicate<T> predicate)
+        {
+            return iData.FirstMatchIndex(predicate);
+        }
+        public bool Contains(Predicate<T> predicate)
+        {
+            return iData.FirstMatch(predicate, out _, out _);
+        }
         #endregion
 
         #region INSERT

@@ -21,28 +21,6 @@ namespace MnM.GWS
 
         #region RENDER
         /// <summary>
-        /// Renders any element on this given object. This renderer has a built-in support for the following kind of elements:
-        /// 1. IDrawable
-        /// 2. IFigurable
-        /// 3. IShape
-        /// Please note that in case your element does not implement any of the above, you must provide your own rendering routine.
-        /// Once you have handled it return true otherwise false.
-        /// </summary>
-        /// <param name="Renderable">Renderable object which is to be rendered</param>
-        /// <param name="Settings">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
-        /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Render(this IWritable writable, out long ExecutionTime, IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null)
-        {
-            Stopwatch Watch = new Stopwatch();
-            var description = Renderable.ID + " rendering ";
-            string message = Benchmarks.Execute(() => 
-            writable.Render(Renderable, Settings, suspendUpdate), Watch, out ExecutionTime, description);
-            Watch = null;
-            return message;
-        }
-
-        /// <summary>
         /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
         /// </summary>
         /// <param name="Renderables">Array of renderable elements.</param>
@@ -173,43 +151,6 @@ namespace MnM.GWS
                 ((IUpdatable)writable).Update(Command.UpdateScreenOnly, Boundary);
 
             return ok;
-        }
-
-        /// <summary>
-        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
-        /// </summary>
-        /// <param name="ExecutionTime">Time to complete rendering process for all shapes in miliseconds.</param>
-        /// <param name="Renderables">Array of renderable elements.</param>
-        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string RenderWithBenchmark(this IWritable writable, out long ExecutionTime,
-            IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
-        {
-            Stopwatch Watch = new Stopwatch();
-            var description = string.Join(",", Renderables.Select(r => r.ID)) + " rendering ";
-            string message = Benchmarks.Execute(()=>
-                writable.Render(Renderables, SettingsList), Watch, out ExecutionTime, description);
-            Watch = null;
-            return message;
-        }
-
-        /// <summary>
-        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
-        /// </summary>
-        /// <param name="Renderables">Array of renderable elements.</param>
-        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
-        /// <returns>Message which contains IDs of shapes and total executon time to render them all.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string RenderWithBenchmark(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
-        {
-            Stopwatch Watch = new Stopwatch();
-            var description = string.Join(",", Renderables.Select(r => r.ID)) + " rendering ";
-            string message;
-            Benchmarks.Execute(() => 
-                writable.Render(Renderables, SettingsList), Watch, out message, description);
-            Watch = null;
-            return message;
         }
 
         /// <summary>

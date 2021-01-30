@@ -48,7 +48,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\APoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AxisLine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\BrushStyle.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\CircularPoints.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Cmyk.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Hsl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Hsv.cs" />

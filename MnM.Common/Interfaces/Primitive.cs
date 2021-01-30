@@ -123,7 +123,7 @@ namespace MnM.GWS
 #if (GWS || Window)
 
     #region IBOUNDARY
-    public interface IBoundary : IRectangle, INotifier, IEnumerable<Vector>, ICloneable
+    public partial interface IBoundary : IRectangle, INotifier, IEnumerable<Vector>, ICloneable
     {
         /// <summary>
         /// Gets or sets X co-ordinate of the draw location.

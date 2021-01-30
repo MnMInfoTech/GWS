@@ -56,8 +56,8 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ICOMMON-SETTINGS
-    public interface IDrawSettings : IDrawParams, IDrawnArea, IBounds, IRotatable
+    #region IDRAW-SETTINGS
+    public partial interface IDrawSettings : IDrawParams, IDrawnArea, IBounds, IRotatable
     {
         /// <summary>
         /// Gets or sets fill mode settings for this object.

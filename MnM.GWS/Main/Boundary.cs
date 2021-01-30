@@ -75,15 +75,30 @@ namespace MnM.GWS
         public int Y => Y1;
         public int ShapeID { get; set; }
         public int DstX 
-        { 
-            get => dstX;
+        {
+            get
+            {
+                int i = dstX;
+                GetX(ref i);
+                return i;
+            }
             set => dstX = value;
         }
         public int DstY 
         { 
-            get => dstY;
+            get
+            {
+                int i = dstY;
+                GetY(ref i);
+                return i;
+            }
             set => dstY = value; 
         }
+        #endregion
+
+        #region GET Destination X, Y
+        partial void GetX(ref int dstX);
+        partial void GetY(ref int dstY);
         #endregion
 
         #region CONTAINS

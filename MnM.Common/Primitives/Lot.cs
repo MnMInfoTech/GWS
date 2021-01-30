@@ -85,7 +85,6 @@ namespace MnM.GWS
             return "Item1: " + Item1 + ", Item2: " + Item2 + ", Item3: " + Item3 + ", Item4: " + Item4 + ", Item5: " + Item5;
         }
     }
-
     public static class Lot
     {
         public static Lot<T1, T2> Create<T1, T2>(T1 item1 = default(T1), T2 item2 = default(T2)) =>
