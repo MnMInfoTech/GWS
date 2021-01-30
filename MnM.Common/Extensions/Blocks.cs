@@ -133,10 +133,11 @@ namespace MnM.GWS
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <param name="srcAlphas">Alpha channel information of the source block.</param>
+        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle CopyBlock(int* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
-            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null)
+            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null, int? ignoreValue = null)
         {
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
@@ -155,7 +156,7 @@ namespace MnM.GWS
 
                 if (copyW <= 0)
                     break;
-                Copy(src, srcIndex, dst, dstIndex, copyW, command, srcAlphas);
+                Copy(src, srcIndex, dst, dstIndex, copyW, command, srcAlphas, ignoreValue: ignoreValue);
                 srcIndex += srcW;
                 dstIndex += dstW;
                 ++i;
@@ -180,10 +181,11 @@ namespace MnM.GWS
         /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <param name="command">Draw command to control the copy operation.</param>
+        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle CopyBlock(byte* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
-            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command)
+            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command, int? ignoreValue = null)
         {
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
@@ -202,7 +204,7 @@ namespace MnM.GWS
 
                 if (copyW <= 0)
                     break;
-                Copy(src, srcIndex, dst, dstIndex, copyW, command);
+                Copy(src, srcIndex, dst, dstIndex, copyW, command, ignoreValue: ignoreValue);
                 srcIndex += srcW;
                 dstIndex += dstW;
                 ++i;
@@ -273,10 +275,11 @@ namespace MnM.GWS
         /// <param name="useDstIndexForAlphas">If true, indices of destination block will be used to read source alpha information.</param>
         /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
+        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
             Command command = Command.Opaque, byte* srcAlphas = null, 
-            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
+            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
         {
             if (length == 0)
                 return;
@@ -284,6 +287,8 @@ namespace MnM.GWS
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
             bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
+            var exclude = ignoreValue ?? 0;
+            bool ignore = ignoreValue != null;
 
             if (dstCounter <= 0)
                 dstCounter = 1;
@@ -301,7 +306,10 @@ namespace MnM.GWS
 
                     for (int i = 0; i < length; i++, dstIndex += dstCounter)
                     {
-                        if (Back && dst[dstIndex] != 0)
+                        dstColor = dst[dstIndex];
+
+                        if ((Back && dst[dstIndex] != 0) ||
+                            (ignore && dstColor == exclude))
                             continue;
                         dst[dstIndex] = srcColor;
                     }
@@ -313,7 +321,11 @@ namespace MnM.GWS
                         srcColor = src[srcIndex];
                         if (Invert)
                             srcColor ^= Colors.Inversion;
-                        if (Back && dst[dstIndex] != 0)
+
+                        dstColor = dst[dstIndex];
+
+                        if ((Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                             continue;
                         dst[dstIndex] = srcColor;
                     }
@@ -331,7 +343,8 @@ namespace MnM.GWS
                         for (int i = 0; i < length; i++, dstIndex += dstCounter)
                         {
                             dstColor = dst[dstIndex];
-                            if ((Back && dstColor != 0))
+                            if ((Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                                 continue;
                             dst[dstIndex] = srcColor;
                         }
@@ -342,7 +355,8 @@ namespace MnM.GWS
                         {
                             srcColor = src[srcIndex];
                             dstColor = dst[dstIndex];
-                            if (srcColor == 0 || (Back && dstColor != 0))
+                            if (srcColor == 0 || (Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                                 continue;
                             if (Invert)
                                 srcColor ^= Colors.Inversion;
@@ -364,7 +378,8 @@ namespace MnM.GWS
                             dstColor = dst[dstIndex];
                             alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
 
-                            if (Back && dstColor != 0)
+                            if ((Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                                 continue;
                             dst[dstIndex] = srcColor;
                             srcAlphas[alphaIdx] = 0;
@@ -379,7 +394,8 @@ namespace MnM.GWS
                             alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
                             alpha = srcAlphas[alphaIdx];
 
-                            if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0))
+                            if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0) ||
+                            (ignore && dstColor == exclude))
                                 continue;
 
                             if (alpha == 0 || alpha == 255 || dstColor == 0)
@@ -415,9 +431,10 @@ namespace MnM.GWS
         /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
         /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
+        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length,
-            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1)
+            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
         {
             if (length == 0)
                 return;
@@ -425,13 +442,15 @@ namespace MnM.GWS
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
             bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
+            var exclude = ignoreValue ?? 0;
+            bool ignore = ignoreValue != null;
 
             if (dstCounter <= 0)
                 dstCounter = 1;
             if (srcCounter <= 0)
                 srcCounter = 1;
 
-            byte srcByte = 0, dstByte;
+            byte srcByte = 0, dstColor;
 
             if (Opaque)
             {
@@ -442,7 +461,9 @@ namespace MnM.GWS
 
                     for (int i = 0; i < length; i++, dstIndex += dstCounter)
                     {
-                        if (Back && dst[dstIndex] != 0)
+                        dstColor = dst[dstIndex];
+                        if ((Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                             continue;
                         dst[dstIndex] = srcByte;
                     }
@@ -454,7 +475,9 @@ namespace MnM.GWS
                         srcByte = src[srcIndex];
                         if (Invert)
                             srcByte = (byte)(255 - srcByte);
-                        if (Back && dst[dstIndex] != 0)
+                        dstColor = dst[dstIndex];
+                        if ((Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                             continue;
                         dst[dstIndex] = srcByte;
                     }
@@ -468,8 +491,9 @@ namespace MnM.GWS
                         srcByte = 1;
                     for (int i = 0; i < length; i++, dstIndex += dstCounter)
                     {
-                        dstByte = dst[dstIndex];
-                        if ((Back && dstByte != 0))
+                        dstColor = dst[dstIndex];
+                        if ((Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                             continue;
                         dst[dstIndex] = srcByte;
                     }
@@ -479,8 +503,10 @@ namespace MnM.GWS
                     for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
                     {
                         srcByte = src[srcIndex];
-                        dstByte = dst[dstIndex];
-                        if (srcByte == 0 || (Back && dstByte != 0))
+                        dstColor = dst[dstIndex];
+                        if (srcByte == 0 || 
+                            (Back && dstColor != 0) ||
+                            (ignore && dstColor == exclude))
                             continue;
                         if (Invert)
                             srcByte = (byte)(255 - srcByte);
