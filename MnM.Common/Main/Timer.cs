@@ -15,7 +15,7 @@ namespace MnM.GWS
         volatile int interval = 5;
         volatile bool Running = false;
         volatile bool TickOn = false;
-        volatile uint speed;
+        long speed;
         Stopwatch Watch;
         public event EventHandler<IEventArgs> Tick;
         Unit unit;
@@ -50,7 +50,7 @@ namespace MnM.GWS
             set => unit = value;
         }
         public bool IsRunning => Running;
-        public uint Speed => speed;
+        public long Speed => speed;
         #endregion
 
         #region START - STOP

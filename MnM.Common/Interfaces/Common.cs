@@ -217,9 +217,14 @@ namespace MnM.GWS
         int Interval { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets a flag indicating wether this timer is running or not.
         /// </summary>
         bool IsRunning { get; }
+
+        /// <summary>
+        /// Gets speed measurement of latest execution of task performed in tick event.
+        /// </summary>
+        long Speed { get; }
 
         /// <summary>
         /// Starts this timer.
@@ -241,11 +246,6 @@ namespace MnM.GWS
         /// Gets or sets unit of time measurement i.e milliseconds or seconds or microseconds.
         /// </summary>
         Unit Unit { get; set; }
-
-        /// <summary>
-        /// Gets speed measurement of latest execution of task performed in tick event.
-        /// </summary>
-        uint Speed { get; }
 
         /// <summary>
         /// Tick event which gets invoked by the interval specified.
