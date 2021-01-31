@@ -990,16 +990,15 @@ namespace MnM.GWS
 
         #region ROUNDED RECTANGLE POINTS
         public static IList<VectorF> RoundedBoxPoints(float x, float y, float width, float height, float cornerRadius, RoundBoxOption option)
-        {
-            
+        {            
             Collection<VectorF> pixels = new Collection<VectorF>(100);
-            bool l = (option & RoundBoxOption.Left) == RoundBoxOption.Left;
-            bool t = (option & RoundBoxOption.Top) == RoundBoxOption.Top;
-            bool r = (option & RoundBoxOption.Right) == RoundBoxOption.Right;
-            bool b = (option & RoundBoxOption.Bottom) == RoundBoxOption.Bottom;
+            bool l = (option & RoundBoxOption.LeftTop) == RoundBoxOption.LeftTop;
+            bool t = (option & RoundBoxOption.TopRight) == RoundBoxOption.TopRight;
+            bool r = (option & RoundBoxOption.RightBottom) == RoundBoxOption.RightBottom;
+            bool b = (option & RoundBoxOption.BottomLeft) == RoundBoxOption.BottomLeft;
             bool banner = (option & RoundBoxOption.Banner) == RoundBoxOption.Banner;
             bool all = option == 0 ||  ((l && t && r && b) || !(l || t || r || b));
-
+           
             var right = x + width;
             var bottom = y + height;
             var radius = cornerRadius;
