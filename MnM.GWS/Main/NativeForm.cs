@@ -181,44 +181,6 @@ namespace MnM.GWS
     }
 
 #if Advanced
-    partial class NativeForm : IContainer, IImageData
-        {
-            #region PROPERTIES
-            public IRectangle ClipRectangle
-            {
-                get => Canvas.ClipRectangle;
-                set => Canvas.ClipRectangle = value;
-            }
-            public bool Clipped => Canvas.Clipped;
-            public bool SupportBackgroundBuffer
-            {
-                get => Canvas.SupportBackgroundBuffer;
-                set => Canvas.SupportBackgroundBuffer = value;
-            }
-            public IEventPusher ActiveObject =>
-                Canvas.ActiveObject;
-            #endregion
-
-            #region FIND, CHECK ELEMENT
-            public IRenderable FindElement(int x, int y) =>
-                Canvas.FindElement(x, y);
-            public bool CheckElement(IRenderable renderable, int x, int y) =>
-                Canvas.CheckElement(renderable, x, y);
-            #endregion
-
-            #region FOCUS - UNFOCUS
-            public bool Focus(IRenderable shape) =>
-                Canvas.Focus(shape);
-
-            public bool Unfocus(IRenderable shape) =>
-                Canvas.Unfocus(shape);
-            #endregion
-
-            #region GET DATA
-            void IImageData.GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer) =>
-                Canvas.GetData(out Pixels, out Alphas, BackgroundBuffer);
-            #endregion
-        }
 #endif
 #if HideGWSObjects
     }
