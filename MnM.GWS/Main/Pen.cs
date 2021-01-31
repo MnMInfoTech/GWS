@@ -20,7 +20,8 @@ namespace MnM.GWS
             #region VARIABLES
             int w, h;
             int color;
-            bool Inversion;
+            bool Invert;
+        ReadChoice choice;
             #endregion
 
             #region CONSTRUCTOR
@@ -50,17 +51,22 @@ namespace MnM.GWS
             public int Width => w;
             public int Height => h;
             public int Length => w * h;
-            public bool Invert
+        public ReadChoice Choice
+        {
+            get => choice;
+            set
             {
-                get => Inversion;
-                set => Inversion = value;
+                choice = value;
+                Invert = (choice & ReadChoice.InvertColor) == ReadChoice.InvertColor;
             }
-            #endregion
+        }
 
-            #region READ PIXEL
-            public int ReadPixel(int x, int y)
+        #endregion
+
+        #region READ PIXEL
+        public int ReadPixel(int x, int y)
             {
-                if (Inversion)
+                if (Invert)
                     return color ^ 0xffffff;
                 return color;
             }
@@ -76,7 +82,7 @@ namespace MnM.GWS
                 if (!Numbers.PositiveLength(ref start, ref end, out length))
                     goto mks;
                 int c = color;
-                if (Inversion)
+                if (Invert)
                     c = color ^ 0xffffff;
 
                 pixels = new int[length];

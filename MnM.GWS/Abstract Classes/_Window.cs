@@ -92,7 +92,6 @@ namespace MnM.GWS
         public int Y => bounds.Y;
         public IPenContext Background
         {
-            get => Canvas.Background;
             set => Canvas.Background = value;
         }
         public int Width => bounds.Width;

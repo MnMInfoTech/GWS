@@ -15,6 +15,7 @@ namespace MnM.GWS
         readonly public int Width;
         readonly public int Height;
         readonly public int Length;
+        ReadChoice choice;
         #endregion
 
         #region CONSTRUCTOR
@@ -59,15 +60,19 @@ namespace MnM.GWS
         int ISize.Width => Width;
         int ISize.Height => Height;
         int ILength.Length => Length;
-        bool IReadable.Invert
+        public ReadChoice Choice
         {
-            get => Invert;
-            set => Invert = value;
+            get => choice;
+            set
+            {
+                choice = value;
+                Invert = (choice & ReadChoice.InvertColor) == ReadChoice.InvertColor;
+            }
         }
         public int[] PenData { get; private set; }
         #endregion
 
-        #region METHODS
+        #region READ PIXEL
         public int ReadPixel(int x, int y)
         {
             if (Length == 0)
@@ -80,6 +85,9 @@ namespace MnM.GWS
                 srcColor ^= Colors.Inversion;
             return srcColor;
         }
+        #endregion
+
+        #region READ LINE
         public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, out byte[] pixelAlphas)
         {
             pixelAlphas = null;
@@ -127,6 +135,9 @@ namespace MnM.GWS
                 srcIndex = 0;
             }
         }
+        #endregion
+
+        #region COPY TO
         public unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea,
             Command command)
         {

@@ -166,7 +166,10 @@ namespace MnM.GWS
     #region IREADABLE
     public interface IReadable : IBlockable, IPenContext, ICopyable
     {
-        bool Invert { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        ReadChoice Choice { get; set; }
 
         /// <summary>
         /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
@@ -402,7 +405,7 @@ namespace MnM.GWS
         /// <summary>
         /// Sets background for this object.
         /// </summary>
-        IPenContext Background { get; set; }
+        IPenContext Background { set; }
     }
     #endregion
 

@@ -756,23 +756,22 @@ namespace MnM.GWS
             var h = Settings.Bounds.Height + 1;
 
             IPenContext PenContext = Settings.PenContext;
-            if (PenContext != null)
-                goto mks;
-
-            if (PenContext == null && buffer is IBackground)
-            {
-                if (shape is IRotatable)
-                    Settings.Rotation = ((IRotatable)shape).Rotation;
-                Pen = new FixedBrush(((IBackground)buffer).Background, Settings, w, h);
-                Settings.PenContext = Pen;
-                return Pen;
-            }
-
-        mks:
-            Pen = PenContext.ToPen(w, h);
             if (shape is IRotatable)
                 Settings.Rotation = ((IRotatable)shape).Rotation;
 
+            if (PenContext == null)
+            {
+                if (buffer is IReadable)
+                {
+                    Pen = (IReadable)buffer;
+                    Pen.Choice |=  ReadChoice.InvertColor;
+                }
+                else
+                    Pen = Pens.White;
+                goto mks;
+            }
+            Pen = PenContext.ToPen(w, h);
+        mks:
             (Pen as ISettingsReceiver)?.Receive(Settings);
             Settings.PenContext = Pen;
             return Pen;
@@ -3026,28 +3025,6 @@ namespace MnM.GWS
             settings.Boundary.DstX = dstX;
             settings.Boundary.DstY = dstY;
             buffer.Render(text, settings);
-        }
-        #endregion
-
-        #region DRAW FOCUS RECT
-        /// <summary>
-        /// Draws focus rectangle i.e. border around specified with dotted invert colors
-        /// </summary>
-        /// <param name="rc">Rectangle to draw focus around.</param>
-        public static void DrawFocusRect(this IWritable block, IRectangle rc, ISettings info)
-        {
-            if (rc == null)
-                return;
-            int X = rc.X;
-            int Y = rc.Y;
-            int W = rc.Width;
-            int H = rc.Height;
-            var Settings = info ?? Factory.newSettings();
-            Settings.Receive(null, true);
-            info.FillMode = FillMode.DrawOutLine;
-            info.Command = Command.Dot | Command.InvertColor | Command.NoBrushAutoSizing;
-            Settings.PenContext = (block as IBackground)?.Background;
-            block.DrawRectangle(X, Y, W, H, Settings);
         }
         #endregion
 

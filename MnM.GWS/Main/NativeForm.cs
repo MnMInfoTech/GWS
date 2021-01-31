@@ -44,7 +44,6 @@ namespace MnM.GWS
             public IObjCollection Objects => Canvas.Objects;
             public IPenContext Background
             {
-                get => Canvas.Background;
                 set => Canvas.Background = value;
             }
             public bool IsDisposed => Target.IsDisposed;

@@ -194,12 +194,15 @@ namespace MnM.GWS
         {
             PixelAction action;
             IReadable pen = null;
-            if (buffer is IBackground)
-                pen = ((IBackground)buffer).Background as IReadable;
+            if (buffer is IReadable)
+            {
+                pen = buffer as IReadable;
+            }
             if (pen == null)
                 pen = Pens.Black;
-            var invert = pen.Invert;
-            pen.Invert = true;
+
+            var choice = pen.Choice;
+            pen.Choice |=  ReadChoice.InvertColor;
             command |= Command.Screen;
             var boundary = Factory.newBoundary();
             buffer.CreatePixelAction(pen, out action, boundary);
@@ -207,7 +210,7 @@ namespace MnM.GWS
             Renderer.ProcessLine(X, Y + Height, X + Width, Y + Height, action, command);
             Renderer.ProcessLine(X + Width, Y + Height, X + Width, Y, action, command);
             Renderer.ProcessLine(X + Width, Y, X, Y, action, command);
-            pen.Invert = invert;
+            pen.Choice = choice;
         }
         #endregion
 #endif

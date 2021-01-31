@@ -13,11 +13,6 @@ namespace MnM.GWS
     {
         #region VARIABLES
         /// <summary>
-        /// color pixels of this object.
-        /// </summary>
-        protected volatile int[] Data;
-
-        /// <summary>
         /// Width of this object.
         /// </summary>
         protected int width;
@@ -75,37 +70,8 @@ namespace MnM.GWS
             this.width = width;
             this.height = height;
             length = width * height;
-            Data = new int[length];
             originalHeight = height;
             originalWidth = width;
-        }
-        protected unsafe _Image(int[] data, int w, int h, bool makeCopy = false) :
-            this(w, h, null)
-        {
-            if (data == null)
-                return;
-            if (makeCopy)
-                Array.Copy(data, 0, Data, 0, length);
-            else
-                Data = data;
-        }
-        protected unsafe _Image(int w, int h, byte[] data) :
-            this(w / 4, h)
-        {
-            if (data == null)
-                return;
-            fixed (byte* src = data)
-            {
-                fixed (int* dst = Data)
-                    Blocks.Copy((int*)src, 0, dst, 0, length);
-            }
-        }
-        protected unsafe _Image(IntPtr data, int w, int h) :
-            this(w, h)
-        {
-            int* src = (int*)data;
-            fixed (int* dst = Data)
-                Blocks.Copy(src, 0, dst, 0, length);
         }
         #endregion
 
@@ -123,11 +89,7 @@ namespace MnM.GWS
         public int Width => width;
         public int Height => height;
         public int Length => length;
-        protected virtual unsafe int* Screen(bool DirectScreen)
-        {
-            fixed (int* p = Data)
-                return p;
-        }
+        protected abstract unsafe int* Screen(bool DirectScreen);
         public virtual string TypeName => "Image";
         public string Name => TypeName + ID;
         public virtual bool Inaccessible => IsResizing || isDisposed;
@@ -150,11 +112,7 @@ namespace MnM.GWS
         #endregion
 #if Advanced
         #region GET DATA
-        public virtual void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false)
-        {
-            Pixels = Data;
-            Alphas = null;
-        }
+        public abstract void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false);
         #endregion
 #endif
         #region DRAW
@@ -806,7 +764,6 @@ namespace MnM.GWS
         public virtual void Dispose()
         {
             isDisposed = true;
-            Data = null;
         }
         #endregion
     }

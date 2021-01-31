@@ -14,16 +14,17 @@ namespace MnM.GWS
 #else
     public
 #endif
-        partial class Brush: IBrush, ITextureBrush, IResizable
+        partial class Brush : IBrush, ITextureBrush, IResizable
         {
             #region  VARIABLES
             protected int width, height, length, type;
             protected BrushStyle Style;
-            protected bool InvertBrushColor;
+            volatile bool Invert;
             int Rx, Ry;
             bool MatchSize;
             int[] Data;
             float[] CircularDistances;
+        volatile ReadChoice choice;
             #endregion
 
             #region MATH.ATAN2
@@ -82,7 +83,7 @@ namespace MnM.GWS
                 brush.type = styl.Gradient;
                 bool success = false;
                 brush.ResizeInternally(width, height, ref success);
-                if(success)
+                if (success)
                     brush.Store();
                 return brush;
             }
@@ -124,11 +125,15 @@ namespace MnM.GWS
             }
             public bool IsDisposed { get; private set; }
             BrushStyle IBrush.Style => Style;
-            public bool Invert
+            public ReadChoice Choice
+        {
+            get => choice;
+            set
             {
-                get => InvertBrushColor;
-                set => InvertBrushColor = value;
+                choice = value;
+                Invert = (choice & ReadChoice.InvertColor) == ReadChoice.InvertColor;
             }
+        }
             unsafe IntPtr IPixels.Source
             {
                 get
@@ -152,7 +157,7 @@ namespace MnM.GWS
 
             #region READ LINE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void ReadLine(int Start, int End, int Axis, bool Horizontal, 
+            public void ReadLine(int Start, int End, int Axis, bool Horizontal,
                 out int[] pixels, out int srcIndex, out int copyLength, out byte[] srcAlphas)
             {
                 pixels = null;
@@ -223,7 +228,7 @@ namespace MnM.GWS
             unsafe partial void Store();
             unsafe partial void Restore();
             #endregion
-          
+
             #region CLONE
             public object Clone()
             {

@@ -175,8 +175,6 @@ namespace MnM.GWS
 
             if (buffer is IReadable)
                 pen = (IReadable)buffer;
-            else if (buffer is IBackground)
-                pen = ((IBackground)buffer).Background as IReadable;
             else
                 pen = Pens.Black;
 
