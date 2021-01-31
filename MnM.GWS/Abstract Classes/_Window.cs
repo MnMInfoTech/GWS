@@ -99,6 +99,7 @@ namespace MnM.GWS
         public int Height => bounds.Height;
         public bool IsContainer =>
             true;
+        public bool Inaccessible => isDisposed || Canvas.Inaccessible;
         public bool IsDisposed => isDisposed;
         public virtual bool FocusOnHover { get; set; }
         public virtual int TabIndex { get; set; }
@@ -155,13 +156,14 @@ namespace MnM.GWS
 
         #region REFRESH
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Refresh()
+        public virtual void Refresh(Command command = 0)
         {
             if (Width == 0 || Height == 0 || !Visible)
                 return;
             DrawEventArgs.Graphics = Canvas;
+            Canvas.Refresh(command| Command.SuspendUpdate);
             OnPaint(DrawEventArgs);
-            Canvas.Update(0, new Rectangle(0, 0, Width, Height));
+            Canvas.Update(0, null);
         }
         #endregion
 
@@ -181,7 +183,7 @@ namespace MnM.GWS
 
         protected override void OnResize(ISizeEventArgs e)
         {
-            bounds = new Rectangle(Bounds.X, Bounds.Y, e.Width, e.Height);
+            bounds = new Rectangle(bounds.X, bounds.Y, e.Width, e.Height);
             Primary?.Resize(e.Width, e.Height);
             Resize2();
             base.OnResize(e);

@@ -56,6 +56,7 @@ namespace MnM.GWS
                 get => Target.Text;
                 set => Target.Text = value;
             }
+            public bool Inaccessible => Target.IsDisposed || Canvas.Inaccessible;
             int ILength.Length => Canvas.Length;
             #endregion
 
@@ -132,9 +133,9 @@ namespace MnM.GWS
             #endregion
 
             #region REFRESH
-            public void Refresh()
+            public void Refresh(Command command = 0)
             {
-                Canvas.Refresh();
+                Canvas.Refresh(command);
             }
             #endregion
 

@@ -579,9 +579,7 @@ namespace MnM.GWS
                 result = new T[newWidth * newHeight];
                 return result;
             }
-            int copyW = newWidth;
-            int copyH = newHeight;
-            CopyBlock(source, 0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
+            CopyBlock(source, 0, 0, oldWidth, oldHeight, oldWidth * oldHeight, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
             return result;
         }
 

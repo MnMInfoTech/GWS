@@ -127,7 +127,7 @@ namespace MnM.GWS
             }
 
             if (Boundary.Valid && writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+                ((IUpdatable)writable).Update(0, Boundary);
         }
 
         /// <summary>

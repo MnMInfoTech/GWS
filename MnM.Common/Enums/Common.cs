@@ -229,6 +229,11 @@ namespace MnM.GWS
         /// Copies data from underlying buffer but does not update screen.
         /// </summary>
         CopyPixelsOnly = 0x1000000000,
+
+        /// <summary>
+        /// Wipes all temporary drawings while refreshing screen.
+        /// </summary>
+        RefreshWipeTemporary = 0x2000000000,
     }
     #endregion
 

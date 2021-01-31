@@ -130,6 +130,7 @@ namespace MnM.GWS
         }
         public virtual string TypeName => "Image";
         public string Name => TypeName + ID;
+        public virtual bool Inaccessible => IsResizing || isDisposed;
 
         protected abstract unsafe int* Pen { get; }
 #if Advanced

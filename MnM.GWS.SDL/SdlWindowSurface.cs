@@ -157,10 +157,6 @@ namespace MnM.GWS
             width = sdlSurface.Width;
             height = sdlSurface.Height;
             length = width * height;
-            if (Window == null)
-                return;
-            var rc = Window.CopyTo(Source, length, width, 0, 0, new Rectangle(0, 0, width, height), Command.Backdrop);
-            NativeFactory.UpdateWindow(Window.Handle, new Rectangle(rc.X, rc.Y, rc.Width, rc.Height));
         }
         #endregion
 

@@ -35,27 +35,13 @@ namespace MnM.GWS
         volatile int Y2 = 0;
 
         /// <summary>
-        /// X co-ordinate of recently drawn area of this object.
+        /// 
         /// </summary>
-        volatile int X3 = int.MaxValue;
-
-        /// <summary>
-        /// Y co-ordinate of recently drawn area of this object.
-        /// </summary>
-        volatile int Y3 = int.MaxValue;
-
-        /// <summary>
-        /// Far right X co-ordinate of recently drawn area of this object.
-        /// </summary>
-        volatile int X4 = 0;
-
-        /// <summary>
-        /// Far bottom Y co-ordinate of recently drawn area of this object.
-        /// </summary>
-        volatile int Y4 = 0;
-
         volatile int dstX;
 
+        /// <summary>
+        /// 
+        /// </summary>
         volatile int dstY;
 
         public static Boundary Empty = new Boundary();
@@ -96,7 +82,7 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region GET Destination X, Y
+        #region GET DESTINATION X, Y
         partial void GetX(ref int dstX);
         partial void GetY(ref int dstY);
         #endregion
@@ -107,21 +93,7 @@ namespace MnM.GWS
         {
             if (x < X1 || y < Y1 || x > X2 || y > Y2)
                 return false;
-
-            var Area1 = GetArea(X1, Y3, X3, Y1, X4, Y2);
-            var Area2 = GetArea(X3, Y1, X2, Y4, X4, Y2);
-
-            var a1 = GetArea(x, y, X1, Y3, X3, Y1);
-            var a2 = GetArea(x, y, X1, Y3, X2, Y4);
-            var a3 = GetArea(x, y, X2, Y4, X3, Y1);
-            var result = a1 + a2 + a3;
-            if (Area1 == result)
-                return true;
-            a1 = GetArea(x, y, X3, Y1, X2, Y4);
-            a2 = GetArea(x, y, X3, Y1, X4, Y2);
-            a3 = GetArea(x, y, X4, Y2, X2, Y4);
-            result = a1 + a2 + a3;
-            return Area2 == result;
+            return true;
         }
         #endregion
 
@@ -188,21 +160,7 @@ namespace MnM.GWS
         public void Clear()
         {
             X1 = Y1 = int.MaxValue;
-            X2 = Y2 = X3 = Y3 = X4 = Y4 = 0;
-        }
-        #endregion
-
-        #region RESET
-        public void Reset(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
-        {
-            X1 = x1;
-            Y1 = y1;
-            X2 = x2;
-            Y2 = y2;
-            X3 = x3;
-            Y3 = y3;
-            X4 = x4;
-            Y4 = y4;
+            X2 = Y2 = 0;
         }
         #endregion
 
@@ -221,16 +179,21 @@ namespace MnM.GWS
                 pen = ((IBackground)buffer).Background as IReadable;
             else
                 pen = Pens.Black;
-            //var invert = pen.Invert;
-            //pen.Invert = true;
-            command |= Command.Screen;
+
+            command |= Command.Screen| Command.Dot;
             var boundary = Factory.newBoundary();
+
+            int x1 = X1 + 3;
+            int y1 = Y1 + 3;
+            int x2 = X2 - 3;
+            int y2 = Y2 - 3;
+
             buffer.CreatePixelAction(pen, out action, boundary);
-            Renderer.ProcessLine(X1, Y3, X3, Y1, action, command);
-            Renderer.ProcessLine(X2, Y4, X3, Y1, action, command);
-            Renderer.ProcessLine(X2, Y4, X4, Y2, action, command);
-            Renderer.ProcessLine(X1, Y3, X4, Y2, action, command);
-            //pen.Invert = invert;
+            Renderer.ProcessLine(x1, y1, x1, y2, action, command);
+            Renderer.ProcessLine(x1, y2, x2, y2, action, command);
+            Renderer.ProcessLine(x2, y2, x2, y1, action, command);
+            Renderer.ProcessLine(x2, y1, x1, y1, action, command);
+
             (buffer as IUpdatable)?.Update(command, boundary);
         }
         #endregion
@@ -248,17 +211,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region GET AREA
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float GetArea(int p1X, int p1Y, int p2X, int p2Y, int p3X, int p3Y)
-        {
-            var area = ((p1X * (p2Y - p3Y) + p2X * (p3Y - p1Y) + p3X * (p1Y - p2Y)) / 2f);
-            if (area < 0)
-                area = -area;
-            return area;
-        }
-        #endregion
-
         #region CLONE
         public IBoundary Clone()
         {
@@ -266,7 +218,6 @@ namespace MnM.GWS
             bdr.Copy(this);
             return bdr;
         }
-
         object ICloneable.Clone() =>
             Clone();
         #endregion
@@ -279,10 +230,10 @@ namespace MnM.GWS
         #region GET ENUMERATOR
         public IEnumerator<Vector> GetEnumerator()
         {
-            yield return new Vector(X1, Y3);
-            yield return new Vector(X3, Y1);
-            yield return new Vector(X2, Y4);
-            yield return new Vector(X4, Y2);
+            yield return new Vector(X1, Y1);
+            yield return new Vector(X1, Y2);
+            yield return new Vector(X2, Y2);
+            yield return new Vector(X2, Y1);
         }
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();

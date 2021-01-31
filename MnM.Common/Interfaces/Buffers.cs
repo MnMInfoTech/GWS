@@ -120,7 +120,13 @@ namespace MnM.GWS
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
     public interface IGraphics : IWritable, ICopyable, IDisposed
-    { }
+    {
+        /// <summary>
+        /// Indicates whether this object is curently inaccessible for writing or not.
+        /// this object gets Inaccessible for variety of reasons such as if it is resizing or disposed.
+        /// </summary>
+        bool Inaccessible { get; }
+    }
     #endregion
 
     #region ILOCK-UNLOCK

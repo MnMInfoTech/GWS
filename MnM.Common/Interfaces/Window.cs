@@ -27,7 +27,7 @@ namespace MnM.GWS
 
     #region INATIVE TARGET
     public interface INativeTarget : IRenderTarget, IHandle, IDisposable,
-        IShowable, IHideable, IRefreshable, IResizable, ITextDisplayer
+        IShowable, IHideable, IResizable, ITextDisplayer
     {
         INativeForm Form { set; }
     }
@@ -52,14 +52,14 @@ namespace MnM.GWS
     /// Represents an object which represents window.
     /// </summary>
     public partial interface IForm : INativeForm, IGraphics, IConsolidator,
-        IContainer, IUpdatable, IResizable, IClearable, IPastable, IDisposed,
+        IContainer, IUpdatable, IRefreshable, IClearable, IPastable, IDisposed,
         IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents
     { }
     #endregion
 
     #region IHOST
-    public partial interface IHost : IForm, IRefreshable, IFocusable, IRenderWindow
+    public partial interface IHost : IForm, IFocusable, IRenderWindow
     {
         /// <summary> 
         /// Gets area of this object.

@@ -217,7 +217,7 @@ namespace MnM.GWS
         int Interval { get; set; }
 
         /// <summary>
-        /// Gets a flag indicating wether this timer is running or not.
+        /// Gets a flag indicating whether this timer is running or not.
         /// </summary>
         bool IsRunning { get; }
 

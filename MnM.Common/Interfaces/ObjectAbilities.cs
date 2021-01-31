@@ -360,7 +360,8 @@ namespace MnM.GWS
         /// <summary>
         /// Redraws itself using the drawsettings used when it is first added to the collection of parent window.
         /// </summary>
-        void Refresh();
+        /// <param name="command">Command to control refresh task.</param>
+        void Refresh(Command command = 0);
     }
     #endregion
 
