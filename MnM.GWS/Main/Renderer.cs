@@ -975,19 +975,15 @@ namespace MnM.GWS
             {
                 int srcIndex = 0;
                 int[] source;
-                byte[] sourceAlphas;
 
                 if (!CalculateOnly)
-                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length, out sourceAlphas);
+                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length);
 
                 int dstX = Horizontal ? Start : axis;
                 int dstY = Horizontal ? axis : Start;
                 fixed (int* src = source)
                 {
-                    fixed (byte* srcAlphas = sourceAlphas)
-                    {
-                        buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, srcAlphas, Command, boundary);
-                    }
+                    buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, null, Command, boundary);
                 }
             }
 
@@ -1102,12 +1098,7 @@ namespace MnM.GWS
             {
                 src = (int*)((ITextureBrush)source).Source;
             }
-            else if (source is IBackgroundPen)
-            {
-                fixed (int* p = ((IBackgroundPen)source).PenData)
-                    src = p;
-            }
-            if (source is IImageData)
+            else if (source is IImageData)
             {
                 IImageData image = (IImageData)source;
                 image.GetData(out int[] _src, out byte[] _srcAlphas, 
@@ -1130,8 +1121,7 @@ namespace MnM.GWS
                 int[] temp = new int[srcLen];
                 fixed (int* p = temp)
                 {
-                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0, 
-                        new ShapeArea(copyX, copyY, copyW, copyH, ID), Command);
+                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0, new ShapeArea(copyX, copyY, copyW, copyH, ID), Command);
                     src = p;
                 }
                 copyX = copyY = 0;
@@ -1156,9 +1146,7 @@ namespace MnM.GWS
                 int* dst = (int*)((IPixels)block).Source;
                 if (src != null)
                 {
-                    BlockCopy action = (sidx, didx, len, dx, dy, cmd) =>
-                        Blocks.Copy(src, sidx, dst, didx, len, cmd, srcAlphas);
-                    dstRc = Blocks.CopyBlock(copyX, copyY, copyW, copyH, srcLen, srcW, srcH, dstX, dstY, dstW, dstLen, null, Command);
+                    Blocks.CopyBlock(src, copyX, copyY, copyW, copyH, srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
                     goto Update;
                 }
             }
@@ -1208,15 +1196,13 @@ namespace MnM.GWS
                 }
                 var dy = dstY;
                 int[] pixels;
-                byte[] pixelAlphas;
+
                 while (y < b)
                 {
-                    Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen, out pixelAlphas);
+                    Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen);
                     fixed (int* p = pixels)
                         src = p;
-                    fixed (byte* p = pixelAlphas)
-                        srcAlphas = p;
-                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, srcAlphas, Command, boundary);
+                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
                     ++y;
                 }
                 dstRc = boundary.GetBounds();
@@ -1304,11 +1290,6 @@ namespace MnM.GWS
             if (source is ITextureBrush)
             {
                 src = (int*)((ITextureBrush)source).Source;
-            }
-            else if (source is IFixedBrush)
-            {
-                fixed (int* p = ((IFixedBrush)source).PenData)
-                    src = p;
             }
             if (source is IImageData)
             {

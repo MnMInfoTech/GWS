@@ -158,16 +158,15 @@ namespace MnM.GWS
             #region READ LINE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void ReadLine(int Start, int End, int Axis, bool Horizontal,
-                out int[] pixels, out int srcIndex, out int copyLength, out byte[] srcAlphas)
+                out int[] pixels, out int srcIndex, out int copyLength)
             {
                 pixels = null;
                 srcIndex = 0;
                 copyLength = 0;
-                srcAlphas = null;
-                ReadLine2(Start, End, Axis, Horizontal, ref pixels, ref srcIndex, ref copyLength, ref srcAlphas);
+                ReadLine2(Start, End, Axis, Horizontal, ref pixels, ref srcIndex, ref copyLength);
             }
             unsafe partial void ReadLine2(int Start, int End, int Axis, bool Horizontal,
-                ref int[] pixels, ref int srcIndex, ref int copyLength, ref byte[] pixelAlphas);
+                ref int[] pixels, ref int srcIndex, ref int copyLength);
             #endregion
 
             #region COPY TO
@@ -196,7 +195,7 @@ namespace MnM.GWS
                 int i = 0;
                 while (y < b)
                 {
-                    ReadLine(x, r, y, true, out int[] source, out int srcIndex, out length, out _);
+                    ReadLine(x, r, y, true, out int[] source, out int srcIndex, out length);
                     if (destIndex + length >= dstLen)
                         break;
                     fixed (int* src = source)

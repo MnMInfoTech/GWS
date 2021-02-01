@@ -74,11 +74,11 @@ namespace MnM.GWS
 
             #region READLINE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, out byte[] pixelAlphas)
+            public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length)
             {
                 pixels = new int[0];
                 srcIndex = 0;
-                pixelAlphas = null;
+
                 if (!Numbers.PositiveLength(ref start, ref end, out length))
                     goto mks;
                 int c = color;

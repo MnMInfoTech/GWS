@@ -189,7 +189,7 @@ namespace MnM.GWS
     #endregion
 
     #region IFIXED-PEN
-    public interface IFixedBrush : IReadable, IDisposable, IBackgroundPen
+    public interface IFixedBrush : IReadable, IDisposable, IPixels
     { }
     #endregion
 

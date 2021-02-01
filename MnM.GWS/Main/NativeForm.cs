@@ -82,7 +82,7 @@ namespace MnM.GWS
             #endregion
 
             #region WRITE LINE
-            public unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal, int x, int y, 
+            public unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal, int x, int y,
                 float? Alpha, byte* imageAlphas, Command Command, INotifier boundary)
             {
                 Canvas.WriteLine(colors, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, Command, boundary);
@@ -164,21 +164,32 @@ namespace MnM.GWS
 #endif
                 base.PushEvent(e);
             }
-        #endregion
+            #endregion
 
-        #region ROTATE -FLIP
-        public Size RotateAndScale(out IntPtr Data, Rotation angle, bool antiAliased = true, float scale = 1)
-        {
-            return Canvas.RotateAndScale(out Data, angle, antiAliased, scale);
+            #region ROTATE -FLIP
+            public Size RotateAndScale(out IntPtr Data, Rotation angle, bool antiAliased = true, float scale = 1)
+            {
+                return Canvas.RotateAndScale(out Data, angle, antiAliased, scale);
+            }
+
+            public Size Flip(out IntPtr Data, FlipMode flipMode)
+            {
+                return Canvas.Flip(out Data, flipMode);
+            }
+            #endregion
+
+            #region ICANVAS
+            ReadChoice IReadable.Choice
+            {
+                get => Canvas.Choice;
+                set => Canvas.Choice = value;
+            }
+            int IReadable.ReadPixel(int x, int y) =>
+                Canvas.ReadPixel(x, y);
+            void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length) =>
+                Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length);
+            #endregion
         }
-
-        public Size Flip(out IntPtr Data, FlipMode flipMode)
-        {
-            return Canvas.Flip(out Data, flipMode);
-        }
-        #endregion
-    }
-
 #if Advanced
 #endif
 #if HideGWSObjects

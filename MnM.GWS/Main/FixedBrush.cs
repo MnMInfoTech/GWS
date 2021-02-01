@@ -70,6 +70,14 @@ namespace MnM.GWS
             }
         }
         public int[] PenData { get; private set; }
+        unsafe IntPtr IPixels.Source
+        {
+            get
+            {
+                fixed (int* p = PenData)
+                    return (IntPtr)p;
+            }
+        }
         #endregion
 
         #region READ PIXEL
@@ -88,10 +96,8 @@ namespace MnM.GWS
         #endregion
 
         #region READ LINE
-        public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, out byte[] pixelAlphas)
+        public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length)
         {
-            pixelAlphas = null;
-
             if (start > end)
             {
                 int temp = end;

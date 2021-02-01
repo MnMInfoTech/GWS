@@ -189,9 +189,8 @@ namespace MnM.GWS
         /// <param name="pixels">Resultant memory block.</param>
         /// <param name="srcIndex">Location in the resultant memory block from where reading shoud start.</param>
         /// <param name="length">Length up to which the block should be read.</param>
-        /// <param name="srcAlphas">Resultant alpha values for respective pixels of memory block.
         /// Unless this object is texture brush and Advanced version this will be null.</param>
-        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, out byte[] srcAlphas);
+        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length);
     }
     #endregion
 
@@ -395,11 +394,6 @@ namespace MnM.GWS
     #endregion
 
     #region IBACKGROUND
-    public interface IBackgroundPen
-    {
-        int[] PenData { get; }
-    }
-
     public interface IBackground
     {
         /// <summary>

@@ -378,6 +378,17 @@ namespace MnM.GWS
         IRectangle IPastable.CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY,
             IRectangle copyArea, Command command, IntPtr alphaBytes) =>
             Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
+
+        ReadChoice IReadable.Choice
+        { 
+            get => Canvas.Choice; 
+            set => Canvas.Choice = value; 
+        }
+
+        int IReadable.ReadPixel(int x, int y) =>
+            Canvas.ReadPixel(x, y);
+        void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length) =>
+            Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length);
         #endregion
     }
 }
