@@ -4,19 +4,15 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace MnM.GWS
 {
-    public sealed class Timer : ITimer
+    public sealed class Timer : _Timer, ITimer
     {
         #region VARIABLES
         volatile int interval = 5;
-        volatile bool Running = false;
         volatile bool TickOn = false;
-        long speed;
-        Stopwatch Watch;
         public event EventHandler<IEventArgs> Tick;
         Unit unit;
         #endregion
@@ -26,55 +22,25 @@ namespace MnM.GWS
         /// 
         /// </summary>
         /// <param name="interval"></param>
-        public Timer(int interval = 50) 
-        {
-            this.interval = interval;
-            Watch = new Stopwatch();
-        }
+        public Timer(int interval = 50) :
+            base(interval)
+        { }
         #endregion
 
         #region PROPERTIES
-        public int Interval
-        {
-            get => interval;
-            set
-            {
-                if (interval < 5)
-                    return;
-                interval = value;
-            }
-        }
         public Unit Unit
         {
             get => unit;
             set => unit = value;
         }
-        public bool IsRunning => Running;
-        public long Speed => speed;
-        #endregion
-
-        #region START - STOP
-        public void Start()
-        {
-            if (Running)
-                return;
-            speed = 0;
-            Watch.Restart();
-            Running = true;
-            FireEvent(); 
-        }
-        public void Stop()
-        {
-            Watch.Stop();
-            Watch.Reset();
-            Running = false;
-            speed = 0;
-        }
         #endregion
 
         #region FIRE EVENT
-        async void FireEvent()
+        protected override async void FireEvent()
         {
+            if (Running)
+                return;
+            Running = true;
             await Task.Factory.StartNew(() =>
             {
                 while (Running && Tick != null)
@@ -102,14 +68,15 @@ namespace MnM.GWS
                         TickOn = false;
                     }
                 }
-            });           
+            });
+            Running = false;
         }
         #endregion
 
         #region DISPOSE
-        public void Dispose()
+        public override void Dispose()
         {
-            Watch = null;
+            base.Dispose();
             Tick = null;
         }
         #endregion
@@ -117,7 +84,7 @@ namespace MnM.GWS
         #region TO STRING
         public override string ToString()
         {
-            return "{0} takes " + speed + " " + Unit.ToString() + "s.";
+            return "{0} takes " + Speed + " " + Unit.ToString() + "s.";
         }
         #endregion
     }

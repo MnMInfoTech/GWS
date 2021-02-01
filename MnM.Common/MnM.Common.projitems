@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_LexiconT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ObjDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PairKV.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\ArrayT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\CollectionT.cs" />

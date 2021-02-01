@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public abstract class _Image : IImage
+    public abstract partial class _Image : IImage
     {
         #region VARIABLES
         /// <summary>
@@ -43,17 +43,23 @@ namespace MnM.GWS
         protected volatile bool IsResizing;
 
         /// <summary>
-        /// Indicates if this canvas supports background buffer.
-        /// </summary>
-        protected volatile bool supportsBackBuffer;
-
-        /// <summary>
         /// Stores indices of written pixels to prevent over-writing.
         /// </summary>
         protected readonly HashSet<int> DrawnIndices = new HashSet<int>();
 
-        protected readonly int originalWidth, originalHeight;
+        /// <summary>
+        /// Original width when this object is created.
+        /// </summary>
+        protected readonly int originalWidth;
 
+        /// <summary>
+        /// Original height when this object is created.
+        /// </summary>
+        protected readonly int originalHeight;
+
+        /// <summary>
+        /// Name of type this object belongs to.
+        /// </summary>
         readonly string typeName;
 
         /// <summary>
@@ -61,6 +67,9 @@ namespace MnM.GWS
         /// </summary>
         protected const byte o = 0;
 
+        /// <summary>
+        /// REpresents byte value of 1.
+        /// </summary>
         protected const byte l = 1;
         #endregion
 
@@ -95,13 +104,6 @@ namespace MnM.GWS
         public virtual bool Inaccessible => IsResizing || isDisposed;
 
         protected abstract unsafe int* Pen { get; }
-#if Advanced
-        public abstract bool Clipped { get; }
-        public abstract IRectangle ClipRectangle { get; set; }
-        public abstract IEventPusher ActiveObject { get; }
-        bool IImageData.SupportBackgroundBuffer =>
-            supportsBackBuffer;
-#endif
         public IPoint CopyPoint { get; set; }
         public ISize CopySize { get; set; }
         #endregion
@@ -110,11 +112,7 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null);
         #endregion
-#if Advanced
-        #region GET DATA
-        public abstract void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false);
-        #endregion
-#endif
+
         #region DRAW
         public virtual bool Draw(IWritable buffer, ISettings Settings)
         {

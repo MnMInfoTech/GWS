@@ -4,8 +4,11 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 
+using System.Runtime.InteropServices;
+
 namespace MnM.GWS
 {
+    [StructLayout(LayoutKind.Sequential)]
     public struct Lot<T1, T2>
     {
         public T1 Item1;
@@ -23,6 +26,8 @@ namespace MnM.GWS
             return "Item1: " + Item1 + ", Item2: " + Item2;
         }
     }
+   
+    [StructLayout(LayoutKind.Sequential)]
     public struct Lot<T1, T2, T3>
     {
         public T1 Item1;
@@ -41,6 +46,8 @@ namespace MnM.GWS
             return "Item1: " + Item1 + ", Item2: " + Item2 + ", Item3: " + Item3;
         }
     }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct Lot<T1, T2, T3, T4>
     {
         public T1 Item1;
@@ -62,6 +69,8 @@ namespace MnM.GWS
             return "Item1: " + Item1 + ", Item2: " + Item2 + ", Item3: " + Item3 + ", Item4: " + Item4;
         }
     }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct Lot<T1, T2, T3, T4, T5>
     {
         public T1 Item1;
@@ -85,6 +94,7 @@ namespace MnM.GWS
             return "Item1: " + Item1 + ", Item2: " + Item2 + ", Item3: " + Item3 + ", Item4: " + Item4 + ", Item5: " + Item5;
         }
     }
+   
     public static class Lot
     {
         public static Lot<T1, T2> Create<T1, T2>(T1 item1 = default(T1), T2 item2 = default(T2)) =>
