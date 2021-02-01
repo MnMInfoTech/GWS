@@ -96,7 +96,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets Parent window this object belongs to.
         /// </summary>
-        IGraphics Window { get; set; }
+        IGraphics Graphics { get; set; }
     }
     #endregion
 
