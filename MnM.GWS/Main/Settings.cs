@@ -180,7 +180,7 @@ namespace MnM.GWS
             Boundary.DstX = Boundary.DstY = 0;
             Bounds = Rectangle.Empty;
             ShapeID = 0;
-            Boundary.Clear();
+            Boundary.ClearBounds();
         }
         #endregion
     }

@@ -111,9 +111,9 @@ namespace MnM.GWS
             #endregion
 
             #region COPY FROM
-            public IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default)
+            public IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default)
             {
-                return Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyArea, Command, alphaBytes);
+                return Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, Command, alphaBytes);
             }
             #endregion
 

@@ -149,7 +149,7 @@ namespace MnM.GWS
     /// Represents writable and copiable memory block object which can also render shapes.
     /// </summary>
     public partial interface IImage : IGraphics, IConsolidator, IClearable, 
-        IPastable, IResizable, IRenderableBlock, ICloneable, IDisposed, IScalable
+        IWritableBlock, IResizable, IRenderableBlock, ICloneable, IDisposed, IScalable
     { }
     #endregion
 

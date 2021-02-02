@@ -157,7 +157,7 @@ namespace MnM.GWS
 
         #region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear()
+        public void ClearBounds()
         {
             X1 = Y1 = int.MaxValue;
             X2 = Y2 = 0;

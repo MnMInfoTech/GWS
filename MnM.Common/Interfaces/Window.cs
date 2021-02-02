@@ -20,7 +20,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public partial interface IRenderTarget : IClearable, IPastable, IPixels,
+    public partial interface IRenderTarget : IClearable, IWritableBlock, IPixels,
         IResizable, ICopyable, IUpdatable, IDisposed
     { }
     #endregion
@@ -52,7 +52,7 @@ namespace MnM.GWS
     /// Represents an object which represents window.
     /// </summary>
     public partial interface IForm : INativeForm, IGraphics, IConsolidator,
-        IContainer, IUpdatable, IRefreshable, IClearable, IPastable, IDisposed,
+        IContainer, IUpdatable, IRefreshable, IClearable, IWritableBlock, IDisposed,
         IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents, IReadable
     { }

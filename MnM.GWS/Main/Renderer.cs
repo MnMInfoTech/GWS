@@ -6,7 +6,6 @@
 #if (GWS || Window)
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -1129,11 +1128,11 @@ namespace MnM.GWS
             #endregion
 
             #region IPASTABLE COPY
-            if (block is IPastable)
+            if (block is IWritableBlock)
             {
                 if (src != null)
                 {
-                    dstRc = ((IPastable)block).CopyFrom((IntPtr)src, srcW, srcH, dstX, dstY, 
+                    dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY, 
                         new ShapeArea( copyX, copyY, copyW, copyH, ID), Command, (IntPtr)srcAlphas);
                     goto Update;
                 }
@@ -1465,9 +1464,9 @@ namespace MnM.GWS
             }
 
             var area = new ShapeArea(copyX, copyY, copyW, copyH, ShapeID);
-            if (block is IPastable)
+            if (block is IWritableBlock)
             {
-                dstRc = ((IPastable)block).CopyFrom(source, srcW, srcH, dstX, dstY, area, command);
+                dstRc = ((IWritableBlock)block).WriteBlock(source, srcW, srcH, dstX, dstY, area, command);
             }
             else
             {

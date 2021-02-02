@@ -297,10 +297,10 @@ namespace MnM.GWS
     #endregion
 
     #region IPASTABLE
-    public interface IPastable : IBlockable
+    public interface IWritableBlock : IBlockable
     {
         /// <summary>
-        /// Copies portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
+        /// Writes portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
         /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
         /// </summary>
         /// <param name="source"></param>
@@ -311,8 +311,8 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="Command">Draw command to to control copy task</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
-        IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
-            Command Command, IntPtr alphaBytes = default(IntPtr));
+        IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea = null,
+            Command Command = 0, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 

@@ -375,9 +375,9 @@ namespace MnM.GWS
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha, byte* imageAlphas, Command command, INotifier boundary) =>
             Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
-        IRectangle IPastable.CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY,
+        IRectangle IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
             IRectangle copyArea, Command command, IntPtr alphaBytes) =>
-            Canvas.CopyFrom(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
+            Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 
         ReadChoice IReadable.Choice
         { 

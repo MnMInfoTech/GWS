@@ -972,9 +972,9 @@ namespace MnM.GWS
         /// </summary>
         AllProperties,
     }
-#endregion
+    #endregion
 
-#region EXTRACT INTERFACES
+    #region EXTRACT INTERFACES
     /// <summary>
     /// Enum ExtractInterfaces
     /// </summary>
@@ -993,9 +993,9 @@ namespace MnM.GWS
         /// </summary>
         AllPrioritizeThese
     }
-#endregion
+    #endregion
 
-#region EXCLUDE NESTED PARAMS
+    #region EXCLUDE NESTED PARAMS
     /// <summary>
     /// Enum ExcludeNestedParams
     /// </summary>
@@ -1018,9 +1018,9 @@ namespace MnM.GWS
         /// </summary>
         OtherGenre,
     }
-#endregion
+    #endregion
 
-#region INSTANCE
+    #region INSTANCE
     /// <summary>
     /// Enum Instance
     /// </summary>
@@ -1043,9 +1043,9 @@ namespace MnM.GWS
         /// </summary>
         Pointer
     }
-#endregion
+    #endregion
 
-#region GET LIST
+    #region GET LIST
     /// <summary>
     /// Enum GetList
     /// </summary>
@@ -1076,9 +1076,9 @@ namespace MnM.GWS
         /// </summary>
         HashSet
     }
-#endregion
+    #endregion
 
-#region OPERAND
+    #region OPERAND
     /// <summary>
     /// Enum Operand
     /// </summary>
@@ -1093,9 +1093,9 @@ namespace MnM.GWS
         /// </summary>
         Right
     }
-#endregion
+    #endregion
 
-#region TIMEFORMAT
+    #region TIMEFORMAT
     /// <summary>
     /// Enum TimeFormat
     /// </summary>
@@ -1110,9 +1110,9 @@ namespace MnM.GWS
         /// </summary>
         Time12
     }
-#endregion
+    #endregion
 
-#region COMPARERETURN
+    #region COMPARERETURN
     /// <summary>
     /// Enum CompareReturn
     /// </summary>
@@ -1131,9 +1131,9 @@ namespace MnM.GWS
         /// </summary>
         Nearest
     }
-#endregion
+    #endregion
 
-#region PRESS STATE
+    #region PRESS STATE
     /// <summary>
     /// Mose state
     /// </summary>
@@ -1149,9 +1149,9 @@ namespace MnM.GWS
         /// </summary>
         Pressed = 2,
     }
-#endregion
+    #endregion
 
-#region EXPR TYPE
+    #region EXPR TYPE
     /// <summary>
     /// Enum ExprType
     /// </summary>
@@ -1201,9 +1201,9 @@ namespace MnM.GWS
 
         NameSpace,
     }
-#endregion
+    #endregion
 
-#region MATH OPERATOR
+    #region MATH OPERATOR
     /// <summary>
     /// Enum MathOperator
     /// </summary>
@@ -1249,9 +1249,9 @@ namespace MnM.GWS
         All = Add | Multiply | Subtract |
             Divide | Modulo | Negate | Compare,
     }
-#endregion
+    #endregion
 
-#region POSITION
+    #region POSITION
     [Flags]
     public enum Position
     {
@@ -1262,9 +1262,9 @@ namespace MnM.GWS
         Bottom = 0x8,
         All = Left | Top | Right | Bottom,
     }
-#endregion
+    #endregion
 
-#region SKEW TYPE
+    #region SKEW TYPE
     [Flags]
     public enum SkewType
     {
@@ -1274,5 +1274,13 @@ namespace MnM.GWS
         Diagonal = 0x4,
         Downsize = Horizontal | Vertical,
     }
-#endregion
+    #endregion
+
+    #region BLOCK-COPY
+    public enum CopyCondition
+    {
+        NotEqual,
+        Equal,
+    }
+    #endregion
 }

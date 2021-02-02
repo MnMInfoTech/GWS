@@ -172,7 +172,7 @@ namespace MnM.GWS
 
         #region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+        public unsafe IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
             Command Command, IntPtr alphaBytes = default(IntPtr))
         {
             if (IsDisposed)

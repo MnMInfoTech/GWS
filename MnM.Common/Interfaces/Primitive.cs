@@ -185,7 +185,7 @@ namespace MnM.GWS
         /// <summary>
         /// Clears perimeters and resets it to default.
         /// </summary>
-        void Clear();
+        void ClearBounds();
 
         /// <summary>
         /// Draws border around this boundary using given command on specified buffer.

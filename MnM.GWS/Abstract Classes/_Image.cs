@@ -58,19 +58,9 @@ namespace MnM.GWS
         protected readonly int originalHeight;
 
         /// <summary>
-        /// Name of type this object belongs to.
-        /// </summary>
-        readonly string typeName;
-
-        /// <summary>
         /// Represents byte value of 0.
         /// </summary>
         protected const byte o = 0;
-
-        /// <summary>
-        /// REpresents byte value of 1.
-        /// </summary>
-        protected const byte l = 1;
         #endregion
 
         #region CONSTRUCTORS
@@ -466,7 +456,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY FROM
-        public abstract IRectangle CopyFrom(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default);
+        public abstract IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default);
         #endregion
 
         #region RESIZE
