@@ -100,7 +100,7 @@ namespace MnM.GWS
 
         #region RENDER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null);
+        public abstract bool Render(IRenderable Renderable, ISettings Settings = null, Command? externalCommand = null);
         #endregion
 
         #region DRAW

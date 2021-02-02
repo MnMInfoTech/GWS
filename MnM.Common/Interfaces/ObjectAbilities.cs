@@ -207,8 +207,9 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="Renderable">Renderable object which is to be rendered</param>
         /// <param name="Settings">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
+        /// <param name="externalCommand">User- supplied command to domiate this rendering process.</param>
         /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null);
+        bool Render(IRenderable Renderable, ISettings Settings = null, Command? externalCommand = null);
 
         /// <summary>
         /// Writes pixel to this block at given axial position using specified color.

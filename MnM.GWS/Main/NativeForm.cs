@@ -68,9 +68,9 @@ namespace MnM.GWS
             #endregion
 
             #region RENDER
-            public bool Render(IRenderable Renderable, ISettings Settings = null, bool? suspendUpdate = null)
+            public bool Render(IRenderable Renderable, ISettings Settings = null, Command? externalCommand = null)
             {
-                return Canvas.Render(Renderable, Settings, suspendUpdate);
+                return Canvas.Render(Renderable, Settings, externalCommand);
             }
             #endregion
 

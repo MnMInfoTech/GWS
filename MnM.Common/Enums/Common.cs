@@ -233,7 +233,7 @@ namespace MnM.GWS
         /// <summary>
         /// Wipes all temporary drawings while refreshing screen.
         /// </summary>
-        RefreshWipeTemporary = 0x2000000000,
+        WipeTemporary = 0x2000000000,
     }
     #endregion
 

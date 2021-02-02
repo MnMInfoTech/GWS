@@ -69,7 +69,7 @@ namespace MnM.GWS
             foreach (var Renderable in Renderables)
             {
                 Settings = i < slen ? SettingsList[i] : null;
-                if (!writable.Render(Renderable, Settings, true))
+                if (!writable.Render(Renderable, Settings, Command.SuspendUpdate))
                     break;
                 Boundary.Merge(Settings.Boundary);
                 ++i;
@@ -96,7 +96,7 @@ namespace MnM.GWS
             foreach (var Renderable in Renderables)
             {
                 Settings = i < slen ? SettingsList[i] : null;
-                if (!writable.Render(Renderable, Settings, true))
+                if (!writable.Render(Renderable, Settings, Command.SuspendUpdate))
                     break;
                 Boundary.Merge(Settings.Boundary);
                 ++i;
@@ -119,7 +119,7 @@ namespace MnM.GWS
             int j = -1;
             foreach (var Shape in Shapes)
             {
-                if (!writable.Render(Shape.Renderable, Shape.Settings, true))
+                if (!writable.Render(Shape.Renderable, Shape.Settings, Command.SuspendUpdate))
                     break;
                 Boundary.Merge(Shape.Settings.Boundary);
                 ++j;
@@ -140,7 +140,7 @@ namespace MnM.GWS
             int i = 0;
             foreach (var Renderable in Renderables)
             {
-                if (!writable.Render(Renderable, Settings, true))
+                if (!writable.Render(Renderable, Settings, Command.SuspendUpdate))
                     break;
                 Boundary.Merge(Settings.Boundary);
                 ++i;
@@ -1146,11 +1146,8 @@ namespace MnM.GWS
                 var writable = (IWritable)block;
                 var boundary = Factory.newBoundary();
                 if (AddMode)
-                {
+                    boundary.ShapeID = ID;
 
-                }
-                    
-                boundary.ShapeID = ID;
                 int x, y, r, b, srcIndex, copyLen;
 
                 if (src != null)
