@@ -19,7 +19,7 @@ namespace MnM.GWS
      partial  struct Triangle : ITriangle 
     {
         public readonly float X, Y, Width, Height;
-        int id;
+        uint id;
 
         #region CONSTRUCTORS
         /// <summary>
@@ -97,7 +97,7 @@ namespace MnM.GWS
         public float Area { get; private set; }
         public string TypeName => "Triangle";
         public Rotation Rotation { get; private set; }
-        public int ID
+        public uint ID
         {
             get
             {

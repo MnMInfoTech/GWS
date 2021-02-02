@@ -19,7 +19,7 @@ namespace MnM.GWS
     partial struct Polygon : IPolygon
     {
         public readonly float X, Y, Width, Height;
-        int id;
+        uint id;
 
         #region CONSTRUCTORS
         /// <summary>
@@ -50,7 +50,7 @@ namespace MnM.GWS
         #region PROPRTIES
         public IList<VectorF> Points { get; private set; }
         public string TypeName => "Polygon";
-        public int ID
+        public uint ID
         {
             get
             {

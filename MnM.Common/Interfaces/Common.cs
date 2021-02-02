@@ -8,8 +8,8 @@ using System.Collections.Generic;
 
 namespace MnM.GWS
 {
-               #if !NETSTANDARD2_0
-#region ICLONEABLE
+#if !NETSTANDARD2_0
+    #region ICLONEABLE
     public interface ICloneable
     {
         object Clone();
@@ -30,24 +30,24 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a unique ID which serves as a key to store or retrieve the object from store.
     /// </summary>
-    public interface IID : IID<int>
+    public interface IID : IID<uint>
     { }
-#endregion
+    #endregion
 
-#region ATTACHMENT
+    #region ATTACHMENT
     /// <summary>
     /// This is a marker interface. It can be attached to the Implemnetation class of GWS.
     /// </summary>
     public interface IAttachment : IDisposable { }
-#endregion
+    #endregion
 
-#region KEYWORD
+    #region KEYWORD
     public interface IKeyword : IPair<string, ExprType>
     {
     }
-#endregion
+    #endregion
 
-#region IKEYWORDS
+    #region IKEYWORDS
     public interface IKeywords : ILexicon<string, ExprType, IKeyword>, ICloneable
     {
         IKeyword NewKeyword(ExprType value, IEnumerable<string> keys);
@@ -121,16 +121,16 @@ namespace MnM.GWS
         //}
 
     }
-#endregion
+    #endregion
 
-#region IINTPTR
+    #region IINTPTR
     public interface IIntPtr : IDisposable, IHandle
     {
         T Instance<T>();
     }
-#endregion
+    #endregion
 
-#region IHANDLE
+    #region IHANDLE
     /// <summary>
     /// Represents a pointer of an object to pass about.
     /// </summary>
@@ -141,9 +141,9 @@ namespace MnM.GWS
         /// </summary>
         IntPtr Handle { get; }
     }
-#endregion
+    #endregion
 
-#region IOBJECTHANDLE
+    #region IOBJECTHANDLE
     /// <summary>
     /// Represents an object which has capanility to create and expose and dispose its own handle.
     /// </summary>
@@ -151,9 +151,9 @@ namespace MnM.GWS
     {
         IIntPtr GetHandle();
     }
-#endregion
+    #endregion
 
-#region IEVENT-ARGS
+    #region IEVENT-ARGS
     /// <summary>
     /// Base interface which represents EventArgs object.
     /// </summary>
@@ -164,16 +164,16 @@ namespace MnM.GWS
         ///// </summary>
         //bool Handled { get; set; }
     }
-#endregion
+    #endregion
 
-#region IEVENTARGS<T>
+    #region IEVENTARGS<T>
     public interface IEventArgs<T> : IEventArgs
     {
         T Args { get; }
     }
-#endregion
+    #endregion
 
-#region IEVENTARGS<T>
+    #region IEVENTARGS<T>
     public interface IElpasedTimeEventArgs : IEventArgs
     {
         /// <summary>
@@ -183,9 +183,9 @@ namespace MnM.GWS
 
         Unit Unit { get; }
     }
-#endregion
+    #endregion
 
-#region INPUTEVENT-ARGS
+    #region INPUTEVENT-ARGS
     /// <summary>
     /// Base interface to represent GWS input arguments.
     /// </summary>
@@ -196,16 +196,16 @@ namespace MnM.GWS
         /// </summary>
         bool Enter { get; set; }
     }
-#endregion
+    #endregion
 
-#region ICANCELEVENT-ARGS
+    #region ICANCELEVENT-ARGS
     public interface ICancelEventArgs : IEventArgs
     {
         bool Cancel { get; set; }
     }
-#endregion
+    #endregion
 
-#region ITIMER
+    #region ITIMER
     /// <summary>
     /// Represents an object which allowers regualar activitiy on a specific time interval.
     /// </summary>
@@ -252,9 +252,9 @@ namespace MnM.GWS
         /// </summary>
         event EventHandler<IEventArgs> Tick;
     }
-#endregion
+    #endregion
 
-#region ICOVERT<T>
+    #region ICOVERT<T>
     /// <summary>
     /// Interface IConvert
     /// </summary>
@@ -267,44 +267,44 @@ namespace MnM.GWS
         /// <returns>T.</returns>
         T Convert();
     }
-#endregion
+    #endregion
 
-#region ICONVERTER
+    #region ICONVERTER
     public interface IConverter
     {
         bool ConvertTo<T>(string expression, out T result);
         bool ConvertTo<T>(object value, out T result);
     }
-#endregion
+    #endregion
 
-#region EVALUATOR
+    #region EVALUATOR
     public interface IEvaluator : IAttachment
     {
-#region properties
+        #region properties
         string UsingDirectives { get; }
         IKeywords Keywords { get; }
 #if NETSTANDARD2_0
         Genres Genres { get; }
 #endif
-#endregion
+        #endregion
 
-#region refresh / add references
+        #region refresh / add references
         void Init();
         void Refresh(params string[] assemblies);
         void AddReferences(params string[] namespaces);
-#endregion
+        #endregion
 
-#region list functions
+        #region list functions
         Dictionary<string, Collection<string>> FunctionsByNameSpace();
         string[] ListOfFunctions();
-#endregion
+        #endregion
 
-#region compile & evaluate
+        #region compile & evaluate
         T Evaluate<T>(string value);
         bool Evaluate<T>(string value, out T result);
-#endregion
+        #endregion
 
-#region abstract methods
+        #region abstract methods
         object Compile(string code);
         object Evaluate(string value);
         void AddAssembley(params Type[] types);
@@ -313,7 +313,7 @@ namespace MnM.GWS
 #if NETSTANDARD2_0
         Genre GetGenre(string functionName);
 #endif
-#endregion
+        #endregion
     }
-#endregion
+    #endregion
 }

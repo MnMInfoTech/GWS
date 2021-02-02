@@ -58,7 +58,7 @@ namespace MnM.GWS
             public static readonly Box Empty = new Box();
 
             byte valid;
-            int id;
+            uint id;
             const string toStr = "x:{0}, y:{1}, w:{2}, h:{3}";
             #endregion
 
@@ -183,7 +183,7 @@ namespace MnM.GWS
             /// </summary>
             public int Cy => Y + Height / 2;
 
-        public int ID
+        public uint ID
         {
             get
             {

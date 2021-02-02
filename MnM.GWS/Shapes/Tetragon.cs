@@ -25,7 +25,7 @@ namespace MnM.GWS
         public readonly IList<VectorF> Points;
         public readonly float X, Y, Width, Height;
         readonly byte Valid;
-        int id;
+        uint id;
         #endregion
 
         #region CONSTRUCTORS
@@ -225,7 +225,7 @@ namespace MnM.GWS
                 return Type + "";
             }
         }
-        public int ID
+        public uint ID
         {
             get
             {

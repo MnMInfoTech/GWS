@@ -35,7 +35,7 @@ namespace MnM.GWS
         /// <summary>
         /// ID of this object.
         /// </summary>
-        protected int id;
+        protected uint id;
 
         /// <summary>
         /// Indicates if this object is currently being resized or not.
@@ -75,7 +75,7 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public int ID
+        public uint ID
         {
             get
             {
@@ -124,7 +124,7 @@ namespace MnM.GWS
             int dstX = horizontal ? val : axis;
             int dstY = horizontal ? axis : val;
         
-            int ShapeID = RecentlyDrawn.ShapeID;
+            uint ShapeID = RecentlyDrawn.ShapeID;
             dstX += RecentlyDrawn.DstX;
             dstY += RecentlyDrawn.DstY;
 
@@ -190,7 +190,7 @@ namespace MnM.GWS
         {
             if (IsResizing || isDisposed)
                 return;
-            int ShapeID = RecentlyDrawn.ShapeID;
+            uint ShapeID = RecentlyDrawn.ShapeID;
             dstX += RecentlyDrawn.DstX;
             dstY += RecentlyDrawn.DstY;
 
@@ -394,7 +394,7 @@ namespace MnM.GWS
             int copyY = copyArea.Y;
             int copyW = copyArea.Width;
             int copyH = copyArea.Height;
-            int ShapeID = 0;
+            uint ShapeID = 0;
             if (copyArea is IShapeID)
                 ShapeID = ((IShapeID)copyArea).ShapeID;
             int* texture = (int*)destination;

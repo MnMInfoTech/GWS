@@ -23,7 +23,7 @@ namespace MnM.GWS
             public readonly float Width;
             public readonly float Height;
             public readonly float CornerRadius;
-        int id;
+        uint id;
             const string toStr = "x:{0}, y:{1}, width:{2}, height:{3}, cornerRadius: {4}";
             IList<VectorF> points;
             #endregion
@@ -102,7 +102,7 @@ namespace MnM.GWS
             public bool IsEmpty =>
                 Width == 0 && Height == 0;
             public bool IsSquare => Width == Height;
-        public int ID
+        public uint ID
         {
             get
             {

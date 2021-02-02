@@ -24,7 +24,7 @@ namespace MnM.GWS
         public readonly float Y;
         public readonly float Width;
         public readonly float Height;
-        int id;
+        uint id;
 
 #region CONSTRUCTORS
         /// <summary>
@@ -89,7 +89,7 @@ namespace MnM.GWS
 #region PROPERTIES
         public BezierType Option { get; private set; }
         public string TypeName => "Bezier";
-        public int ID
+        public uint ID
         {
             get
             {

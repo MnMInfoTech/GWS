@@ -24,7 +24,7 @@ namespace MnM.GWS
         public readonly float Y2;
         public readonly float M;
         public readonly float C;
-        int id;
+        uint id;
         byte Valid;
 
         const string toStr = "{0}; {1}; {2}; {3}";
@@ -266,7 +266,7 @@ namespace MnM.GWS
         #region PROPERTIES
         bool ILine.Valid => Valid != 0;
         public string TypeName => "Line";
-        public int ID
+        public uint ID
         {
             get
             {

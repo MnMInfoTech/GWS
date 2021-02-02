@@ -24,7 +24,7 @@ namespace MnM.GWS
         IList<IGlyph> Data;
         string text;
         float X, Y, Width, Height;
-        int id;
+        uint id;
         #endregion
 
         #region CONSTRUCTORS
@@ -82,7 +82,7 @@ namespace MnM.GWS
         public int DrawX { get; private set; }
         public int DrawY { get; private set; }
         public string TypeName => "Text";
-        public int ID
+        public uint ID
         {
             get
             {

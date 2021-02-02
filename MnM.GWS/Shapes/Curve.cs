@@ -25,7 +25,7 @@ namespace MnM.GWS
         readonly Line Line2;
         IList<ILine> Extra;
         readonly bool NegativeMotion;
-        int id;
+        uint id;
 
         readonly static Collection<float> List1 = new Collection<float>(6);
         readonly static Collection<float> List2 = new Collection<float>(6);
@@ -184,7 +184,7 @@ namespace MnM.GWS
         public float Rx => Conic.Rx;
         public float Ry => Conic.Ry;
         public Rotation Rotation => Conic.Rotation;
-        public int ID
+        public uint ID
         {
             get
             {

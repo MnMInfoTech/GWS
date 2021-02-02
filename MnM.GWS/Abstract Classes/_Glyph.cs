@@ -11,7 +11,7 @@ namespace MnM.GWS
 {
     public abstract class _Glyph : IGlyph
     {
-        int id;
+        uint id;
 
         public _Glyph()
         {
@@ -25,7 +25,7 @@ namespace MnM.GWS
         public abstract int Y { get; set; }
         public abstract float Width { get; }
         public abstract float Height { get; }
-        public int ID
+        public uint ID
         {
             get
             {

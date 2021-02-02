@@ -138,7 +138,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets an ID of current shape associated with current rendering process.
         /// </summary>
-        new int ShapeID { get; set; }
+        new uint ShapeID { get; set; }
         
         /// <summary>
         /// Tests if given location lies within the bounds of this object.

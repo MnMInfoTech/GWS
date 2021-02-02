@@ -24,7 +24,7 @@ namespace MnM.GWS
         public readonly bool ContainsNewLine;
         public readonly string Text;
         public readonly float X, Y, Width, Height;
-        int id;
+        uint id;
         public static readonly Glyphs Empty = new Glyphs();
         #endregion
 
@@ -54,7 +54,7 @@ namespace MnM.GWS
             get => Data[index];
             set => Data[index] = value;
         }
-        public int ID
+        public uint ID
         {
             get
             {

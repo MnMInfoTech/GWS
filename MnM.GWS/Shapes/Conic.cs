@@ -89,7 +89,7 @@ namespace MnM.GWS
         readonly static Collection<float> List1 = new Collection<float>();
         readonly static Collection<float> List2 = new Collection<float>();
         readonly bool valid;
-        int id;
+        uint id;
         #endregion
 
         #region CONSTRUCTORS
@@ -271,7 +271,7 @@ namespace MnM.GWS
         /// Indicates if radius on X axis is greater than Radius on Y axis.
         /// </summary>
         public bool WMajor => Rx > Ry;
-        public int ID
+        public uint ID
         {
             get
             {

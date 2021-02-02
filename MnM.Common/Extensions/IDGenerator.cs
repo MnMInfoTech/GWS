@@ -11,9 +11,8 @@ namespace MnM.GWS
     public static class IDGenerator
     {
         #region VARIABLES
-        static volatile int uniqueID;
-        static volatile int uniqueImageID;
-        static readonly Dictionary<string, int> newNames = new Dictionary<string, int>(100);
+        static volatile uint uniqueID;
+        static readonly Dictionary<string, uint> newNames = new Dictionary<string, uint>(100);
         #endregion
 
         #region NEW NAME
@@ -28,7 +27,7 @@ namespace MnM.GWS
                 return null;
             if (!newNames.ContainsKey(objType)) 
                 newNames.Add(objType, 0);
-            int newID;
+            uint newID;
             if (increment)
                 newID = ++newNames[objType];
             else
@@ -72,7 +71,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="renderable">Shape which the ID is sought for.</param>
         /// <returns></returns>
-        public static int NewID(this IRenderable renderable) =>
+        public static uint NewID(this IRenderable renderable) =>
             ++uniqueID;
 
         /// <summary>
@@ -80,17 +79,15 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="renderable">Shape which the ID is sought for.</param>
         /// <returns></returns>
-        public static int AvailableID(this IRenderable renderable) =>
+        public static uint AvailableID(this IRenderable renderable) =>
             uniqueID + 1;
-        #endregion
 
-        #region NEW BLOCK ID
         /// <summary>
         /// Gets a block specific incremental ID. Use this while drawing a block which you intend to move or resize or erase later.
         /// </summary>
         /// <returns></returns>
-        public static int NewBlockID() => 
-            --uniqueImageID;
+        internal static uint NewID() =>
+            ++uniqueID;
         #endregion
     }
 }

@@ -42,7 +42,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets an ID of current shape associated with current rendering process.
         /// </summary>
-        int ShapeID { get; }
+        uint ShapeID { get; }
     }
     #endregion
 

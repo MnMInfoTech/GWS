@@ -467,7 +467,7 @@ namespace MnM.GWS
         IEnumerable<TObj> GetAll(Predicate<TObj> condition);
         #endregion
     }
-    public interface IObjDictionary<T> : IObjDictionary<T, int> where T : IID
+    public interface IObjDictionary<T> : IObjDictionary<T, uint> where T : IID
     { }
     #endregion
 
@@ -1044,7 +1044,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="id">ID of object to return.</param>
         /// <returns></returns>
-        T this[int id] { get; }
+        T this[uint id] { get; }
 
         /// <summary>
         /// Returns object from collection with given ID.
@@ -1065,7 +1065,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="itemID">ID of object required.</param>
         /// <returns>True if object present.</returns>
-        bool Contains(int itemID);
+        bool Contains(uint itemID);
 
         /// <summary>
         /// Adds a shape object to this collection.

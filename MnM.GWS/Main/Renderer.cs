@@ -1074,10 +1074,12 @@ namespace MnM.GWS
             int copyX, int copyY, int copyW, int copyH, Command Command = 0)
         {
             #region INITIALIZE VARIABLES
+            bool AddMode = (Command & Command.AddMode) == Command.AddMode;
+            bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
             IRectangle dstRc = Rectangle.Empty;
             int* src = null;
             byte* srcAlphas = null;
-            int ID = (source as IID)?.ID?? 0;
+            uint ID = (source as IID)?.ID ?? (AddMode ? IDGenerator.NewID() : 0);
             int srcLen = source.Length;
             int srcW = source.Width;
             int srcH = source.Height;
@@ -1089,7 +1091,6 @@ namespace MnM.GWS
             copyY = copy.Y;
             copyW = copy.Width;
             copyH = copy.Height;
-            bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
             #endregion
 
             #region EXTRACT DATA FROM SOURCE
@@ -1127,20 +1128,82 @@ namespace MnM.GWS
             }
             #endregion
 
-            #region IPASTABLE COPY
+            #region TO WRITABLE BLOCK 
             if (block is IWritableBlock)
             {
                 if (src != null)
                 {
-                    dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY, 
-                        new ShapeArea( copyX, copyY, copyW, copyH, ID), Command, (IntPtr)srcAlphas);
+                    dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
+                        new ShapeArea(copyX, copyY, copyW, copyH, ID), Command, (IntPtr)srcAlphas);
                     goto Update;
                 }
             }
             #endregion
 
+            #region IWRITABLE 
+            else if (block is IWritable)
+            {
+                var writable = (IWritable)block;
+                var boundary = Factory.newBoundary();
+                if (AddMode)
+                {
+
+                }
+                    
+                boundary.ShapeID = ID;
+                int x, y, r, b, srcIndex, copyLen;
+
+                if (src != null)
+                {
+                    srcIndex = copyX + copyY * srcW;
+                    copyLen = copyW;
+                    y = dstY;
+                    x = dstX;
+                    b = y + copyH;
+                    if (copyX + copyLen > srcW)
+                        copyLen -= (copyX + copyLen - srcW);
+                    if (y < 0)
+                    {
+                        b += y;
+                        y = 0;
+                    }
+                    while (y < b)
+                    {
+                        writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, boundary);
+                        srcIndex += srcW;
+                    }
+                    dstRc = boundary.GetBounds();
+                }
+                else if (source is IReadable)
+                {
+                    var Pen = (IReadable)source;
+                    x = copyX;
+                    r = x + copyW;
+                    y = copyY;
+                    b = y + copyH;
+                    if (y < 0)
+                    {
+                        b += y;
+                        y = 0;
+                    }
+                    var dy = dstY;
+                    int[] pixels;
+
+                    while (y < b)
+                    {
+                        Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen);
+                        fixed (int* p = pixels)
+                            src = p;
+                        writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
+                        ++y;
+                    }
+                    dstRc = boundary.GetBounds();
+                }
+            }
+            #endregion
+
             #region IPIXELS COPY
-            if (block is IPixels)
+            else if (block is IPixels)
             {
                 int* dst = (int*)((IPixels)block).Source;
                 if (src != null)
@@ -1148,63 +1211,6 @@ namespace MnM.GWS
                     Blocks.CopyBlock(src, copyX, copyY, copyW, copyH, srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
                     goto Update;
                 }
-            }
-            #endregion
-
-            #region IWRITABLE 
-            if (!(block is IWritable))
-                return dstRc;
-
-            var writable = (IWritable)block;
-            var boundary = Factory.newBoundary();
-            boundary.ShapeID = ID;
-            int x, y, r, b, srcIndex, copyLen;
-
-            if (src != null)
-            {
-                srcIndex = copyX + copyY * srcW;
-                copyLen = copyW;
-                y = dstY;
-                x = dstX;
-                b = y + copyH;
-                if (copyX + copyLen > srcW)
-                    copyLen -= (copyX + copyLen - srcW);
-                if (y < 0)
-                {
-                    b += y;
-                    y = 0;
-                }
-                while (y < b)
-                {
-                    writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, boundary);
-                    srcIndex += srcW;
-                }
-                dstRc = boundary.GetBounds();
-            }
-            else if (source is IReadable)
-            {
-                var Pen = (IReadable)source;
-                x = copyX;
-                r = x + copyW;
-                y = copyY;
-                b = y + copyH;
-                if (y < 0)
-                {
-                    b += y;
-                    y = 0;
-                }
-                var dy = dstY;
-                int[] pixels;
-
-                while (y < b)
-                {
-                    Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen);
-                    fixed (int* p = pixels)
-                        src = p;
-                    writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
-                    ++y;
-                }
-                dstRc = boundary.GetBounds();
             }
             #endregion
 
@@ -1259,7 +1265,7 @@ namespace MnM.GWS
             var copy = source.CompitibleRc(x, y, w, h);
             int* src = null;
             byte* srcAlphas = null;
-            int ID = (source as IID)?.ID?? 0;
+            uint ID = (source as IID)?.ID?? 0;
             int srcLen = source.Length;
             int srcW = source.Width;
             int srcH = source.Height;
@@ -1449,7 +1455,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control image drawig operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IRectangle DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, int ShapeID = 0)
+            int copyX, int copyY, int copyW, int copyH, Command command, uint ShapeID = 0)
         {
             IRectangle dstRc;
             if (block is IPixels)
@@ -1490,7 +1496,7 @@ namespace MnM.GWS
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY, Command command, int ShapeID = 0) =>
+        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY, Command command, uint ShapeID = 0) =>
             block.DrawImage(source, srcW, srcH, dstX, dstY, 0, 0, srcW, srcH, command, ShapeID);
 
         /// <summary>
@@ -1507,7 +1513,7 @@ namespace MnM.GWS
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
         public unsafe static void DrawImage(this IBlockable block, byte[] source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, int ShapeID = 0)
+            int copyX, int copyY, int copyW, int copyH, Command command, uint ShapeID = 0)
         {
             var srcLen = source.Length / 4;
             var rc = Rects.CompitibleRc(srcW, srcLen / srcW, copyX, copyY, copyW, copyH);
@@ -1531,7 +1537,7 @@ namespace MnM.GWS
         /// <param name="copyH">Height of area in the source to copy</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
         public unsafe static void DrawImage(this IBlockable block, int[] source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, int ShapeID = 0)
+            int copyX, int copyY, int copyW, int copyH, Command command, uint ShapeID = 0)
         {
             var rc = Rects.CompitibleRc(srcW, source.Length / srcW, copyX, copyY, copyW, copyH);
             var srcLen = source.Length;

@@ -20,7 +20,7 @@ namespace MnM.GWS
         #region VARIABLES
         public readonly IEnumerable<VectorF> Points;
         public readonly string TypeName;
-        int id;
+        uint id;
         #endregion
 
         #region CONSTRUCTORS
@@ -42,7 +42,7 @@ namespace MnM.GWS
         #endregion
 
         #region ISHAPE
-        public int ID
+        public uint ID
         {
             get
             {

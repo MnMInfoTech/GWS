@@ -15,7 +15,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        internal Settings(int shapeID, IPenContext context)
+        internal Settings(uint shapeID, IPenContext context)
         {
             Boundary = Factory.newBoundary();
             ShapeID = shapeID;
@@ -56,7 +56,7 @@ namespace MnM.GWS
             }
         }
         public Rotation Rotation { get; set; }
-        public int ShapeID 
+        public uint ShapeID 
         {
             get => Boundary.ShapeID;
             set => Boundary.ShapeID = value; 

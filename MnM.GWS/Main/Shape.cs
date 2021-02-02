@@ -31,7 +31,7 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        int IID<int>.ID => Renderable.ID;
+        uint IID<uint>.ID => Renderable.ID;
         IRenderable IShape.Renderable => Renderable;
         ISettings IShape.Settings => Settings;
         #endregion

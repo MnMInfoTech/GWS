@@ -38,7 +38,7 @@ namespace MnM.GWS
         public float Width;
         public float Height;
         byte valid;
-        int id;
+        uint id;
         const string toStr = "x:{0}, y:{1}, w:{2}, h:{3}";
         public static readonly BoxF Empty = new BoxF();
 #endregion
@@ -141,7 +141,7 @@ namespace MnM.GWS
         /// </summary>
         public float Cy => Y + Height / 2;
 
-        public int ID
+        public uint ID
         {
             get
             {
