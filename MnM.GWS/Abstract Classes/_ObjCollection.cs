@@ -11,17 +11,14 @@ using System.Linq;
 
 namespace MnM.GWS
 {
-    public class ObjCollection : IObjCollection
+    public abstract class _ObjCollection<T> : IObjCollection where T: IGraphics
     {
         #region VARIABLES
-        IGraphics Graphics;
-
-        protected  readonly Dictionary<uint, Shape> Dict =
-            new Dictionary<uint, Shape>(100);
+        protected readonly IGraphics Graphics;
         #endregion
 
         #region CONSTRUCTOR
-        public ObjCollection(IGraphics canvas)
+        public _ObjCollection(T canvas)
         {
             Graphics = canvas;
         }
@@ -64,6 +61,7 @@ namespace MnM.GWS
         }
         public int Count =>
             Dict.Count;
+        protected abstract Dictionary<uint, Shape> Dict {get;} 
         #endregion
 
         #region IS DRAWABLE
