@@ -1032,12 +1032,13 @@ namespace MnM.GWS
     /// Object containing a collection of objects of type T.
     /// </summary>
     /// <typeparam name="T">Type of Object used in collection.</typeparam>
-    public interface IObjCollection<T> : IEnumerable<T>, IDisposable where T : IID
+    public interface IObjCollection<T> : IEnumerable<T>, IDisposable where T : IRenderable
     {
+        #region PROPERTIES
         /// <summary>
         /// Returns number of objects in collection.
         /// </summary>
-        int Count { get; }
+        int ObjectCount { get; }
 
         /// <summary>
         /// Returns object from collection with given ID.
@@ -1052,7 +1053,9 @@ namespace MnM.GWS
         /// <param name="name">Name of object to return.</param>
         /// <returns></returns>
         T this[string name] { get; }
+        #endregion
 
+        #region CONTAINS
         /// <summary>
         /// Tests for existence of object T in collection.
         /// </summary>
@@ -1066,7 +1069,9 @@ namespace MnM.GWS
         /// <param name="itemID">ID of object required.</param>
         /// <returns>True if object present.</returns>
         bool Contains(uint itemID);
+        #endregion
 
+        #region ADD
         /// <summary>
         /// Adds a shape object to this collection.
         /// </summary>
@@ -1091,7 +1096,9 @@ namespace MnM.GWS
         /// <typeparam name="T"></typeparam>
         /// <param name="controls">Shape objects to add.</param>
         void AddRange<U>(IEnumerable<U> controls) where U : T;
+        #endregion
 
+        #region REMOVE
         /// <summary>
         /// Remove specified object from collection (if allowed).
         /// </summary>
@@ -1102,6 +1109,7 @@ namespace MnM.GWS
         /// Remove all values from the collection.
         /// </summary>
         void RemoveAll();
+        #endregion
     }
 
     /// <summary>
@@ -1109,14 +1117,12 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IObjCollection : IObjCollection<IRenderable>
     {
-        #region PROPERTIES
         /// <summary>
         /// Returs an existing drawing information object which holds latest drawing information for a given element.
         /// </summary>
         /// <param name="shape">The element for which the drawing information is sought for</param>
         /// <returns></returns>
         ISettings this[IRenderable shape] { get; }
-        #endregion
 
         #region METHODS
         /// <summary>
@@ -1156,12 +1162,8 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which holds a control collection to maintain its child controls.
     /// </summary>
-    public partial interface IContainer: IRefreshable
-    {
-        /// <summary>
-        /// A collection that keeps all child controls to be maintained.
-        /// </summary>
-        IObjCollection Objects { get; }
+    public partial interface IContainer : IObjCollection, IRefreshable
+    {         
     }
     #endregion
 #endif

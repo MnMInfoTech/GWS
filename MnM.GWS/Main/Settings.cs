@@ -15,13 +15,19 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        internal Settings(uint shapeID, IPenContext context)
+        internal Settings(uint shapeID, IPenContext context):
+            this(shapeID)
+        {
+            PenContext = context;
+        }
+        internal Settings(uint shapeID)
         {
             Boundary = Factory.newBoundary();
             ShapeID = shapeID;
             drawCommand = Command.OddEven;
-            PenContext = context;
+            Initialize();
         }
+        partial void Initialize();
         #endregion
 
         #region PROPERTIES

@@ -5,26 +5,50 @@
 
 //Author: Manan Adhvaryu
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public abstract class _ObjCollection<T> : IObjCollection where T: IGraphics
+    public abstract class _Canvas: _Image, ICanvas
     {
         #region VARIABLES
-        protected readonly T Graphics;
+        /// <summary>
+        /// 
+        /// </summary>
+        protected bool Invert;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        protected bool UseTarget;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected ReadChoice choice;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IPenContext penContext;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        int[] PenData;
         #endregion
 
         #region CONSTRUCTOR
-        public _ObjCollection(T canvas)
-        {
-            Graphics = canvas;
-        }
+        public _Canvas(int w, int h) :
+            base(w, h)
+        { }
         #endregion
 
         #region PROPERTIES
+        protected abstract Dictionary<uint, Shape> Items { get; }
         public int ObjectCount => Items.Count;
         public ISettings this[IRenderable shape]
         {
@@ -60,7 +84,36 @@ namespace MnM.GWS
                 return shape.Renderable;
             }
         }
-        protected abstract Dictionary<uint, Shape> Items {get;} 
+        protected sealed override unsafe int* Pen
+        {
+            get
+            {
+                if (PenData == null)
+                    return null;
+                fixed (int* p = PenData)
+                    return p;
+            }
+        }
+        public IPenContext Background
+        {
+            set
+            {
+                penContext = value;
+                ChangeBackground(width, height);
+                Clear(0, 0, width, height, Command.Backdrop);
+            }
+        }
+        public sealed override string TypeName => "Canvas";
+        public ReadChoice Choice
+        {
+            get => choice;
+            set
+            {
+                choice = value;
+                Invert = (choice & ReadChoice.InvertColor) == ReadChoice.InvertColor;
+                UseTarget = (choice & ReadChoice.ScreenData) == ReadChoice.ScreenData;
+            }
+        }
         #endregion
 
         #region IS DRAWABLE
@@ -78,7 +131,7 @@ namespace MnM.GWS
         {
             if (!IsAddable(Shape))
                 return Shape;
-            bool  AddMode = !Contains(Shape);
+            bool AddMode = !Contains(Shape);
 
             if (AddMode)
             {
@@ -88,7 +141,7 @@ namespace MnM.GWS
 
                 Items.Add(Shape.ID, new Shape(Shape, info));
                 if (Shape is IChild)
-                    ((IChild)Shape).Graphics = Graphics;
+                    ((IChild)Shape).Graphics = this;
             }
             Settings = this[Shape];
             var OriginalCommand = Settings.Command;
@@ -100,7 +153,7 @@ namespace MnM.GWS
                     Settings.Command &= ~Command.SuspendUpdate;
                 Settings.Command |= Command.AddMode;
             }
-            Graphics.Render(Shape, Settings);
+            Render(Shape, Settings);
             Settings.Command = OriginalCommand;
             return Shape;
         }
@@ -124,7 +177,7 @@ namespace MnM.GWS
                 return false;
             bool ok = Items.Remove(shapeID);
             if (ok)
-                Graphics.Render(Items.Values);
+                this.Render(Items.Values);
             return ok;
         }
         public bool Remove(IRenderable item)
@@ -191,14 +244,95 @@ namespace MnM.GWS
         }
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();
+
         #endregion
 
-        #region DISPOSE
-        public void Dispose()
+        #region READ PIXEL
+        public unsafe int ReadPixel(int x, int y)
         {
-            (Graphics as IClearable)?.Clear(0, 0, Graphics.Width, Graphics.Height);
-            Items.Clear();
+            if (Length == 0)
+                return 0;
+            int i = x + y * Width;
+            if (i >= Length)
+                i = 0;
+            var srcColor = UseTarget ? Screen(true)[i] : Pen[i];
+            if (Invert)
+                srcColor ^= Colors.Inversion;
+            return srcColor;
         }
+        #endregion
+
+        #region READ LINE
+        public unsafe void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length)
+        {
+            if (start > end)
+            {
+                int temp = end;
+                end = start;
+                start = end;
+            }
+            length = end - start;
+            if (start < 0)
+            {
+                length += start;
+                start = 0;
+            }
+            int srcCounter = horizontal ? 1 : Width;
+            pixels = new int[length];
+            int* dst;
+            fixed (int* p = pixels)
+                dst = p;
+            int* src = UseTarget ? Screen(true) : Pen;
+            srcIndex = start + axis * Width;
+            int srcColor;
+
+            for (int i = 0; i < length; i++)
+            {
+                srcColor = src[srcIndex];
+                if (Invert)
+                    srcColor ^= Colors.Inversion;
+                dst[i] = srcColor;
+                srcIndex += srcCounter;
+            }
+            srcIndex = 0;
+        }
+        #endregion
+
+        #region REFRESH
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void Refresh(Command command = 0)
+        {
+            if (ObjectCount == 0)
+                return;
+            Clear(0, 0, Width, Height, command | Command.SuspendUpdate);
+            this.Render(QueryDraw());
+        }
+        #endregion
+
+        #region UPDATE
+        public abstract void Update(Command command = Command.None, IRectangle boundary = null);
+        #endregion
+
+        #region BACK GROUND CHANGED
+        protected unsafe void ChangeBackground(int w, int h)
+        {
+            if (penContext == null)
+            {
+                PenData = null;
+                goto RaiseEvent;
+            }
+            int* pen = null;
+            int len = w * h;
+            PenData = new int[len];
+            fixed (int* p = PenData)
+                pen = p;
+            var brush = penContext.ToPen(w, h);
+            if (brush != null)
+                brush.CopyTo((IntPtr)pen, len, w, 0, 0, new Rectangle(0, 0, w, h), Command.Opaque);
+            RaiseEvent:
+            BackgroundChanged?.Invoke(this, Factory.EmptyArgs);
+        }
+        public event EventHandler<IEventArgs> BackgroundChanged;
         #endregion
     }
 }

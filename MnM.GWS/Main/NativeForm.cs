@@ -4,6 +4,8 @@
 * See license.txt for detailed licensing details. */
 // Author: Manan Adhvaryu.
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
@@ -41,7 +43,6 @@ namespace MnM.GWS
             #endregion
 
             #region PROPERTIES
-            public IObjCollection Objects => Canvas.Objects;
             public IPenContext Background
             {
                 set => Canvas.Background = value;
@@ -193,6 +194,82 @@ namespace MnM.GWS
             {
                 add => Canvas.AccessibilityChanged += value;
                 remove => Canvas.AccessibilityChanged -= value;
+            }
+            #endregion
+        }
+        partial class NativeForm : IObjCollection
+        {
+            #region PROPERTIES
+            public int ObjectCount => Canvas.ObjectCount;
+            public IRenderable this[uint id] => Canvas[id];
+            public IRenderable this[string name] => Canvas[name];
+            public ISettings this[IRenderable shape] => Canvas[shape];
+            #endregion
+
+            #region CONTAINS
+            public bool Contains(IRenderable item)
+            {
+                return Canvas.Contains(item);
+            }
+            public bool Contains(uint itemID)
+            {
+                return Canvas.Contains(itemID);
+            }
+            #endregion
+
+            #region ADD
+            public U Add<U>(U shape, ISettings settings, bool? suspendUpdate = null) where U : IRenderable
+            {
+                return Canvas.Add(shape, settings, suspendUpdate);
+            }
+            public U Add<U>(U shape) where U : IRenderable
+            {
+                return Canvas.Add(shape);
+            }
+            public void AddRange<U>(IEnumerable<U> controls) where U : IRenderable
+            {
+                Canvas.AddRange(controls);
+            }
+            #endregion
+
+            #region REMOVE
+            public bool Remove(IRenderable item)
+            {
+                return Canvas.Remove(item);
+            }
+            public void RemoveAll()
+            {
+                Canvas.RemoveAll();
+            }
+            #endregion
+
+            #region ENUMERATOR
+            public IEnumerator<IRenderable> GetEnumerator()
+            {
+                return Canvas.GetEnumerator();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable)Canvas).GetEnumerator();
+            }
+            #endregion
+
+            #region QUERY
+            public IEnumerable<IRenderable> Query(Predicate<ISettings> condition = null)
+            {
+                return Canvas.Query(condition);
+            }
+            public IRenderable QueryFirst(Predicate<ISettings> condition = null)
+            {
+                return Canvas.QueryFirst(condition);
+            }
+            public IEnumerable<IShape> QueryDraw(Predicate<ISettings> condition = null)
+            {
+                return Canvas.QueryDraw(condition);
+            }
+            public IShape QueryFirstDraw(Predicate<ISettings> condition = null)
+            {
+                return Canvas.QueryFirstDraw(condition);
             }
             #endregion
         }

@@ -12,6 +12,9 @@ namespace MnM.GWS
         {
             items = new Dictionary<uint, Shape>(100);
         }
-        protected override Dictionary<uint, Shape> Dict => items;
+        protected override Dictionary<uint, Shape> Items => items;
+
+        protected override Settings newSettings(uint shapeID) =>
+            newSettings(shapeID);
     }
 }
