@@ -131,21 +131,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ILOCK-UNLOCK
-    public interface ILockUnlock
-    {
-        /// <summary>
-        /// Locks or unlock area of pixels in this buffer in context of over-writing.
-        /// <summary>
-        /// <param name="lockPixels"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="w"></param>
-        /// <param name="h"></param>
-        void LockUnlock(bool lockPixels, int x, int y, int w, int h);
-    }
-    #endregion
-
     #region IIMAGE
     /// <summary>
     /// Represents writable and copiable memory block object which can also render shapes.
