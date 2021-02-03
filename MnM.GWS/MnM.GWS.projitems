@@ -9,6 +9,7 @@
     <Import_RootNamespace>MnM.GWS</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Main\ObjCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents2.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_MinimalEvents.cs" />

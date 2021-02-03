@@ -9,6 +9,7 @@ namespace MnM.GWS
         protected volatile bool Running = false;
         protected readonly Stopwatch Watch;
         protected long speed;
+        protected bool Halt;
         #endregion
 
         #region CONSTRUCTOR

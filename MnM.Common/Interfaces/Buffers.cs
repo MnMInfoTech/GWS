@@ -126,6 +126,8 @@ namespace MnM.GWS
         /// this object gets Inaccessible for variety of reasons such as if it is resizing or disposed.
         /// </summary>
         bool Inaccessible { get; }
+
+        event EventHandler<IEventArgs> AccessibilityChanged;
     }
     #endregion
 

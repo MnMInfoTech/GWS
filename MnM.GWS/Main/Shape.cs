@@ -6,7 +6,7 @@
 
 namespace MnM.GWS
 {
-    internal sealed class Shape : IShape
+    public sealed class Shape : IShape
     {
         #region VARIABLES
         public IRenderable Renderable;

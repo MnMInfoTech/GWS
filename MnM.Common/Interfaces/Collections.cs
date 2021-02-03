@@ -1116,11 +1116,6 @@ namespace MnM.GWS
         /// <param name="shape">The element for which the drawing information is sought for</param>
         /// <returns></returns>
         ISettings this[IRenderable shape] { get; }
-
-        /// <summary>
-        /// Indicates if the collection is currently adding an element or not.
-        /// </summary>
-        bool AddMode { get; }
         #endregion
 
         #region METHODS

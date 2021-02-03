@@ -188,6 +188,12 @@ namespace MnM.GWS
                 Canvas.ReadPixel(x, y);
             void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length) =>
                 Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length);
+
+            public event EventHandler<IEventArgs> AccessibilityChanged
+            {
+                add => Canvas.AccessibilityChanged += value;
+                remove => Canvas.AccessibilityChanged -= value;
+            }
             #endregion
         }
 #if Advanced

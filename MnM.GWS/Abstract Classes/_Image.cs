@@ -748,6 +748,12 @@ namespace MnM.GWS
         public abstract object Clone();
         #endregion
 
+        #region ACCECIBILITY CHANGED EVENT
+        protected virtual void OnAccessiblityChanged(IEventArgs e) =>
+            AccessibilityChanged?.Invoke(this, e);
+        public event EventHandler<IEventArgs> AccessibilityChanged;
+        #endregion
+
         #region DISPOSE
         public virtual void Dispose()
         {
