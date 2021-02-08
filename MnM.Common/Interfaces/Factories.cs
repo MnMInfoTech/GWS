@@ -285,14 +285,6 @@ namespace MnM.GWS
         IBoxF newBoxF(float x, float y, float width, float height);
         #endregion
 
-        #region BOUNDARY
-        /// <summary>
-        /// Gets a new boundary object.
-        /// </summary>
-        /// <returns></returns>
-        IBoundary newBoundary();
-        #endregion
-
         #region SHAPE
         /// <summary>
         /// Returns an instance of IShape.

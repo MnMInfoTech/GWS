@@ -1093,15 +1093,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region BOUNDARY
-        /// <summary>
-        /// Gets a new boundary object.
-        /// </summary>
-        /// <returns></returns>
-        public static IBoundary newBoundary() =>
-            Instance.newBoundary();
-        #endregion
-
         #region SHAPE
         /// <summary>
         /// Returns an instance of IShape.

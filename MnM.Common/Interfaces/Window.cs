@@ -21,8 +21,9 @@ namespace MnM.GWS
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
     public partial interface IRenderTarget : IClearable, IWritableBlock, IPixels,
-        IResizable, ICopyable, IUpdatable, IDisposed
-    { }
+        IResizable, ICopyable, IUpdatable, IDisposed, IPaintable
+    {
+    }
     #endregion
 
     #region INATIVE TARGET
@@ -43,8 +44,9 @@ namespace MnM.GWS
 
 #if (GWS || Window)
     #region INATIVE-FORM
-    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer
-    { }
+    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer, IPaintable
+    {
+    }
     #endregion
 
     #region IFORM
@@ -55,7 +57,8 @@ namespace MnM.GWS
         IContainer, IUpdatable, IRefreshable, IClearable, IWritableBlock, IDisposed,
         IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents, IReadable
-    { }
+    {
+    }
     #endregion
 
     #region IHOST
@@ -72,7 +75,7 @@ namespace MnM.GWS
     /// <summary>
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
-    public partial interface IRenderWindow : IHandle, ICopyable, IDisposed
+    public partial interface IRenderWindow : IHandle, ICopyable, IDisposed, IPaintable
     {
         RendererFlags RendererFlags { get; }
     }

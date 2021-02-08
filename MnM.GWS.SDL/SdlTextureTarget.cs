@@ -18,7 +18,7 @@ namespace MnM.GWS
 #endif
     class SdlTextureTarget : ITextureTarget
     {
-        #region VARIABLES
+#region VARIABLES
         protected IntPtr Renderer;
         protected readonly IRenderWindow Window;
         protected volatile int width, height, length;
@@ -27,9 +27,9 @@ namespace MnM.GWS
         protected bool IsResizing;
         protected volatile int[] Data;
         const byte o = 0;
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         public SdlTextureTarget(IRenderWindow window, int? w = null, int? h = null, bool isPrimary = false,
             uint? pixelformat = null, TextureAccess? textureAccess = null)
         {
@@ -48,9 +48,9 @@ namespace MnM.GWS
             uint? pixelformat = null, TextureAccess? textureAccess = null) :
             this(window, null, null, isPrimary, pixelformat, textureAccess)
         { }
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         public string ID { get; private set; }
         public bool IsPrimary { get; private set; }
         public IntPtr Handle { get; private set; }
@@ -73,51 +73,49 @@ namespace MnM.GWS
             Window.IsDisposed || Disposed;
         public RendererFlags RendererFlags =>
             Window.RendererFlags;
-        #endregion
+#endregion
 
-        #region COPY FROM
+#region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command)
+        public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command command)
         {
-            int copyX = copyArea.X;
-            int copyY = copyArea.Y;
-            int copyW = copyArea.Width;
-            int copyH = copyArea.Height;
-
-            var dstRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
+                if (copyArea == null)
+                    return;
+                int unit = copyArea is IBoundary ? 6 : 0;
+            copyArea.GetBounds(out _, out _, out int copyW, out int copyH, unit, unit);
+            var textureRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
             IntPtr textureData;
             int lockedLength;
-            Lock(dstRC, out textureData, out lockedLength);
+                IPerimeter dstRc;
+            Lock(textureRC, out textureData, out lockedLength);
             if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, new Rectangle(copyX, copyY, dstRC.Width, dstRC.Height), 0);
+                ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, copyArea, 0);
             }
             else if (source is IPixels)
             {
                 int* src = (int*)(((IPixels)source).Source);
                 int* dst = (int*)textureData;
-                BlockCopy action = (srcIndex, dstIndex, copyLength, x, y, cmd) =>
-                Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength, cmd);
-                Blocks.CopyBlock(copyX, copyY, copyW, copyH, source.Length, source.Width, source.Height, 0, 0, width, lockedLength, action, command);
+                Blocks.CopyBlock(src, copyArea, source.Length, source.Width, source.Height, dst, 0, 0, width, lockedLength, command);
             }
             Unlock();
-            if ((command & Command.SuspendUpdate) != Command.SuspendUpdate)
-                Update(0, dstRC);
+                if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
+                    Update(0, new Perimeter(textureRC));
         }
-        #endregion
+#endregion
 
-        #region RESIZE
+#region RESIZE
         public unsafe void Resize(int? width = null, int? height = null)
         {
             DestoryTextureHandle(Handle);
             Handle = CreateHandle(null, null, width ?? Width, height ?? Height, out Size s);
             this.width = s.Width;
             this.height = s.Height;
-            CopyFrom(Window, 0, 0, new Rectangle(0, 0, s.Width, s.Height), 0);
+            CopyFrom(Window, 0, 0, new Perimeter(0, 0, s.Width, s.Height), 0);
         }
-        #endregion
+#endregion
 
-        #region LOCK - UNLOCK
+#region LOCK - UNLOCK
         Rectangle Lock(Rectangle copyRc, out IntPtr textureData, out int lockedLength)
         {
             if (locked)
@@ -151,76 +149,67 @@ namespace MnM.GWS
             NativeFactory.UnlockTexture(Handle);
             locked = false;
         }
-        #endregion
+#endregion
 
-        #region UPDATE
+#region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Update(Command command = Command.None, IRectangle boundary = null)
+        public unsafe void Update(Command command, IPerimeter perimeter)
         {
-            Rectangle rc;
-            if (boundary is IBoundary)
-                rc = new Rectangle(((IBoundary)boundary).GetBounds(6, 6));
-            else
-                rc = new Rectangle(boundary);
+                if (perimeter == null)
+                    return;
+                int unit = (perimeter is IBoundary) ? 6 : 0;
+                perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
+                Rectangle rc = new Rectangle(x, y, w, h);
 
-            NativeFactory.UpdateTexture(Handle, IntPtr.Zero, Source, Width * 4);
+                NativeFactory.UpdateTexture(Handle, IntPtr.Zero, Source, Width * 4);
 
             NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
             NativeFactory.UpdateRenderer(Renderer);
         }
-        #endregion
+#endregion
 
-        #region COPY FROM
+#region WRITE BLOCK
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+        public unsafe IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea,
             Command Command, IntPtr alphaBytes = default(IntPtr))
         {
             if (IsDisposed)
-                return Rectangle.Empty;
-            int copyX = copyArea.X;
-            int copyY = copyArea.Y;
-            int copyW = copyArea.Width;
-            int copyH = copyArea.Height;
-
-            var dstRc = Blocks.CopyBlock((int*)source, copyX, copyY, copyW, copyH, srcW * srcH, srcW,
+                return Perimeter.Empty;
+                int unit = copyArea is IBoundary ? 6 : 0;
+                copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH, unit, unit);
+                var dstRc = Blocks.CopyBlock((int*)source, copyArea, srcW * srcH, srcW,
                 srcH, Screen, dstX, dstY, Width, Length, Command, (byte*)alphaBytes);
 
             Update(Command, dstRc);
             return dstRc;
         }
-        #endregion
+#endregion
 
-        #region COPY TO       
+#region COPY TO       
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = 0)
+        public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
         {
             if (IsDisposed)
-                return Rectangle.Empty;
-            int copyX = copyArea.X;
-            int copyY = copyArea.Y;
-            int copyW = copyArea.Width;
-            int copyH = copyArea.Height;
-
-            return Blocks.CopyBlock(Screen, copyX, copyY, copyW, copyH, length, width, height,
-                (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
+                return Perimeter.Empty;
+                return Blocks.CopyBlock(Screen, copyArea, length, width, height, (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
         }
-        #endregion
+#endregion
 
-        #region CLEAR
+#region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command Command = 0)
+        public unsafe IPerimeter Clear(IPerimeter clear, Command Command = 0)
         {
-            bool SuspendUpdate = (Command & Command.SuspendUpdate) == Command.SuspendUpdate;
-            var rc = Blocks.CopyBlock(null, clearX, clearY, clearW, clearH, Length,
-                Width, Height, Screen, clearX, clearY, Width, Length, Command, null);
+            bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
+                clear.GetBounds(out int clearX, out int clearY, out int clearW, out int clearH);
+                var rc = Blocks.CopyBlock(null, clear, Length, Width, Height, Screen, clearX, clearY, Width, Length, Command, null);
 
             if (!SuspendUpdate)
                 Update(0, rc);
             return rc;
         }
-        #endregion
+#endregion
 
-        #region CREATE - DESTROY
+#region CREATE - DESTROY
         protected IntPtr CreateHandle(uint? format, TextureAccess? access, int w, int h, out Size size)
         {
             Renderer = NativeFactory.GetRenderer(Window.Handle);
@@ -239,15 +228,18 @@ namespace MnM.GWS
             if (handle != IntPtr.Zero)
                 NativeFactory.DestroyTexture(handle);
         }
-        #endregion
+#endregion
 
-        #region DISPOSE
-        public virtual void Dispose()
+            public void InvokePaint(Command command = 0, int processID = 0) =>
+    Window.InvokePaint(command, processID);
+
+#region DISPOSE
+            public virtual void Dispose()
         {
             Disposed = true;
             DestoryTextureHandle(Handle);
         }
-        #endregion
+#endregion
     }
 
 #if HideSdlObjects

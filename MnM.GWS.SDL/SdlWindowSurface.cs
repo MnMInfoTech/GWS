@@ -19,7 +19,7 @@ namespace MnM.GWS
 #endif
     class SdlWindowSurface : IRenderTarget
     {
-        #region VARIABLES
+#region VARIABLES
         /// <summary>
         /// Width of this object.
         /// </summary>
@@ -44,9 +44,9 @@ namespace MnM.GWS
         /// 
         /// </summary>
         IntPtr Surface;
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         public SdlWindowSurface(IRenderWindow window)
         {
             Window = window;
@@ -58,9 +58,9 @@ namespace MnM.GWS
 
             Source = Surface.ToObj<SdlSurfaceInfo>().Pixels;
         }
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         public unsafe IntPtr Source { get; private set; }
         public int Width => width;
         public int Height => height;
@@ -68,81 +68,70 @@ namespace MnM.GWS
         public bool IsDisposed { get; private set; }
         public string ID { get; private set; }
         unsafe int* Screen => (int*)Source;
-        #endregion
+#endregion
 
-        #region GET HANDLE
+#region GET HANDLE
         IntPtr GetHandle(IntPtr handle) =>
         NativeFactory.GetWindowSurface(handle);
-        #endregion
+#endregion
 
-        #region COPY FROM
+#region COPY FROM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+        public unsafe IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea,
             Command Command, IntPtr alphaBytes = default(IntPtr))
         {
             if (IsDisposed)
-                return Rectangle.Empty;
-            int copyX = copyArea.X;
-            int copyY = copyArea.Y;
-            int copyW = copyArea.Width;
-            int copyH = copyArea.Height;
-
-            var dstRc = Blocks.CopyBlock((int*)source, copyX, copyY, copyW, copyH, srcW * srcH, srcW,
+                return Perimeter.Empty;
+                int unit = copyArea is IBoundary ? 6 : 0;
+                var dstRc = Blocks.CopyBlock((int*)source, copyArea, srcW * srcH, srcW,
                 srcH, Screen, dstX, dstY, Width, Length, Command, (byte*)alphaBytes);
 
             Update(Command, dstRc);
             return dstRc;
         }
-        #endregion
+#endregion
 
-        #region COPY TO       
+#region COPY TO       
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = 0)
+        public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
         {
             if (IsDisposed)
-                return Rectangle.Empty;
-            int copyX = copyArea.X;
-            int copyY = copyArea.Y;
-            int copyW = copyArea.Width;
-            int copyH = copyArea.Height;
-
-            return Blocks.CopyBlock(Screen, copyX, copyY, copyW, copyH, length, width, height,
+                return Perimeter.Empty;
+                return Blocks.CopyBlock(Screen, copyArea, length, width, height,
                 (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
         }
-        #endregion
+#endregion
 
-        #region CLEAR
+#region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command Command = 0)
+        public unsafe IPerimeter Clear(IPerimeter clear, Command Command = 0)
         {
-            bool SuspendUpdate = (Command & Command.SuspendUpdate) == Command.SuspendUpdate;
-            var rc = Blocks.CopyBlock(null, clearX, clearY, clearW, clearH, Length,
+            bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
+            clear.GetBounds(out int clearX, out int clearY, out _, out _);
+                var rc = Blocks.CopyBlock(null, clear, Length,
                 Width, Height, Screen, clearX, clearY, Width, Length, Command, null);
 
             if (!SuspendUpdate)
                 Update(0, rc);
             return rc;
         }
-        #endregion
+#endregion
 
-        #region UPDATE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Update(Command Command, IRectangle RecentlyDrawn = null)
-        {
-            if (RecentlyDrawn == null || !RecentlyDrawn.Valid)
-                return;
-            
-            Rectangle rc;
-            if (RecentlyDrawn is IBoundary)
-                rc = new Rectangle(((IBoundary)RecentlyDrawn).GetBounds(6, 6));
-            else
-                rc = new Rectangle(RecentlyDrawn);
+#region UPDATE
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public unsafe void Update(Command Command, IPerimeter perimeter)
+            {
+                if (perimeter == null)
+                    return;
+                int unit = (perimeter is IBoundary) ? 6 : 0;
+                perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
+                Rectangle rc = new Rectangle(x, y, w, h);
 
-            NativeFactory.UpdateWindow(Window.Handle, rc);
-        }
-        #endregion
+                NativeFactory.UpdateWindow(Window.Handle, rc);
+            }
+#endregion
 
-        #region RESIZE
+#region RESIZE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Resize(int? newWidth = null, int? newHeight = null)
         {
@@ -158,13 +147,18 @@ namespace MnM.GWS
             height = sdlSurface.Height;
             length = width * height;
         }
-        #endregion
+#endregion
 
-        #region DISPOSE
-        public void Dispose()
+#region RAISE PAINT
+            public void InvokePaint(Command command = 0, int processID = 0) =>
+                Window.InvokePaint(command, processID);
+#endregion
+
+#region DISPOSE
+            public void Dispose()
         {
         }
-        #endregion
+#endregion
     }
 
 #if HideSdlObjects

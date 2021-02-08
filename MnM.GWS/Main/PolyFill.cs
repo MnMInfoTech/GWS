@@ -52,7 +52,7 @@ namespace MnM.GWS
                     for (int i = 1; i < points.Count; i++)
                     {
                         Scan(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y);
-                        Renderer.ProcessLine(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y, pixelAction, drawCommand);
+                        Renderer.ProcessLine(points[i - 1].X, points[i - 1].Y, points[i].X, points[i].Y, pixelAction, command);
                     }
                 }
 
@@ -73,13 +73,13 @@ namespace MnM.GWS
                 if (collection.Length == 1)
                 {
                     if (FillSinglePoint)
-                        action(collection[0], axis, horizontal, collection[0], alpha, drawCommand);
+                        action(collection[0], axis, horizontal, collection[0], alpha, command);
                     return;
                 }
 
                 if (collection.Length == 2)
                 {
-                    action(collection[0], axis, horizontal, collection[1], alpha, drawCommand);
+                    action(collection[0], axis, horizontal, collection[1], alpha, command);
                     return;
                 }
 
@@ -90,7 +90,7 @@ namespace MnM.GWS
 
                 for (int i = 1; i < collection.Length; i++)
                 {
-                    action(collection[i - 1], axis, horizontal, collection[i], alpha, drawCommand);
+                    action(collection[i - 1], axis, horizontal, collection[i], alpha, command);
                     if (EndsOnly)
                         continue;
                     if (Even)

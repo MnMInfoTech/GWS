@@ -80,7 +80,7 @@ namespace MnM.GWS
             int copyW = width;
             int copyH = height;
             T[] src = new T[copyW * copyH];
-            Blocks.CopyBlock(src, copyX, copyY, copyW, copyH, src.Length, copyW, copyH, Data, dstX, dstY, Width, Length);
+            Blocks.CopyBlock(src, new Perimeter(copyX, copyY, copyW, copyH), src.Length, copyW, copyH, Data, dstX, dstY, Width, Length);
         }
         #endregion
 

@@ -9,9 +9,10 @@ namespace MnM.GWS
     public sealed partial class Settings : ISettings
     {
         #region VARIABLES
-        Command drawCommand, calculatedDrawCommand;
+        Command DrawCommand, CalculatedDrawCommand;
         private FillMode fillMode;
         private float stroke;
+        Session session = new Session();
         #endregion
 
         #region CONSTRUCTORS
@@ -22,9 +23,8 @@ namespace MnM.GWS
         }
         internal Settings(uint shapeID)
         {
-            Boundary = Factory.newBoundary();
             ShapeID = shapeID;
-            drawCommand = Command.OddEven;
+            DrawCommand = Command.OddEven;
             Initialize();
         }
         partial void Initialize();
@@ -33,13 +33,12 @@ namespace MnM.GWS
         #region PROPERTIES
         public Command Command
         {
-            get => calculatedDrawCommand;
+            get => CalculatedDrawCommand;
             set
             {
-                if (drawCommand == value)
+                if (DrawCommand == value)
                     return;
-
-                drawCommand = value;
+                DrawCommand = value;
                 SyncCommand();
             }
         }
@@ -61,37 +60,36 @@ namespace MnM.GWS
                 SyncCommand();
             }
         }
+        public int DstX { get => session.DstX; set => session.DstX = value; }
+        public int DstY { get => session.DstY; set => session.DstY = value; }
+        public int ProcessID { get => session.ProcessID; set => session.ProcessID = value; }
+        public uint ShapeID { get => session.ShapeID; set => session.ShapeID = value; }
         public Rotation Rotation { get; set; }
-        public uint ShapeID 
-        {
-            get => Boundary.ShapeID;
-            set => Boundary.ShapeID = value; 
-        }
         public StrokeMode StrokeMode { get; set; }
         public VectorF Scale { get; set; }
         public IPenContext PenContext { get; set; }
         public IRectangle Bounds { get; set; }
-        public IBoundary Boundary { get; private set; }
         public Size Clip { get; set; }
+        public ISession Session => session;
         #endregion
 
         #region SYNC PATTERN AND ANTIALIAS SETTINGS
         void SyncCommand()
         {
-            calculatedDrawCommand = drawCommand;
+            CalculatedDrawCommand = DrawCommand;
             bool IgnoreAutoCalculatedFillPatten =
-                (drawCommand & Command.IgnoreAutoCalculatedFillPatten) == Command.IgnoreAutoCalculatedFillPatten;
-            bool EraseControl = (drawCommand & Command.Erase) == Command.Erase;
-            bool KeepFillRuleForStroking = (drawCommand & Command.KeepFillRuleForStroking) == Command.KeepFillRuleForStroking;
+                (DrawCommand & Command.IgnoreAutoCalculatedFillPatten) == Command.IgnoreAutoCalculatedFillPatten;
+            bool EraseControl = (DrawCommand & Command.Erase) == Command.Erase;
+            bool KeepFillRuleForStroking = (DrawCommand & Command.KeepFillRuleForStroking) == Command.KeepFillRuleForStroking;
             if (IgnoreAutoCalculatedFillPatten)
                 return;
             if (stroke == 0 || fillMode == FillMode.Original || KeepFillRuleForStroking || EraseControl)
             {
-                calculatedDrawCommand &= ~Command.Outlininig;
+                CalculatedDrawCommand &= ~Command.Outlininig;
                 return;
             }
             if (stroke != 0 && fillMode == FillMode.FillOutLine)
-                calculatedDrawCommand |= Command.Outlininig;
+                CalculatedDrawCommand |= Command.Outlininig;
         }
         #endregion
 
@@ -103,13 +101,17 @@ namespace MnM.GWS
 
             if (settings is IPoint)
             {
-                Boundary.DstX = ((IPoint)settings).X;
-                Boundary.DstY = ((IPoint)settings).Y;
+                session.DstX = ((IPoint)settings).X;
+                session.DstY = ((IPoint)settings).Y;
             }
-            if (settings is IDrawnArea)
+            if (settings is IDstPoint)
             {
-                Boundary.DstX = ((IDrawnArea)settings).Boundary.DstX;
-                Boundary.DstY = ((IDrawnArea)settings).Boundary.DstY;
+                session.DstX = ((IDstPoint)settings).DstX;
+                session.DstY = ((IDstPoint)settings).DstY;
+            }
+            if (settings is IRectangle)
+            {
+                Session.Copy((IRectangle)settings);
             }
             if (settings is ISettings)
             {
@@ -119,9 +121,9 @@ namespace MnM.GWS
                 StrokeMode = info.StrokeMode;
                 Scale = info.Scale;
                 Rotation = info.Rotation;
-                drawCommand = info.Command;
+                DrawCommand = info.Command;
+                session.Copy(info.Session);
                 CleanCommand();
-                Boundary.Copy(info.Boundary);
                 PenContext = info.PenContext;
             }
         Flush:
@@ -132,20 +134,20 @@ namespace MnM.GWS
         #region CLEAN DRAW COMMAND
         public void CleanCommand()
         {
-            drawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
-            drawCommand &= ~Command.KeepFillRuleForStroking;
-            drawCommand &= ~Command.CalculateOnly;
-            drawCommand &= ~Command.KeepFillRuleForStroking;
-            drawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
-            drawCommand &= ~Command.Outlininig;
-            drawCommand &= ~Command.DrawEndsOnly;
-            drawCommand &= ~Command.DrawLineOnly;
-            drawCommand &= ~Command.NoSorting;
-            drawCommand &= ~Command.CheckForCloseness;
-            drawCommand &= ~Command.FillSinglePointLine;
-            drawCommand &= ~Command.Erase;
-            drawCommand &= ~Command.Restore;
-            drawCommand &= ~Command.AddMode;
+            DrawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
+            DrawCommand &= ~Command.KeepFillRuleForStroking;
+            DrawCommand &= ~Command.CalculateOnly;
+            DrawCommand &= ~Command.KeepFillRuleForStroking;
+            DrawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
+            DrawCommand &= ~Command.Outlininig;
+            DrawCommand &= ~Command.DrawEndsOnly;
+            DrawCommand &= ~Command.DrawLineOnly;
+            DrawCommand &= ~Command.NoSorting;
+            DrawCommand &= ~Command.CheckForCloseness;
+            DrawCommand &= ~Command.FillSinglePointLine;
+            DrawCommand &= ~Command.Erase;
+            DrawCommand &= ~Command.Restore;
+            DrawCommand &= ~Command.AddMode;
             SyncCommand();
         }
         #endregion
@@ -159,7 +161,7 @@ namespace MnM.GWS
             {
                 if (item == 0)
                     continue;
-                drawCommand |= item;
+                DrawCommand |= item;
             }
             SyncCommand();
         }
@@ -168,7 +170,7 @@ namespace MnM.GWS
             if (commands.Length == 0)
                 return;
             foreach (var item in commands)
-                drawCommand &= ~item;
+                DrawCommand &= ~item;
 
             SyncCommand();
         }
@@ -177,16 +179,16 @@ namespace MnM.GWS
         #region FLUSH
         public void Flush()
         {
-            drawCommand = calculatedDrawCommand = 0;
+            DrawCommand = CalculatedDrawCommand = 0;
             stroke = 0;
             StrokeMode = StrokeMode.StrokeMiddle;
             fillMode = FillMode.Original;
             Rotation = Rotation.Empty;
             Scale = VectorF.Empty;
-            Boundary.DstX = Boundary.DstY = 0;
+            DstX = DstY = 0;
             Bounds = Rectangle.Empty;
             ShapeID = 0;
-            Boundary.ClearBounds();
+            Session.Clear();
         }
         #endregion
     }

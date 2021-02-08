@@ -175,6 +175,64 @@ namespace MnM.GWS
             sz.CompitibleRc(rect.X, rect.Y, rect.Width, rect.Height);
         #endregion
 
+        #region COMPITIBLE PERIMETER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IPerimeter CompitiblePerimeter(int srcW, int srcH, IPerimeter perimeter)
+        {
+            if (perimeter == null)
+                perimeter = new Perimeter(0, 0, srcW, srcH);
+            perimeter.GetBounds(out int x0, out int y0, out int copyW, out int copyH);
+
+            if (x0 < 0)
+                x0 = 0;
+            if (y0 < 0)
+                y0 = 0;
+
+            var w = Math.Min(copyW, srcW);
+            var h = Math.Min(copyH, srcH);
+            if (h < 0 || w < 0)
+                return Perimeter.Empty;
+
+            var right = x0 + w;
+            var bottom = y0 + h;
+            if (right > srcW)
+                right = srcW;
+            if (bottom > srcH)
+                bottom = srcH;
+            return new Perimeter(x0, y0, right - x0, bottom - y0, perimeter.ProcessID, perimeter.ShapeID);
+        }
+       
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IPerimeter CompitiblePerimeter(int srcW, int srcH, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0)
+        {
+            if (x0 < 0)
+                x0 = 0;
+            if (y0 < 0)
+                y0 = 0;
+
+            var w = Math.Min(copyW, srcW);
+            var h = Math.Min(copyH, srcH);
+            if (h < 0 || w < 0)
+                return Perimeter.Empty;
+
+            var right = x0 + w;
+            var bottom = y0 + h;
+            if (right > srcW)
+                right = srcW;
+            if (bottom > srcH)
+                bottom = srcH;
+            return new Perimeter(x0, y0, right - x0, bottom - y0, processID, shapeID);
+        }
+       
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IPerimeter CompitiblePerimeter(this ISize size, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0) =>
+            CompitiblePerimeter(size.Width, size.Height, x0, y0, copyW, copyH, processID, shapeID);
+       
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IPerimeter CompitiblePerimeter(this ISize size, IPerimeter perimeter) =>
+            CompitiblePerimeter(size.Width, size.Height, perimeter);
+        #endregion
+
         #region UNION
         /// <summary>
         /// Return a IRectangle object defining an area containing the areas of two specified rectangles.
@@ -439,42 +497,127 @@ namespace MnM.GWS
 
         #region INTERSECTS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Intersects(this IRectangle rect, IRectangle other)
+        public static bool Intersects(this IPerimeter a, IPerimeter b)  
         {
-            bool xOverlap = rect.X.IsWithIn(other.X, other.X + other.Width) ||
-                 other.X.IsWithIn(rect.X, rect.X + rect.Width);
+            if (a == null || b == null)
+                return false;
 
-            bool yOverlap = rect.Y.IsWithIn(other.Y, other.Y + other.Height) ||
-                 other.Y.IsWithIn(rect.Y, rect.Y + rect.Height);
+            a.GetBounds(out int aX, out int aY, out int aW, out int aH);
+            b.GetBounds(out int bX, out int bY, out int bW, out int bH);
 
-            return xOverlap && yOverlap;
+            if (aW == 0 || aH == 0 || bW == 0 || bH == 0)
+                return false;
+
+            bool xOverlap = aX >= bX && aX <= (bX + bW) ||
+                 bX >= aX && bX <= (aX + aW);
+
+            bool yOverlap = aY >= bY && aY <= (bY + bH) ||
+                 bY >= aY && bY <= (aY + aH);
+
+            if (!xOverlap || !yOverlap)
+                return false;
+
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Intersects(this IRectangle a, IRectangle b)
+        {
+            if (a == null || b == null)
+                return false;
+
+            int aX = a.X;
+            int aY = a.Y;
+            int aW = a.Width;
+            int aH = a.Height;
+
+            int bX = b.X;
+            int bY = b.Y;
+            int bW = b.Width;
+            int bH = b.Height;
+
+            if (aW == 0 || aH == 0 || bW == 0 || bH == 0)
+                return false;
+
+            bool xOverlap = aX >= bX && aX <= (bX + bW) ||
+                 bX >= aX && bX <= (aX + aW);
+
+            bool yOverlap = aY >= bY && aY <= (bY + bH) ||
+                 bY >= aY && bY <= (aY + aH);
+
+            if (!xOverlap || !yOverlap)
+                return false;
+
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Intersects(this IRectangleF rect, IRectangleF other)
         {
-            bool xOverlap = rect.X.IsWithIn(other.X, other.X + other.Width) ||
-                 other.X.IsWithIn(rect.X, rect.X + rect.Width);
+            if (other.Width == 0 || other.Height == 0)
+                return false;
+            bool xOverlap = rect.X >= other.X && rect.X <= (other.X + other.Width) ||
+                 other.X >= rect.X && other.X <= (rect.X + rect.Width);
 
-            bool yOverlap = rect.Y.IsWithIn(other.Y, other.Y + other.Height) ||
-                 other.Y.IsWithIn(rect.Y, rect.Y + rect.Height);
+            bool yOverlap = rect.Y >= other.Y && rect.Y <= (other.Y + other.Height) ||
+                 other.Y >= rect.Y && other.Y <= (rect.Y + rect.Height);
 
-            return xOverlap && yOverlap;
+            if (!xOverlap || !yOverlap)
+                return false;
+
+            return true;
+        }
+        #endregion
+
+        #region INTERSECT
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Perimeter Intersect(this IPerimeter a, IPerimeter b)
+        {
+            if (a == null || b == null)
+                return Perimeter.Empty;
+
+            a.GetBounds(out int aX, out int aY, out int aW, out int aH);
+            b.GetBounds(out int bX, out int bY, out int bW, out int bH);
+
+            if (aW == 0 || aH == 0 || bW == 0 || bH == 0)
+                return Perimeter.Empty;
+
+            int x1 = Math.Max(aX, bX);
+            int y1 = Math.Max(aY, bY);
+            int x2 = Math.Min(aX + aW, bX + bW);
+            int y2 = Math.Min(aY + aH, bY + bH);
+
+            if (x2 >= x1 && y2 >= y1)
+                return new Perimeter(x1, y1, x2 - x1, y2 - y1, a.ProcessID, a.ShapeID);
+            return Perimeter.Empty;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Rectangle Intersect(this IRectangle a, IRectangle b)
         {
-            int x1 = Math.Max(a.X, b.X);
-            int y1 = Math.Max(a.Y, b.Y);
-            int x2 = Math.Min(a.X + a.Width, b.X + b.Width);
-            int y2 = Math.Min(a.Y + a.Height, b.Y + b.Height);
+            if (a == null || b == null)
+                return Rectangle.Empty;
 
-            if (x2 >= x1
-                && y2 >= y1)
-            {
+            int aX = a.X;
+            int aY = a.Y;
+            int aW = a.Width;
+            int aH = a.Height;
+
+            int bX = b.X;
+            int bY = b.Y;
+            int bW = b.Width;
+            int bH = b.Height;
+
+            if (aW == 0 || aH == 0 || bW == 0 || bH == 0)
+                return Rectangle.Empty;
+
+            int x1 = Math.Max(aX, bX);
+            int y1 = Math.Max(aY, bY);
+            int x2 = Math.Min(aX + aW, bX + bW);
+            int y2 = Math.Min(aY + aH, bY + bH);
+
+            if (x2 >= x1 && y2 >= y1)
                 return new Rectangle(x1, y1, x2 - x1, y2 - y1);
-            }
             return Rectangle.Empty;
         }
 
@@ -489,7 +632,6 @@ namespace MnM.GWS
             if (x2 >= x1
                 && y2 >= y1)
             {
-
                 return new RectangleF(x1, y1, x2 - x1, y2 - y1);
             }
             return RectangleF.Empty;
@@ -595,6 +737,85 @@ namespace MnM.GWS
         {
             minX = minY = int.MaxValue;
             maxX = maxY = 0;
+        }
+        #endregion
+
+        #region MERGE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Merge(this IBoundary notifiable, IPerimeter rc)
+        {
+            if (rc == null)
+                return;
+            rc.GetBounds(out int x, out int y, out int w, out int h);
+            if (w == 0 || h == 0)
+                return;
+            notifiable.Notify(x, y, x + w, y + h);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Merge(this IBoundary notifiable, IRectangle rc)
+        {
+            if (rc == null)
+                return;
+            if (rc.Width == 0 || rc.Height == 0)
+                return;
+            notifiable.Notify(rc.X, rc.Y, rc.X + rc.Width, rc.Y + rc.Height);
+        }
+        #endregion
+
+        #region COPY
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Copy(this IBoundary notifiable, IPerimeter rc)
+        {
+            notifiable.Notify(0, 0, 0, 0);
+            if (rc == null)
+                return;
+            rc.GetBounds(out int x, out int y, out int w, out int h);
+            if (w == 0 || h == 0)
+                return;
+            notifiable.Notify(x, y, x + w, y + h);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Copy(this IBoundary notifiable, IRectangle rc)
+        {
+            notifiable.Notify(0, 0, 0, 0);
+            if (rc == null)
+                return;
+            if (rc.Width == 0 || rc.Height == 0)
+                return;
+            notifiable.Notify(rc.X, rc.Y, rc.X + rc.Width, rc.Y + rc.Height);
+        }
+        #endregion
+
+        #region CLEAR
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Clear(this IBoundary notifiable)
+        {
+            notifiable.Notify(0, 0, 0, 0);
+        }
+        #endregion
+
+        #region TO RECTANGLE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IRectangle ToRectangle(this IPerimeter boundary, int xExpand = 0, int yExpand = 0)
+        {
+            if (boundary == null)
+                return Rectangle.Empty;
+            boundary.GetBounds(out int x, out int y, out int w, out int h, xExpand, yExpand);
+            if (w == 0 && h == 0)
+                return Rectangle.Empty;
+            return new Rectangle(x, y, w, h);
+        }
+        #endregion
+
+        #region TO PERIMETER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IPerimeter ToPerimeter(this IRectangle rc, int processID = 0)
+        {
+            if (rc == null)
+                return Perimeter.Empty;
+            return new Perimeter(rc.X, rc.Y, rc.Width, rc.Height, processID);
         }
         #endregion
     }

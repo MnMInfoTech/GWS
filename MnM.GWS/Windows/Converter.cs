@@ -238,8 +238,7 @@ namespace MnM.GWS
             #endregion
 
             #region IMAGE  
-            if (ttype == typeof(IWritable) || ttype == typeof(IImage) || 
-                ttype.DeclaringType == typeof(_Image))
+            if (ttype == typeof(IWritable) || ttype == typeof(IImage))
             {
                 byte[] bytes = Convert.FromBase64String(expression);
                 result = (T)Factory.newImage(bytes);
@@ -269,7 +268,7 @@ namespace MnM.GWS
                         fixed (int* d = data)
                         {
                             pixels = (IntPtr)d;
-                            buffer.CopyTo(pixels, buffer.Length, buffer.Width, 0, 0, new Rectangle(0, 0, buffer.Width, buffer.Height), 0);
+                            buffer.CopyTo(pixels, buffer.Length, buffer.Width, 0, 0, new Perimeter(0, 0, buffer.Width, buffer.Height), 0);
                             if (ttype == typeof(string) || ttype == typeof(byte[]))
                                 Factory.ImageProcessor.Write(pixels, buffer.Width, buffer.Height, buffer.Length, 4, ms, 0);
                         }
@@ -280,7 +279,7 @@ namespace MnM.GWS
                         byte[] data = new byte[buffer.Length * 4];
                         fixed (byte* d = data)
                         {
-                            Blocks.CopyBlock((byte*)buffer.Source, 0, 0, buffer.Width, buffer.Height, buffer.Length, 
+                            Blocks.CopyBlock((byte*)buffer.Source, new Perimeter( 0, 0, buffer.Width, buffer.Height), buffer.Length, 
                                 buffer.Width, buffer.Height, d, 0, 0, buffer.Width, buffer.Height, 0);
                             pixels = (IntPtr)d;
                             if (ttype == typeof(string) || ttype == typeof(byte[]))

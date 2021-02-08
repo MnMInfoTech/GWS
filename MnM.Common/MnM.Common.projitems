@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_PairKV.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\ArrayT.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Perimeter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\CollectionT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Genre.cs" />
@@ -79,7 +80,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Eval.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rgba.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rotation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\ShapeArea.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Size.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SizeF.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Span.cs" />

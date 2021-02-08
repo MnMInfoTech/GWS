@@ -16,19 +16,17 @@ namespace MnM.GWS
     { }
     #endregion
 
-    #region IDRAWAREA
-    public interface IDrawnArea
+    #region IPOLYDRAW INFO
+    /// <summary>
+    /// Represents an object which has editable command and size clipping.
+    /// </summary>
+    public interface IPolySettings : IDrawParams, ICommand
     {
         /// <summary>
-        /// Gets recently drawn area since last rendering operation.
+        /// Gets or sets command to apply on buffers while writing them for rendering a shape.
         /// </summary>
-        IBoundary Boundary { get; }
-    }
-    #endregion
+        new Command Command { get; set; }
 
-    #region IPOLYDRAW INFO
-    public interface IPolySettings: IDrawParams, ICommand
-    {
         /// <summary>
         /// Gets the size of current buffer on which shape is being rendered.
         /// </summary>
@@ -37,6 +35,9 @@ namespace MnM.GWS
     #endregion
 
     #region SHAPEID
+    /// <summary>
+    /// Represents an object which has an information about shape.
+    /// </summary>
     public interface IShapeID
     {
         /// <summary>
@@ -46,18 +47,64 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ICOMMAND
-    public interface ICommand
+    #region PROCESSID
+    /// <summary>
+    /// Represents an objet which has an information about current rendering process.
+    /// Very important for handling multi-threaded parallel running rendering tasks.
+    /// </summary>
+    public interface IProcessID
     {
         /// <summary>
-        /// Gets or sets command to apply on buffers while writing them for rendering a shape.
+        /// Gets GWS assigned ID for the current process.
         /// </summary>
-        Command Command { get; set; }
+        int ProcessID { get; }
     }
     #endregion
 
+    #region IDSTPOINT
+    /// <summary>
+    /// Represents an object which has an information about destination.
+    /// </summary>
+    public interface IDstPoint
+    {
+        /// <summary>
+        /// Gets X co-ordinate of the draw location.
+        /// </summary>
+        int DstX { get; }
+
+        /// <summary>
+        /// Gets Y co-ordinate of the draw location.
+        /// </summary>
+        int DstY { get; }
+    }
+    #endregion
+
+    #region ICOMMAND
+    /// <summary>
+    /// Represents an object which has command information for current processing.
+    /// </summary>
+    public interface ICommand
+    {
+        /// <summary>
+        /// Gets command to apply on buffers while writing them for rendering a shape.
+        /// </summary>
+        Command Command { get; }
+    }
+    #endregion
+
+    #region SESSION
+    /// <summary>
+    /// Represents an object which has information about current rendering process and perimeter formation.
+    /// </summary>
+    public interface ISession : IShapeID, IBoundary, IDstPoint
+    { }
+    #endregion
+
     #region IDRAW-SETTINGS
-    public partial interface IDrawSettings : IDrawParams, IDrawnArea, IBounds, IRotatable
+    /// <summary>
+    /// Represents an object which exposes various settings meant for end users.
+    /// </summary>
+    public partial interface IDrawSettings : IDrawParams, IBounds, IRotatable
     {
         /// <summary>
         /// Gets or sets fill mode settings for this object.
@@ -98,20 +145,32 @@ namespace MnM.GWS
 
     #region ISETTINGS
     /// <summary>
-    /// Reprsents an object which represents location and draw parameters information as well.
+    /// Represents an object which exposes various settings meant for programmers to facilitate rendering.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public partial interface ISettings : IDrawSettings, IPolySettings,  IShapeID, ISettingsReceiver
-    {          
-        /// <summary>
-        /// Cleans existing draw command by removing run time temporary redering options.
-        /// </summary>
-        void CleanCommand();
+    public partial interface ISettings : IDrawSettings, IPolySettings, ISettingsReceiver, IShapeID, IProcessID, IDstPoint
+    {
+        ISession Session { get; }
 
         /// <summary>
-        /// Flushes all parameters and bring this object to default state.
+        /// Gets or sets an ID of current shape associated with current rendering process.
         /// </summary>
-        void Flush();
+        new uint ShapeID { get; set; }
+
+        /// <summary>
+        /// Gets or sets GWS assigned ID for the current process.
+        /// </summary>
+        new int ProcessID { get; set; }
+
+        /// <summary>
+        /// Gets or sets X co-ordinate of the draw location.
+        /// </summary>
+        new int DstX { get; set; }
+
+        /// <summary>
+        /// Gets or sets Y co-ordinate of the draw location.
+        /// </summary>
+        new int DstY { get; set; }
     }
     #endregion
 

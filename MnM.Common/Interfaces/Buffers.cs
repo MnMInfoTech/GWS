@@ -97,19 +97,19 @@ namespace MnM.GWS
     #endregion
 
     #region IDATA
-    public interface IImageData : IBlockable
+    public interface IMultiBuffered : IBlockable
     {
         /// <summary>
         /// Gets a flag to determine if background buffer support is activated or not.
         /// </summary>
-        bool SupportBackgroundBuffer { get; }
+        bool DoubleBuffered { get; }
 
         /// <summary>
         /// Gets Internally stored pixels and alpha values for entire memory block.
         /// </summary>
         /// <param name="Pixels">Memory block representing color pixels.</param>
         /// <param name="Alphas">Memory block representing alpha values of border pixels.</param>
-        void GetData(out int[] Pixels, out byte[] Alphas, bool BackgroundBuffer = false);
+        void GetData(out int[] Pixels, out byte[] Alphas, bool SecondBuffer = false);
     }
     #endregion
 
@@ -119,15 +119,13 @@ namespace MnM.GWS
     /// <summary>
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
-    public interface IGraphics : IWritable, ICopyable, IDisposed
+    public interface IGraphics : IWritable, ICopyable, IDisposed, IUpdatable
     {
         /// <summary>
-        /// Indicates whether this object is curently inaccessible for writing or not.
+        /// Indicates whether this object is curently locked for writing or not.
         /// this object gets Inaccessible for variety of reasons such as if it is resizing or disposed.
         /// </summary>
-        bool Inaccessible { get; }
-
-        event EventHandler<IEventArgs> AccessibilityChanged;
+        bool Freezed { get; }
     }
     #endregion
 
@@ -301,7 +299,7 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyArea">Area in source to copy.</param>
         /// <param name="command">Draw command to to control copy task</param>
-        void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command = 0);
+        void CopyFrom(IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command command = 0);
     }
     public interface ITexture2 : ITexture
     {

@@ -423,20 +423,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region BOUNDARY
-        public IBoundary newBoundary()
-        {
-            IBoundary boundary = null;
-            newBoundary(ref boundary);
-            return boundary;
-        }
-        partial void newBoundary(ref IBoundary boundary);
-        partial void newBoundary(ref IBoundary boundary)
-        {
-            boundary = new Boundary();
-        }
-        #endregion
-
         #region PEN
         public IReadable newPen(int color)
         {

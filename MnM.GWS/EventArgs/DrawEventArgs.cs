@@ -11,6 +11,8 @@ namespace MnM.GWS
     public class DrawEventArgs : EventArgs, IDrawEventArgs
     {
         public IGraphics Graphics { get; internal set; }
+        public int ProcessID { get;  set; }
+      
         internal DrawEventArgs() { }
 
         public DrawEventArgs(IGraphics graphics)

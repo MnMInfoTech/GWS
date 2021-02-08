@@ -22,6 +22,7 @@ namespace MnM.GWS
             readonly ICanvas Canvas;
             readonly INativeTarget Target;
             const int formX = 602, formY = 200, formW = 404, formH = 506;
+        readonly DrawEventArgs drawEventArgs = new DrawEventArgs();
             #endregion
 
             #region CONSTRCUTORS
@@ -56,27 +57,30 @@ namespace MnM.GWS
                 get => Target.Text;
                 set => Target.Text = value;
             }
-            public bool Inaccessible => Target.IsDisposed || Canvas.Inaccessible;
             int ILength.Length => Canvas.Length;
+            public bool Freezed
+            {
+                get => Canvas.Freezed;
+            }
             #endregion
 
             #region CONSOLIDATE
-            public IRectangle Consolidate(IntPtr destination, int dstLen,
-                int dstW, int dstX, int dstY, IRectangle copyArea, IImageData backBuffer, Command Command = 0, IntPtr? Pen = null)
+            public IPerimeter Consolidate(IntPtr destination, int dstLen,
+                int dstW, int dstX, int dstY, IPerimeter copyArea, IMultiBuffered backBuffer, Command Command = 0, IntPtr? Pen = null)
             {
                 return Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
             }
             #endregion
 
             #region RENDER
-            public bool Render(IRenderable Renderable, ISettings Settings = null, Command? externalCommand = null)
+            public void Render(IRenderable Renderable, ISettings Settings)
             {
-                return Canvas.Render(Renderable, Settings, externalCommand);
+                Canvas.Render(Renderable, Settings);
             }
             #endregion
 
             #region WRITE PIXEL
-            public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, INotifier boundary)
+            public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, ISession boundary)
             {
                 Canvas.WritePixel(val, axis, horizontal, color, Alpha, Command, boundary);
             }
@@ -84,14 +88,14 @@ namespace MnM.GWS
 
             #region WRITE LINE
             public unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal, int x, int y,
-                float? Alpha, byte* imageAlphas, Command Command, INotifier boundary)
+                float? Alpha, byte* imageAlphas, Command Command, ISession boundary)
             {
                 Canvas.WriteLine(colors, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, Command, boundary);
             }
             #endregion
 
             #region COPY TO
-            public IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command command = 0)
+            public IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = 0)
             {
                 return Canvas.CopyTo(destination, dstLen, dstW, dstX, dstY, copyArea, command);
             }
@@ -105,14 +109,15 @@ namespace MnM.GWS
             #endregion
 
             #region CLEAR
-            public IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command command = Command.None)
+            public IPerimeter Clear(IPerimeter clear, Command command = 0)
             {
-                return Canvas.Clear(clearX, clearY, clearW, clearH, command);
+                return Canvas.Clear(clear, command);
             }
             #endregion
 
-            #region COPY FROM
-            public IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea, Command Command, IntPtr alphaBytes = default)
+            #region WRITE BLOCK
+            public IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea,
+                Command Command, IntPtr alphaBytes = default(IntPtr))
             {
                 return Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, Command, alphaBytes);
             }
@@ -126,9 +131,9 @@ namespace MnM.GWS
             #endregion
 
             #region UPDATE
-            public void Update(Command command = Command.None, IRectangle boundary = null)
+            public void Update(Command command, IPerimeter perimeter)
             {
-                Canvas.Update(command, boundary);
+                Canvas.Update(command, perimeter);
             }
             #endregion
 
@@ -137,10 +142,21 @@ namespace MnM.GWS
             {
                 Canvas.Refresh(command);
             }
-            #endregion
+        #endregion
 
-            #region BACKGROUND CHANGED
-            public event EventHandler<IEventArgs> BackgroundChanged
+        #region RAISE PAINT
+        public void InvokePaint(Command command = 0, int processID = 0)
+        {
+            drawEventArgs.Graphics = Canvas;
+                drawEventArgs.ProcessID = processID;
+            OnPaint(drawEventArgs);
+            if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
+                Update(command, new Perimeter(0, 0, Width, Height, processID));
+        }
+        #endregion
+
+        #region BACKGROUND CHANGED
+        public event EventHandler<IEventArgs> BackgroundChanged
             {
                 add => Canvas.BackgroundChanged += value;
                 remove => Canvas.BackgroundChanged -= value;
@@ -189,12 +205,6 @@ namespace MnM.GWS
                 Canvas.ReadPixel(x, y);
             void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length) =>
                 Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length);
-
-            public event EventHandler<IEventArgs> AccessibilityChanged
-            {
-                add => Canvas.AccessibilityChanged += value;
-                remove => Canvas.AccessibilityChanged -= value;
-            }
             #endregion
         }
         partial class NativeForm : IObjCollection

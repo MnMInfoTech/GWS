@@ -143,7 +143,7 @@ namespace MnM.GWS
         /// <summary>
         /// Tells GWS to Suspend immediate update of screen instead to mark area for later update. Use this option carefully.
         /// </summary>
-        SuspendUpdate = 0x80000,
+        InvalidateOnly = 0x80000,
 
         /// <summary>
         /// Prevents auto-sizing of brush according to the size of shape being rendered.
@@ -214,6 +214,11 @@ namespace MnM.GWS
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. Pro version only.
         /// </summary>
         SkipForeground = 0x200000000,
+
+        /// <summary>
+        /// Copies background pen data only.
+        /// </summary>
+        CopyPenOnly = SkipBackground | SkipForeground,
 
         /// <summary>
         /// When resized, the image inside is also resizes to fit the size without losing quality. Pro version only.

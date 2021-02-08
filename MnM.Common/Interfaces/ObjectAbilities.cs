@@ -78,6 +78,16 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IHIDABLE
+    public interface IHideable
+    {
+        /// <summary>
+        /// Hides this object from screen.
+        /// </summary>
+        void Hide();
+    }
+    #endregion
+
     #region IRECOGNIZABLE
     /// <summary>
     /// Represents an object which can be recognized by name in GWS.
@@ -207,9 +217,8 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="Renderable">Renderable object which is to be rendered</param>
         /// <param name="Settings">A context which can be a Pen, Rgba color, Brush or RenderInfo object.</param>
-        /// <param name="externalCommand">User- supplied command to domiate this rendering process.</param>
         /// <returns>Returns true if this renderer was able to successfully render the element otherwise false.</returns>
-        bool Render(IRenderable Renderable, ISettings Settings = null, Command? externalCommand = null);
+        void Render(IRenderable Renderable, ISettings Settings);
 
         /// <summary>
         /// Writes pixel to this block at given axial position using specified color.
@@ -220,8 +229,8 @@ namespace MnM.GWS
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, INotifier boundary);
+        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, ISession session);
 
         /// <summary>
         /// Writes line to the this block at given position specified by x and y parameters by reading specified source
@@ -236,43 +245,28 @@ namespace MnM.GWS
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
         /// <param name="Command">Command to control pixel line writing.</param>
-        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, Command Command, INotifier boundary);
-    }
-    #endregion
-     
-    #region INOTIFIER
-    public interface INotifier: IShapeID
-    {
-        /// <summary>
-        /// Gets X co-ordinate of the draw location.
-        /// </summary>
-        int DstX { get; }
-
-        /// <summary>
-        /// Gets Y co-ordinate of the draw location.
-        /// </summary>
-        int DstY { get; }
-
-        /// <summary>
-        /// Incorporates given perimeter specified by x1, y1, x2, y2 parameters.
-        /// </summary>
-        /// <param name="x1"></param>
-        /// <param name="y1"></param>
-        /// <param name="x2"></param>
-        /// <param name="y2"></param>
-        void Notify(int x1, int y1, int x2, int y2);
+            int x, int y, float? Alpha, byte* imageAlphas, Command Command, ISession  session);
     }
     #endregion
 
-    #region IHIDABLE
-    public interface IHideable
+    #region IWRITABLE-BLOCK
+    public interface IWritableBlock : IBlockable
     {
         /// <summary>
-        /// Hides this object from screen.
+        /// Writes portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
+        /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
         /// </summary>
-        void Hide();
+        /// <param name="source"></param>
+        /// <param name="srcW"></param>
+        /// <param name="srcH"></param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="copyArea">Specifies the area to copy from this object.</param>
+        /// <param name="Command">Draw command to to control copy task</param>
+        /// <param name="alphaBytes">Alpha channel information (optional).</param>
+        IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea, Command Command = 0, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 
@@ -291,29 +285,72 @@ namespace MnM.GWS
         /// <param name="dstX">Specifies the X coordinate where the paste operation should commence</param>
         /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence</param>
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
-        /// <param name="command">Draw command to control the copy operation.</param>
+        /// <param name="command">Draw command to control this operation.</param>
         /// <returns>Area covered by this operation.</returns>
-        unsafe IRectangle CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command command = 0);
+        unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = 0);
     }
     #endregion
 
-    #region IPASTABLE
-    public interface IWritableBlock : IBlockable
+    #region ICLEARABLE
+    /// <summary>
+    /// Represents an object which has clearable area.
+    /// </summary>
+    public interface IClearable
     {
         /// <summary>
-        /// Writes portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
-        /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
+        /// Clears data blocks covered by area specified by x, y, width and height paramters.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyArea">Specifies the area to copy from this object.</param>
-        /// <param name="Command">Draw command to to control copy task</param>
-        /// <param name="alphaBytes">Alpha channel information (optional).</param>
-        IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea = null,
-            Command Command = 0, IntPtr alphaBytes = default(IntPtr));
+        /// <param name="clearArea">Area to be cleared.</param>
+        /// <param name="command">A command to control clearing operation.</param>
+        /// <param name="processID">ID of the process which initiated this operation.</param>
+        IPerimeter Clear(IPerimeter clearArea, Command command = 0);
+    }
+    #endregion
+
+    #region IUPDATABLE
+    /// <summary>
+    /// Represents an object which has a capability to update or invalidate the screen display. For example render window.
+    /// It also supports selective update of certain area invaldated currently.
+    /// </summary>
+    public interface IUpdatable : ISize
+    {
+        /// <summary>
+        /// Updates invalidated area on screen.
+        /// </summary>
+        /// <param name="command">Command to control this Update task.</param>
+        /// <param name="boundary">Area to update.</param>
+        /// <param name="processID">ID of the process which initiated this operation.</param>
+        void Update(Command command, IPerimeter boundary);
+    }
+    #endregion
+
+    #region IREFRESHABLE
+    /// <summary>
+    /// Represents an object which can be redrawn on any parent window of which it is sort of part of. 
+    /// i.e belonging to the control collection of that window.
+    /// </summary>
+    public interface IRefreshable
+    {
+        /// <summary>
+        /// Redraws itself using the drawsettings used when it is first added to the collection of parent window.
+        /// </summary>
+        /// <param name="command">Command to control refresh task.</param>
+        void Refresh(Command command = 0);
+    }
+    #endregion
+
+    #region ICLIPPABLE
+    public interface IClippable
+    {
+        /// <summary>
+        /// Indicates if this object has a clip rect assigned now or not.
+        /// </summary>
+        bool Clipped { get; }
+
+        /// <summary>
+        /// Gets or sets an area to restrict write operations.
+        /// </summary>
+        IPerimeter ClipRectangle { get; set; }
     }
     #endregion
 
@@ -333,54 +370,8 @@ namespace MnM.GWS
         /// <param name="Command"></param>
         /// <param name="Pen"></param>
         /// <returns></returns>
-        IRectangle Consolidate(IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IRectangle copyArea, IImageData backBuffer, Command Command = Command.None, IntPtr? Pen = null);
-    }
-    #endregion
-
-    #region ICLEARABLE
-    public interface IClearable
-    {
-        /// <summary>
-        /// Clears data blocks covered by area specified by x, y, width and height paramters.
-        /// </summary>
-        /// <param name="clearX">Left most corner of region which is to be cleared.</param>
-        /// <param name="clearY">Top most corner of region which is to be cleared.</param>
-        /// <param name="clearW">Width of region which is to be cleared.</param>
-        /// <param name="clearH">Height of region which is to be cleared.</param>
-        /// <param name="command">A command to control clearing operation.</param>
-        IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command command = 0);
-    }
-    #endregion
-
-    #region IREFRESHABLE
-    /// <summary>
-    /// Represents an object which can be redrawn on any parent window of which it is sort of part of. 
-    /// i.e belonging to the control collection of that window.
-    /// </summary>
-    public interface IRefreshable
-    {
-        /// <summary>
-        /// Redraws itself using the drawsettings used when it is first added to the collection of parent window.
-        /// </summary>
-        /// <param name="command">Command to control refresh task.</param>
-        void Refresh(Command command = 0);
-    }
-    #endregion
-
-    #region IUPDATABLE
-    /// <summary>
-    /// Represents an object which has a capability to update or invalidate the screen display. For example render window.
-    /// It also supports selective update of certain area invaldated currently.
-    /// </summary>
-    public interface IUpdatable : ISize
-    {
-        /// <summary>
-        /// Updates invalidated area on screen.
-        /// </summary>
-        /// <param name="command">Command to control this Update task.</param>
-        /// <param name="boundary">Area to update.</param>
-        void Update(Command command = 0, IRectangle boundary = null);
+        IPerimeter Consolidate(IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IPerimeter copyArea, IMultiBuffered backBuffer, Command Command = Command.None, IntPtr? Pen = null);
     }
     #endregion
 
@@ -487,21 +478,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ICLIPPABLE
-    public interface IClippable
-    {
-        /// <summary>
-        /// Indicates if this object has a clip rect assigned now or not.
-        /// </summary>
-        bool Clipped { get; }
-
-        /// <summary>
-        /// Gets or sets an area to restrict write operations.
-        /// </summary>
-        IRectangle ClipRectangle { get; set; }
-    }
-    #endregion
-
     #region IROTATESCALABLE
     public interface IScalable
     {
@@ -562,7 +538,7 @@ namespace MnM.GWS
     }
     public interface IMinMaxSizable : IMinSizable, IMaxSizable
     { }
-    #endregion
+    #endregion 
 
     #region IOVERLAP
     /// <summary>
@@ -589,6 +565,18 @@ namespace MnM.GWS
 #endif
     {
     }
+    #endregion
+
+    #region IPAINTABLE
+    public interface IPaintable
+    {
+        /// <summary>
+        /// Invoke paint events to handle external paint routines defined by the user.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="processID">ID of the process which initiated this operation.</param>
+        void InvokePaint(Command command, int processID = 0);
+    } 
     #endregion
 #endif
 }

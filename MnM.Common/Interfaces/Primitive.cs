@@ -4,9 +4,6 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 
-using System;
-using System.Collections.Generic;
-
 namespace MnM.GWS
 {
     #region IPOINT
@@ -90,6 +87,22 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IPERIMETER
+    /// <summary>
+    /// Represents an object which has an area with perimeter and information about IDs of process and shape currently being rendered.
+    /// </summary>
+    public interface IPerimeter: IProcessID, IShapeID
+    {
+        /// <summary>
+        /// Gets current bounds of the perimeter.
+        /// </summary>
+        /// <param name="xExpand">Inflation unit by which horizontal expansion should occur.</param>
+        /// <param name="yExpand">Inflation unit by which vertical expansion should occur.</param>
+        /// <returns></returns>
+        void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0);
+    }
+    #endregion
+
     #region SCALE
     public interface IScale
     {
@@ -120,83 +133,21 @@ namespace MnM.GWS
     }
     #endregion
 
-#if (GWS || Window)
-
-    #region IBOUNDARY
-    public partial interface IBoundary : IRectangle, INotifier, IEnumerable<Vector>, ICloneable
+    #region INOTIFIABLE
+    public interface IBoundary : IPerimeter
     {
         /// <summary>
-        /// Gets or sets X co-ordinate of the draw location.
+        /// Incorporates given perimeter specified by x1, y1, x2, y2 parameters.
         /// </summary>
-        new int DstX { get; set; }
-
-        /// <summary>
-        /// Gets or sets Y co-ordinate of the draw location.
-        /// </summary>
-        new int DstY { get; set; }
-
-        /// <summary>
-        /// Gets or sets an ID of current shape associated with current rendering process.
-        /// </summary>
-        new uint ShapeID { get; set; }
-        
-        /// <summary>
-        /// Tests if given location lies within the bounds of this object.
-        /// </summary>
-        /// <param name="x">X co-ordinate of the locaiton.</param>
-        /// <param name="y">Y co-ordinate of the location.</param>
-        /// <returns>True if the location lies within bounds of this object otherwise false.</returns>
-        bool Contains(int x, int y);
-
-        /// <summary>
-        /// Tests if given boundary intersects with this object.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        bool Intersects<T>(T other) where T : IPoint, ISize;
-
-        /// <summary>
-        /// Retruns result of intersection of other boundary with this object.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        IRectangle Intersect<T>(T other) where T : IPoint, ISize;
-
-        /// <summary>
-        /// Merges give boundary perimeter with this object.
-        /// </summary>
-        /// <param name="boundary"></param>
-        void Merge(IRectangle boundary);
-
-        /// <summary>
-        /// Replaces perimeter of this object by copying another boundary perimeter.
-        /// </summary>
-        /// <param name="boundary"></param>
-        void Copy(IRectangle boundary);
-
-        /// <summary>
-        /// Gets current bounds of the perimeter.
-        /// </summary>
-        /// <param name="xExpand">Inflation unit by which horizontal expansion should occur.</param>
-        /// <param name="yExpand">Inflation unit by which vertical expansion should occur.</param>
-        /// <returns></returns>
-        IRectangle GetBounds(int xExpand = 1, int yExpand = 1);
-
-        /// <summary>
-        /// Clears perimeters and resets it to default.
-        /// </summary>
-        void ClearBounds();
-
-        /// <summary>
-        /// Draws border around this boundary using given command on specified buffer.
-        /// </summary>
-        /// <param name="buffer">Buffer which to draw boundary on.</param>
-        /// <param name="command">Command to control boundary drawing.</param>
-        void Draw(IWritable buffer, Command command = 0);
-
-        new IBoundary Clone();
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        void Notify(int x1, int y1, int x2, int y2);
     }
     #endregion
+
+#if (GWS || Window)
 
     #region IMATRIX3x2
     /// <summary>

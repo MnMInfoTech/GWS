@@ -20,14 +20,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Texts.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Main\Boundary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Brush.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Image.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeForm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\ObjColleciton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\FixedBrush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Session.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Shape.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Bezier.cs" />

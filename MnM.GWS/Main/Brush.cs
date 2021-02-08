@@ -170,15 +170,11 @@ namespace MnM.GWS
             #endregion
 
             #region COPY TO
-            public unsafe IRectangle CopyTo(IntPtr dest, int dstLen,
-                int dstW, int dstX, int dstY, IRectangle copyArea, Command command = Command.Opaque)
+            public unsafe IPerimeter CopyTo(IntPtr dest, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = Command.Opaque)
             {
                 int length;
                 int* dst = (int*)dest;
-                int copyX = copyArea.X;
-                int copyY = copyArea.Y;
-                int copyW = copyArea.Width;
-                int copyH = copyArea.Height;
+                copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
 
                 var x = copyX;
                 var r = x + copyW;
@@ -204,7 +200,7 @@ namespace MnM.GWS
                     ++i;
                     ++y;
                 }
-                return new Rectangle(dstX, dstY, copyW, i);
+                return new Perimeter(dstX, dstY, copyW, i);
             }
             #endregion
 

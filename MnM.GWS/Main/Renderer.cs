@@ -25,10 +25,10 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
         {
-            var Boundary = Factory.newBoundary();
-            return writable.Render(Renderables, Boundary, SettingsList);
+            var Boundary = new Session();
+            writable.Render(Renderables, Boundary, SettingsList);
         }
 
         /// <summary>
@@ -37,10 +37,10 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IList<ISettings> SettingsList)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IList<ISettings> SettingsList)
         {
-            var Boundary = Factory.newBoundary();
-            return writable.Render(Renderables, Boundary, SettingsList);
+            var Boundary = new Session();
+            writable.Render(Renderables, Boundary, SettingsList);
         }
 
         /// <summary>
@@ -49,9 +49,9 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary Boundary, params ISettings[] SettingsList)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary boundary, params ISettings[] SettingsList)
         {
-            return writable.Render(Renderables, Boundary, (IList<ISettings>)SettingsList);
+            writable.Render(Renderables, boundary, (IList<ISettings>)SettingsList);
         }
 
         /// <summary>
@@ -60,25 +60,31 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IReadOnlyList<ISettings> SettingsList, IBoundary Boundary)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IReadOnlyList<ISettings> SettingsList, IBoundary Boundary)
         {
             int slen = SettingsList.Count;
             int i = 0;
             int j = -1;
+            var df = Factory.newSettings();
+            int pid;
+            Command command;
             ISettings Settings;
             foreach (var Renderable in Renderables)
             {
-                Settings = i < slen ? SettingsList[i] : null;
-                if (!writable.Render(Renderable, Settings, Command.SuspendUpdate))
-                    break;
-                Boundary.Merge(Settings.Boundary);
+                Settings = i < slen ? SettingsList[i] : df;
+                command = Settings.Command;
+                pid = Settings.ProcessID;
+                Settings.Command |= Command.InvalidateOnly;
+                Settings.ProcessID = Boundary.ProcessID;
+                writable.Render(Renderable, Settings);
+                Boundary.Merge(Settings.Session);
+                Settings.ProcessID = pid;
+                Settings.Command = command;
                 ++i;
                 ++j;
             }
-
-            if (Boundary.Valid && writable is IUpdatable)
+            if (writable is IUpdatable)
                 ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
-            return j != -1;
         }
 
         /// <summary>
@@ -87,25 +93,31 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary Boundary, IList<ISettings> SettingsList)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary Boundary, IList<ISettings> SettingsList)
         {
             int slen = SettingsList.Count;
             int i = 0;
             int j = -1;
+            var df = Factory.newSettings();
+            int pid;
+            Command command;
             ISettings Settings;
             foreach (var Renderable in Renderables)
             {
-                Settings = i < slen ? SettingsList[i] : null;
-                if (!writable.Render(Renderable, Settings, Command.SuspendUpdate))
-                    break;
-                Boundary.Merge(Settings.Boundary);
+                Settings = i < slen ? SettingsList[i] : df;
+                command = Settings.Command;
+                pid = Settings.ProcessID;
+                Settings.Command |= Command.InvalidateOnly;
+                Settings.ProcessID = Boundary.ProcessID;
+                writable.Render(Renderable, Settings);
+                Boundary.Merge(Settings.Session);
+                Settings.ProcessID = pid;
+                Settings.Command = command;
                 ++i;
                 ++j;
             }
-
-            if (Boundary.Valid && writable is IUpdatable)
+            if (writable is IUpdatable)
                 ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
-            return j != -1;
         }
 
         /// <summary>
@@ -113,20 +125,32 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="Shapes">Array of renderable shapes.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Render(this IWritable writable, IEnumerable<IShape> Shapes)
+        public static IBoundary Render(this IWritable writable, IEnumerable<IShape> Shapes, int? processID = null, bool update = true)
         {
-            var Boundary = Factory.newBoundary();
-            int j = -1;
+            var Boundary = new Session();
+            Boundary.ProcessID = processID ?? 0;
+            int pid;
+            Command command;
+            ISettings Settings;
+            IRenderable renderable;
             foreach (var Shape in Shapes)
             {
-                if (!writable.Render(Shape.Renderable, Shape.Settings, Command.SuspendUpdate))
-                    break;
-                Boundary.Merge(Shape.Settings.Boundary);
-                ++j;
-            }
+                Settings = Shape.Settings;
+                renderable = Shape.Renderable;
 
-            if (Boundary.Valid && writable is IUpdatable)
-                ((IUpdatable)writable).Update(0, Boundary);
+                command = Settings.Command;
+                pid = Settings.ProcessID;
+                Settings.Command |= Command.InvalidateOnly;
+                if (processID != null)
+                    Settings.ProcessID = processID.Value;
+                writable.Render(renderable, Settings);
+                Boundary.Merge(Settings.Session);
+                Settings.ProcessID = pid;
+                Settings.Command = command;
+            }
+            if (update && writable is IUpdatable)
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+            return Boundary;
         }
 
         /// <summary>
@@ -135,21 +159,23 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Render(this IWritable writable, IEnumerable<IRenderable> Renderables, ISettings Settings, IBoundary Boundary)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, ISettings Settings, IBoundary Boundary)
         {
-            int i = 0;
+            Command command;
+            int pid;
             foreach (var Renderable in Renderables)
             {
-                if (!writable.Render(Renderable, Settings, Command.SuspendUpdate))
-                    break;
-                Boundary.Merge(Settings.Boundary);
-                ++i;
+                command = Settings.Command;
+                pid = Settings.ProcessID;
+                Settings.Command |= Command.InvalidateOnly;
+                Settings.ProcessID = Boundary.ProcessID;
+                writable.Render(Renderable, Settings);
+                Boundary.Merge(Settings.Session);
+                Settings.ProcessID = pid;
+                Settings.Command = command;
             }
-            bool ok = i != 0;
-            if (Boundary.Valid && writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly, Boundary);
-
-            return ok;
+            if (writable is IUpdatable)
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
         }
 
         /// <summary>
@@ -786,9 +812,9 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
         /// <param name="pen">Color to write at given location.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen, Command Command, INotifier boundary)
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen, Command Command, ISession session)
         {
             int intVal = (int)val;
 
@@ -803,17 +829,17 @@ namespace MnM.GWS
 
             if (alpha == 0 || !Antialiased)
             {
-                buffer.WritePixel(x, y, true, color, null, Command, boundary);
+                buffer.WritePixel(x, y, true, color, null, Command, session);
             }
             else if (horizontal)
             {
-                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary);
-                buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary);
+                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, session);
+                buffer.WritePixel(x + 1, y, true, color, alpha, Command, session);
             }
             else
             {
-                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary);
-                buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary);
+                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, session);
+                buffer.WritePixel(y + 1, x, false, color, alpha, Command, session);
             }
         }
 
@@ -825,9 +851,9 @@ namespace MnM.GWS
         /// <param name="horizontal">Axis orientation - horizontal if true otherwise vertical.</param>
         /// <param name="color">Color to write at given location.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color, Command Command, INotifier boundary)
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color, Command Command, ISession session)
         {
             int intVal = (int)val;
 
@@ -840,17 +866,17 @@ namespace MnM.GWS
 
             if (alpha == 0 || !Antialiased)
             {
-                buffer.WritePixel(x, y, true, color, null, Command, boundary);
+                buffer.WritePixel(x, y, true, color, null, Command, session);
             }
             else if (horizontal)
             {
-                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, boundary);
-                buffer.WritePixel(x + 1, y, true, color, alpha, Command, boundary);
+                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, session);
+                buffer.WritePixel(x + 1, y, true, color, alpha, Command, session);
             }
             else
             {
-                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, boundary);
-                buffer.WritePixel(y + 1, x, false, color, alpha, Command, boundary);
+                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, session);
+                buffer.WritePixel(y + 1, x, false, color, alpha, Command, session);
             }
         }
 
@@ -873,9 +899,9 @@ namespace MnM.GWS
         /// <param name="y">Y cordinate on 2d buffer memory block</param>
         /// <param name="color">colour of pixel.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float x, float y, int color, Command Command, INotifier boundary)
+        public static void WritePixel(this IWritable buffer, float x, float y, int color, Command Command, ISession session)
         {
             int x0 = (int)x;
             int y0 = (int)y;
@@ -884,7 +910,7 @@ namespace MnM.GWS
 
             if (!Antialiased)
             {
-                buffer.WritePixel(x0, y0, true, color, null, Command, boundary);
+                buffer.WritePixel(x0, y0, true, color, null, Command, session);
                 return;
             }
 
@@ -895,9 +921,9 @@ namespace MnM.GWS
             {
                 bool horizontal = alpha1 != 0 ? true : false;
                 if (horizontal)
-                    buffer.WritePixel(x0, y0, true, color, alpha1, Command, boundary);
+                    buffer.WritePixel(x0, y0, true, color, alpha1, Command, session);
                 else
-                    buffer.WritePixel(y0, x0, false, color, alpha2, Command, boundary);
+                    buffer.WritePixel(y0, x0, false, color, alpha2, Command, session);
                 return;
             }
             else
@@ -905,10 +931,10 @@ namespace MnM.GWS
                 var invAlpha1 = 1 - alpha1;
                 var invAlpha2 = 1 - alpha2;
 
-                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, Command, boundary);
-                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, Command, boundary);
-                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, Command, boundary);
-                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, Command, boundary);
+                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, Command, session);
+                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, Command, session);
+                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, Command, session);
+                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, Command, session);
             }
         }
         #endregion
@@ -924,10 +950,10 @@ namespace MnM.GWS
         /// <param name="pen">Readable source to read pixels from.</param>
         ///<param name="Alpha">Value by which blending should happen if it is supplied.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="boundary">Boundary object which records drawing area and has shape id and destination info.</param>
+        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void WriteLine(this IWritable buffer, float start, int axis, bool Horizontal, float end, 
-            IReadable pen, float? Alpha, Command Command, INotifier boundary)
+            IReadable pen, float? Alpha, Command Command, ISession session)
         {
             if (float.IsNaN(start) && float.IsNaN(end))
                 return;
@@ -982,17 +1008,48 @@ namespace MnM.GWS
                 int dstY = Horizontal ? axis : Start;
                 fixed (int* src = source)
                 {
-                    buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, null, Command, boundary);
+                    buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, null, Command, session);
                 }
             }
 
             if (!LineOnly)
             {
-                buffer.WritePixel(start, axis, Horizontal, pen, Command, boundary);
+                buffer.WritePixel(start, axis, Horizontal, pen, Command, session);
                 if (!NotSoClose)
                     return;
-                buffer.WritePixel(end, axis, Horizontal, pen, Command, boundary);
+                buffer.WritePixel(end, axis, Horizontal, pen, Command, session);
             }
+        }
+        #endregion
+
+        #region WRITE RECT
+        public static void WriteRect(this IWritable buffer, IPerimeter perimeter, Command command = 0, int shrink = 0)
+        {
+            if (perimeter == null)
+                return;
+
+            PixelAction action;
+            IReadable pen;
+
+            if (buffer is IReadable)
+                pen = (IReadable)buffer;
+            else
+                pen = Pens.Black;
+
+            command |= Command.Screen;
+            var boundary = new Session();
+
+            perimeter.GetBounds(out int x1, out int y1, out int w, out int h, -shrink);
+            int x2 = x1 + w;
+            int y2 = y1 + h;
+
+            buffer.CreatePixelAction(pen, out action, boundary);
+            Renderer.ProcessLine(x1, y1, x1, y2, action, command);
+            Renderer.ProcessLine(x1, y2, x2, y2, action, command);
+            Renderer.ProcessLine(x2, y2, x2, y1, action, command);
+            Renderer.ProcessLine(x2, y1, x1, y1, action, command);
+
+            (buffer as IUpdatable)?.Update(command, boundary);
         }
         #endregion
 
@@ -1006,11 +1063,11 @@ namespace MnM.GWS
         /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void CreateFillAction(this IWritable buffer, IReadable pen, out FillAction action, INotifier boundary)
+        public unsafe static void CreateFillAction(this IWritable buffer, IReadable pen, out FillAction action, ISession session)
         {
             action = (start, axis, Horizontal, end, Alpha, Command) =>
             {
-                buffer.WriteLine(start, axis, Horizontal, end, pen, Alpha, Command, boundary);
+                buffer.WriteLine(start, axis, Horizontal, end, pen, Alpha, Command, session);
             };
         }
         #endregion
@@ -1023,11 +1080,11 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreatePixelAction(this IWritable buffer, IReadable pen, out PixelAction action, INotifier boundary)
+        public static void CreatePixelAction(this IWritable buffer, IReadable pen, out PixelAction action, ISession session)
         {
             action = (val, axis, horizontal, Command) =>
             {
-                buffer.WritePixel(val, axis, horizontal, pen, Command, boundary);
+                buffer.WritePixel(val, axis, horizontal, pen, Command, session);
             };
         }
         #endregion
@@ -1061,194 +1118,6 @@ namespace MnM.GWS
         /// <summary>
         /// Copies block to another by taking an area from a 1D array representing a rectangele to the given destination block.
         /// </summary>
-        /// <param name="block">buffer which to render this memory block on</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="Command">Draw command to control the copy operation.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IRectangle CopyTo(this IBlockable source, IBlockable block, int dstX, int dstY, 
-            int copyX, int copyY, int copyW, int copyH, Command Command = 0)
-        {
-            #region INITIALIZE VARIABLES
-            bool AddMode = (Command & Command.AddMode) == Command.AddMode;
-            bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
-            IRectangle dstRc = Rectangle.Empty;
-            int* src = null;
-            byte* srcAlphas = null;
-            uint ID = (source as IID)?.ID ?? (AddMode ? IDGenerator.NewID() : 0);
-            int srcLen = source.Length;
-            int srcW = source.Width;
-            int srcH = source.Height;
-            int dstW = block.Width;
-            int dstH = block.Height;
-            int dstLen = block.Length;
-            var copy = source.CompitibleRc(copyX, copyY, copyW, copyH);
-            copyX = copy.X;
-            copyY = copy.Y;
-            copyW = copy.Width;
-            copyH = copy.Height;
-            #endregion
-
-            #region EXTRACT DATA FROM SOURCE
-            if (source is ITextureBrush)
-            {
-                src = (int*)((ITextureBrush)source).Source;
-            }
-            else if (source is IImageData)
-            {
-                IImageData image = (IImageData)source;
-                image.GetData(out int[] _src, out byte[] _srcAlphas, 
-                    BackgroundBuffer && image.SupportBackgroundBuffer);
-                fixed (int* p = _src)
-                    src = p;
-                fixed (byte* p = _srcAlphas)
-                    srcAlphas = p;
-            }
-            else if (source is IPixels)
-            {
-                src = (int*)((IPixels)source).Source;
-                srcAlphas = null;
-            }
-            else if (source is ICopyable)
-            {
-                srcLen = copyW * copyH;
-                srcW = copyW;
-                srcH = copyH;
-                int[] temp = new int[srcLen];
-                fixed (int* p = temp)
-                {
-                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0, new ShapeArea(copyX, copyY, copyW, copyH, ID), Command);
-                    src = p;
-                }
-                copyX = copyY = 0;
-            }
-            #endregion
-
-            #region TO WRITABLE BLOCK 
-            if (block is IWritableBlock)
-            {
-                if (src != null)
-                {
-                    dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
-                        new ShapeArea(copyX, copyY, copyW, copyH, ID), Command, (IntPtr)srcAlphas);
-                    goto Update;
-                }
-            }
-            #endregion
-
-            #region IWRITABLE 
-            else if (block is IWritable)
-            {
-                var writable = (IWritable)block;
-                var boundary = Factory.newBoundary();
-                if (AddMode)
-                    boundary.ShapeID = ID;
-
-                int x, y, r, b, srcIndex, copyLen;
-
-                if (src != null)
-                {
-                    srcIndex = copyX + copyY * srcW;
-                    copyLen = copyW;
-                    y = dstY;
-                    x = dstX;
-                    b = y + copyH;
-                    if (copyX + copyLen > srcW)
-                        copyLen -= (copyX + copyLen - srcW);
-                    if (y < 0)
-                    {
-                        b += y;
-                        y = 0;
-                    }
-                    while (y < b)
-                    {
-                        writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, boundary);
-                        srcIndex += srcW;
-                    }
-                    dstRc = boundary.GetBounds();
-                }
-                else if (source is IReadable)
-                {
-                    var Pen = (IReadable)source;
-                    x = copyX;
-                    r = x + copyW;
-                    y = copyY;
-                    b = y + copyH;
-                    if (y < 0)
-                    {
-                        b += y;
-                        y = 0;
-                    }
-                    var dy = dstY;
-                    int[] pixels;
-
-                    while (y < b)
-                    {
-                        Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen);
-                        fixed (int* p = pixels)
-                            src = p;
-                        writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
-                        ++y;
-                    }
-                    dstRc = boundary.GetBounds();
-                }
-            }
-            #endregion
-
-            #region IPIXELS COPY
-            else if (block is IPixels)
-            {
-                int* dst = (int*)((IPixels)block).Source;
-                if (src != null)
-                {
-                    Blocks.CopyBlock(src, copyX, copyY, copyW, copyH, srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
-                    goto Update;
-                }
-            }
-            #endregion
-
-        Update:
-            #region UPDATE
-            if (dstRc.Valid && block is IUpdatable)
-                ((IUpdatable)block).Update(Command, dstRc);
-            return dstRc;
-            #endregion
-        }
-
-        /// <summary>
-        /// Copies a memory block to the given destination.
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="block"></param>
-        /// <param name="block">buffer which to render this memory block on</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="area">Area to copy from source to the block</param>
-        /// <param name="command">Draw command to control the copy operation.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IRectangle CopyTo(this IBlockable source, IBlockable block, int dstX, int dstY, IRectangle area, Command command = 0) =>
-            source.CopyTo(block, dstX, dstY, area.X, area.Y, area.Width, area.Height, command);
-
-        /// <summary>
-        /// Copies block to another by taking an area from a 1D array representing a rectangele to the given destination block.
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="block"></param>
-        /// <param name="area"></param>
-        /// <param name="command">Draw command to control the copy operation.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IRectangle CopyTo(this IBlockable source, IBlockable block, IRectangle area, Command command = 0) =>
-            source.CopyTo(block, area.X, area.Y, area.X, area.Y, area.Width, area.Height, command);
-
-        /// <summary>
-        /// Copies block to another by taking an area from a 1D array representing a rectangele to the given destination block.
-        /// </summary>
         /// <param name = "result" > buffer which to render this memory block on</param>
         /// <param name = "x" > Top left x co-ordinate of area in source to cop.</param>
         /// <param name = "y" > Top left y co-ordinate of area in source to copy</param>
@@ -1256,7 +1125,7 @@ namespace MnM.GWS
         /// <param name = "h" > Height of area in the source to copy</param>
         /// <param name = "Command" > Draw command to control the copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe ISize CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.Screen)
+        public static unsafe IPerimeter CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.Screen)
         {
             #region INITIALIZE VARIABLES
             var copy = source.CompitibleRc(x, y, w, h);
@@ -1285,7 +1154,7 @@ namespace MnM.GWS
                 srcLen = w * h;
                 srcW = w;
                 srcH = h;
-                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, new Rectangle(x, y, w, h), Command);
+                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, new Perimeter(x, y, w, h), Command);
             }
 
             #region EXTRACT DATA FROM SOURCE
@@ -1293,11 +1162,11 @@ namespace MnM.GWS
             {
                 src = (int*)((ITextureBrush)source).Source;
             }
-            if (source is IImageData)
+            if (source is IMultiBuffered)
             {
-                IImageData image = (IImageData)source;
+                IMultiBuffered image = (IMultiBuffered)source;
                 image.GetData(out int[] _src, out byte[] _srcAlphas,
-                    BackgroundBuffer && image.SupportBackgroundBuffer);
+                    BackgroundBuffer && image.DoubleBuffered);
                 fixed (int* p = _src)
                     src = p;
                 fixed (byte* p = _srcAlphas)
@@ -1314,13 +1183,13 @@ namespace MnM.GWS
             {
                 BlockCopy action = (sidx, didx, len, dx, dy, cmd) =>
                     Blocks.Copy(src, sidx, dst, didx, len, cmd, srcAlphas);
-                return Blocks.CopyBlock(x, y, w, h, srcLen, srcW, srcH, 0, 0, dstW, dstLen, null, Command);
+                return Blocks.CopyBlock(new Perimeter(x, y, w, h), srcLen, srcW, srcH, 0, 0, dstW, dstLen, null, Command);
             }
-            return Rectangle.Empty;
+            return Perimeter.Empty;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe ISize CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.Screen)
+        public static unsafe IPerimeter CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.Screen)
         {
             var rc = CopyTo(block, out int[] data, x, y, w, h, command);
             if (data == null)
@@ -1368,7 +1237,7 @@ namespace MnM.GWS
             fixed (int* p = data)
             {
                 IntPtr pixels = (IntPtr)p;
-                image.CopyTo(pixels, image.Length, image.Width, 0, 0, new Rectangle(0, 0, image.Width, image.Height), 0);
+                image.CopyTo(pixels, image.Length, image.Width, 0, 0, new Perimeter(0, 0, image.Width, image.Height), 0);
                 writer.Write(pixels, image.Width, image.Height, image.Length, pitch, dest, format, quality);
             }
         }
@@ -1414,7 +1283,8 @@ namespace MnM.GWS
             ImageFormat format = ImageFormat.BMP, Command command = Command.Screen, Rectangle? portion = null, int pitch = 4, int quality = 50)
         {
             file += "." + format.ToString();
-            ISize size;
+            IPerimeter size;
+            int w, h;
             Rectangle rc = Rects.CompitibleRc(block, portion?.X, portion?.Y, portion?.Width, portion?.Height);
 #if Window
             if (format == ImageFormat.BMP)
@@ -1424,13 +1294,15 @@ namespace MnM.GWS
                 else
                 {
                     size = block.CopyTo(out IntPtr ptr, rc.X, rc.Y, rc.Width, rc.Height, command);
-                    Factory.SaveAsBitmap(ptr, size.Width, size.Height, file);
+                    size.GetBounds(out _, out _, out w, out h);
+                    Factory.SaveAsBitmap(ptr, w, h, file);
                 }
                 return;
             }
 #endif
             size = block.CopyTo(out int[] data, rc.X, rc.Y, rc.Width, rc.Height, command);
-            Factory.ImageProcessor.Write(data, size.Width, size.Height, file, format, pitch, quality);
+            size.GetBounds(out _, out _, out w, out h);
+            Factory.ImageProcessor.Write(data, w, h, file, format, pitch, quality);
         }
         #endregion
     }
@@ -1442,46 +1314,219 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="block">buffer which to render a memory block on</param>
         /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="copyArea">Area to copy.</param>
+        /// <param name="command">Draw command to control image drawing operation.</param>
+        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
+        {
+            #region INITIALIZE VARIABLES
+            bool AddMode = (Command & Command.AddMode) == Command.AddMode;
+            bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
+            int* src = null;
+            byte* srcAlphas = null;
+            uint ID = copyArea.ShapeID == 0 ? (source as IID)?.ID ?? IDGenerator.NewID() : 0;
+            int srcLen = source.Length;
+            int srcW = source.Width;
+            int srcH = source.Height;
+            int dstW = block.Width;
+            int dstH = block.Height;
+            int dstLen = block.Length;
+            int unit = copyArea is IBoundary ? 6 : 0;
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH, unit, unit);
+            var rc = source.CompitibleRc(copyX, copyY, copyW, copyH);
+            copyX = rc.X;
+            copyY = rc.Y;
+            copyW = rc.Width;
+            copyH = rc.Height;
+            #endregion
+
+            #region EXTRACT DATA FROM SOURCE
+            if (source is ITextureBrush)
+            {
+                src = (int*)((ITextureBrush)source).Source;
+            }
+            else if (source is IMultiBuffered)
+            {
+                IMultiBuffered image = (IMultiBuffered)source;
+                image.GetData(out int[] _src, out byte[] _srcAlphas,
+                    BackgroundBuffer && image.DoubleBuffered);
+                fixed (int* p = _src)
+                    src = p;
+                fixed (byte* p = _srcAlphas)
+                    srcAlphas = p;
+            }
+            else if (source is IPixels)
+            {
+                src = (int*)((IPixels)source).Source;
+                srcAlphas = null;
+            }
+            else if (source is ICopyable)
+            {
+                srcLen = copyW * copyH;
+                srcW = copyW;
+                srcH = copyH;
+                int[] temp = new int[srcLen];
+                fixed (int* p = temp)
+                {
+                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0,
+                        new Perimeter(copyX, copyY, copyW, copyH), Command);
+                    src = p;
+                }
+                copyX = copyY = 0;
+            }
+            #endregion
+
+            #region TO WRITABLE BLOCK 
+            if (block is IWritableBlock)
+            {
+                if (src != null)
+                {
+                    var dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
+                        new Perimeter(copyX, copyY, copyW, copyH, copyArea.ProcessID, ID), Command, (IntPtr)srcAlphas);
+                    if (block is IUpdatable)
+                        ((IUpdatable)block).Update(Command, dstRc);
+                    return;
+                }
+            }
+            #endregion
+
+            #region IWRITABLE 
+            else if (block is IWritable)
+            {
+                var writable = (IWritable)block;
+                var boundary = new Session();
+                boundary.ProcessID = copyArea.ProcessID;
+                boundary.ShapeID = ID;
+
+                int x, y, r, b, srcIndex, copyLen;
+
+                if (src != null)
+                {
+                    srcIndex = copyX + copyY * srcW;
+                    copyLen = copyW;
+                    y = dstY;
+                    x = dstX;
+                    b = y + copyH;
+                    if (copyX + copyLen > srcW)
+                        copyLen -= (copyX + copyLen - srcW);
+                    if (y < 0)
+                    {
+                        b += y;
+                        y = 0;
+                    }
+                    while (y < b)
+                    {
+                        writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, boundary);
+                        srcIndex += srcW;
+                    }
+                    if (block is IUpdatable)
+                        ((IUpdatable)block).Update(Command, boundary);
+                    return;
+                }
+                else if (source is IReadable)
+                {
+                    var Pen = (IReadable)source;
+                    x = copyX;
+                    r = x + copyW;
+                    y = copyY;
+                    b = y + copyH;
+                    if (y < 0)
+                    {
+                        b += y;
+                        y = 0;
+                    }
+                    var dy = dstY;
+                    int[] pixels;
+
+                    while (y < b)
+                    {
+                        Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen);
+                        fixed (int* p = pixels)
+                            src = p;
+                        writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
+                        ++y;
+                    }
+                    if (block is IUpdatable)
+                        ((IUpdatable)block).Update(Command, boundary);
+                    return;
+                }
+            }
+            #endregion
+
+            #region IPIXELS COPY
+            else if (block is IPixels)
+            {
+                int* dst = (int*)((IPixels)block).Source;
+                if (src != null)
+                {
+                    var dstRc = Blocks.CopyBlock(src, new Perimeter(copyX, copyY, copyW, copyH, copyArea.ProcessID, copyArea.ShapeID),
+                        srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
+                    if (block is IUpdatable)
+                        ((IUpdatable)block).Update(Command, dstRc);
+                    return;
+                }
+            }
+            #endregion
+        }
+
+        /// <summary>
+        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
+        /// </summary>
+        /// <param name="block">buffer which to render a memory block on</param>
+        /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
+        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
+        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
+        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, Command command = 0, int processID = 0)
+        {
+            uint shapeID = (source as IID)?.ID ?? IDGenerator.NewID();
+            block.DrawImage(block, dstX, dstY, new Perimeter( 0, 0, source.Width, source.Height, processID, shapeID), command);
+        }
+
+        /// <summary>
+        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
+        /// </summary>
+        /// <param name="block">buffer which to render a memory block on</param>
+        /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
         /// <param name="srcW">Width of the entire source</param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="command">Draw command to control image drawig operation.</param>
+        /// <param name="copy">Area to copy.</param>
+        /// <param name="command">Draw command to control image drawing operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IRectangle DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, uint ShapeID = 0)
+        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH,
+            int dstX, int dstY, IPerimeter copy, Command command = 0)
         {
-            IRectangle dstRc;
+            if (copy == null)
+                copy = new Perimeter(0, 0, srcW, srcH);
+
+            var compitible = Rects.CompitiblePerimeter(srcW, srcH, copy);
+            
             if (block is IPixels)
             {
                 IntPtr dest = ((IPixels)block).Source;
                 int* src = (int*)source;
                 int* dst = (int*)dest;
-                BlockCopy action = (srcIndex, dstIndex, copyLength, x, y, cmd) => 
-                    Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength, cmd);
-                dstRc = Blocks.CopyBlock(copyX, copyY, copyW, copyH, srcW * srcH, srcW, srcH, dstX, dstY, block.Width, block.Length, action, command);
-                goto Update;
+                var dstRc = Blocks.CopyBlock(src, compitible, srcW * srcH, srcW, srcH, dst, dstX, dstY, block.Width, block.Length, command);
+                if (block is IUpdatable)
+                    ((IUpdatable)block).Update(command, dstRc);
             }
-
-            var area = new ShapeArea(copyX, copyY, copyW, copyH, ShapeID);
             if (block is IWritableBlock)
             {
-                dstRc = ((IWritableBlock)block).WriteBlock(source, srcW, srcH, dstX, dstY, area, command);
+                var dstRc = ((IWritableBlock)block).WriteBlock(source, srcW, srcH, dstX, dstY, compitible, command);
+                if (block is IUpdatable)
+                    ((IUpdatable)block).Update(command, dstRc);
             }
             else
             {
                 using (var image = Factory.newImage(source, srcW, srcH))
                 {
-                   dstRc = image.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, command);
+                   block.DrawImage(image, dstX, dstY, compitible, command);
+                    if (block is IUpdatable)
+                        ((IUpdatable)block).Update(command, compitible);
                 }
             }
-            Update:
-            if(dstRc.Valid && block is IUpdatable)
-                ((IUpdatable)block).Update(command, dstRc);
-            return dstRc;
         }
 
         /// <summary>
@@ -1492,9 +1537,9 @@ namespace MnM.GWS
         /// <param name="srcW">Width of the entire source</param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY, Command command, uint ShapeID = 0) =>
-            block.DrawImage(source, srcW, srcH, dstX, dstY, 0, 0, srcW, srcH, command, ShapeID);
+        public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
+            Command command = 0, int processID = 0, uint ShapeID = 0) =>
+            block.DrawImage(source, srcW, srcH, dstX, dstY,new Perimeter(0, 0, srcW, srcH, processID, ShapeID), command);
 
         /// <summary>
         /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
@@ -1504,19 +1549,14 @@ namespace MnM.GWS
         /// <param name="srcW">Width of the entire source</param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        /// <param name="copy">Area to copy.</param>
         public unsafe static void DrawImage(this IBlockable block, byte[] source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, uint ShapeID = 0)
+            IPerimeter copy, Command command = 0)
         {
             var srcLen = source.Length / 4;
-            var rc = Rects.CompitibleRc(srcW, srcLen / srcW, copyX, copyY, copyW, copyH);
             fixed (byte* b = source)
             {
-                block.DrawImage((IntPtr)b, srcW, srcH, dstX, dstY, rc.X, rc.Y, rc.Width, rc.Height, command, ShapeID);
+                block.DrawImage((IntPtr)b, srcW, srcH, dstX, dstY, copy, command);
             }
         }
 
@@ -1528,61 +1568,15 @@ namespace MnM.GWS
         /// <param name="srcW">Width of the entire source</param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
+        /// <param name="copy">Area to copy.</param>
         public unsafe static void DrawImage(this IBlockable block, int[] source, int srcW, int srcH, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command, uint ShapeID = 0)
+            IPerimeter copy, Command command = 0, int processID = 0, uint ShapeID = 0)
         {
-            var rc = Rects.CompitibleRc(srcW, source.Length / srcW, copyX, copyY, copyW, copyH);
             var srcLen = source.Length;
             fixed (int* src = source)
             {
-                block.DrawImage((IntPtr)src, srcW, srcH, dstX, dstY, rc.X, rc.Y, rc.Width, rc.Height, command, ShapeID);
+                block.DrawImage((IntPtr)src, srcW, srcH, dstX, dstY, copy, command);
             }
-        }
-
-        /// <summary>
-        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
-        /// </summary>
-        /// <param name="block">buffer which to render a memory block on</param>
-        /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, Command command = 0) =>
-            source.CopyTo(block, dstX, dstY, 0, 0, source.Width, source.Height, command);
-
-        /// <summary>
-        /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.
-        /// </summary>
-        /// <param name="block">buffer which to render a memory block on</param>
-        /// <param name="source">1D array interpreted as a 2D array of Pixels with specified srcW width</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to cop.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY,
-            int copyX, int copyY, int copyW, int copyH, Command command = 0) =>
-            source.CopyTo(block, dstX, dstY, copyX, copyY, copyW, copyH, command);
-
-        /// <summary>
-        /// Draws an image by taking an area from a source - capable of being copied to the given destination buffer.
-        /// </summary>
-        /// <param name="block">buffer which to render a memory block on</param>
-        /// <param name="source">Source - capable of being copied to any buffer</param>
-        /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
-        /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
-        /// <param name="copyRc">An Area from source to be copied</param>
-        /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, Rectangle copyRc, Command command = 0)
-        {
-            source.CopyTo(block, dstX, dstY, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height, command);
         }
         #endregion
 
@@ -3005,8 +2999,8 @@ namespace MnM.GWS
             if (settings == null)
                 settings = Factory.newSettings();
 
-            settings.Boundary.DstX = dstX;
-            settings.Boundary.DstY = dstY;
+            settings.DstX = dstX;
+            settings.DstY = dstY;
             buffer.Render(text, settings);
         }
         #endregion
@@ -3053,7 +3047,7 @@ namespace MnM.GWS
                 else if(source is ICopyable)
                 {
                     data = (IntPtr)dst;
-                    ((ICopyable)source).CopyTo(data, dstLen, dstW, 0, 0, new Rectangle( 0, 0, srcW, srcH), Command.Opaque);
+                    ((ICopyable)source).CopyTo(data, dstLen, dstW, 0, 0, new Perimeter( 0, 0, srcW, srcH), Command.Opaque);
                 }
                 return size;
             }
@@ -3067,7 +3061,7 @@ namespace MnM.GWS
             }
             else if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Rectangle(0, 0, srcW, srcH), 0);
+                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Perimeter(0, 0, srcW, srcH), 0);
             }
             else
             {
@@ -3295,7 +3289,7 @@ namespace MnM.GWS
             }
             else if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Rectangle(0, 0, srcW, srcH), 0);
+                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Perimeter(0, 0, srcW, srcH), 0);
             }
             else
             {

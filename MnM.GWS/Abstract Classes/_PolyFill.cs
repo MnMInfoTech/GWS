@@ -13,11 +13,11 @@ namespace MnM.GWS
     {
     #region VARIABLES
         VectorF ActivePoint;
-        protected Command drawCommand;
+        protected Command command;
         protected Size clip;
         protected bool Sorting, FillSinglePoint, EndsOnly;
     #endregion
-
+         
     #region PROPERTIES
         public int MinY { get; protected set; }
         public int MaxY { get; protected set; }
@@ -25,13 +25,13 @@ namespace MnM.GWS
         public int MaxX { get; set; }
         public Command Command
         {
-            get => drawCommand;
+            get => command;
             set
             {
-                drawCommand = value;
-                Sorting = !value.HasFlag(Command.NoSorting);
-                FillSinglePoint = value.HasFlag(Command.FillSinglePointLine);
-                EndsOnly = value.HasFlag(Command.DrawEndsOnly);
+                command = value;
+                Sorting = (value & Command.NoSorting) != Command.NoSorting;
+                FillSinglePoint = (value & Command.FillSinglePointLine) == Command.FillSinglePointLine;
+                EndsOnly = (value & Command.DrawEndsOnly) == Command.DrawEndsOnly;
             }
         }
         public Size Clip 
@@ -60,7 +60,7 @@ namespace MnM.GWS
     #region END
         public virtual void End()
         {
-            drawCommand = 0;
+            command = 0;
             MinY = 0;
             MaxY = 0;
             MinX = MaxX = 0;

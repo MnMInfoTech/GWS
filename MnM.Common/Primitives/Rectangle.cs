@@ -4,6 +4,7 @@
 * See license.txt for detailed licensing details. */
 // Author: Manan Adhvaryu.
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MnM.GWS
@@ -204,7 +205,7 @@ namespace MnM.GWS
             var choice = pen.Choice;
             pen.Choice |=  ReadChoice.InvertColor;
             command |= Command.Screen;
-            var boundary = Factory.newBoundary();
+            var boundary = new Session();
             buffer.CreatePixelAction(pen, out action, boundary);
             Renderer.ProcessLine(X, Y, X, Y + Height, action, command);
             Renderer.ProcessLine(X, Y + Height, X + Width, Y + Height, action, command);

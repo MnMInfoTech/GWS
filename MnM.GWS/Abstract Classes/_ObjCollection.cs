@@ -95,9 +95,9 @@ namespace MnM.GWS
             if (AddMode)
             {
                 if (suspendUpdate == true)
-                    Settings.Command |= Command.SuspendUpdate;
+                    Settings.Command |= Command.InvalidateOnly;
                 else if (suspendUpdate == false)
-                    Settings.Command &= ~Command.SuspendUpdate;
+                    Settings.Command &= ~Command.InvalidateOnly;
                 Settings.Command |= Command.AddMode;
             }
             Graphics.Render(Shape, Settings);
@@ -196,7 +196,7 @@ namespace MnM.GWS
         #region DISPOSE
         public void Dispose()
         {
-            (Graphics as IClearable)?.Clear(0, 0, Graphics.Width, Graphics.Height);
+            (Graphics as IClearable)?.Clear(new Perimeter(0, 0, Graphics.Width, Graphics.Height));
             Items.Clear();
         }
         #endregion

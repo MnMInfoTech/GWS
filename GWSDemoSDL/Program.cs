@@ -48,7 +48,7 @@ namespace Test
             window.Background = moonfs;
 
             IPenContext brush = null;
-            var Path = window.Objects;
+            var Path = window;
             //Renderer.Settings.InvertBrushColor = true;
             //window.InvertColor = true;
             Path.Add(Factory.newPolygon(90, 215, 163, 29, 63, 202,
@@ -139,9 +139,9 @@ namespace Test
 
                 Settings.Command = Command.Backdrop;
                 img.DrawEllipse(10, 10, 200, 200);
-                surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
-                surface.DrawImage(img, 600, 500, 10, 10, 400, 400);
-                surface.DrawImage(img, 500, 500, 10, 10, 400, 400);
+                surface.DrawImage(img, 20, 20, new Perimeter(10, 10, 400, 400, e.ProcessID));
+                surface.DrawImage(img, 600, 500, new Perimeter(10, 10, 400, 400, e.ProcessID));
+                surface.DrawImage(img, 500, 500, new Perimeter(10, 10, 400, 400, e.ProcessID));
                 Settings.Command = 0;
             }
             else if (frame == false)
@@ -249,16 +249,6 @@ namespace Test
                 //surface.DrawImage(img, 20, 20, 10, 10, 400, 400);
                 //surface.DrawImage(img, 600, 500, 10, 10, 400, 400);
                 //surface.DrawImage(img, 500, 500, 10, 10, 300, 300);
-
-#if Advanced
-                //window.Controls.Hide(window.Controls["Text1"]);
-                //window.Controls.Hide(window.Controls["Tetragon1"]);
-                //window.DrawMode = DrawMode.NoBkgDraw;
-                //window.DrawMode = DrawMode.NoBkgDraw | DrawMode.NoControlDraw;
-                //window.Controls.Disable(shape);
-                //window.DrawFocusRect(window.Controls["Text1"]);
-
-#endif
                 ////7 Mukesh
                 window.DrawPolygon(Factory.newSettings( rg), 0, 500, 0, 300, 20, 300, 40, 500, 60, 300, 80, 300, 80, 500, 81, 499, 82,
                     497, 83, 494, 84, 490, 85, 484, 86, 477, 87, 469, 88, 460, 89, 450, 90, 439, 91, 427,

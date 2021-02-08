@@ -171,12 +171,14 @@ using System;
     /// <summary>
     /// Represents an argument object to expose underlying graphics object to draw on.
     /// </summary>
-    public interface IDrawEventArgs : IEventArgs, IDisposable
+    public interface IDrawEventArgs : IEventArgs, IDisposable, IProcessID
     {
         /// <summary>
         /// Underlying surface object to draw.
         /// </summary>
         IGraphics Graphics { get; }
+
+        new int ProcessID { get; set; }
     }
     #endregion
 

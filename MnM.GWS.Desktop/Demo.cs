@@ -180,9 +180,9 @@ namespace MnM.GWS.Desktop
                 MsDisplay.Screen.Refresh(cmbShape.Text + "", SetAngle());
                 MsMethod = null;
             }
-            var rc = Settings.Boundary;
+            var rc = Settings.Session;
 
-            Window.Clear(rc.X, rc.Y, rc.Width, rc.Height, Command.SuspendUpdate |(Original? Command.Screen:0));
+            Window.Clear(rc, Command.InvalidateOnly |(Original? Command.Screen:0));
 
             if (GwsMethod != null)
             {
@@ -191,7 +191,7 @@ namespace MnM.GWS.Desktop
             }
             if (Original)
             {
-                Window.Update(Command.CopyPixelsOnly, new Rectangle(0, 0, Window.Width, Window.Height));
+                Window.Update(Command.CopyPixelsOnly, new Perimeter(0, 0, Window.Width, Window.Height));
                 Original = false;
             }
         }
@@ -201,7 +201,7 @@ namespace MnM.GWS.Desktop
         private void ChangeShape(object sender, System.EventArgs e)
         {
             //txtPts.Clear();
-            Window.Clear(0, 0, Window.Width, Window.Height);
+            Window.Clear(new Perimeter(0, 0, Window.Width, Window.Height));
             pnlArcS.Visible = false;
             pnlArcE.Visible = false;
             pnlBezier.Visible = false;
@@ -484,7 +484,7 @@ namespace MnM.GWS.Desktop
         {
             GwsMethod = null;
             txtPts.Clear();
-            Window.Clear(0, 0, Window.Width, Window.Height);
+            Window.Clear(new Perimeter( 0, 0, Window.Width, Window.Height));
         }
         private void SaveGraphics(object sender, System.EventArgs e)
         {
@@ -547,7 +547,7 @@ namespace MnM.GWS.Desktop
         }
         private void DrawCoordinates(object sender, IMouseEventArgs e)
         {
-            var boundary = Factory.newBoundary();
+            var boundary = new Session();
             int color = Rgba.Red.Color;
             txtPts.Text += "," + e.X + "," + e.Y;
             Window.WritePixel(e.X, e.Y, true, color, null, Command.Animate, boundary);
@@ -576,7 +576,7 @@ namespace MnM.GWS.Desktop
                 {
                     var sz = Canvas.RotateAndScale(out IntPtr data,
                         new Rotation((float)numRotate.Value), chkCenter.Checked, (float)numScale.Value);
-                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, 0, 0, sz.Width, sz.Height, 
+                    GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, new Perimeter( 0, 0, sz.Width, sz.Height), 
                         Command.Screen | Command.UpdateScreenOnly);
                     Original = true;
                     return;

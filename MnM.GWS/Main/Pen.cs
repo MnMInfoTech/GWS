@@ -99,22 +99,14 @@ namespace MnM.GWS
             #endregion
 
             #region COPY TO
-            public unsafe IRectangle CopyTo(IntPtr destination,
-                int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command command = 0)
+            public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = 0)
             {
-                int copyX = copyArea.X;
-                int copyY = copyArea.Y;
-                int copyW = copyArea.Width;
-                int copyH = copyArea.Height;
-
+                copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
                 var data = color.Repeat(copyW * copyH + 1);
                 var dst = (int*)destination;
-                fixed (int* source = data)
+                fixed (int* src = data)
                 {
-                    int* src = source;
-                    return Blocks.CopyBlock(0, 0, copyW, copyH, data.Length, copyW, copyH, dstX, dstY, dstW, dstLen,
-                         (srcIndex, dstIndex, w, x, y, cmd) =>
-                         Blocks.Copy(src, srcIndex, dst, dstIndex, w, cmd, null, true), command);
+                    return Blocks.CopyBlock(src, copyArea, data.Length, copyW, copyH, dst, dstX, dstY, dstW, dstLen, command);
                 }
             }
             #endregion

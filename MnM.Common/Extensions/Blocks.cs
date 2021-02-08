@@ -72,10 +72,7 @@ namespace MnM.GWS
         /// <summary>
         /// Copies data from one  memory block to another: routine of copying must be provided through action delegate.
         /// </summary>
-        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="copyArea">Area to copy.</param>
         /// <param name="srcLen">Specifies the length of the source pointer.</param>
         /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
         /// <param name="srcH">Specifies the current height of the source block.</param>
@@ -87,12 +84,13 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CopyBlock(int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+        public static IPerimeter CopyBlock(IPerimeter copyArea, int srcLen, int srcW, int srcH,
             int dstX, int dstY, int dstW, int dstLen, BlockCopy action, Command command)
         {
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
-                return Rectangle.Empty;
+                return Perimeter.Empty;
             int i = 0;
             while (i < copyH)
             {
@@ -112,17 +110,14 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Rectangle(dstX, dstY, copyW, i);
+            return new Perimeter(dstX, dstY, copyW, i, copyArea.ProcessID);
         }
 
         /// <summary>
         /// Copies data from one  memory block to another.
         /// </summary>
         /// <param name="src">Souece block to copy data from.</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="copyArea">Area to copy.</param>
         /// <param name="srcLen">Specifies the length of the source pointer.</param>
         /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
         /// <param name="srcH">Specifies the current height of the source block.</param>
@@ -136,12 +131,13 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IRectangle CopyBlock(int* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+        public static unsafe IPerimeter CopyBlock(int* src, IPerimeter copyArea, int srcLen, int srcW, int srcH,
             int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null, int? ignoreValue = null)
         {
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
-                return Rectangle.Empty;
+                return Perimeter.Empty;
             int i = 0;
 
             while (i < copyH)
@@ -161,17 +157,14 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Rectangle(dstX, dstY, copyW, i);
+            return new Perimeter(dstX, dstY, copyW, i, copyArea.ProcessID);
         }
 
         /// <summary>
         /// Copies data from one  memory block to another.
         /// </summary>
         /// <param name="src">Souece block to copy data from.</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="copyArea">Area to copy.</param>
         /// <param name="srcLen">Specifies the length of the source pointer.</param>
         /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
         /// <param name="srcH">Specifies the current height of the source block.</param>
@@ -184,12 +177,13 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IRectangle CopyBlock(byte* src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+        public static unsafe IPerimeter CopyBlock(byte* src, IPerimeter copyArea, int srcLen, int srcW, int srcH,
             byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command, int? ignoreValue = null)
         {
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
-                return Rectangle.Empty;
+                return Perimeter.Empty;
             int i = 0;
 
             while (i < copyH)
@@ -209,7 +203,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Rectangle(dstX, dstY, copyW, i);
+            return new Perimeter(dstX, dstY, copyW, i, copyArea.ProcessID);
         }
 
         /// <summary>
@@ -217,10 +211,7 @@ namespace MnM.GWS
         /// </summary>
         /// <typeparam name="T">Type of elements in the array block.</typeparam>
         /// <param name="src">Souece memory block to copy data from.</param>
-        /// <param name="copyX">Top left x co-ordinate of area in source to copy.</param>
-        /// <param name="copyY">Top left y co-ordinate of area in source to copy</param>
-        /// <param name="copyW">Width of area in the source to copy.</param>
-        /// <param name="copyH">Height of area in the source to copy.</param>
+        /// <param name="copyArea">Area to copy.</param>
         /// <param name="srcLen">Specifies the length of the source pointer.</param>
         /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
         /// <param name="srcH">Specifies the current height of the source block.</param>
@@ -231,12 +222,13 @@ namespace MnM.GWS
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IRectangle CopyBlock<T>(T[] src, int copyX, int copyY, int copyW, int copyH, int srcLen, int srcW, int srcH,
+        public static unsafe IPerimeter CopyBlock<T>(T[] src, IPerimeter copyArea, int srcLen, int srcW, int srcH,
             T[] dst, int dstX, int dstY, int dstW, int dstLen)
         {
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
             if (copyW <= 0)
-                return Rectangle.Empty;
+                return Perimeter.Empty;
             int i = 0;
 
             while (i < copyH)
@@ -256,7 +248,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Rectangle(dstX, dstY, copyW, i);
+            return new Perimeter(dstX, dstY, copyW, i);
         }
         #endregion
 
@@ -553,7 +545,7 @@ namespace MnM.GWS
 
             int copyW = newWidth;
             int copyH = newHeight;
-            CopyBlock(source, 0, 0, copyW, copyH, source.Length, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
+            CopyBlock(source, new Perimeter(0, 0, copyW, copyH), source.Length, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
 
             oldWidth = newWidth;
             oldHeight = newHeight;
@@ -579,7 +571,7 @@ namespace MnM.GWS
                 result = new T[newWidth * newHeight];
                 return result;
             }
-            CopyBlock(source, 0, 0, oldWidth, oldHeight, oldWidth * oldHeight, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
+            CopyBlock(source, new Perimeter(0, 0, oldWidth, oldHeight), oldWidth * oldHeight, oldWidth, oldHeight, result, 0, 0, newWidth, result.Length);
             return result;
         }
 
@@ -613,7 +605,7 @@ namespace MnM.GWS
             fixed (int* res = result)
             {
                 int* dst = res;
-                CopyBlock(src, 0, 0, copyW, copyH, srcLen, oldWidth, oldHeight, dst, 0, 0, newWidth, result.Length, 0);
+                CopyBlock(src, new Perimeter(0, 0, copyW, copyH), srcLen, oldWidth, oldHeight, dst, 0, 0, newWidth, result.Length, 0);
             }
             oldWidth = newWidth;
             oldHeight = newHeight;

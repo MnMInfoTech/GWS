@@ -114,18 +114,14 @@ namespace MnM.GWS
             }
             #endregion
 
-            #region COPY FROM
+            #region WRITABLE BLOCK
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe IRectangle WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IRectangle copyArea,
+            public unsafe IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea,
                 Command Command, IntPtr alphaBytes = default(IntPtr))
             {
                 if (IsDisposed)
-                    return Rectangle.Empty;
-                int copyX = copyArea.X;
-                int copyY = copyArea.Y;
-                int copyW = copyArea.Width;
-                int copyH = copyArea.Height;
-                var dstRc = Blocks.CopyBlock((int*)source, copyX, copyY, copyW, copyH, srcW * srcH, srcW,
+                    return Perimeter.Empty;
+                var dstRc = Blocks.CopyBlock((int*)source, copyArea, srcW * srcH, srcW,
                     srcH, Screen, dstX, dstY, width, length, Command, (byte*)alphaBytes);
 
                 Update(Command, dstRc);
@@ -135,28 +131,22 @@ namespace MnM.GWS
 
             #region COPY TO       
             [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.Synchronized)]
-            public unsafe IRectangle CopyTo(IntPtr destination,
-                int dstLen, int dstW, int dstX, int dstY, IRectangle copyArea, Command Command = 0)
+            public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
             {
                 if (IsDisposed)
-                    return Rectangle.Empty;
-                int copyX = copyArea.X;
-                int copyY = copyArea.Y;
-                int copyW = copyArea.Width;
-                int copyH = copyArea.Height;
-
-                return Blocks.CopyBlock(Screen, copyX, copyY, copyW, copyH, length,
+                    return Perimeter.Empty;
+                return Blocks.CopyBlock(Screen, copyArea, length,
                     width, height, (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
             }
             #endregion
 
             #region CLEAR
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe IRectangle Clear(int clearX, int clearY, int clearW, int clearH, Command Command = 0)
+            public unsafe IPerimeter Clear(IPerimeter clear, Command Command = 0)
             {
-                bool SuspendUpdate = (Command & Command.SuspendUpdate) == Command.SuspendUpdate;
-                var rc = Blocks.CopyBlock(null, clearX, clearY, clearW, clearH, length,
-                       Width, Height, Screen, clearX, clearY, Width, length, Command, null);
+                bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
+                clear.GetBounds(out int clearX, out int clearY, out _, out _);
+                var rc = Blocks.CopyBlock(null, clear, length, Width, Height, Screen, clearX, clearY, Width, length, Command, null);
 
                 if (!SuspendUpdate)
                     Update(0, rc);
@@ -169,6 +159,8 @@ namespace MnM.GWS
             {
                 e.Graphics.DrawImage(Bitmap, e.ClipRectangle, e.ClipRectangle, GraphicsUnit.Pixel);
             }
+            public void InvokePaint(Command command = 0, int processID = 0) =>
+                Window.InvokePaint(command, processID);
             #endregion
 
             #region RESIZE
@@ -185,10 +177,11 @@ namespace MnM.GWS
                 height = h;
                 length = width * height;
                 Pointer.Resize(width, height);
+                var all = new Perimeter(0, 0, width, height);
                 Bitmap = new Bitmap(Pointer.Width, Pointer.Height, Pointer.Width * 4,
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
-                Window.CopyTo(Pointer.Handle, length, width, 0, 0, new Rectangle(0, 0, width, height), Command.Backdrop);
-                Update(0, new Rectangle(0, 0, width, height));
+                Window.CopyTo(Pointer.Handle, length, width, 0, 0, all, Command.Backdrop);
+                Update(0, all);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,16 +193,13 @@ namespace MnM.GWS
 
             #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Update(Command Command, IRectangle RecentlyDrawn = null)
+            public void Update(Command Command, IPerimeter perimeter)
             {
-                if (RecentlyDrawn == null || !RecentlyDrawn.Valid)
+                if (perimeter == null)
                     return;
-
-                Rectangle rc;
-                if (RecentlyDrawn is IBoundary)
-                    rc = new Rectangle(((IBoundary)RecentlyDrawn).GetBounds(6, 6));
-                else
-                    rc = new Rectangle(RecentlyDrawn);
+                int unit = perimeter is IBoundary ? 6 : 0;
+                perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
+                Rectangle rc = new Rectangle(x, y, w, h);
 
                 if (InvokeRequired)
                 {

@@ -46,7 +46,7 @@ namespace MnM.GWS
 
         public override string ToString()
         {
-            var result = Renderable.ID + "";
+            var result = Renderable.Name + "";
 #if Advanced
             result += "," + Settings.ZOrder;
 #endif

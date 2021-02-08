@@ -86,37 +86,34 @@ namespace MnM.GWS
             get => NativeFactory.GetTextureColorMod(Handle);
             set => NativeFactory.SetTextureColorMod(Handle, value);
         }
-        #endregion
+            #endregion
 
-        #region COPY FROM
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IRectangle copyArea, Command command)
-        {
-            int copyX = copyArea.X;
-            int copyY = copyArea.Y;
-            int copyW = copyArea.Width;
-            int copyH = copyArea.Height;
+            #region COPY FROM
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command command)
+            {
+                copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
 
-            var dstRC = this.CompitibleRc(dstX, dstY, copyW, copyH);
-            IntPtr textureData;
-            int lockedLength;
-            Lock(dstRC, out textureData, out lockedLength);
-            if (source is ICopyable)
-            {
-                ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, new Rectangle(copyX, copyY, dstRC.Width, dstRC.Height), 0);
+                var dstRC = source.CompitiblePerimeter(dstX, dstY, copyW, copyH);
+                dstRC.GetBounds(out dstX, out dstY, out int dstW, out int dstH);
+                IntPtr textureData;
+                int lockedLength;
+                Lock(new Rectangle(dstX, dstY, dstW, dstH), out textureData, out lockedLength);
+                if (source is ICopyable)
+                {
+                    ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, 
+                        new Perimeter(copyX, copyY, dstW, dstH, copyArea.ProcessID), 0);
+                }
+                else if (source is IPixels)
+                {
+                    int* src = (int*)(((IPixels)source).Source);
+                    int* dst = (int*)textureData;
+                    Blocks.CopyBlock(src, copyArea, source.Length, source.Width, source.Height, dst, 0, 0, width, lockedLength, command);
+                }
+                Unlock();
+                if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
+                    Update(0, dstRC);
             }
-            else if (source is IPixels)
-            {
-                int* src = (int*)(((IPixels)source).Source);
-                int* dst = (int*)textureData;
-                BlockCopy action = (srcIndex, dstIndex, copyLength, x, y, cmd) =>
-                Blocks.Copy(src, srcIndex, dst, dstIndex, copyLength, cmd);
-                Blocks.CopyBlock(copyX, copyY, copyW, copyH, source.Length, source.Width, source.Height, 0, 0, width, lockedLength, action, command);
-            }
-            Unlock();
-            if ((command & Command.SuspendUpdate) != Command.SuspendUpdate)
-                Update(0, dstRC);
-        }
         #endregion
 
         #region RESIZE
@@ -126,7 +123,7 @@ namespace MnM.GWS
             Handle = CreateHandle(null, null, width ?? Width, height ?? Height, out Size s);
             this.width = s.Width;
             this.height = s.Height;
-            CopyFrom(Window, 0, 0, new Rectangle(0, 0, s.Width, s.Height), 0);
+            CopyFrom(Window, 0, 0, new Perimeter(0, 0, s.Width, s.Height), 0);
         }
         #endregion
 
@@ -175,15 +172,15 @@ namespace MnM.GWS
 
         #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Update(Command command = Command.None, IRectangle boundary = null)
+        public unsafe void Update(Command command, IPerimeter perimeter)
         {
-            Rectangle rc;
-            if (boundary is IBoundary)
-                rc = new Rectangle(((IBoundary)boundary).GetBounds(6, 6));
-            else
-                rc = new Rectangle(boundary);
+                if (perimeter == null)
+                    return;
+                int unit = (perimeter is IBoundary) ? 6 : 0;
+                perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
+                Rectangle rc = new Rectangle(x, y, w, h);
 
-            NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
+                NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
             NativeFactory.UpdateRenderer(Renderer);
         }
         #endregion
