@@ -107,13 +107,13 @@ namespace MnM.GWS
             {
                 x -= xExpand;
                 if (x < 0) x = 0;
-                x2 += xExpand * 2;
+                x2 += xExpand;
             }
             if (yExpand != 0)
             {
                 y -= yExpand;
                 if (y < 0) y = 0;
-                y2 += yExpand * 2;
+                y2 += yExpand;
             }
             w = x2 - x;
             h = y2 - y;
