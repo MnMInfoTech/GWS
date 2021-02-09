@@ -11,10 +11,9 @@ namespace MnM.GWS
     public sealed class Timer : _Timer, ITimer
     {
         #region VARIABLES
-        volatile int interval = 5;
-        volatile bool TickOn = false;
         public event EventHandler<IEventArgs> Tick;
         Unit unit;
+        bool ON;
         #endregion
 
         #region CONSTRUCTORS
@@ -45,9 +44,9 @@ namespace MnM.GWS
             {
                 while (Running && Tick != null)
                 {
-                    if (Watch.ElapsedMilliseconds >= interval && !TickOn)
+                    if (Watch.ElapsedMilliseconds >= interval && !ON)
                     {
-                        TickOn = true;
+                        ON = true;
                         speed = 0;
 
                         switch (unit)
@@ -65,12 +64,13 @@ namespace MnM.GWS
                         }
                         Watch.Restart();
                         Tick(this, Factory.EmptyArgs);
-                        TickOn = false;
+                        ON = false;
                     }
                 }
             });
             Running = false;
         }
+      
         #endregion
 
         #region DISPOSE

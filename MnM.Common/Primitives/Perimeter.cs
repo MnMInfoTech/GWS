@@ -64,6 +64,11 @@ namespace MnM.GWS
         #region GET BOUNDS
         public void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0)
         {
+            if (Width <= 0 || Height <= 0)
+            {
+                x = y = w = h = 0;
+                return;
+            }
             x = X;
             y = Y;
             w = Width;

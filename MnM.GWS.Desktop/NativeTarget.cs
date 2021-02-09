@@ -20,38 +20,38 @@ namespace MnM.GWS
 #else
     public
 #endif
-        class NativeTarget : Form, INativeTarget
+        sealed class NativeTarget : Form, INativeTarget
         {
             #region VARIABLES
             /// <summary>
             /// 
             /// </summary>
-            protected INativeForm Window;
+            INativeForm Window;
 
             /// <summary>
             /// 
             /// </summary>
-            protected volatile Bitmap Bitmap;
+            volatile Bitmap Bitmap;
 
             /// <summary>
             /// 
             /// </summary>
-            protected readonly Array<int> Pointer;
+            readonly Array<int> Pointer;
 
             /// <summary>
             /// Width of this object.
             /// </summary>
-            protected int width;
+            int width;
 
             /// <summary>
             /// Height of this object
             /// </summary>
-            protected int height;
+            int height;
 
             /// <summary>
             /// Length of one dimensional memory block this object represents.
             /// </summary>
-            protected int length;
+            int length;
 
             #region EVENT ARGS
             readonly MsKeyEventArgs keyEventArgs = new MsKeyEventArgs();
@@ -100,7 +100,7 @@ namespace MnM.GWS
                     }
                 }
             }
-            protected unsafe int* Screen => (int*)Pointer.Handle;
+            unsafe int* Screen => (int*)Pointer.Handle;
             public override string Text
             {
                 get => base.Text;

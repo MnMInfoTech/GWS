@@ -310,8 +310,12 @@ namespace MnM.GWS
         void Bind();
         void Unbind();
     }
-    public interface ITextureTarget : ITexture, IRenderTarget
-    { }
+
+    public interface IStreamingTexture: IBlockable, IUpdatable
+    {
+        void Lock(IPerimeter copyRc, out IntPtr textureData, out int lockedLength);
+        void Unlock();
+    }
     #endregion
 #endif
 }

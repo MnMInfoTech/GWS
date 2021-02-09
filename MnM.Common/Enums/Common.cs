@@ -208,17 +208,17 @@ namespace MnM.GWS
         /// <summary>
         /// Excludes everything drawn on background buffer for rendering on screen. Pro version only.
         /// </summary>
-        SkipSecondaryBuffer = 0x100000000,
+        Skip2ndBuffer = 0x100000000,
 
         /// <summary>
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. Pro version only.
         /// </summary>
-        SkipPrimaryBuffer = 0x200000000,
+        Skip1stBuffer = 0x200000000,
 
         /// <summary>
         /// Copies background pen data only.
         /// </summary>
-        CopyBackgroundOnly = SkipSecondaryBuffer | SkipPrimaryBuffer,
+        CopyBackgroundOnly = Skip2ndBuffer | Skip1stBuffer,
 
         /// <summary>
         /// When resized, the image inside is also resizes to fit the size without losing quality. Pro version only.

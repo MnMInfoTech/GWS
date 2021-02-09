@@ -16,7 +16,7 @@ namespace MnM.GWS
 #else
     public
 #endif
-    class SdlTexture : ITexture, ITexture2
+    class SdlTexture : ITexture, ITexture2, IStreamingTexture
     {
         #region VARIABLES
         protected IntPtr Renderer;
@@ -98,7 +98,7 @@ namespace MnM.GWS
                 dstRC.GetBounds(out dstX, out dstY, out int dstW, out int dstH);
                 IntPtr textureData;
                 int lockedLength;
-                Lock(new Rectangle(dstX, dstY, dstW, dstH), out textureData, out lockedLength);
+                Lock(new Perimeter(dstX, dstY, dstW, dstH), out textureData, out lockedLength);
                 if (source is ICopyable)
                 {
                     ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, 
@@ -128,7 +128,7 @@ namespace MnM.GWS
         #endregion
 
         #region LOCK - UNLOCK
-        Rectangle Lock(Rectangle copyRc, out IntPtr textureData, out int lockedLength)
+        public void Lock(IPerimeter copyRc, out IntPtr textureData, out int lockedLength)
         {
             if (locked)
                 Unlock();
@@ -137,29 +137,28 @@ namespace MnM.GWS
             lockedLength = 0;
             int texturePitch;
             Rectangle lockedArea;
+                copyRc.GetBounds(out int x, out int y, out int w, out int h);
 
-            if (!copyRc)
-            {
-                NativeFactory.LockTexture(Handle, IntPtr.Zero, out textureData, out texturePitch);
-                lockedArea = new Rectangle(0, 0, Width, Height);
-            }
-            else
-            {
-                lockedArea = Rects.CompitibleRc(Width, Height, copyRc.X, copyRc.Y, copyRc.Width, copyRc.Height);
-                if (copyRc.Width == 0 || copyRc.Height == 0)
-                    return Rectangle.Empty;
-                NativeFactory.LockTexture(Handle, copyRc, out textureData, out texturePitch);
-            }
+                if (w == 0 && h == 0)
+                {
+                    NativeFactory.LockTexture(Handle, IntPtr.Zero, out textureData, out texturePitch);
+                    lockedArea = new Rectangle(0, 0, Width, Height);
+                }
+                else
+                {
+                    lockedArea = Rects.CompitibleRc(Width, Height, x, y, w, h);
+                    if (lockedArea.Width == 0 || lockedArea.Height == 0)
+                        return;
+                    NativeFactory.LockTexture(Handle, lockedArea, out textureData, out texturePitch);
+                }
             locked = true;
             lockedLength = lockedArea.Height * texturePitch;
-            return lockedArea;
-        }
-        void Unlock()
+          }
+        public void Unlock()
         {
             if (!locked)
                 return;
             NativeFactory.UnlockTexture(Handle);
-            locked = false;
         }
         #endregion
 
