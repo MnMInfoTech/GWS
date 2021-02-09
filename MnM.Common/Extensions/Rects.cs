@@ -177,7 +177,7 @@ namespace MnM.GWS
 
         #region COMPITIBLE PERIMETER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CompitiblePerimeter(int srcW, int srcH, IPerimeter perimeter)
+        public static Perimeter CompitiblePerimeter(int srcW, int srcH, IPerimeter perimeter)
         {
             if (perimeter == null)
                 perimeter = new Perimeter(0, 0, srcW, srcH);
@@ -203,7 +203,7 @@ namespace MnM.GWS
         }
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CompitiblePerimeter(int srcW, int srcH, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0)
+        public static Perimeter CompitiblePerimeter(int srcW, int srcH, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0)
         {
             if (x0 < 0)
                 x0 = 0;
@@ -225,11 +225,11 @@ namespace MnM.GWS
         }
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CompitiblePerimeter(this ISize size, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0) =>
+        public static Perimeter CompitiblePerimeter(this ISize size, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0) =>
             CompitiblePerimeter(size.Width, size.Height, x0, y0, copyW, copyH, processID, shapeID);
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CompitiblePerimeter(this ISize size, IPerimeter perimeter) =>
+        public static Perimeter CompitiblePerimeter(this ISize size, IPerimeter perimeter) =>
             CompitiblePerimeter(size.Width, size.Height, perimeter);
         #endregion
 

@@ -62,11 +62,15 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public bool Valid => X2 != 0 && Y2 != 0;
+        public bool Valid => X2 > 0 && Y2 > 0;
         uint IShapeID.ShapeID => ShapeID;
         int IProcessID.ProcessID => ProcessID;
         int IDstPoint.DstX => DstX;
         int IDstPoint.DstY => DstY;
+        int IPoint.X => X1;
+        int IPoint.Y => Y1;
+        int ISize.Width => X2 - X1;
+        int ISize.Height => Y2 - Y1;
         #endregion
 
         #region NOTIFY

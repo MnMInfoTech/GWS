@@ -78,7 +78,7 @@ namespace MnM.GWS
     #endregion
 
     #region IRECTANGLE
-    public interface IRectangle : ISize, IPoint, IDrawParams
+    public interface IRectangle : IPoint, ISize, IDrawParams
     {
         /// <summary>
         /// Indicates if this object has valid perimiter or not.
@@ -91,7 +91,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has an area with perimeter and information about IDs of process and shape currently being rendered.
     /// </summary>
-    public interface IPerimeter: IProcessID, IShapeID
+    public interface IPerimeter: IProcessID, IShapeID, IRectangle
     {
         /// <summary>
         /// Gets current bounds of the perimeter.

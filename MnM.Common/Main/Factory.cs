@@ -16,8 +16,8 @@ namespace MnM.GWS
         #region INSTANCE VARIABLE
         readonly static string sysFontpath;
         static IFactory Instance;
-        public static IEventArgs EmptyArgs = new _EventArgs();
-        public static ICancelEventArgs EmptyCancelArgs = new _CancelEventArgs();
+        public readonly static IEventArgs EmptyArgs = new _EventArgs();
+        public readonly static ICancelEventArgs EmptyCancelArgs = new _CancelEventArgs();
         #endregion
 
         #region CONSTRUCTOR

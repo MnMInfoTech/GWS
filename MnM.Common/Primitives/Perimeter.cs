@@ -59,6 +59,11 @@ namespace MnM.GWS
         #region PROPERTIES
         int IProcessID.ProcessID => ProcessID; 
         uint IShapeID.ShapeID => ShapeID;
+        public bool Valid => Width > 0 && Height > 0;
+        int IPoint.X => X;
+        int IPoint.Y => Y;
+        int ISize.Width => Width;
+        int ISize.Height => Height;
         #endregion
 
         #region GET BOUNDS

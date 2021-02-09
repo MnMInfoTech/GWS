@@ -239,6 +239,11 @@ namespace MnM.GWS
         /// Wipes all temporary drawings while refreshing screen.
         /// </summary>
         WipeTemporary = 0x2000000000,
+
+        /// <summary>
+        /// Wipe latest animation drawing.
+        /// </summary>
+        WipeAnimation = 0x4000000000,
     }
     #endregion
 
