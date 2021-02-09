@@ -52,7 +52,7 @@ namespace MnM.GWS
         /// <summary>
         /// Excludes Backgroud Pen pixels from rendering on screen.
         /// </summary>
-        SkipPenBackground = 0x10,
+        SkipBackground = 0x10,
 
         /// <summary>
         /// Exclusively uses breshenham algorithm with integer arithmetic and no anti-aliasing.  
@@ -196,9 +196,9 @@ namespace MnM.GWS
         AddMode = 0x20000000,
 
         /// <summary>
-        /// Gets or sets a flag to determine that rendering of shape is done i backdrop mode or not. Pro version only.
+        /// Gets or sets a flag to determine that rendering of shape is done in second buffer or not. Pro version only.
         /// </summary>
-        BackgroundBuffer = 0x40000000,
+        SecondBuffer = 0x40000000,
 
         /// <summary>
         /// Pushes drawing of added controls to background and brings background to the front. Pro version only.
@@ -208,17 +208,17 @@ namespace MnM.GWS
         /// <summary>
         /// Excludes everything drawn on background buffer for rendering on screen. Pro version only.
         /// </summary>
-        SkipBackground = 0x100000000,
+        SkipSecondaryBuffer = 0x100000000,
 
         /// <summary>
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. Pro version only.
         /// </summary>
-        SkipForeground = 0x200000000,
+        SkipPrimaryBuffer = 0x200000000,
 
         /// <summary>
         /// Copies background pen data only.
         /// </summary>
-        CopyPenOnly = SkipBackground | SkipForeground,
+        CopyBackgroundOnly = SkipSecondaryBuffer | SkipPrimaryBuffer,
 
         /// <summary>
         /// When resized, the image inside is also resizes to fit the size without losing quality. Pro version only.

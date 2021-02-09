@@ -1146,7 +1146,7 @@ namespace MnM.GWS
             int* dst;
             fixed (int* p = result)
                 dst = p;
-            bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
+            bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
             #endregion
 
             if (source is ICopyable)
@@ -1322,7 +1322,7 @@ namespace MnM.GWS
         {
             #region INITIALIZE VARIABLES
             bool AddMode = (Command & Command.AddMode) == Command.AddMode;
-            bool BackgroundBuffer = (Command & Command.BackgroundBuffer) == Command.BackgroundBuffer;
+            bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
             int* src = null;
             byte* srcAlphas = null;
             uint ID = copyArea.ShapeID == 0 ? (source as IID)?.ID ?? IDGenerator.NewID() : 0;
