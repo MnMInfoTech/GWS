@@ -3,7 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
-
+#if GWS || Window
 using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
@@ -147,3 +147,4 @@ namespace MnM.GWS
         #endregion
     }
 }
+#endif

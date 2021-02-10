@@ -3,7 +3,7 @@
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
-
+#if GWS || Window
 namespace MnM.GWS
 {
     public class ReadSession: IReadSession
@@ -16,3 +16,4 @@ namespace MnM.GWS
         ReadChoice IReadSession.Choice => Choice;
     }
 }
+#endif
