@@ -13,7 +13,7 @@ namespace MnM.GWS
 {
     public abstract partial class _Window : _Events, IWindow
     {
-#region VARIABLES
+        #region VARIABLES
         readonly ICanvas Primary;
         ICanvas Current;
         protected bool IsEventPusher;
@@ -28,9 +28,9 @@ namespace MnM.GWS
         protected volatile bool isDisposed;
         readonly IExternalTarget Target;
         readonly string typeName;
-#endregion
+        #endregion
 
-#region CONSTRUCTORS
+        #region CONSTRUCTORS
         _Window(int width, int height)
         {
             bounds = new Rectangle(0, 0, width, height);
@@ -79,9 +79,9 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="typeName"></param>
         protected abstract void GetTypeName(out string typeName);
-#endregion
+        #endregion
 
-#region PROPERTIES
+        #region PROPERTIES
         public virtual string Text { get; set; }
         public string Name { get; protected set; }
         public Rectangle Bounds => bounds;
@@ -128,35 +128,35 @@ namespace MnM.GWS
         {
             get => Canvas.Freezed;
         }
-#endregion
+        #endregion
 
-#region RENDER
+        #region RENDER
         public void Render(IRenderable Renderable, ISettings Settings)
         {
             Canvas.Render(Renderable, Settings);
         }
-#endregion
+        #endregion
 
-#region UPDATE
+        #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Update(Command command, IPerimeter boudary) =>
             Canvas.Update(command, boudary);
-#endregion
+        #endregion
 
-#region COPY TO
+        #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual IPerimeter CopyTo(IntPtr destination,
             int destLen, int destW, int destX, int destY, IPerimeter copyArea, Command command = 0)
         {
             return Canvas.CopyTo(destination, destLen, destW, destX, destY, copyArea, command);
         }
-#endregion
+        #endregion
 
-#region FOCUS
+        #region FOCUS
         public abstract bool Focus();
-#endregion
+        #endregion
 
-#region REFRESH
+        #region REFRESH
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Refresh(Command command = 0)
         {
@@ -164,9 +164,9 @@ namespace MnM.GWS
                 return;
             Canvas.Refresh(command);
         }
-#endregion
+        #endregion
 
-#region RAISE PAINT
+        #region RAISE PAINT
         public void InvokePaint(Command command = 0, int processID = 0)
         {
             drawEventArgs.Graphics = Canvas;
@@ -175,9 +175,9 @@ namespace MnM.GWS
             if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
                 Update(command, new Perimeter(0, 0, Width, Height, processID));
         }
-#endregion
+        #endregion
 
-#region RESIZE
+        #region RESIZE
         public virtual void Resize(int? width, int? height)
         {
             if (width == null && height == null)
@@ -199,20 +199,20 @@ namespace MnM.GWS
             base.OnResize(e);
         }
         partial void Resize2();
-#endregion
+        #endregion
 
-#region CLEAR
+        #region CLEAR
         public IPerimeter Clear(IPerimeter clear, Command command) =>
             Canvas.Clear(clear, command);
-#endregion
+        #endregion
 
-#region CONSOLIDATE
+        #region CONSOLIDATE
         public IPerimeter Consolidate(IntPtr destination,
             int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, IMultiBuffered backBuffer, Command Command, IntPtr? Pen) =>
             Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
-#endregion
+        #endregion
 
-#region ROTATE -FLIP
+        #region ROTATE -FLIP
         public Size RotateAndScale(out IntPtr Data, Rotation angle, bool antiAliased = true, float scale = 1)
         {
             return Canvas.RotateAndScale(out Data, angle, antiAliased, scale);
@@ -222,9 +222,9 @@ namespace MnM.GWS
         {
             return Canvas.Flip(out Data, flipMode);
         }
-#endregion
+        #endregion
 
-#region SHOW - HIDE
+        #region SHOW - HIDE
         public void Show() =>
             ChangeVisible(true);
         public void Hide() =>
@@ -240,33 +240,33 @@ namespace MnM.GWS
             }
             OnVisibleChanged(e);
         }
-#endregion
+        #endregion
 
-#region SHOW - HIDE - SET CURSOR
+        #region SHOW - HIDE - SET CURSOR
         public abstract void SetCursor(int x, int y);
         public abstract void ShowCursor();
         public abstract void HideCursor();
-#endregion
+        #endregion
 
-#region POINT TO CLIENT - SCREEN
+        #region POINT TO CLIENT - SCREEN
         public bool Contains(float x, float y) =>
             x >= X && y >= Y && x <= X + Width && y <= Y + Height;
         public abstract void ContainMouse(bool flag);
-#endregion
+        #endregion
 
-#region CHANGE SCREEN
+        #region CHANGE SCREEN
         public abstract void ChangeScreen(int screenIndex);
-#endregion
+        #endregion
 
-#region CHANGE STATE
+        #region CHANGE STATE
         public abstract void ChangeState(WindowState state);
-#endregion
+        #endregion
 
-#region CHANGE BORDER
+        #region CHANGE BORDER
         public abstract void ChangeBorder(WindowBorder border);
-#endregion
+        #endregion
 
-#region CLOSE - DISPOSE
+        #region CLOSE - DISPOSE
         public void Close()
         {
             isDisposed = true;
@@ -280,20 +280,20 @@ namespace MnM.GWS
         {
             Close();
         }
-#endregion
+        #endregion
 
-#region MOVE
+        #region MOVE
         public abstract void Move(int? x = null, int? y = null);
-#endregion
+        #endregion
 
-#region ZORDER
+        #region ZORDER
         public abstract void BringToFront();
         public abstract void SendToBack();
         public abstract void BringForward(int numberOfPlaces = 1);
         public abstract void SendBackward(int numberOfPlaces = 1);
-#endregion
+        #endregion
 
-#region IEVENT PROCESSING
+        #region IEVENT PROCESSING
         public bool ProcessEvent(IEvent @event)
         {
             var e = ParseEvent(@event);
@@ -343,9 +343,9 @@ namespace MnM.GWS
             }
         }
         protected abstract IEventArgs ParseEvent(IEvent @event);
-#endregion
+        #endregion
 
-#region WINDOW EVENT DECLARATION WINDOW
+        #region WINDOW EVENT DECLARATION WINDOW
         protected virtual void OnTitaleChanged(IEventArgs e) =>
             TitleChanged?.Invoke(this, e);
         public event EventHandler<IEventArgs> TitleChanged;
@@ -365,9 +365,9 @@ namespace MnM.GWS
         protected virtual void OnClosed(IEventArgs e) =>
             Closed?.Invoke(this, e);
         public event EventHandler<IEventArgs> Closed;
-#endregion
+        #endregion
 
-#region BACKGROUND CHANGED
+        #region BACKGROUND CHANGED
         private void BackgroundIsChanged(object sender, IEventArgs e) =>
             OnBackgroundChanged(e);
         protected virtual void OnBackgroundChanged(IEventArgs e)
@@ -375,46 +375,40 @@ namespace MnM.GWS
             BackgroundChanged?.Invoke(this, e);
         }
         public event EventHandler<IEventArgs> BackgroundChanged;
-#endregion
+        #endregion
 
-#region IIMAGE
+        #region IIMAGE
         int ILength.Length =>
             Canvas.Length;
-        
+
         void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command command, ISession boundary) =>
            Canvas.WritePixel(val, axis, horizontal, color, Alpha, command, boundary);
-       
-           unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, Command command, ISession boundary) =>
-            Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
-       
-            IPerimeter IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            IPerimeter copyArea, Command command, IntPtr alphaBytes) =>
-            Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 
-        ReadChoice IReadable.Choice
-        { 
-            get => Canvas.Choice; 
-            set => Canvas.Choice = value; 
-        }
+        unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
+         int x, int y, float? Alpha, byte* imageAlphas, Command command, ISession boundary) =>
+         Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
 
-        int IReadable.ReadPixel(int x, int y) =>
-            Canvas.ReadPixel(x, y);
-        void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length) =>
-            Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length);
-#endregion
+        IPerimeter IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
+        IPerimeter copyArea, Command command, IntPtr alphaBytes) =>
+        Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
+
+        int IReadable.ReadPixel(int x, int y, IReadSession session) =>
+            Canvas.ReadPixel(x, y, session);
+        void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, IReadSession session) =>
+            Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length, session);
+        #endregion
     }
 
-    partial class _Window: IObjCollection
+    partial class _Window : IObjCollection
     {
-#region PROPERTIES
+        #region PROPERTIES
         public int ObjectCount => Canvas.ObjectCount;
         public IRenderable this[uint id] => Canvas[id];
         public IRenderable this[string name] => Canvas[name];
         public ISettings this[IRenderable shape] => Canvas[shape];
-#endregion
+        #endregion
 
-#region CONTAINS
+        #region CONTAINS
         public bool Contains(IRenderable item)
         {
             return Canvas.Contains(item);
@@ -423,9 +417,9 @@ namespace MnM.GWS
         {
             return Canvas.Contains(itemID);
         }
-#endregion
+        #endregion
 
-#region ADD
+        #region ADD
         public U Add<U>(U shape, ISettings settings, bool? suspendUpdate = null) where U : IRenderable
         {
             return Canvas.Add(shape, settings, suspendUpdate);
@@ -438,9 +432,9 @@ namespace MnM.GWS
         {
             Canvas.AddRange(controls);
         }
-#endregion
+        #endregion
 
-#region REMOVE
+        #region REMOVE
         public bool Remove(IRenderable item)
         {
             return Canvas.Remove(item);
@@ -449,9 +443,9 @@ namespace MnM.GWS
         {
             Canvas.RemoveAll();
         }
-#endregion
+        #endregion
 
-#region ENUMERATOR
+        #region ENUMERATOR
         public IEnumerator<IRenderable> GetEnumerator()
         {
             return Canvas.GetEnumerator();
@@ -460,9 +454,9 @@ namespace MnM.GWS
         {
             return ((IEnumerable)Canvas).GetEnumerator();
         }
-#endregion
+        #endregion
 
-#region QUERY
+        #region QUERY
         public IEnumerable<IRenderable> Query(Predicate<ISettings> condition = null)
         {
             return Canvas.Query(condition);
@@ -479,7 +473,7 @@ namespace MnM.GWS
         {
             return Canvas.QueryFirstDraw(condition);
         }
-#endregion
+        #endregion
     }
 }
 #endif

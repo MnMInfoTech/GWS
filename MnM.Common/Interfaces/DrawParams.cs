@@ -92,12 +92,23 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IREADSESSION
+    public interface IReadSession
+    {
+        /// <summary>
+        /// Gets option to read data from pen.
+        /// </summary>
+        ReadChoice Choice { get; }
+    }
+    #endregion
+
     #region SESSION
     /// <summary>
     /// Represents an object which has information about current rendering process and perimeter formation.
     /// </summary>
-    public interface ISession : IShapeID, IBoundary, IDstPoint
-    { }
+    public interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession
+    {        
+    }
     #endregion
 
     #region IDRAW-SETTINGS
@@ -150,6 +161,9 @@ namespace MnM.GWS
     /// </summary>
     public partial interface ISettings : IDrawSettings, IPolySettings, ISettingsReceiver, IShapeID, IProcessID, IDstPoint
     {
+        /// <summary>
+        /// 
+        /// </summary>
         ISession Session { get; }
 
         /// <summary>
@@ -171,6 +185,11 @@ namespace MnM.GWS
         /// Gets or sets Y co-ordinate of the draw location.
         /// </summary>
         new int DstY { get; set; }
+
+        /// <summary>
+        /// Gets or sets option to read data from pen.
+        /// </summary>
+        ReadChoice Choice { get; set; }
     }
     #endregion
 

@@ -202,16 +202,15 @@ namespace MnM.GWS
             if (pen == null)
                 pen = Pens.Black;
 
-            var choice = pen.Choice;
-            pen.Choice |=  ReadChoice.InvertColor;
             command |= Command.Screen;
             var boundary = new Session();
+            boundary.Choice = ReadChoice.InvertColor;
+
             buffer.CreatePixelAction(pen, out action, boundary);
             Renderer.ProcessLine(X, Y, X, Y + Height, action, command);
             Renderer.ProcessLine(X, Y + Height, X + Width, Y + Height, action, command);
             Renderer.ProcessLine(X + Width, Y + Height, X + Width, Y, action, command);
             Renderer.ProcessLine(X + Width, Y, X, Y, action, command);
-            pen.Choice = choice;
         }
         #endregion
 #endif

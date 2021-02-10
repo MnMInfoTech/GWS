@@ -8,14 +8,29 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed class Session: ISession
+    public sealed class Session: ReadSession, ISession
     {
         #region VARIABLES
+        /// <summary>
+        /// ID of shape being rendered.
+        /// </summary>
         public uint ShapeID;
-        public int ProcessID;
-        public int DstX;
-        public int DstY;
 
+        /// <summary>
+        /// ID of process being used to render the shape.
+        /// </summary>
+        public int ProcessID;
+
+        /// <summary>
+        /// X co-ordinate of the Destination of shape rendering.
+        /// </summary>
+        public int DstX;
+
+        /// <summary>
+        /// Y co-ordinate of the Destination of shape rendering.
+        /// </summary>
+        public int DstY;
+        
         /// X co-ordinate of recently drawn area of this object.
         /// </summary>
         int X1 = int.MaxValue;

@@ -64,6 +64,7 @@ namespace MnM.GWS
         public int DstY { get => session.DstY; set => session.DstY = value; }
         public int ProcessID { get => session.ProcessID; set => session.ProcessID = value; }
         public uint ShapeID { get => session.ShapeID; set => session.ShapeID = value; }
+        public ReadChoice Choice { get => session.Choice; set => session.Choice = value; }
         public Rotation Rotation { get; set; }
         public StrokeMode StrokeMode { get; set; }
         public VectorF Scale { get; set; }

@@ -177,17 +177,13 @@ namespace MnM.GWS
     public interface IReadable : IBlockable, IPenContext, ICopyable
     {
         /// <summary>
-        /// 
-        /// </summary>
-        ReadChoice Choice { get; set; }
-
-        /// <summary>
         /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
         /// </summary>
         /// <param name="x">X co-ordinate of the location to read pixel from.</param>
         /// <param name="y">Y co-ordinate of the location to read pixel from.</param>
+        /// <param name="session">Session object which provides information as to how to read data.</param>
         /// <returns>Pixel value.</returns>
-        int ReadPixel(int x, int y);
+        int ReadPixel(int x, int y, IReadSession session);
 
         /// <summary>
         /// Reads an axial line after applying applying offset and rotation transformation (if exists).
@@ -199,8 +195,8 @@ namespace MnM.GWS
         /// <param name="pixels">Resultant memory block.</param>
         /// <param name="srcIndex">Location in the resultant memory block from where reading shoud start.</param>
         /// <param name="length">Length up to which the block should be read.</param>
-        /// Unless this object is texture brush and Advanced version this will be null.</param>
-        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length);
+        /// <param name="session">Session object which records drawing area and has shape id and destination info.</param>
+        void ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, IReadSession session);
     }
     #endregion
 
@@ -229,7 +225,7 @@ namespace MnM.GWS
         /// <param name="color">Color to write at given location.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
         /// <param name="Command">Command to control pixel writing.</param>
-        /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
+        /// <param name="session">Session object which records drawing area and has shape id and destination info.</param>
         void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, ISession session);
 
         /// <summary>

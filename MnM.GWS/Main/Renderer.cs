@@ -783,14 +783,12 @@ namespace MnM.GWS
             IPenContext PenContext = Settings.PenContext;
             if (shape is IRotatable)
                 Settings.Rotation = ((IRotatable)shape).Rotation;
+            bool NoPen = PenContext == null;
 
-            if (PenContext == null)
+            if (NoPen)
             {
                 if (buffer is IReadable)
-                {
                     Pen = (IReadable)buffer;
-                    Pen.Choice |= ReadChoice.InvertColor;
-                }
                 else
                     Pen = Pens.White;
                 goto mks;
@@ -799,6 +797,8 @@ namespace MnM.GWS
         mks:
             (Pen as ISettingsReceiver)?.Receive(Settings);
             Settings.PenContext = Pen;
+            if (NoPen)
+                Settings.Choice = ReadChoice.InvertColor;
             return Pen;
         }
         #endregion
@@ -823,7 +823,7 @@ namespace MnM.GWS
             int x = horizontal ? intVal : axis;
             int y = horizontal ? axis : intVal;
 
-            int color = pen.ReadPixel(x, y);
+            int color = pen.ReadPixel(x, y, session);
 
             bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
 
@@ -1002,7 +1002,7 @@ namespace MnM.GWS
                 int[] source;
 
                 if (!CalculateOnly)
-                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length);
+                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length, session);
 
                 int dstX = Horizontal ? Start : axis;
                 int dstY = Horizontal ? axis : Start;
@@ -1444,10 +1444,12 @@ namespace MnM.GWS
                     }
                     var dy = dstY;
                     int[] pixels;
+                    ReadSession session = new ReadSession();
+                    session.Choice = (Command & Command.InvertColor) == Command.InvertColor ? ReadChoice.InvertColor : ReadChoice.Default; ;
 
                     while (y < b)
                     {
-                        Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen);
+                        Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen, session);
                         fixed (int* p = pixels)
                             src = p;
                         writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
