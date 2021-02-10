@@ -17,7 +17,7 @@ namespace MnM.GWS
 #else
     public
 #endif
-        sealed class SdlWindowSurface : IRenderTarget
+        sealed class SdlTarget : IRenderTarget
         {
             #region VARIABLES
             /// <summary>
@@ -41,13 +41,24 @@ namespace MnM.GWS
             readonly IRenderWindow Window;
 
             /// <summary>
-            /// 
+            /// SDL surface object.
             /// </summary>
             IntPtr Surface;
+#if Advanced
+            /// <summary>
+            /// this array of byte will be used by Canvas object for animation.
+            /// </summary>
+            volatile byte[] flags;
+
+            /// <summary>
+            /// this array of int will be used by Canvas object for animation.
+            /// </summary>
+            volatile int[] backup;
+#endif
             #endregion
 
             #region CONSTRUCTORS
-            public SdlWindowSurface(IRenderWindow window)
+            public SdlTarget(IRenderWindow window)
             {
                 Window = window;
                 this.Surface = GetHandle(Window.Handle);
@@ -56,6 +67,10 @@ namespace MnM.GWS
                 height = window.Height;
                 length = width * height;
                 Source = Surface.ToObj<SdlSurfaceInfo>().Pixels;
+#if Advanced
+                flags = new byte[length];
+                backup = new int[length];
+#endif
             }
             #endregion
 
@@ -67,6 +82,25 @@ namespace MnM.GWS
             public bool IsDisposed { get; private set; }
             public string ID { get; private set; }
             unsafe int* Screen => (int*)Source;
+
+#if Advanced
+            public unsafe IntPtr Flags
+            {
+                get
+                {
+                    fixed (byte* b = flags)
+                        return (IntPtr)b;
+                }
+            }
+            public unsafe IntPtr Backup
+            {
+                get
+                {
+                    fixed (int* b = backup)
+                        return (IntPtr)b;
+                }
+            }
+#endif
             #endregion
 
             #region GET HANDLE
@@ -141,9 +175,15 @@ namespace MnM.GWS
                 SdlSurfaceInfo sdlSurface = Surface.ToObj<SdlSurfaceInfo>();
                 Source = sdlSurface.Pixels;
 
+                int oldWidth = width;
+                int oldHeight = height;
                 width = sdlSurface.Width;
                 height = sdlSurface.Height;
                 length = width * height;
+#if Advanced
+                flags = flags.ResizedData(width, height, oldWidth, oldHeight);
+                backup = backup.ResizedData(width, height, oldWidth, oldHeight);
+#endif
             }
             #endregion
 
@@ -155,10 +195,16 @@ namespace MnM.GWS
             #region DISPOSE
             public void Dispose()
             {
+                if (!Window.IsDisposed)
+                    return;
+                IsDisposed = true;
+#if Advanced
+                flags = null;
+                backup = null;
+#endif
             }
-            #endregion
+#endregion
         }
-
 #if HideSdlObjects
     }
 #endif

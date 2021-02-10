@@ -49,7 +49,7 @@ namespace MnM.GWS
     #endregion
 
     #region IDISPOSABLE
-    public interface IDisposed : IDisposable
+    public interface IDisposable2 : IDisposable
     {
         /// <summary>
         /// Indicates whether this object is disposed or not.

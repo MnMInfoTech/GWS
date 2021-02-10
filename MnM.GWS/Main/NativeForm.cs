@@ -22,7 +22,7 @@ namespace MnM.GWS
             readonly ICanvas Canvas;
             readonly INativeTarget Target;
             const int formX = 602, formY = 200, formW = 404, formH = 506;
-        readonly DrawEventArgs drawEventArgs = new DrawEventArgs();
+            readonly DrawEventArgs drawEventArgs = new DrawEventArgs();
             #endregion
 
             #region CONSTRCUTORS
@@ -30,6 +30,7 @@ namespace MnM.GWS
             {
                 Target = target;
                 Canvas = Factory.newCanvas(target);
+                Canvas.Background = Rgba.ActiveCaption;
                 Target.Form = this;
             }
             public NativeForm(int formW, int formH) :
@@ -48,7 +49,7 @@ namespace MnM.GWS
             {
                 set => Canvas.Background = value;
             }
-            public bool IsDisposed => Target.IsDisposed;
+            public bool IsDisposed { get; private set; }
             public IntPtr Handle => Target.Handle;
             public int Width => Canvas.Width;
             public int Height => Canvas.Height;
@@ -104,6 +105,7 @@ namespace MnM.GWS
             #region DISPOSE
             public override void Dispose()
             {
+                IsDisposed = true;
                 Canvas.Dispose();
             }
             #endregion

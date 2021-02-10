@@ -136,7 +136,7 @@ namespace MnM.GWS
 
         #region RENDER TARGET
         partial void newRenderTarget(ref IRenderTarget target, IRenderWindow window)=>
-             target = new SdlWindowSurface(window);
+             target = new SdlTarget(window);
         #endregion
 
         #region OPENGL CONTEXT

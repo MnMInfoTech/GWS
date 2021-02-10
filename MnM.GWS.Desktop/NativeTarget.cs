@@ -20,7 +20,7 @@ namespace MnM.GWS
 #else
     public
 #endif
-        sealed class NativeTarget : Form, INativeTarget
+        sealed partial class MSTarget : Form, INativeTarget
         {
             #region VARIABLES
             /// <summary>
@@ -53,6 +53,18 @@ namespace MnM.GWS
             /// </summary>
             int length;
 
+#if Advanced
+            /// <summary>
+            /// this array of byte will be used by Canvas object for animation.
+            /// </summary>
+            volatile byte[] flags;
+
+            /// <summary>
+            /// this array of int will be used by Canvas object for animation.
+            /// </summary>
+            volatile int[] backup;
+#endif
+
             #region EVENT ARGS
             readonly MsKeyEventArgs keyEventArgs = new MsKeyEventArgs();
             readonly MsMouseEventArgs mouseEventArgs = new MsMouseEventArgs();
@@ -66,7 +78,7 @@ namespace MnM.GWS
             #endregion
 
             #region CONSTRUCTORS
-            public NativeTarget(int x, int y, int w, int h)
+            public MSTarget(int x, int y, int w, int h)
             {
                 Pointer = new Array<int>(w, h);
                 Bitmap = new Bitmap(w, h, w * 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
@@ -78,6 +90,11 @@ namespace MnM.GWS
                 StartPosition = FormStartPosition.Manual;
                 Location = new Point(x, y);
                 Size = new System.Drawing.Size(w, h);
+
+#if Advanced
+                flags = new byte[length];
+                backup = new int[length];
+#endif
             }
             #endregion
 
@@ -112,6 +129,24 @@ namespace MnM.GWS
                         base.Text = value;
                 }
             }
+#if Advanced
+            public unsafe IntPtr Flags
+            {
+                get
+                {
+                    fixed (byte* b = flags)
+                        return (IntPtr)b;
+                }
+            }
+            public unsafe IntPtr Backup
+            {
+                get
+                {
+                    fixed (int* b = backup)
+                        return (IntPtr)b;
+                }
+            }
+#endif
             #endregion
 
             #region WRITABLE BLOCK
@@ -170,9 +205,10 @@ namespace MnM.GWS
                 if (IsDisposed || newWidth == null && newHeight == null)
                     return;
 
-                var w = newWidth ?? Width;
-                var h = newHeight ?? Height;
-
+                var w = newWidth ?? width;
+                var h = newHeight ?? height;
+                int oldWidth = width;
+                int oldHeight = height;
                 width = w;
                 height = h;
                 length = width * height;
@@ -180,6 +216,10 @@ namespace MnM.GWS
                 var all = new Perimeter(0, 0, width, height);
                 Bitmap = new Bitmap(Pointer.Width, Pointer.Height, Pointer.Width * 4,
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
+#if Advanced
+                flags = flags.ResizedData(width, height, oldWidth, oldHeight);
+                backup = backup.ResizedData(width, height, oldWidth, oldHeight);
+#endif
                 Window.CopyTo(Pointer.Handle, length, width, 0, 0, all, Command.Backdrop);
                 Update(0, all);
             }
@@ -347,6 +387,21 @@ namespace MnM.GWS
             delegate void DelUpdate();
             delegate void DelTextChange(string text);
             #endregion
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                    return;
+                base.Dispose(disposing);
+                if (!Window.IsDisposed)
+                    return;
+#if Advanced
+                flags = null;
+                backup = null;
+                Bitmap.Dispose();
+                Pointer.Dispose();
+#endif
+            }
         }
 #if HideNativeObjects
     }

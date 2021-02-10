@@ -119,7 +119,7 @@ namespace MnM.GWS
     /// <summary>
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
-    public interface IGraphics : IWritable, ICopyable, IDisposed, IUpdatable
+    public interface IGraphics : IWritable, ICopyable, IDisposable2, IUpdatable
     {
         /// <summary>
         /// Indicates whether this object is curently locked for writing or not.
@@ -134,7 +134,7 @@ namespace MnM.GWS
     /// Represents writable and copiable memory block object which can also render shapes.
     /// </summary>
     public partial interface IImage : IGraphics, IConsolidator, IClearable, 
-        IWritableBlock, IResizable, IRenderableBlock, ICloneable, IDisposed, IScalable
+        IWritableBlock, IResizable, IRenderableBlock, ICloneable, IDisposable2, IScalable
     { }
     #endregion
 

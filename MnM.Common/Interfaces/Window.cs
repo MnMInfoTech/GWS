@@ -21,8 +21,19 @@ namespace MnM.GWS
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
     public partial interface IRenderTarget : IClearable, IWritableBlock, IPixels,
-        IResizable, ICopyable, IUpdatable, IDisposed, IPaintable
+        IResizable, ICopyable, IUpdatable, IDisposable2, IPaintable
     {
+#if Advanced
+        /// <summary>
+        /// Byte array pointer to be used by Canvas object for animation.
+        /// </summary>
+        IntPtr Flags { get; }
+        
+        /// <summary>
+        /// Integer array pointer to be used by Canvas object for animation.
+        /// </summary>
+        IntPtr Backup { get; }
+#endif
     }
     #endregion
 
@@ -44,9 +55,13 @@ namespace MnM.GWS
 
 #if (GWS || Window)
     #region INATIVE-FORM
-    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer, IPaintable
-    {
-    }
+    /// <summary>
+    /// Represents an object which binds to native operating system specfic window such as Microsoft.Window.Forms.Form.
+    /// SDL - Window should be the natural choice to represent window instead of this, 
+    /// unlesss there are compelling resaons to use this object.
+    /// </summary>
+    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer, IPaintable, IDisposable2
+    { }
     #endregion
 
     #region IFORM
@@ -54,7 +69,7 @@ namespace MnM.GWS
     /// Represents an object which represents window.
     /// </summary>
     public partial interface IForm : INativeForm, IGraphics, IConsolidator,
-        IContainer, IUpdatable, IRefreshable, IClearable, IWritableBlock, IDisposed,
+        IContainer, IUpdatable, IRefreshable, IClearable, IWritableBlock, IDisposable2,
         IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents, IReadable
     {
@@ -75,7 +90,7 @@ namespace MnM.GWS
     /// <summary>
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
-    public partial interface IRenderWindow : IHandle, ICopyable, IDisposed, IPaintable
+    public partial interface IRenderWindow : IHandle, ICopyable, IDisposable2, IPaintable
     {
         RendererFlags RendererFlags { get; }
     }

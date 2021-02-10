@@ -13,7 +13,7 @@ namespace MnM.GWS
     {
         partial void newNativeTarget(ref INativeTarget target, int x, int y, int w, int h)
         {
-            target = new NativeTarget(x, y, w, h);
+            target = new MSTarget(x, y, w, h);
         }
     }
 }
