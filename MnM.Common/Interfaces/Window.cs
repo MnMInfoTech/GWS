@@ -28,12 +28,7 @@ namespace MnM.GWS
         /// Byte array pointer to be used by Canvas object for animation.
         /// </summary>
         IntPtr Flags { get; }
-        
-        /// <summary>
-        /// Integer array pointer to be used by Canvas object for animation.
-        /// </summary>
-        IntPtr Backup { get; }
-#endif
+ #endif
     }
     #endregion
 

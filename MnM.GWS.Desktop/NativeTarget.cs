@@ -58,11 +58,6 @@ namespace MnM.GWS
             /// this array of byte will be used by Canvas object for animation.
             /// </summary>
             volatile byte[] flags;
-
-            /// <summary>
-            /// this array of int will be used by Canvas object for animation.
-            /// </summary>
-            volatile int[] backup;
 #endif
 
             #region EVENT ARGS
@@ -93,7 +88,6 @@ namespace MnM.GWS
 
 #if Advanced
                 flags = new byte[length];
-                backup = new int[length];
 #endif
             }
             #endregion
@@ -135,14 +129,6 @@ namespace MnM.GWS
                 get
                 {
                     fixed (byte* b = flags)
-                        return (IntPtr)b;
-                }
-            }
-            public unsafe IntPtr Backup
-            {
-                get
-                {
-                    fixed (int* b = backup)
                         return (IntPtr)b;
                 }
             }
@@ -218,7 +204,6 @@ namespace MnM.GWS
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
 #if Advanced
                 flags = flags.ResizedData(width, height, oldWidth, oldHeight);
-                backup = backup.ResizedData(width, height, oldWidth, oldHeight);
 #endif
                 Window.CopyTo(Pointer.Handle, length, width, 0, 0, all, Command.Backdrop);
                 Update(0, all);
@@ -397,7 +382,6 @@ namespace MnM.GWS
                     return;
 #if Advanced
                 flags = null;
-                backup = null;
                 Bitmap.Dispose();
                 Pointer.Dispose();
 #endif

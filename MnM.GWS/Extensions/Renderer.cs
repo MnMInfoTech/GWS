@@ -798,7 +798,7 @@ namespace MnM.GWS
             (Pen as ISettingsReceiver)?.Receive(Settings);
             Settings.PenContext = Pen;
             if (NoPen)
-                Settings.Choice = ReadChoice.InvertColor;
+                Settings.Session.Choice = ReadChoice.InvertColor;
             return Pen;
         }
         #endregion
@@ -1039,10 +1039,13 @@ namespace MnM.GWS
             command |= Command.Screen;
             var boundary = new Session();
 
-            perimeter.GetBounds(out int x1, out int y1, out int w, out int h, -shrink);
+            perimeter.GetBounds(out int x1, out int y1, out int w, out int h);
             int x2 = x1 + w;
             int y2 = y1 + h;
-
+            x1 += shrink;
+            y1 += shrink;
+            x2 -= shrink;
+            y2 -= shrink;
             buffer.CreatePixelAction(pen, out action, boundary);
             Renderer.ProcessLine(x1, y1, x1, y2, action, command);
             Renderer.ProcessLine(x1, y2, x2, y2, action, command);
@@ -3017,8 +3020,8 @@ namespace MnM.GWS
             if (settings == null)
                 settings = Factory.newSettings();
 
-            settings.DstX = dstX;
-            settings.DstY = dstY;
+            settings.Session.X = dstX;
+            settings.Session.Y = dstY;
             buffer.Render(text, settings);
         }
         #endregion
@@ -4020,19 +4023,34 @@ namespace MnM.GWS
         public static void ProcessWith(this IList<ILine> Outer, IList<ILine> Inner, FillAction action,
             FillMode fillMode, Command fillCommand, Size clip)
         {
-            var length = Math.Min(Outer.Count, Inner.Count);
+            int length = Outer.Count;
+
+            bool HasInner = Inner != null;
+            if (HasInner)
+                length = Math.Min(Outer.Count, Inner.Count);
+
             VectorF p1, p2, p3, p4;
             using (var polyFill = Factory.newPolyFill())
             {
                 polyFill.Command = fillCommand | Command.OddEvenPolyFill | Command.Outlininig;
                 polyFill.Clip = clip;
-                for (int i = 0; i < length; i++)
+                if (HasInner)
                 {
-                    p1 = new VectorF(Outer[i].X1, Outer[i].Y1);
-                    p2 = new VectorF(Outer[i].X2, Outer[i].Y2);
-                    p3 = new VectorF(Inner[i].X1, Inner[i].Y1);
-                    p4 = new VectorF(Inner[i].X2, Inner[i].Y2);
-                    polyFill.ProcessQuardilateral(p1, p2, p3, p4, action, fillMode, false);
+                    for (int i = 0; i < length; i++)
+                    {
+                        p1 = new VectorF(Outer[i].X1, Outer[i].Y1);
+                        p2 = new VectorF(Outer[i].X2, Outer[i].Y2);
+                        p3 = new VectorF(Inner[i].X1, Inner[i].Y1);
+                        p4 = new VectorF(Inner[i].X2, Inner[i].Y2);
+                        polyFill.ProcessQuardilateral(p1, p2, p3, p4, action, fillMode, false);
+                    }
+                }
+                else
+                {
+                    Outer.MinMax(out float minX, out float minY, out float maxX, out float maxY, clip);
+                    polyFill.Begin(minY.Round(), (int)maxY + 1);
+                    polyFill.Scan(Outer);
+                    polyFill.Fill(action);
                 }
             }
         }

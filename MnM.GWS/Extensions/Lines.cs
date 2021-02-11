@@ -798,6 +798,52 @@ namespace MnM.GWS
         public static void ProcessLine(VectorF p1, VectorF p2, PixelAction action, Command lineCommand) =>
             Renderer.ProcessLine(p1.X, p1.Y, p2.X, p2.Y, action, lineCommand);
         #endregion
+
+        #region MIN-MAX
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MinMax(this IEnumerable<ILine> collection, out float minX, out float minY, out float maxX, out float maxY, SizeF? clip = null)
+        {
+            minX = minY = float.MaxValue;
+            maxX = maxY = float.MinValue;
+            bool ok = false;
+            foreach (var l in collection)
+            {
+                if (l == null || !l.Valid)
+                    continue;
+                ok = true;
+                var x = l.X;
+                var y = l.Y;
+                var r = x + l.Width;
+                var b = y + l.Height;
+                if (x < minX)
+                    minX = x;
+                if (y < minY)
+                    minY = y;
+                if (r > maxX)
+                    maxX = r;
+                if (b > maxY)
+                    maxY = b;
+            }
+            if (clip != null && clip.Value)
+            {
+                minX = Math.Max(minX, 0);
+                minY = Math.Max(minY, 0);
+                maxX = Math.Max(maxX, 0);
+                maxY = Math.Max(maxY, 0);
+
+                if (maxX > clip.Value.Width)
+                    maxX = clip.Value.Width;
+                if (maxY > clip.Value.Height)
+                    maxY = clip.Value.Height;
+            }
+            if (!ok)
+                minX = maxX = minY = maxY = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MinMax(SizeF clip, out float minX, out float minY, out float maxX, out float maxY, params ILine[] collection) =>
+            MinMax(collection as IEnumerable<ILine>, out minX, out minY, out maxX, out maxY, clip);
+        #endregion
     }
 }
 #endif

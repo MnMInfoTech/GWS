@@ -523,7 +523,7 @@ namespace MnM.GWS
 
             foreach (var p in collection)
             {
-                if (p == null || !p)
+                if (!p)
                     continue;
                 ok = true;
                 if (p.X < minX)
@@ -660,7 +660,7 @@ namespace MnM.GWS
             bool ok = false;
             foreach (var p in collection)
             {
-                if (p == null || !p)
+                if (!p)
                     continue;
                 ok = true;
                 if (p.X < minX)

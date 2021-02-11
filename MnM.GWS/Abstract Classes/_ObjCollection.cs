@@ -78,28 +78,21 @@ namespace MnM.GWS
         {
             if (!IsAddable(Shape))
                 return Shape;
-            bool  AddMode = !Contains(Shape);
-
-            if (AddMode)
-            {
-                var info = newSettings(Shape.ID);
-                if (Settings != null)
-                    info.Receive(Settings);
-
-                Items.Add(Shape.ID, new Shape(Shape, info));
-                if (Shape is IChild)
-                    ((IChild)Shape).Graphics = Graphics;
-            }
+            if (Contains(Shape))
+                return Shape;
+            var shapeInfo = new Shape(Shape);
+            Items.Add(Shape.ID, shapeInfo);
+            if (Settings != null)
+                shapeInfo.Settings.Receive(Settings);
+            if (Shape is IChild)
+                ((IChild)Shape).Graphics = Graphics;
             Settings = this[Shape];
             var OriginalCommand = Settings.Command;
-            if (AddMode)
-            {
-                if (suspendUpdate == true)
-                    Settings.Command |= Command.InvalidateOnly;
-                else if (suspendUpdate == false)
-                    Settings.Command &= ~Command.InvalidateOnly;
-                Settings.Command |= Command.AddMode;
-            }
+            if (suspendUpdate == true)
+                Settings.Command |= Command.InvalidateOnly;
+            else if (suspendUpdate == false)
+                Settings.Command &= ~Command.InvalidateOnly;
+            Settings.Command |= Command.AddMode;
             Graphics.Render(Shape, Settings);
             Settings.Command = OriginalCommand;
             return Shape;
@@ -111,10 +104,6 @@ namespace MnM.GWS
             foreach (var item in controls)
                 Add(item);
         }
-        #endregion
-
-        #region NEW SETTINGS
-        protected abstract Settings newSettings(uint shapeID);
         #endregion
 
         #region REMOVE

@@ -6,7 +6,7 @@
 
 namespace MnM.GWS
 {
-    public sealed partial class Settings : ISettings
+    internal sealed partial class Settings : ISettings
     {
         #region VARIABLES
         Command DrawCommand, CalculatedDrawCommand;
@@ -16,6 +16,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
+        internal Settings() { }
         internal Settings(uint shapeID, IPenContext context):
             this(shapeID)
         {
@@ -60,11 +61,8 @@ namespace MnM.GWS
                 SyncCommand();
             }
         }
-        public int DstX { get => session.DstX; set => session.DstX = value; }
-        public int DstY { get => session.DstY; set => session.DstY = value; }
         public int ProcessID { get => session.ProcessID; set => session.ProcessID = value; }
         public uint ShapeID { get => session.ShapeID; set => session.ShapeID = value; }
-        public ReadChoice Choice { get => session.Choice; set => session.Choice = value; }
         public Rotation Rotation { get; set; }
         public StrokeMode StrokeMode { get; set; }
         public VectorF Scale { get; set; }
@@ -107,8 +105,8 @@ namespace MnM.GWS
             }
             if (settings is IDstPoint)
             {
-                session.DstX = ((IDstPoint)settings).DstX;
-                session.DstY = ((IDstPoint)settings).DstY;
+                session.DstX = ((IDstPoint)settings).X;
+                session.DstY = ((IDstPoint)settings).Y;
             }
             if (settings is IRectangle)
             {
@@ -186,7 +184,7 @@ namespace MnM.GWS
             fillMode = FillMode.Original;
             Rotation = Rotation.Empty;
             Scale = VectorF.Empty;
-            DstX = DstY = 0;
+            session.DstX = session.DstY = 0;
             Bounds = Rectangle.Empty;
             ShapeID = 0;
             Session.Clear();

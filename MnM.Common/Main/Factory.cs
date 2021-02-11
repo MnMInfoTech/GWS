@@ -228,33 +228,33 @@ namespace MnM.GWS
         #endregion
 
         #region SETTINGS
-        public static Settings newSettings(uint shapeID, IPenContext context) =>
+        public static ISettings newSettings(uint shapeID, IPenContext context) =>
             new Settings(shapeID, context);
-        public static Settings newSettings(IPenContext context) =>
+        public static ISettings newSettings(IPenContext context) =>
             new Settings(0, context);
-        public static Settings newSettings(uint shapeID) =>
+        public static ISettings newSettings(uint shapeID) =>
             new Settings(shapeID, null);
-        public static Settings newSettings() =>
+        public static ISettings newSettings() =>
             new Settings(0, null);
-        public static Settings newSettings(uint shapeID, IPenContext context, Command Command)
+        public static ISettings newSettings(uint shapeID, IPenContext context, Command Command)
         {
             var settings = new Settings(shapeID, context);
             settings.Command = Command;
             return settings;
         }
-        public static Settings newSettings(uint shapeID, Command Command)
+        public static ISettings newSettings(uint shapeID, Command Command)
         {
             var settings = new Settings(shapeID, null);
             settings.Command = Command;
             return settings;
         }
-        public static Settings newSettings(IPenContext context, Command Command)
+        public static ISettings newSettings(IPenContext context, Command Command)
         {
             var settings = new Settings(0, context);
             settings.Command = Command;
             return settings;
         }
-        public static Settings newSettings(Command Command)
+        public static ISettings newSettings(Command Command)
         {
             var settings = new Settings(0, null);
             settings.Command = Command;
@@ -270,15 +270,6 @@ namespace MnM.GWS
         /// <returns></returns>
         public static IShape newShape(IRenderable renderable) =>
             new Shape(renderable);
-
-        /// <summary>
-        /// Creates new shape with renderable and default settings for rendering.
-        /// </summary>
-        /// <param name="renderable">Renderable to render.</param>
-        /// <param name="settings">Settings attached to the Renderable to render.</param>
-        /// <returns></returns>
-        public static IShape newShape(IRenderable renderable, ISettings settings) =>
-            new Shape(renderable, settings);
         #endregion
 
         #region NATIVE WINDOW

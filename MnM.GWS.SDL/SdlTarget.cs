@@ -49,11 +49,6 @@ namespace MnM.GWS
             /// this array of byte will be used by Canvas object for animation.
             /// </summary>
             volatile byte[] flags;
-
-            /// <summary>
-            /// this array of int will be used by Canvas object for animation.
-            /// </summary>
-            volatile int[] backup;
 #endif
             #endregion
 
@@ -69,7 +64,6 @@ namespace MnM.GWS
                 Source = Surface.ToObj<SdlSurfaceInfo>().Pixels;
 #if Advanced
                 flags = new byte[length];
-                backup = new int[length];
 #endif
             }
             #endregion
@@ -89,14 +83,6 @@ namespace MnM.GWS
                 get
                 {
                     fixed (byte* b = flags)
-                        return (IntPtr)b;
-                }
-            }
-            public unsafe IntPtr Backup
-            {
-                get
-                {
-                    fixed (int* b = backup)
                         return (IntPtr)b;
                 }
             }
@@ -182,7 +168,6 @@ namespace MnM.GWS
                 length = width * height;
 #if Advanced
                 flags = flags.ResizedData(width, height, oldWidth, oldHeight);
-                backup = backup.ResizedData(width, height, oldWidth, oldHeight);
 #endif
             }
             #endregion
@@ -200,7 +185,6 @@ namespace MnM.GWS
                 IsDisposed = true;
 #if Advanced
                 flags = null;
-                backup = null;
 #endif
             }
 #endregion

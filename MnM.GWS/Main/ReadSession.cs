@@ -6,14 +6,29 @@
 #if GWS || Window
 namespace MnM.GWS
 {
-    public class ReadSession: IReadSession
+    public partial class ReadSession: IReadSession
     {
         /// <summary>
         /// Choice option for readin data from pen.
         /// </summary>
         public ReadChoice Choice;
 
-        ReadChoice IReadSession.Choice => Choice;
+        #region PROPERTIES
+        ReadChoice IReadSession.Choice { get => Choice; set => Choice = value; }
+
+        protected virtual ReadSession newInstance() =>
+            new ReadSession();
+        public object Clone()
+        {
+            var session = newInstance();
+            session.Choice = Choice;
+            Clone2(session);
+            CopyTo(session);
+            return session;
+        }
+        protected virtual void CopyTo(ReadSession session) { }
+        partial void Clone2(ReadSession session);
+        #endregion
     }
 }
 #endif

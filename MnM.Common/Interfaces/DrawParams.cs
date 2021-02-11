@@ -65,17 +65,17 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has an information about destination.
     /// </summary>
-    public interface IDstPoint
+    public interface IDstPoint: IPoint
     {
         /// <summary>
-        /// Gets X co-ordinate of the draw location.
+        /// Gets or sets X co-ordinate of the draw location.
         /// </summary>
-        int DstX { get; }
+        new int X { get; set; }
 
         /// <summary>
-        /// Gets Y co-ordinate of the draw location.
+        /// Gets or sets Y co-ordinate of the draw location.
         /// </summary>
-        int DstY { get; }
+        new int Y { get; set; }
     }
     #endregion
 
@@ -93,12 +93,12 @@ namespace MnM.GWS
     #endregion
 
     #region IREADSESSION
-    public interface IReadSession
+    public interface IReadSession: ICloneable
     {
         /// <summary>
-        /// Gets option to read data from pen.
+        /// Gets or sets option to read data from pen.
         /// </summary>
-        ReadChoice Choice { get; }
+        ReadChoice Choice { get; set; }
     }
     #endregion
 
@@ -107,16 +107,22 @@ namespace MnM.GWS
     /// Represents an object which has information about current rendering process and perimeter formation.
     /// </summary>
     public interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession
-    {        
-    }
+    { }
     #endregion
 
-    #region IDRAW-SETTINGS
+    #region ISETTINGS
     /// <summary>
-    /// Represents an object which exposes various settings meant for end users.
+    /// Represents an object which exposes various settings meant for controling rendering process.
+    /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public partial interface IDrawSettings : IDrawParams, IBounds, IRotatable
+    public partial interface ISettings : IDrawParams, IBounds, IRotatable,
+        IPolySettings, ISettingsReceiver, IShapeID, IProcessID
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        ISession Session { get; }
+
         /// <summary>
         /// Gets or sets fill mode settings for this object.
         /// </summary> 
@@ -151,20 +157,6 @@ namespace MnM.GWS
         /// Gets or sets the supplied foreground context to be used for rendering.
         /// </summary>
         IPenContext PenContext { get; set; }
-    }
-    #endregion
-
-    #region ISETTINGS
-    /// <summary>
-    /// Represents an object which exposes various settings meant for programmers to facilitate rendering.
-    /// It also facilitates modification of location and draw parameters.
-    /// </summary>
-    public partial interface ISettings : IDrawSettings, IPolySettings, ISettingsReceiver, IShapeID, IProcessID, IDstPoint
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        ISession Session { get; }
 
         /// <summary>
         /// Gets or sets an ID of current shape associated with current rendering process.
@@ -175,24 +167,10 @@ namespace MnM.GWS
         /// Gets or sets GWS assigned ID for the current process.
         /// </summary>
         new int ProcessID { get; set; }
-
-        /// <summary>
-        /// Gets or sets X co-ordinate of the draw location.
-        /// </summary>
-        new int DstX { get; set; }
-
-        /// <summary>
-        /// Gets or sets Y co-ordinate of the draw location.
-        /// </summary>
-        new int DstY { get; set; }
-
-        /// <summary>
-        /// Gets or sets option to read data from pen.
-        /// </summary>
-        ReadChoice Choice { get; set; }
     }
     #endregion
 
+    #region SETTINGS HOLDER
     /// <summary>
     /// Represents an object which holds public draw-settings.
     /// </summary>
@@ -201,7 +179,8 @@ namespace MnM.GWS
         /// <summary>
         /// Gets modifiable draw-settings object this object holds.
         /// </summary>
-        IDrawSettings DrawSettings { get; }
+        ISettings Settings { get; }
     }
+    #endregion
 }
 #endif

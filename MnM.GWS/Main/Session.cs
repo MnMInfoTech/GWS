@@ -55,6 +55,23 @@ namespace MnM.GWS
 
         #region CONSTRUCTORS
         public Session(){ }
+        public Session(uint shapeID, int processID, int dstX = 0, int dstY = 0)
+        {
+            ShapeID = shapeID;
+            ProcessID = processID;
+            DstX = dstX;
+            DstY = dstY;
+        }
+        public Session(uint shapeID)
+        {
+            ShapeID = shapeID;
+        }
+        public Session(int processID, int dstX = 0, int dstY = 0)
+        {
+            ProcessID = processID;
+            DstX = dstX;
+            DstY = dstY;
+        }
         public Session(int x, int y, int w, int h, uint shapeID, int processID, int dstX = 0, int dstY = 0)
         {
             X1 = x;
@@ -73,6 +90,11 @@ namespace MnM.GWS
             Y2 = Y1 + h;
             ProcessID = perimeter.ProcessID;
             ShapeID = perimeter.ShapeID;
+            if(perimeter is IDstPoint)
+            {
+                DstX = ((IDstPoint)perimeter).X;
+                DstY = ((IDstPoint)perimeter).Y;
+            }
         }
         #endregion
 
@@ -80,8 +102,8 @@ namespace MnM.GWS
         public bool Valid => X2 > 0 && Y2 > 0;
         uint IShapeID.ShapeID => ShapeID;
         int IProcessID.ProcessID => ProcessID;
-        int IDstPoint.DstX => DstX;
-        int IDstPoint.DstY => DstY;
+        int IDstPoint.X { get => DstX; set => DstX = value; }
+        int IDstPoint.Y { get => DstY; set => DstY = value; }
         int IPoint.X => X1;
         int IPoint.Y => Y1;
         int ISize.Width => X2 - X1;
@@ -136,6 +158,24 @@ namespace MnM.GWS
             }
             w = x2 - x;
             h = y2 - y;
+        }
+        #endregion
+
+        #region CLONE
+        protected override ReadSession newInstance() =>
+            new Session();
+        protected override void CopyTo(ReadSession session)
+        {
+            base.CopyTo(session);
+            Session session1 = (Session)session;
+            session1.ShapeID = ShapeID;
+            session1.ProcessID = ProcessID;
+            session1.DstX = DstX;
+            session1.DstY = DstY;
+            session1.X1 = X1;
+            session1.Y1 = Y1;
+            session1.X2 = X2;
+            session1.Y2 = Y2;
         }
         #endregion
 

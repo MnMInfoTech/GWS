@@ -25,7 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeForm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\ObjColleciton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\ReadSession.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Main\Renderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Session.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Shape.cs" />

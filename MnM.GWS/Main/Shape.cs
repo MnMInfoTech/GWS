@@ -6,27 +6,19 @@
 
 namespace MnM.GWS
 {
-    public sealed class Shape : IShape
+    public sealed partial class Shape : IShape
     {
         #region VARIABLES
         public IRenderable Renderable;
-        public Settings Settings;
+        internal Settings Settings;
         #endregion
 
         #region COSTRUCTORS
-        internal Shape(IRenderable shape) :
-            this(shape, Factory.newSettings(shape.ID))
-        { }
-        internal Shape(IRenderable shape, ISettings settings)
+        public Shape(IRenderable shape) 
         {
             Renderable = shape;
-            if (settings is Settings)
-                Settings = (Settings)settings;
-            else
-            {
-                Settings = Factory.newSettings(shape.ID);
-                Settings.Receive(settings);
-            }
+            Settings = (shape is ISettingsHolder) ? 
+                (Settings)((ISettingsHolder)shape).Settings : new Settings(shape.ID);
         }
         #endregion
 
