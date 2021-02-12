@@ -25,10 +25,17 @@ namespace MnM.GWS
     {
 #if Advanced
         /// <summary>
-        /// Byte array pointer to be used by Canvas object for animation.
+        /// Byte array pointer to be used by Canvas object for animation (Temporary drawing).
+        /// i.e. anything which is drawn with Command.Screen.
         /// </summary>
-        IntPtr Flags { get; }
- #endif
+        IntPtr ScreenFlags { get; }
+
+        /// <summary>
+        /// Byte array pointer to be used by Canvas object for direct screen drawing(Temporary drawing).
+        /// i.e. anything which is drawn with Command.Animate.
+        /// </summary>
+        IntPtr AnimationFlags { get; }
+#endif
     }
     #endregion
 

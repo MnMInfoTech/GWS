@@ -31,46 +31,55 @@ namespace MnM.GWS
 
         /// <summary>
         /// Normal operation - no check before overwriting destination pixel.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, Blocks.Copy.
         /// </summary>
         Opaque = 0x1,
 
         /// <summary>
         /// Overwrite destination pixel only if it is transparent.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, Blocks.Copy.
         /// </summary>
         Backdrop = 0x2,
 
         /// <summary>
         /// Tells GWS to invert color pixel before it is displayed.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, Blocks.Copy.
         /// </summary>
         InvertColor = 0x4,
 
         /// <summary>
         /// Overwrite destination pixel only if it is non transparent.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, Blocks.Copy.
         /// </summary>
         Masking = 0x8,
 
         /// <summary>
         /// Excludes Backgroud Pen pixels from rendering on screen.
+        /// Usage: ICopyable.CopyTo, IConsolidator.Consolidate.
         /// </summary>
         SkipBackground = 0x10,
 
         /// <summary>
         /// Exclusively uses breshenham algorithm with integer arithmetic and no anti-aliasing.  
+        /// Usage: Writable.WritePixel, Renderer.ProcessLine.
         /// </summary>
         Breshenham = 0x20,
 
         /// <summary>
         /// Sets renderer's Distinct property true to prevent any pixel in the line being redrawn.
+        /// Usage: Writable.WritePixel, Renderer.ProcessLine.
         /// </summary>
         Distinct = 0x40,
 
         /// <summary>
         /// A gap of one pixel will be left after each drawn pixel.
+        /// Usage: Writable.WritePixel, Renderer.ProcessLine.
         /// </summary>
         Dot = 0x80,
 
         /// <summary>
         /// A gap of two pixel will be left after each pair of two drawn pixel.
+        /// Usage: Writable.WritePixel, Renderer.ProcessLine.
         /// </summary>
         Dash = 0x100,
 
@@ -78,36 +87,43 @@ namespace MnM.GWS
         /// A gap of one pixel will be left after the first two drawn pixel.
         /// And then next two pixels will be drawn normally.
         /// This pattern gets repeated susequently.
+        /// Usage: Writable.WritePixel, Renderer.ProcessLine.
         /// </summary>
         DashDotDash = 0x200,
 
         /// <summary>
         /// Keeps current fill rule active to fill out-lines.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         KeepFillRuleForStroking = 0x400,
 
         /// <summary>
         /// Ignores auto calculated FillPattern based on other settings such as fill mode, stroke mode etc.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         IgnoreAutoCalculatedFillPatten = 0x800,
 
         /// <summary>
         /// Tells GWS to use Odd-Even rule for polygon filling.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         OddEven = 0x1000,
 
         /// <summary>
         /// Polygon drawing using line sequence match rule.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         Outlininig = 0x2000,
 
         /// <summary>
         /// Tells GWS it it has to draw ends points of a scan line and skip the portion in between from drawing.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         DrawEndsOnly = 0x4000,
 
         /// <summary>
         /// Draws middle part only skip end pixels.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         DrawLineOnly = 0x8000,
 
@@ -115,108 +131,129 @@ namespace MnM.GWS
         /// Tells GWS if scan line fragments is to be drawn without sorting it first. 
         /// Use this only if you have already sorted the scan line! 
         /// If that is not the case then it can give unexpected result.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         NoSorting = 0x10000,
 
         /// <summary>
         /// Skips draw if end points are close enough.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         CheckForCloseness = 0x20000,
 
         /// <summary>
         /// If axial line has onlt one endpoint and this flag exists, the point gets filled otherwise not.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         FillSinglePointLine = 0x40000,
 
         /// <summary>
         /// Standard Odd-Even rule polygon filling. floating start and end points will be rounded to next integer.
         /// Also line too short i.e start and end points are too close will be ignored.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         OddEvenPolyFill = OddEven | DrawLineOnly | CheckForCloseness,
 
         /// <summary>
         /// Standard Odd-Even rule polygon outlining. floating start and end points will be rounded to next integer.
         /// Also line too short i.e start and end points are too close will be ignored.
+        /// Usage: FillAction's Command parameter, Renderer.WriteLine's Command parameter, PolyFill.Command.
         /// </summary>
         OddEvenPolyDraw = OddEven | DrawEndsOnly | CheckForCloseness,
 
         /// <summary>
         /// Tells GWS to Suspend immediate update of screen instead to mark area for later update. Use this option carefully.
+        /// Usage: IUpdatable.Update method.
         /// </summary>
         InvalidateOnly = 0x80000,
 
         /// <summary>
         /// Prevents auto-sizing of brush according to the size of shape being rendered.
+        /// Usage: Renderer.GetPen method - via Settings.Command property.
         /// </summary>
         NoBrushAutoSizing = 0x100000,
 
         /// <summary>
         /// Prevents auto-location match of brush according to the location of shape being rendered.
+        /// Usage: Renderer.GetPen method - via Settings.Command property.
         /// </summary>
         NoBrushAutoPositioning = 0x200000,
 
         /// <summary>
         /// Tells GWS to take exact position of writing co-ordinates and read pixel from the brush at exact same position.
+        /// Usage: Renderer.GetPen method - via Settings.Command property.
         /// </summary>
         BrushFollowCanvas = 0x400000,
 
         /// <summary>
         /// Inverts the rotation angle of the brush in opposite direction then that of shape rotation.
+        /// Usage: Renderer.GetPen method - via Settings.Command property.
         /// </summary>
         InvertBrushRotation = 0x800000,
 
         /// <summary>
         /// Calculates the rendering area but does not draw shape.
+        /// Usage: Writable.WritePixel, Writable.WriteLine.
         /// </summary>
         CalculateOnly = 0x1000000,
 
         /// <summary>
         /// Uploads data directly on screen (which of course temporary in nature) bypassing the internal buffer completely.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, ICopyable.CopyTo, IConsolidator.Consolidate, IClearable.Clear.
         /// </summary>
         Screen = 0x2000000,
 
         /// <summary>
         /// Tells GWS to apply animation.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, IUpdatable.Update.
         /// </summary>
         Animate = Screen | 0x4000000,
 
         /// <summary>
-        /// Erases specified shape from the memory block. Advanced version only.
+        /// Erases specified shape from the memory block. Use this option while drawing. Advanced version only.
+        /// Usage: Writable.WritePixel, Writable.WriteLine.
         /// </summary>
         Erase = 0x8000000,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
+        /// Usage: Writable.WritePixel, Writable.WriteLine.
         /// </summary>
         Restore = 0x10000000,
 
         /// <summary>
         /// Tells GWS that shape is being drawn first time.
+        /// Usage: Writable.Render, IObjCollection.Add.
         /// </summary>
         AddMode = 0x20000000,
 
         /// <summary>
         /// Gets or sets a flag to determine that rendering of shape is done in second buffer or not. Pro version only.
+        /// Usage: Writable.WritePixel, Writable.WriteLine, ICopyable.CopyTo, IConsolidator.Consolidate, IClearable.Clear.
         /// </summary>
         SecondBuffer = 0x40000000,
 
         /// <summary>
         /// Pushes drawing of added controls to background and brings background to the front. Pro version only.
+        /// Usage: ICopyable.CopyTo, IConsolidator.Consolidate.
         /// </summary>
         SwapZOrder = 0x80000000,
 
         /// <summary>
         /// Excludes everything drawn on background buffer for rendering on screen. Pro version only.
+        /// Usage: ICopyable.CopyTo, IConsolidator.Consolidate.
         /// </summary>
         Skip2ndBuffer = 0x100000000,
 
         /// <summary>
         /// Excludes everything drawn on main buffer i.e mainly drawing of permanent controls for rendering on screen. Pro version only.
+        /// Usage: ICopyable.CopyTo, IConsolidator.Consolidate.
         /// </summary>
         Skip1stBuffer = 0x200000000,
 
         /// <summary>
         /// Copies background pen data only.
+        /// Usage: ICopyable.CopyTo, IConsolidator.Consolidate.
         /// </summary>
         CopyBackgroundOnly = Skip2ndBuffer | Skip1stBuffer,
 
@@ -227,21 +264,25 @@ namespace MnM.GWS
 
         /// <summary>
         /// Updates screen without copying data from underlying buffer.  
+        /// Usage: IUpdatable.Update.
         /// </summary>
         UpdateScreenOnly = 0x800000000,
 
         /// <summary>
         /// Copies data from underlying buffer but does not update screen.
+        /// Usage: IUpdatable.Update.
         /// </summary>
         CopyPixelsOnly = 0x1000000000,
 
         /// <summary>
         /// Wipes all temporary drawings while refreshing screen.
+        /// Usage: IUpdatable.Update.
         /// </summary>
-        WipeTemporary = 0x2000000000,
+        WipeScreen = 0x2000000000,
 
         /// <summary>
         /// Wipe latest animation drawing.
+        /// Usage: IUpdatable.Update.
         /// </summary>
         WipeAnimation = 0x4000000000,
     }

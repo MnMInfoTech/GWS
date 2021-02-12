@@ -58,6 +58,11 @@ namespace MnM.GWS
             /// this array of byte will be used by Canvas object for animation.
             /// </summary>
             volatile byte[] flags;
+         
+            /// <summary>
+            /// this array of byte will be used by Canvas object for animation.
+            /// </summary>
+            volatile byte[] flags2;
 #endif
 
             #region EVENT ARGS
@@ -88,6 +93,7 @@ namespace MnM.GWS
 
 #if Advanced
                 flags = new byte[length];
+                flags2 = new byte[length];
 #endif
             }
             #endregion
@@ -124,14 +130,22 @@ namespace MnM.GWS
                 }
             }
 #if Advanced
-            public unsafe IntPtr Flags
+        public unsafe IntPtr ScreenFlags
+        {
+            get
             {
-                get
-                {
-                    fixed (byte* b = flags)
-                        return (IntPtr)b;
-                }
+                fixed (byte* b = flags)
+                    return (IntPtr)b;
             }
+        }
+        public unsafe IntPtr AnimationFlags
+        {
+            get
+            {
+                fixed (byte* b = flags2)
+                    return (IntPtr)b;
+            }
+        }
 #endif
             #endregion
 
@@ -204,6 +218,7 @@ namespace MnM.GWS
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
 #if Advanced
                 flags = flags.ResizedData(width, height, oldWidth, oldHeight);
+                flags2 = flags2.ResizedData(width, height, oldWidth, oldHeight);
 #endif
                 Window.CopyTo(Pointer.Handle, length, width, 0, 0, all, Command.Backdrop);
                 Update(0, all);
@@ -379,11 +394,12 @@ namespace MnM.GWS
                     return;
                 base.Dispose(disposing);
                 if (!Window.IsDisposed)
-                    return;
-#if Advanced
-                flags = null;
+                    return;          
                 Bitmap.Dispose();
                 Pointer.Dispose();
+#if Advanced
+                flags = null;
+                flags2 = null;
 #endif
             }
         }
