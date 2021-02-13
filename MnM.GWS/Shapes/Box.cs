@@ -199,7 +199,7 @@ namespace MnM.GWS
         int IPoint.Y => Y;
         int ISize.Width => Width;
         int ISize.Height => Height;
-        bool IRectangle.Valid => Width != 0 && Height != 0;
+        bool IBoundable.Valid => Width != 0 && Height != 0;
         #endregion
 
         #region EQUALITY
@@ -221,10 +221,45 @@ namespace MnM.GWS
         {
             return new { X, Y, Width, Height }.GetHashCode();
         }
-        #endregion
+            #endregion
 
-        #region OPERATORS
-        public static implicit operator bool(Box r) =>
+            #region GET BOUNDS
+            public void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0)
+            {
+                if (Width <= 0 || Height <= 0)
+                {
+                    x = y = w = h = 0;
+                    return;
+                }
+                x = X;
+                y = Y;
+                w = Width;
+                h = Height;
+                if (xExpand == 0 && yExpand == 0)
+                    return;
+                int x2 = x + w;
+                int y2 = y + h;
+                if (xExpand != 0)
+                {
+                    x -= xExpand;
+                    if (x < 0)
+                        x = 0;
+                    x2 += xExpand;
+                }
+                if (yExpand != 0)
+                {
+                    y -= yExpand;
+                    if (y < 0)
+                        y = 0;
+                    y2 += yExpand;
+                }
+                w = x2 - x;
+                h = y2 - y;
+            }
+            #endregion
+
+            #region OPERATORS
+            public static implicit operator bool(Box r) =>
             r.valid != 0;
         public static bool operator ==(Box a, Rectangle b)
         {

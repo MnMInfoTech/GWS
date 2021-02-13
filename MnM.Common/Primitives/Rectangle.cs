@@ -163,7 +163,7 @@ namespace MnM.GWS
         int IPoint.Y => Y;
         int ISize.Width => Width;
         int ISize.Height => Height;
-        bool IRectangle.Valid => Width != 0 && Height != 0;
+        bool IBoundable.Valid => Width != 0 && Height != 0;
         #endregion
 
         #region EQUALITY
