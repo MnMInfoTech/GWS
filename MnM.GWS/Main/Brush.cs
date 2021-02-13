@@ -158,7 +158,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        public unsafe IPerimeter CopyTo(IntPtr dest, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = Command.Opaque)
+        public unsafe IPerimeter CopyTo(IntPtr dest, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command command = Command.Opaque)
         {
             int length;
             int* dst = (int*)dest;

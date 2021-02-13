@@ -16,6 +16,7 @@ namespace MnM.GWS
         public readonly int ProcessID;
         public readonly uint ShapeID;
         public readonly static Perimeter Empty = new Perimeter();
+        static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
         #endregion
 
         #region CONSTRUCTORS
@@ -60,10 +61,6 @@ namespace MnM.GWS
         int IProcessID.ProcessID => ProcessID; 
         uint IShapeID.ShapeID => ShapeID;
         public bool Valid => Width > 0 && Height > 0;
-        int IPoint.X => X;
-        int IPoint.Y => Y;
-        int ISize.Width => Width;
-        int ISize.Height => Height;
         #endregion
 
         #region GET BOUNDS
@@ -98,6 +95,13 @@ namespace MnM.GWS
             }
             w = x2 - x;
             h = y2 - y;
+        }
+        #endregion
+
+        #region TO STRING
+        public override string ToString()
+        {
+            return string.Format(description, X, Y, X + Width, Y + Height);
         }
         #endregion
     }

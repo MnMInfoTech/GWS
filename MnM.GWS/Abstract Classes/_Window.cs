@@ -139,14 +139,13 @@ namespace MnM.GWS
 
         #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Update(Command command, IPerimeter boudary) =>
+        public void Update(Command command, IBoundable boudary) =>
             Canvas.Update(command, boudary);
         #endregion
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual IPerimeter CopyTo(IntPtr destination,
-            int destLen, int destW, int destX, int destY, IPerimeter copyArea, Command command = 0)
+        public IPerimeter CopyTo(IntPtr destination, int destLen, int destW, int destX, int destY, IBoundable copyArea, Command command = 0)
         {
             return Canvas.CopyTo(destination, destLen, destW, destX, destY, copyArea, command);
         }
@@ -202,13 +201,13 @@ namespace MnM.GWS
         #endregion
 
         #region CLEAR
-        public IPerimeter Clear(IPerimeter clear, Command command) =>
+        public IPerimeter Clear(IBoundable clear, Command command) =>
             Canvas.Clear(clear, command);
         #endregion
 
         #region CONSOLIDATE
         public IPerimeter Consolidate(IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, IMultiBuffered backBuffer, Command Command, IntPtr? Pen) =>
+            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command, IntPtr? Pen) =>
             Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
         #endregion
 
@@ -389,8 +388,8 @@ namespace MnM.GWS
          Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
 
         IPerimeter IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
-        IPerimeter copyArea, Command command, IntPtr alphaBytes) =>
-        Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
+        IBoundable copyArea, Command command, IntPtr alphaBytes) =>
+            Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 
         int IReadable.ReadPixel(int x, int y, IReadSession session) =>
             Canvas.ReadPixel(x, y, session);

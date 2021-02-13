@@ -67,7 +67,7 @@ namespace MnM.GWS
 
         #region CONSOLIDATE
         public IPerimeter Consolidate(IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IPerimeter copyArea, IMultiBuffered backBuffer, Command Command = 0, IntPtr? Pen = null)
+            int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command = 0, IntPtr? Pen = null)
         {
             return Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
         }
@@ -96,7 +96,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        public IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = 0)
+        public IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command command = 0)
         {
             return Canvas.CopyTo(destination, dstLen, dstW, dstX, dstY, copyArea, command);
         }
@@ -111,14 +111,14 @@ namespace MnM.GWS
         #endregion
 
         #region CLEAR
-        public IPerimeter Clear(IPerimeter clear, Command command = 0)
+        public IPerimeter Clear(IBoundable clear, Command command = 0)
         {
             return Canvas.Clear(clear, command);
         }
         #endregion
 
         #region WRITE BLOCK
-        public IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea,
+        public IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea,
             Command Command, IntPtr alphaBytes = default(IntPtr))
         {
             return Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, Command, alphaBytes);
@@ -133,7 +133,7 @@ namespace MnM.GWS
         #endregion
 
         #region UPDATE
-        public void Update(Command command, IPerimeter perimeter)
+        public void Update(Command command, IBoundable perimeter)
         {
             Canvas.Update(command, perimeter);
         }

@@ -207,7 +207,7 @@ namespace MnM.GWS
         /// Tells GWS to apply animation.
         /// Usage: Writable.WritePixel, Writable.WriteLine, IUpdatable.Update.
         /// </summary>
-        Animate = Screen | 0x4000000,
+        Animate = 0x4000000,
 
         /// <summary>
         /// Erases specified shape from the memory block. Use this option while drawing. Advanced version only.

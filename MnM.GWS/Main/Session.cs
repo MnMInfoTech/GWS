@@ -83,13 +83,18 @@ namespace MnM.GWS
             DstX = dstX;
             DstY = dstY;
         }
-        public Session(IPerimeter perimeter) : this()
+        public Session(IBoundable perimeter) : this()
         {
             perimeter.GetBounds(out X1, out Y1, out int w, out int h);
             X2 = X1 + w;
             Y2 = Y1 + h;
-            ProcessID = perimeter.ProcessID;
-            ShapeID = perimeter.ShapeID;
+
+            if (perimeter is IProcessID)
+                ProcessID = ((IProcessID)perimeter).ProcessID;
+           
+            if(perimeter is IShapeID)
+                ShapeID = ((IShapeID)perimeter).ShapeID;
+
             if(perimeter is IDstPoint)
             {
                 DstX = ((IDstPoint)perimeter).X;
@@ -104,10 +109,6 @@ namespace MnM.GWS
         int IProcessID.ProcessID => ProcessID;
         int IDstPoint.X { get => DstX; set => DstX = value; }
         int IDstPoint.Y { get => DstY; set => DstY = value; }
-        int IPoint.X => X1;
-        int IPoint.Y => Y1;
-        int ISize.Width => X2 - X1;
-        int ISize.Height => Y2 - Y1;
         #endregion
 
         #region NOTIFY

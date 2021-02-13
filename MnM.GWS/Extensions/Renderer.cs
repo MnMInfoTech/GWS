@@ -75,7 +75,8 @@ namespace MnM.GWS
                 command = Settings.Command;
                 pid = Settings.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
-                Settings.ProcessID = Boundary.ProcessID;
+                if(Boundary is IProcessID)
+                    Settings.ProcessID = ((IProcessID)Boundary).ProcessID;
                 writable.Render(Renderable, Settings);
                 Boundary.Merge(Settings.Session);
                 Settings.ProcessID = pid;
@@ -108,7 +109,8 @@ namespace MnM.GWS
                 command = Settings.Command;
                 pid = Settings.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
-                Settings.ProcessID = Boundary.ProcessID;
+                if (Boundary is IProcessID)
+                    Settings.ProcessID = ((IProcessID)Boundary).ProcessID;
                 writable.Render(Renderable, Settings);
                 Boundary.Merge(Settings.Session);
                 Settings.ProcessID = pid;
@@ -168,7 +170,8 @@ namespace MnM.GWS
                 command = Settings.Command;
                 pid = Settings.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
-                Settings.ProcessID = Boundary.ProcessID;
+                if (Boundary is IProcessID)
+                    Settings.ProcessID = ((IProcessID)Boundary).ProcessID;
                 writable.Render(Renderable, Settings);
                 Boundary.Merge(Settings.Session);
                 Settings.ProcessID = pid;

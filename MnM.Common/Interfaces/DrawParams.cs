@@ -65,17 +65,17 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has an information about destination.
     /// </summary>
-    public interface IDstPoint: IPoint
+    public interface IDstPoint
     {
         /// <summary>
         /// Gets or sets X co-ordinate of the draw location.
         /// </summary>
-        new int X { get; set; }
+        int X { get; set; }
 
         /// <summary>
         /// Gets or sets Y co-ordinate of the draw location.
         /// </summary>
-        new int Y { get; set; }
+        int Y { get; set; }
     }
     #endregion
 
@@ -106,7 +106,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has information about current rendering process and perimeter formation.
     /// </summary>
-    public interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession
+    public interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession, IPerimeter
     { }
     #endregion
 

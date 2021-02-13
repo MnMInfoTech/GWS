@@ -84,7 +84,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CopyBlock(IPerimeter copyArea, int srcLen, int srcW, int srcH,
+        public static IPerimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
             int dstX, int dstY, int dstW, int dstLen, BlockCopy action, Command command)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -110,7 +110,11 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Perimeter(dstX, dstY, copyW, i, copyArea.ProcessID);
+            int processID = 0;
+            if (copyArea is IProcessID)
+                processID = ((IProcessID)copyArea).ProcessID;
+
+            return new Perimeter(dstX, dstY, copyW, i, processID);
         }
 
         /// <summary>
@@ -131,7 +135,7 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyBlock(int* src, IPerimeter copyArea, int srcLen, int srcW, int srcH,
+        public static unsafe IPerimeter CopyBlock(int* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
             int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null, int? ignoreValue = null)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -157,7 +161,10 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Perimeter(dstX, dstY, copyW, i, copyArea.ProcessID);
+            int processID = 0;
+            if (copyArea is IProcessID)
+                processID = ((IProcessID)copyArea).ProcessID;
+            return new Perimeter(dstX, dstY, copyW, i, processID);
         }
 
         /// <summary>
@@ -177,7 +184,7 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyBlock(byte* src, IPerimeter copyArea, int srcLen, int srcW, int srcH,
+        public static unsafe IPerimeter CopyBlock(byte* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
             byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command, int? ignoreValue = null)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -203,7 +210,11 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Perimeter(dstX, dstY, copyW, i, copyArea.ProcessID);
+            int processID = 0;
+            if (copyArea is IProcessID)
+                processID = ((IProcessID)copyArea).ProcessID;
+
+            return new Perimeter(dstX, dstY, copyW, i, processID);
         }
 
         /// <summary>
@@ -222,7 +233,7 @@ namespace MnM.GWS
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyBlock<T>(T[] src, IPerimeter copyArea, int srcLen, int srcW, int srcH,
+        public static unsafe IPerimeter CopyBlock<T>(T[] src, IBoundable copyArea, int srcLen, int srcW, int srcH,
             T[] dst, int dstX, int dstY, int dstW, int dstLen)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -248,7 +259,10 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            return new Perimeter(dstX, dstY, copyW, i);
+            int processID = 0;
+            if (copyArea is IProcessID)
+                processID = ((IProcessID)copyArea).ProcessID;
+            return new Perimeter(dstX, dstY, copyW, i, processID);
         }
         #endregion
 
@@ -503,6 +517,291 @@ namespace MnM.GWS
                         if (Invert)
                             srcByte = (byte)(255 - srcByte);
                         dst[dstIndex] = srcByte;
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region CLEAR MULTIPLE ARRAYS OF SAME SIZE
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="srcIndex"></param>
+        /// <param name="destinations">Array of byte arrays of same size.</param>
+        /// <param name="dstIndex"></param>
+        /// <param name="length"></param>
+        /// <param name="command"></param>
+        /// <param name="dstCounter"></param>
+        /// <param name="srcCounter"></param>
+        /// <param name="ignoreValue"></param>
+        public static unsafe void Copy(byte* src, int srcIndex, byte*[] destinations, int dstIndex, int length,
+            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
+        {
+            if(destinations == null || destinations.Length == 0 || length == 0)
+                return;
+            int count = destinations.Length;
+            bool Opaque = (command & Command.Opaque) == Command.Opaque;
+            bool Back = (command & Command.Backdrop) == Command.Backdrop;
+            bool Invert = (command & Command.InvertColor) == Command.InvertColor;
+            bool Clear = src == null;
+            var exclude = ignoreValue ?? 0;
+            bool ignore = ignoreValue != null;
+
+            if (dstCounter <= 0)
+                dstCounter = 1;
+            if (srcCounter <= 0)
+                srcCounter = 1;
+            byte srcByte = 0, dstColor;
+
+            if (Opaque)
+            {
+                if (Clear)
+                {
+                    if (Invert)
+                        srcByte = 1;
+
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    {
+                        foreach (var dst in destinations)
+                        {
+                            dstColor = dst[dstIndex];
+                            if ((Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                continue;
+                            dst[dstIndex] = srcByte;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    {
+                        srcByte = src[srcIndex];
+                        if (Invert)
+                            srcByte = (byte)(255 - srcByte);
+                        foreach (var dst in destinations)
+                        {
+                            dstColor = dst[dstIndex];
+                            if ((Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                continue;
+                            dst[dstIndex] = srcByte;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (Clear)
+                {
+                    if (Invert)
+                        srcByte = 1;
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    {
+                        foreach (var dst in destinations)
+                        {
+                            dstColor = dst[dstIndex];
+                            if ((Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                continue;
+                            dst[dstIndex] = srcByte;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    {
+                        srcByte = src[srcIndex];
+                        foreach (var dst in destinations)
+                        {
+                            dstColor = dst[dstIndex];
+                            if (srcByte == 0 ||
+                                (Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                continue;
+                            if (Invert)
+                                srcByte = (byte)(255 - srcByte);
+                            dst[dstIndex] = srcByte;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copies source memory block to destination memory block.
+        /// </summary>
+        /// <param name="src">Source memory block</param>
+        /// <param name="srcIndex">Index in source from where copy operation should start</param>
+        /// <param name="destinations">Array of Destination memory blocks to copy data to.</param>
+        /// <param name="dstIndex">Index in destination where paste operation should start</param>
+        /// <param name="length">Length of pixels to be copied</param>
+        /// <param name="command">Command to control copy operation.
+        /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="srcAlphas">Alpha channel information of the source block.</param>
+        /// <param name="useDstIndexForAlphas">If true, indices of destination block will be used to read source alpha information.</param>
+        /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
+        /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
+        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Copy(int* src, int srcIndex, int*[] destinations, int dstIndex, int length,
+            Command command = Command.Opaque, byte* srcAlphas = null,
+            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
+        {
+            if (length == 0 || destinations == null || destinations.Length == 0)
+                return;
+            bool Opaque = (command & Command.Opaque) == Command.Opaque;
+            bool Back = (command & Command.Backdrop) == Command.Backdrop;
+            bool Invert = (command & Command.InvertColor) == Command.InvertColor;
+            bool Clear = src == null;
+            var exclude = ignoreValue ?? 0;
+            bool ignore = ignoreValue != null;
+
+            if (dstCounter <= 0)
+                dstCounter = 1;
+            if (srcCounter <= 0)
+                srcCounter = 1;
+
+            int srcColor = 0, dstColor;
+
+            if (Opaque)
+            {
+                if (Clear)
+                {
+                    if (Invert)
+                        srcColor ^= Colors.Inversion;
+
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    {
+                        foreach (var dst in destinations)
+                        {
+                            dstColor = dst[dstIndex];
+
+                            if ((Back && dst[dstIndex] != 0) ||
+                                (ignore && dstColor == exclude))
+                                continue;
+                            dst[dstIndex] = srcColor;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    {
+                        srcColor = src[srcIndex];
+                        if (Invert)
+                            srcColor ^= Colors.Inversion;
+
+                        foreach (var dst in destinations)
+                        {
+                            dstColor = dst[dstIndex];
+
+                            if ((Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                continue;
+                            dst[dstIndex] = srcColor;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                bool HasAlphas = srcAlphas != null;
+                if (!HasAlphas)
+                {
+                    if (Clear)
+                    {
+                        if (Invert)
+                            srcColor ^= Colors.Inversion;
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        {
+                            foreach (var dst in destinations)
+                            {
+                                dstColor = dst[dstIndex];
+                                if ((Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                    continue;
+                                dst[dstIndex] = srcColor;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            srcColor = src[srcIndex];
+                            foreach (var dst in destinations)
+                            {
+                                dstColor = dst[dstIndex];
+                                if (srcColor == 0 || (Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                    continue;
+                                if (Invert)
+                                    srcColor ^= Colors.Inversion;
+                                dst[dstIndex] = srcColor;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    int alphaIdx;
+                    uint C1, C2, RB, AG, invAlpha, alpha;
+                    if (Clear)
+                    {
+                        if (Invert)
+                            srcColor ^= Colors.Inversion;
+
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        {
+                            foreach (var dst in destinations)
+                            {
+                                dstColor = dst[dstIndex];
+                                alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
+
+                                if ((Back && dstColor != 0) ||
+                                (ignore && dstColor == exclude))
+                                    continue;
+                                dst[dstIndex] = srcColor;
+                                srcAlphas[alphaIdx] = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            srcColor = src[srcIndex];
+                            foreach (var dst in destinations)
+                            {
+                                dstColor = dst[dstIndex];
+                                alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
+                                alpha = srcAlphas[alphaIdx];
+
+                                if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0) ||
+                                (ignore && dstColor == exclude))
+                                    continue;
+
+                                if (alpha == 0 || alpha == 255 || dstColor == 0)
+                                    goto AssignColor;
+
+                                if (Back) alpha = (255 - alpha);
+                                C1 = (uint)dstColor;
+                                C2 = (uint)srcColor;
+                                //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+                                invAlpha = 255 - (uint)alpha;
+                                RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
+                                AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
+                                srcColor = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
+                            AssignColor:
+                                if (Invert)
+                                    srcColor ^= Colors.Inversion;
+                                dst[dstIndex] = srcColor;
+                            }
+                        }
                     }
                 }
             }

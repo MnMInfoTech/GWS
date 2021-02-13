@@ -171,7 +171,7 @@ namespace MnM.GWS
 
         #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Update(Command command, IPerimeter perimeter)
+        public unsafe void Update(Command command, IBoundable perimeter)
         {
                 if (perimeter == null)
                     return;

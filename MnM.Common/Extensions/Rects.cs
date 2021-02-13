@@ -177,7 +177,7 @@ namespace MnM.GWS
 
         #region COMPITIBLE PERIMETER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Perimeter CompitiblePerimeter(int srcW, int srcH, IPerimeter perimeter)
+        public static Perimeter CompitiblePerimeter(int srcW, int srcH, IBoundable perimeter)
         {
             if (perimeter == null)
                 perimeter = new Perimeter(0, 0, srcW, srcH);
@@ -199,7 +199,13 @@ namespace MnM.GWS
                 right = srcW;
             if (bottom > srcH)
                 bottom = srcH;
-            return new Perimeter(x0, y0, right - x0, bottom - y0, perimeter.ProcessID, perimeter.ShapeID);
+            int processID = 0;
+            uint shapeID = 0;
+            if (perimeter is IProcessID)
+                processID = ((IProcessID)perimeter).ProcessID;
+            if (perimeter is IShapeID)
+                shapeID = ((IShapeID)perimeter).ShapeID;
+            return new Perimeter(x0, y0, right - x0, bottom - y0, processID, shapeID);
         }
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -229,7 +235,7 @@ namespace MnM.GWS
             CompitiblePerimeter(size.Width, size.Height, x0, y0, copyW, copyH, processID, shapeID);
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Perimeter CompitiblePerimeter(this ISize size, IPerimeter perimeter) =>
+        public static Perimeter CompitiblePerimeter(this ISize size, IBoundable perimeter) =>
             CompitiblePerimeter(size.Width, size.Height, perimeter);
         #endregion
 
@@ -497,7 +503,7 @@ namespace MnM.GWS
 
         #region INTERSECTS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Intersects(this IPerimeter a, IPerimeter b)  
+        public static bool Intersects(this IBoundable a, IBoundable b)  
         {
             if (a == null || b == null)
                 return false;
@@ -571,7 +577,7 @@ namespace MnM.GWS
 
         #region INTERSECT
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Perimeter Intersect(this IPerimeter a, IPerimeter b)
+        public static Perimeter Intersect(this IBoundable a, IBoundable b)
         {
             if (a == null || b == null)
                 return Perimeter.Empty;
@@ -588,7 +594,15 @@ namespace MnM.GWS
             int y2 = Math.Min(aY + aH, bY + bH);
 
             if (x2 >= x1 && y2 >= y1)
-                return new Perimeter(x1, y1, x2 - x1, y2 - y1, a.ProcessID, a.ShapeID);
+            {
+                int processID = 0;
+                uint shapeID = 0;
+                if (a is IProcessID)
+                    processID = ((IProcessID)a).ProcessID;
+                if (a is IShapeID)
+                    shapeID = ((IShapeID)a).ShapeID;
+                return new Perimeter(x1, y1, x2 - x1, y2 - y1, processID, shapeID);
+            }
             return Perimeter.Empty;
         }
 
@@ -742,7 +756,7 @@ namespace MnM.GWS
 
         #region MERGE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Merge(this IBoundary notifiable, IPerimeter rc)
+        public static void Merge(this INotifiable notifiable, IBoundable rc)
         {
             if (rc == null)
                 return;
@@ -753,7 +767,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Merge(this IBoundary notifiable, IRectangle rc)
+        public static void Merge(this INotifiable notifiable, IRectangle rc)
         {
             if (rc == null)
                 return;
@@ -765,7 +779,7 @@ namespace MnM.GWS
 
         #region COPY
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Copy(this IBoundary notifiable, IPerimeter rc)
+        public static void Copy(this INotifiable notifiable, IBoundable rc)
         {
             notifiable.Notify(0, 0, 0, 0);
             if (rc == null)
@@ -777,7 +791,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Copy(this IBoundary notifiable, IRectangle rc)
+        public static void Copy(this INotifiable notifiable, IRectangle rc)
         {
             notifiable.Notify(0, 0, 0, 0);
             if (rc == null)
@@ -790,7 +804,7 @@ namespace MnM.GWS
 
         #region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Clear(this IBoundary notifiable)
+        public static void Clear(this INotifiable notifiable)
         {
             notifiable.Notify(0, 0, 0, 0);
         }

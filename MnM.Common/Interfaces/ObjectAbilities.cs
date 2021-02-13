@@ -101,6 +101,38 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region INOTIFIABLE
+    public interface INotifiable
+    {
+        /// <summary>
+        /// Incorporates given perimeter specified by x1, y1, x2, y2 parameters.
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        void Notify(int x1, int y1, int x2, int y2);
+    }
+    #endregion
+
+    #region IBOUNDABLE
+    public interface IBoundable
+    {
+        /// <summary>
+        /// Indicates if this object has valid perimiter or not.
+        /// </summary>
+        bool Valid { get; }
+        
+        /// <summary>
+        /// Gets current bounds of the perimeter.
+        /// </summary>
+        /// <param name="xExpand">Inflation unit by which horizontal expansion should occur.</param>
+        /// <param name="yExpand">Inflation unit by which vertical expansion should occur.</param>
+        /// <returns></returns>
+        void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0);
+    }
+    #endregion
+
 #if (GWS || Window)
 
     #region IRENDERABLE
@@ -262,7 +294,7 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="Command">Draw command to to control copy task</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
-        IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea, Command Command = 0, IntPtr alphaBytes = default(IntPtr));
+        IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea, Command Command = 0, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 
@@ -283,7 +315,7 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="command">Draw command to control this operation.</param>
         /// <returns>Area covered by this operation.</returns>
-        unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command command = 0);
+        unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command command = 0);
     }
     #endregion
 
@@ -299,7 +331,7 @@ namespace MnM.GWS
         /// <param name="clearArea">Area to be cleared.</param>
         /// <param name="command">A command to control clearing operation.</param>
         /// <param name="processID">ID of the process which initiated this operation.</param>
-        IPerimeter Clear(IPerimeter clearArea, Command command = 0);
+        IPerimeter Clear(IBoundable clearArea, Command command = 0);
     }
     #endregion
 
@@ -316,7 +348,7 @@ namespace MnM.GWS
         /// <param name="command">Command to control this Update task.</param>
         /// <param name="boundary">Area to update.</param>
         /// <param name="processID">ID of the process which initiated this operation.</param>
-        void Update(Command command, IPerimeter boundary);
+        void Update(Command command, IBoundable boundary);
     }
     #endregion
 
@@ -346,11 +378,11 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets an area to restrict write operations.
         /// </summary>
-        IPerimeter ClipRectangle { get; set; }
+        IBoundable ClipRectangle { get; set; }
     }
     #endregion
 
-    #region ICOSOLIDATOR
+    #region ICONSOLIDATOR
     public interface IConsolidator 
     {
         /// <summary>
@@ -367,7 +399,7 @@ namespace MnM.GWS
         /// <param name="Pen"></param>
         /// <returns></returns>
         IPerimeter Consolidate(IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IPerimeter copyArea, IMultiBuffered backBuffer, Command Command = Command.None, IntPtr? Pen = null);
+            int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command = Command.None, IntPtr? Pen = null);
     }
     #endregion
 

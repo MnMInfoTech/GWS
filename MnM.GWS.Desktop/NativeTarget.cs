@@ -6,6 +6,7 @@
 
 #if MS && (GWS || Window)
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
@@ -22,7 +23,7 @@ namespace MnM.GWS
 #endif
         sealed partial class MSTarget : Form, INativeTarget
         {
-            #region VARIABLES
+#region VARIABLES
             /// <summary>
             /// 
             /// </summary>
@@ -53,19 +54,24 @@ namespace MnM.GWS
             /// </summary>
             int length;
 
+            /// <summary>
+            /// Invalidated area remains to be updated.
+            /// </summary>
+            readonly IBoundary boundary = new Boundary();
+
 #if Advanced
             /// <summary>
             /// this array of byte will be used by Canvas object for animation.
             /// </summary>
             volatile byte[] flags;
-         
+
             /// <summary>
-            /// this array of byte will be used by Canvas object for animation.
+            /// Backup data for any purpose user may to have.
             /// </summary>
-            volatile byte[] flags2;
+            volatile int[] backup;
 #endif
 
-            #region EVENT ARGS
+#region EVENT ARGS
             readonly MsKeyEventArgs keyEventArgs = new MsKeyEventArgs();
             readonly MsMouseEventArgs mouseEventArgs = new MsMouseEventArgs();
             readonly MsKeyPressEventArgs keyPressEventArgs = new MsKeyPressEventArgs();
@@ -74,10 +80,10 @@ namespace MnM.GWS
             readonly EventInfo mouseeventInfo = new EventInfo();
             readonly EventInfo keypresseventInfo = new EventInfo();
             readonly EventInfo loadEventInfo = new EventInfo();
-            #endregion
-            #endregion
+#endregion
+#endregion
 
-            #region CONSTRUCTORS
+#region CONSTRUCTORS
             public MSTarget(int x, int y, int w, int h)
             {
                 Pointer = new Array<int>(w, h);
@@ -93,12 +99,12 @@ namespace MnM.GWS
 
 #if Advanced
                 flags = new byte[length];
-                flags2 = new byte[length];
+                backup = new int[length];
 #endif
             }
-            #endregion
+#endregion
 
-            #region PROPERTIES
+#region PROPERTIES
             public string ID => Name;
             IntPtr IPixels.Source => Pointer.Handle;
             int ISize.Width => width;
@@ -129,76 +135,37 @@ namespace MnM.GWS
                         base.Text = value;
                 }
             }
+            public IBoundary Boundary => boundary;
 #if Advanced
-        public unsafe IntPtr ScreenFlags
-        {
-            get
+            public unsafe IntPtr ScreenFlags
             {
-                fixed (byte* b = flags)
-                    return (IntPtr)b;
+                get
+                {
+                    fixed (byte* b = flags)
+                        return (IntPtr)b;
+                }
             }
-        }
-        public unsafe IntPtr AnimationFlags
-        {
-            get
+            public unsafe IntPtr Backup
             {
-                fixed (byte* b = flags2)
-                    return (IntPtr)b;
+                get
+                {
+                    fixed (int* b = backup)
+                        return (IntPtr)b;
+                }
             }
-        }
 #endif
-            #endregion
+#endregion
 
-            #region WRITABLE BLOCK
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IPerimeter copyArea,
-                Command Command, IntPtr alphaBytes = default(IntPtr))
-            {
-                if (IsDisposed)
-                    return Perimeter.Empty;
-                var dstRc = Blocks.CopyBlock((int*)source, copyArea, srcW * srcH, srcW,
-                    srcH, Screen, dstX, dstY, width, length, Command, (byte*)alphaBytes);
-
-                Update(Command, dstRc);
-                return dstRc;
-            }
-            #endregion
-
-            #region COPY TO       
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.Synchronized)]
-            public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
-            {
-                if (IsDisposed)
-                    return Perimeter.Empty;
-                return Blocks.CopyBlock(Screen, copyArea, length,
-                    width, height, (int*)destination, dstX, dstY, dstW, dstLen, Command, null);
-            }
-            #endregion
-
-            #region CLEAR
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe IPerimeter Clear(IPerimeter clear, Command Command = 0)
-            {
-                bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
-                clear.GetBounds(out int clearX, out int clearY, out _, out _);
-                var rc = Blocks.CopyBlock(null, clear, length, Width, Height, Screen, clearX, clearY, Width, length, Command, null);
-
-                if (!SuspendUpdate)
-                    Update(0, rc);
-                return rc;
-            }
-            #endregion
-
-            #region PAINT
+#region PAINT
             protected override void OnPaintBackground(PaintEventArgs e)
             {
                 e.Graphics.DrawImage(Bitmap, e.ClipRectangle, e.ClipRectangle, GraphicsUnit.Pixel);
             }
             public void InvokePaint(Command command = 0, int processID = 0) =>
                 Window.InvokePaint(command, processID);
-            #endregion
+#endregion
 
-            #region RESIZE
+#region RESIZE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             void IResizable.Resize(int? newWidth, int? newHeight)
             {
@@ -218,7 +185,6 @@ namespace MnM.GWS
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb, Pointer.Handle);
 #if Advanced
                 flags = flags.ResizedData(width, height, oldWidth, oldHeight);
-                flags2 = flags2.ResizedData(width, height, oldWidth, oldHeight);
 #endif
                 Window.CopyTo(Pointer.Handle, length, width, 0, 0, all, Command.Backdrop);
                 Update(0, all);
@@ -229,32 +195,41 @@ namespace MnM.GWS
             {
                 Window.Resize(Size.Width, Size.Height);
             }
-            #endregion
+#endregion
 
-            #region UPDATE
+#region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Update(Command Command, IPerimeter perimeter)
+            public void Update(Command Command, IBoundable boundable)
             {
-                if (perimeter == null)
+                bool UseMain = boundable == null;
+                IBoundable perimeter = UseMain ? boundary : boundable;
+                if (!perimeter.Valid)
                     return;
-                int unit = perimeter is IBoundary ? 6 : 0;
+                bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
+                if (SuspendUpdate && !UseMain)
+                {
+                    boundary.Merge(boundable);
+                    return;
+                }
+                int unit = (perimeter is INotifiable) ? 6 : 0;
                 perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
-                Rectangle rc = new Rectangle(x, y, w, h);
-
+                var rc = new System.Drawing.Rectangle(x, y, w, h);
                 if (InvokeRequired)
                 {
-                    InvalidateSafe(new System.Drawing.Rectangle(rc.X, rc.Y, rc.Width, rc.Height));
+                    InvalidateSafe(rc);
                     UpdateSafe();
                 }
                 else
                 {
-                    Invalidate(new System.Drawing.Rectangle(rc.X, rc.Y, rc.Width, rc.Height));
+                    Invalidate(rc);
                     Update();
                 }
+                if (UseMain)
+                    boundary.Clear();
             }
-            #endregion
+#endregion
 
-            #region EVENT BINDING
+#region EVENT BINDING
             protected override void OnLoad(EventArgs e)
             {
                 base.OnLoad(e);
@@ -361,9 +336,9 @@ namespace MnM.GWS
                 base.OnClosed(e);
                 Pointer.Dispose();
             }
-            #endregion
+#endregion
 
-            #region INVOKE DELGATES
+#region INVOKE DELGATES
             void invalidateSafe(System.Drawing.Rectangle rectangle) =>
                 Invalidate(rectangle);
             void updateSafe() =>
@@ -386,22 +361,23 @@ namespace MnM.GWS
             delegate void DelInvalidate(System.Drawing.Rectangle rectangle);
             delegate void DelUpdate();
             delegate void DelTextChange(string text);
-            #endregion
+#endregion
 
+#region DISPOSE
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
                     return;
                 base.Dispose(disposing);
                 if (!Window.IsDisposed)
-                    return;          
+                    return;
                 Bitmap.Dispose();
                 Pointer.Dispose();
 #if Advanced
                 flags = null;
-                flags2 = null;
 #endif
             }
+#endregion
         }
 #if HideNativeObjects
     }

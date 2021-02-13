@@ -78,29 +78,16 @@ namespace MnM.GWS
     #endregion
 
     #region IRECTANGLE
-    public interface IRectangle : IPoint, ISize, IDrawParams
-    {
-        /// <summary>
-        /// Indicates if this object has valid perimiter or not.
-        /// </summary>
-        bool Valid { get; }
-    }
+    public interface IRectangle : IPoint, ISize, IDrawParams, IBoundable
+    { }
     #endregion
 
     #region IPERIMETER
     /// <summary>
     /// Represents an object which has an area with perimeter and information about IDs of process and shape currently being rendered.
     /// </summary>
-    public interface IPerimeter: IProcessID, IShapeID, IRectangle
-    {
-        /// <summary>
-        /// Gets current bounds of the perimeter.
-        /// </summary>
-        /// <param name="xExpand">Inflation unit by which horizontal expansion should occur.</param>
-        /// <param name="yExpand">Inflation unit by which vertical expansion should occur.</param>
-        /// <returns></returns>
-        void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0);
-    }
+    public interface IPerimeter : IProcessID, IShapeID, IBoundable
+    { }
     #endregion
 
     #region SCALE
@@ -133,18 +120,9 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region INOTIFIABLE
-    public interface IBoundary : IPerimeter
-    {
-        /// <summary>
-        /// Incorporates given perimeter specified by x1, y1, x2, y2 parameters.
-        /// </summary>
-        /// <param name="x1"></param>
-        /// <param name="y1"></param>
-        /// <param name="x2"></param>
-        /// <param name="y2"></param>
-        void Notify(int x1, int y1, int x2, int y2);
-    }
+    #region IBOUNDARY
+    public interface IBoundary : IBoundable, INotifiable
+    { }
     #endregion
 
 #if (GWS || Window)
