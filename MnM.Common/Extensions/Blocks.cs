@@ -328,13 +328,11 @@ namespace MnM.GWS
         /// <param name="command">Command to control copy operation.
         /// Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
         /// <param name="srcAlphas">Alpha channel information of the source block.</param>
-        /// <param name="useDstIndexForAlphas">If true, indices of destination block will be used to read source alpha information.</param>
         /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
-            Command command = Command.Opaque, byte* srcAlphas = null, 
-            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
+            Command command = Command.Opaque, byte* srcAlphas = null, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -415,7 +413,6 @@ namespace MnM.GWS
                 }
                 else
                 {
-                    int alphaIdx;
                     uint C1, C2, RB, AG, invAlpha, alpha;
                     if (Clear)
                     {
@@ -425,12 +422,11 @@ namespace MnM.GWS
                         for (int i = 0; i < length; i++, dstIndex += dstCounter)
                         {
                             dstColor = dst[dstIndex];
-                            alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
 
                             if (Back && dstColor != 0)
                                 continue;
                             dst[dstIndex] = srcColor;
-                            srcAlphas[alphaIdx] = 0;
+                            srcAlphas[srcIndex] = 0;
                         }
                     }
                     else
@@ -439,8 +435,7 @@ namespace MnM.GWS
                         {
                             srcColor = src[srcIndex];
                             dstColor = dst[dstIndex];
-                            alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
-                            alpha = srcAlphas[alphaIdx];
+                            alpha = srcAlphas[srcIndex];
 
                             if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0))
                                 continue;
@@ -576,7 +571,7 @@ namespace MnM.GWS
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length, int conditionValue, NumCriteria criteria, 
-           byte* srcAlphas = null, bool invert = false, bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
+           byte* srcAlphas = null, bool invert = false, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -674,15 +669,13 @@ namespace MnM.GWS
             }
             else
             {
-                int alphaIdx;
                 uint C1, C2, RB, AG, invAlpha, alpha;
                 bool Back = conditionValue == 0 && criteria == NumCriteria.Equal;
                 for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
                 {
                     srcColor = src[srcIndex];
                     dstColor = dst[dstIndex];
-                    alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
-                    alpha = srcAlphas[alphaIdx];
+                    alpha = srcAlphas[srcIndex];
 
                     switch (criteria)
                     {
