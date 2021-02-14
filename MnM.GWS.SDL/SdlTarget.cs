@@ -60,7 +60,7 @@ namespace MnM.GWS
             /// <summary>
             /// Backup data for any purpose user may to have.
             /// </summary>
-            volatile int[] backup;
+            volatile int[] frontBuffer;
 #endif
             #endregion
 
@@ -76,7 +76,7 @@ namespace MnM.GWS
                 Source = Surface.ToObj<SdlSurfaceInfo>().Pixels;
 #if Advanced
                 flags = new byte[length];
-                backup = new int[length];
+                frontBuffer = new int[length];
 #endif
             }
             #endregion
@@ -99,11 +99,11 @@ namespace MnM.GWS
                         return (IntPtr)b;
                 }
             }
-            public unsafe IntPtr Backup
+            public unsafe IntPtr FrontBuffer
             {
                 get
                 {
-                    fixed (int* b = backup)
+                    fixed (int* b = frontBuffer)
                         return (IntPtr)b;
                 }
             }

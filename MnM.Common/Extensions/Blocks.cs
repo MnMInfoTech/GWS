@@ -118,6 +118,56 @@ namespace MnM.GWS
         }
 
         /// <summary>
+        /// Copies data from one  memory block to another: routine of copying must be provided through action delegate.
+        /// </summary>
+        /// <param name="copyArea">Area to copy.</param>
+        /// <param name="srcLen">Specifies the length of the source pointer.</param>
+        /// <param name="srcW">Specifies the current width by which the pixel reading should be wrapped to the next line.</param>
+        /// <param name="srcH">Specifies the current height of the source block.</param>
+        /// <param name="dstX">Specifies the X coordinate where the paste operation should commence.</param>
+        /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence.</param>
+        /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
+        /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
+        /// <param name="action">BlockCopy action delegate to execute copy operation.</param>
+        /// <param name="command">Draw command to control the copy operation.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IPerimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
+            int dstX, int dstY, int dstW, int dstLen, ConditionalCopy action, int condition, NumCriteria criteria)
+        {
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
+            CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
+            if (copyW <= 0)
+                return Perimeter.Empty;
+            int i = 0;
+            while (i < copyH)
+            {
+                if (srcIndex + copyW >= srcLen)
+                    copyW -= (srcIndex + copyW - srcLen);
+                if (copyW <= 0)
+                    break;
+
+                if (dstIndex + copyW >= dstLen)
+                    copyW -= (dstIndex + copyW - dstLen);
+
+                if (copyW <= 0)
+                    break;
+
+                action(srcIndex, dstIndex, copyW, copyX, copyY + i, condition, criteria);
+                srcIndex += srcW;
+                dstIndex += dstW;
+                ++i;
+            }
+            int processID = 0;
+            if (copyArea is IProcessID)
+                processID = ((IProcessID)copyArea).ProcessID;
+
+            return new Perimeter(dstX, dstY, copyW, i, processID);
+        }
+        #endregion
+
+        #region COPY BLOCK POINTER
+        /// <summary>
         /// Copies data from one  memory block to another.
         /// </summary>
         /// <param name="src">Souece block to copy data from.</param>
@@ -132,11 +182,10 @@ namespace MnM.GWS
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <param name="srcAlphas">Alpha channel information of the source block.</param>
-        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IPerimeter CopyBlock(int* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
-            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null, int? ignoreValue = null)
+            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -156,7 +205,7 @@ namespace MnM.GWS
 
                 if (copyW <= 0)
                     break;
-                Copy(src, srcIndex, dst, dstIndex, copyW, command, srcAlphas, ignoreValue: ignoreValue);
+                Copy(src, srcIndex, dst, dstIndex, copyW, command, srcAlphas);
                 srcIndex += srcW;
                 dstIndex += dstW;
                 ++i;
@@ -181,11 +230,10 @@ namespace MnM.GWS
         /// <param name="dstW">Specifies the current width by which the pixel writing should be wrapped to the next line.</param>
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <param name="command">Draw command to control the copy operation.</param>
-        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IPerimeter CopyBlock(byte* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
-            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command, int? ignoreValue = null)
+            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -205,7 +253,7 @@ namespace MnM.GWS
 
                 if (copyW <= 0)
                     break;
-                Copy(src, srcIndex, dst, dstIndex, copyW, command, ignoreValue: ignoreValue);
+                Copy(src, srcIndex, dst, dstIndex, copyW, command);
                 srcIndex += srcW;
                 dstIndex += dstW;
                 ++i;
@@ -216,7 +264,9 @@ namespace MnM.GWS
 
             return new Perimeter(dstX, dstY, copyW, i, processID);
         }
+        #endregion
 
+        #region COPY BLOCK ARRAY
         /// <summary>
         /// Copies data from one block to another.
         /// </summary>
@@ -281,11 +331,10 @@ namespace MnM.GWS
         /// <param name="useDstIndexForAlphas">If true, indices of destination block will be used to read source alpha information.</param>
         /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
-        /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
             Command command = Command.Opaque, byte* srcAlphas = null, 
-            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
+            bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -293,8 +342,6 @@ namespace MnM.GWS
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
             bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
-            var exclude = ignoreValue ?? 0;
-            bool ignore = ignoreValue != null;
 
             if (dstCounter <= 0)
                 dstCounter = 1;
@@ -314,8 +361,7 @@ namespace MnM.GWS
                     {
                         dstColor = dst[dstIndex];
 
-                        if ((Back && dst[dstIndex] != 0) ||
-                            (ignore && dstColor == exclude))
+                        if (Back && dst[dstIndex] != 0)
                             continue;
                         dst[dstIndex] = srcColor;
                     }
@@ -330,8 +376,7 @@ namespace MnM.GWS
 
                         dstColor = dst[dstIndex];
 
-                        if ((Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                        if (Back && dstColor != 0)
                             continue;
                         dst[dstIndex] = srcColor;
                     }
@@ -349,8 +394,7 @@ namespace MnM.GWS
                         for (int i = 0; i < length; i++, dstIndex += dstCounter)
                         {
                             dstColor = dst[dstIndex];
-                            if ((Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                            if (Back && dstColor != 0)
                                 continue;
                             dst[dstIndex] = srcColor;
                         }
@@ -361,8 +405,7 @@ namespace MnM.GWS
                         {
                             srcColor = src[srcIndex];
                             dstColor = dst[dstIndex];
-                            if (srcColor == 0 || (Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                            if (srcColor == 0 || (Back && dstColor != 0))
                                 continue;
                             if (Invert)
                                 srcColor ^= Colors.Inversion;
@@ -384,8 +427,7 @@ namespace MnM.GWS
                             dstColor = dst[dstIndex];
                             alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
 
-                            if ((Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                            if (Back && dstColor != 0)
                                 continue;
                             dst[dstIndex] = srcColor;
                             srcAlphas[alphaIdx] = 0;
@@ -400,8 +442,7 @@ namespace MnM.GWS
                             alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
                             alpha = srcAlphas[alphaIdx];
 
-                            if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0) ||
-                            (ignore && dstColor == exclude))
+                            if (srcColor == 0 || (Back && dstColor != 0 && alpha == 0))
                                 continue;
 
                             if (alpha == 0 || alpha == 255 || dstColor == 0)
@@ -440,7 +481,7 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length,
-            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
+            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -448,8 +489,6 @@ namespace MnM.GWS
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
             bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
-            var exclude = ignoreValue ?? 0;
-            bool ignore = ignoreValue != null;
 
             if (dstCounter <= 0)
                 dstCounter = 1;
@@ -468,8 +507,7 @@ namespace MnM.GWS
                     for (int i = 0; i < length; i++, dstIndex += dstCounter)
                     {
                         dstColor = dst[dstIndex];
-                        if ((Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                        if (Back && dstColor != 0)
                             continue;
                         dst[dstIndex] = srcByte;
                     }
@@ -482,8 +520,7 @@ namespace MnM.GWS
                         if (Invert)
                             srcByte = (byte)(255 - srcByte);
                         dstColor = dst[dstIndex];
-                        if ((Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                        if (Back && dstColor != 0)
                             continue;
                         dst[dstIndex] = srcByte;
                     }
@@ -498,8 +535,7 @@ namespace MnM.GWS
                     for (int i = 0; i < length; i++, dstIndex += dstCounter)
                     {
                         dstColor = dst[dstIndex];
-                        if ((Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                        if (Back && dstColor != 0)
                             continue;
                         dst[dstIndex] = srcByte;
                     }
@@ -511,14 +547,409 @@ namespace MnM.GWS
                         srcByte = src[srcIndex];
                         dstColor = dst[dstIndex];
                         if (srcByte == 0 || 
-                            (Back && dstColor != 0) ||
-                            (ignore && dstColor == exclude))
+                            (Back && dstColor != 0))
                             continue;
                         if (Invert)
                             srcByte = (byte)(255 - srcByte);
                         dst[dstIndex] = srcByte;
                     }
                 }
+            }
+        }
+        #endregion
+
+        #region COPY MEMORY CONDITIONAL
+        /// <summary>
+        /// Copies source memory block to destination memory block satisfying given condition.
+        /// </summary>
+        /// <param name="src">Source memory block</param>
+        /// <param name="srcIndex">Index in source from where copy operation should start</param>
+        /// <param name="dst">Destination memory block to copy data to.</param>
+        /// <param name="dstIndex">Index in destination where paste operation should start</param>
+        /// <param name="length">Length of pixels to be copied. Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="conditionValue">Value of condition to use to qualify copy.</param>
+        /// <param name="criteria">Numeric criteria to control copy operation.</param>
+        /// <param name="srcAlphas">Alpha channel information of the source block.</param>
+        /// <param name="invert">If true, value will be inverted before copying it to the destination.</param>
+        /// <param name="useDstIndexForAlphas">If true, indices of destination block will be used to read source alpha information.</param>
+        /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
+        /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length, int conditionValue, NumCriteria criteria, 
+           byte* srcAlphas = null, bool invert = false, bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1)
+        {
+            if (length == 0)
+                return;
+            bool Clear = src == null;
+
+            if (dstCounter <= 0)
+                dstCounter = 1;
+            if (srcCounter <= 0)
+                srcCounter = 1;
+
+            int srcColor = 0, dstColor;
+            bool NoAlphas = srcAlphas == null;
+            
+            if (Clear)
+            {
+                if (invert)
+                    srcColor ^= Colors.Inversion;
+                for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                {
+                    dstColor = dst[dstIndex];
+
+                    switch (criteria)
+                    {
+                        case NumCriteria.Equal:
+                        default:
+                            if (dstColor != conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotEqual:
+                            if (dstColor == conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.GreaterThan:
+                            if (dstColor <= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.LessThan:
+                            if (dstColor >= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotGreaterThan:
+                            if (dstColor > conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotLessThan:
+                            if (dstColor < conditionValue)
+                                continue;
+                            break;
+                    }
+
+                    dst[dstIndex] = srcColor;
+                }
+            }
+            else if(NoAlphas)
+            {
+                for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                {
+                    srcColor = src[srcIndex];
+                    if (invert)
+                        srcColor ^= Colors.Inversion;
+
+                    dstColor = dst[dstIndex];
+
+                    switch (criteria)
+                    {
+                        case NumCriteria.Equal:
+                        default:
+                            if (dstColor != conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotEqual:
+                            if (dstColor == conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.GreaterThan:
+                            if (dstColor <= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.LessThan:
+                            if (dstColor >= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotGreaterThan:
+                            if (dstColor > conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotLessThan:
+                            if (dstColor < conditionValue)
+                                continue;
+                            break;
+                    }
+
+                    dst[dstIndex] = srcColor;
+                }
+            }
+            else
+            {
+                int alphaIdx;
+                uint C1, C2, RB, AG, invAlpha, alpha;
+                bool Back = conditionValue == 0 && criteria == NumCriteria.Equal;
+                for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                {
+                    srcColor = src[srcIndex];
+                    dstColor = dst[dstIndex];
+                    alphaIdx = useDstIndexForAlphas ? dstIndex : srcIndex;
+                    alpha = srcAlphas[alphaIdx];
+
+                    switch (criteria)
+                    {
+                        case NumCriteria.Equal:
+                        default:
+                            if (dstColor != conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotEqual:
+                            if (dstColor == conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.GreaterThan:
+                            if (dstColor <= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.LessThan:
+                            if (dstColor >= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotGreaterThan:
+                            if (dstColor > conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotLessThan:
+                            if (dstColor < conditionValue)
+                                continue;
+                            break;
+                    }
+
+                    if (alpha == 0 || alpha == 255 || dstColor == 0)
+                        goto AssignColor;
+                    if (Back) alpha = (255 - alpha);
+                    C1 = (uint)dstColor;
+                    C2 = (uint)srcColor;
+                    //https://www.generacodice.com/en/articolo/247775/How-to-alpha-blend-RGBA-unsigned-byte-color-fast?
+                    invAlpha = 255 - (uint)alpha;
+                    RB = ((invAlpha * (C1 & Colors.RBMASK)) + (alpha * (C2 & Colors.RBMASK))) >> 8;
+                    AG = (invAlpha * ((C1 & Colors.AGMASK) >> 8)) + (alpha * (Colors.ONEALPHA | ((C2 & Colors.GMASK) >> 8)));
+                    srcColor = (int)((RB & Colors.RBMASK) | (AG & Colors.AGMASK));
+                AssignColor:
+                    if (invert)
+                        srcColor ^= Colors.Inversion;
+                    dst[dstIndex] = srcColor;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copies source memory block to destination memory block satisfying given condition.
+        /// </summary>
+        /// <param name="src">Source memory block</param>
+        /// <param name="srcIndex">Index in source from where copy operation should start</param>
+        /// <param name="dst">Destination memory block to copy data to.</param>
+        /// <param name="dstIndex">Index in destination where paste operation should start</param>
+        /// <param name="length">Length of pixels to be copied. Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="conditionValue">Value of condition to use to qualify copy.</param>
+        /// <param name="criteria">Numeric criteria to control copy operation.</param>
+        /// <param name="invert">If true, value will be inverted before copying it to the destination.</param>
+        /// <param name="dstCounter">Counter by which destination index moves to next position for copy.</param>
+        /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length, byte conditionValue, NumCriteria criteria,
+           bool invert = false, int dstCounter = 1, int srcCounter = 1)
+        {
+            if (length == 0)
+                return;
+            bool Clear = src == null;
+
+            if (dstCounter <= 0)
+                dstCounter = 1;
+            if (srcCounter <= 0)
+                srcCounter = 1;
+
+            byte srcByte = 0, dstByte;
+            if (Clear)
+            {
+                if (invert)
+                    srcByte = 255;
+
+                for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                {
+                    dstByte = dst[dstIndex];
+
+                    switch (criteria)
+                    {
+                        case NumCriteria.Equal:
+                        default:
+                            if (dstByte != conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotEqual:
+                            if (dstByte == conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.GreaterThan:
+                            if (dstByte <= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.LessThan:
+                            if (dstByte >= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotGreaterThan:
+                            if (dstByte > conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotLessThan:
+                            if (dstByte < conditionValue)
+                                continue;
+                            break;
+                    }
+
+                    dst[dstIndex] = srcByte;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                {
+                    srcByte = src[srcIndex];
+                    if (invert)
+                        srcByte = (byte)(255 - srcByte);
+
+                    dstByte = dst[dstIndex];
+
+                    switch (criteria)
+                    {
+                        case NumCriteria.Equal:
+                        default:
+                            if (dstByte != conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotEqual:
+                            if (dstByte == conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.GreaterThan:
+                            if (dstByte <= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.LessThan:
+                            if (dstByte >= conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotGreaterThan:
+                            if (dstByte > conditionValue)
+                                continue;
+                            break;
+                        case NumCriteria.NotLessThan:
+                            if (dstByte < conditionValue)
+                                continue;
+                            break;
+                    }
+
+                    dst[dstIndex] = srcByte;
+                }
+            }
+        }
+        #endregion
+
+        #region COPY VALUE
+        /// <summary>
+        /// Copies source memory block to destination memory block satisfying given condition.
+        /// </summary>
+        /// <param name="value">Value to be copied to across the destination block.</param>
+        /// <param name="dst">Destination memory block to copy data to.</param>
+        /// <param name="dstIndex">Index in destination where paste operation should start</param>
+        /// <param name="length">Length of pixels to be copied. Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="conditionValue">Value of condition to use to qualify copy.</param>
+        /// <param name="criteria">Numeric criteria to control copy operation.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void CopyValue(int value, int* dst, int dstIndex, int length, int conditionValue, NumCriteria criteria = NumCriteria.Equal)
+        {
+            if (length == 0)
+                return;
+            int srcColor = 0, dstColor;
+            srcColor = value;
+            int last = dstIndex + length;
+            for (int i = dstIndex; i < last; i++)
+            {
+                dstColor = dst[i];
+
+                switch (criteria)
+                {
+                    case NumCriteria.Equal:
+                    default:
+                        if (dstColor != conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.NotEqual:
+                        if (dstColor == conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.GreaterThan:
+                        if (dstColor <= conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.LessThan:
+                        if (dstColor >= conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.NotGreaterThan:
+                        if (dstColor > conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.NotLessThan:
+                        if (dstColor < conditionValue)
+                            continue;
+                        break;
+                }
+
+                dst[i] = value;
+            }
+        }
+
+        /// <summary>
+        /// Copies source memory block to destination memory block satisfying given condition.
+        /// </summary>
+        /// <param name="value">Value to be copied to across the destination block.</param>
+        /// <param name="dst">Destination memory block to copy data to.</param>
+        /// <param name="dstIndex">Index in destination where paste operation should start</param>
+        /// <param name="length">Length of pixels to be copied. Applicable flags: Opaque, Backdrop, InvertCanvasColor</param>
+        /// <param name="conditionValue">Value of condition to use to qualify copy.</param>
+        /// <param name="criteria">Numeric criteria to control copy operation.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void CopyValue(byte value, byte* dst, int dstIndex, int length, byte conditionValue, NumCriteria criteria = NumCriteria.Equal)
+        {
+            if (length == 0)
+                return;
+            int srcColor = 0, dstColor;
+            srcColor = value;
+            int last = dstIndex + length;
+            for (int i = dstIndex; i < last; i++)
+            {
+                dstColor = dst[i];
+
+                switch (criteria)
+                {
+                    case NumCriteria.Equal:
+                    default:
+                        if (dstColor != conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.NotEqual:
+                        if (dstColor == conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.GreaterThan:
+                        if (dstColor <= conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.LessThan:
+                        if (dstColor >= conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.NotGreaterThan:
+                        if (dstColor > conditionValue)
+                            continue;
+                        break;
+                    case NumCriteria.NotLessThan:
+                        if (dstColor < conditionValue)
+                            continue;
+                        break;
+                }
+
+                dst[i] = value;
             }
         }
         #endregion

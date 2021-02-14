@@ -34,7 +34,7 @@ namespace MnM.GWS
         /// </summary>
         IntPtr ScreenFlags { get; }
 
-        IntPtr Backup { get; }
+        IntPtr FrontBuffer { get; }
 #endif
     }
     #endregion

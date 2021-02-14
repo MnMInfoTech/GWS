@@ -35,6 +35,15 @@ namespace MnM.GWS
     /// <param name="yPosition">Position of Y axis for the scan line copied.</param>
     public delegate void BlockCopy(int sourceIndex, int destinationIndex, int copyLength, int xPosition, int yPosition, Command command);
 
+    /// <summary>
+    /// Copy one memory block to another,
+    /// </summary>
+    /// <param name="sourceIndex">Pixel location of source where copy starts.</param>
+    /// <param name="destinationIndex">Pixel location of destiantion where paste starts.</param>
+    /// <param name="copyLength">Length of pixels to be copied.</param>
+    /// <param name="xPosition">Position of X axis for the scan line copied.</param>
+    /// <param name="yPosition">Position of Y axis for the scan line copied.</param>
+    public delegate void ConditionalCopy(int sourceIndex, int destinationIndex, int copyLength, int xPosition, int yPosition, int condition, NumCriteria criteria);
 
 #if GWS || Window
     /// <summary>

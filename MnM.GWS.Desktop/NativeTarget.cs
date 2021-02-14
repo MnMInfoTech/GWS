@@ -66,9 +66,9 @@ namespace MnM.GWS
             volatile byte[] flags;
 
             /// <summary>
-            /// Backup data for any purpose user may to have.
+            /// Front buffer data for any purpose user wants.
             /// </summary>
-            volatile int[] backup;
+            volatile int[] frontBuffer;
 #endif
 
 #region EVENT ARGS
@@ -99,7 +99,7 @@ namespace MnM.GWS
 
 #if Advanced
                 flags = new byte[length];
-                backup = new int[length];
+                frontBuffer = new int[length];
 #endif
             }
 #endregion
@@ -145,11 +145,11 @@ namespace MnM.GWS
                         return (IntPtr)b;
                 }
             }
-            public unsafe IntPtr Backup
+            public unsafe IntPtr FrontBuffer
             {
                 get
                 {
-                    fixed (int* b = backup)
+                    fixed (int* b = frontBuffer)
                         return (IntPtr)b;
                 }
             }

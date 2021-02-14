@@ -300,6 +300,7 @@ namespace MnM.GWS
         public static Rgba GradientInactiveCaption { get; private set; }
         public static Rgba MenuBar { get; private set; }
         public static Rgba MenuHighlight { get; private set; }
+        public static Rgba GwsButton { get; private set; }
         #endregion
 
         #region MATH OPERATIONS
@@ -671,6 +672,7 @@ namespace MnM.GWS
             GradientInactiveCaption = new Rgba(242, 228, 215, 255);
             MenuBar = new Rgba(240, 240, 240, 255);
             MenuHighlight = new Rgba(255, 153, 51, 255);
+            GwsButton = new Rgba(-12632257);
         }
         #endregion
 

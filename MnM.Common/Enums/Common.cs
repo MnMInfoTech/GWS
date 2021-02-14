@@ -954,6 +954,42 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region NUMERIC-CRITERIA
+    public enum NumCriteria
+    {
+        /// <summary>
+        /// The equal
+        /// </summary>
+        Equal = 0,
+        
+        /// <summary>
+        /// The greater than
+        /// </summary>
+        GreaterThan = 1,
+
+        /// <summary>
+        /// The less than
+        /// </summary>
+        LessThan = 2,
+
+        /// <summary>
+        /// <summary>
+        /// The not equal
+        /// </summary>
+        NotEqual = -1,
+
+        /// <summary>
+        /// The not greater than
+        /// </summary>
+        NotGreaterThan = -2,
+
+        /// <summary>
+        /// The not less than
+        /// </summary>
+        NotLessThan = -3,
+    }
+    #endregion
+
     #region MATCH BY
     /// <summary>
     /// Enum MatchBy

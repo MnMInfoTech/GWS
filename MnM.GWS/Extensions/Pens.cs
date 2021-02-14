@@ -191,10 +191,10 @@ namespace MnM.GWS
             MenuHighlight = Factory.ToPen(Rgba.MenuHighlight);
 
             DisabledPen = Silver;
-            BackgroundPen = Black;
+            BackgroundPen = Factory.ToPen(Rgba.GwsButton);
             ForegroundPen = White;
-            HoverBackgroundPen = ActiveCaption;
-            HoverForegroundPen = MidnightBlue;
+            HoverBackgroundPen = Navy;
+            HoverForegroundPen = Aquamarine;
         }
         #endregion
 
