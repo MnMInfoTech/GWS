@@ -32,9 +32,7 @@ namespace MnM.GWS
         /// Byte array pointer to be used by Canvas object for animation (Temporary drawing).
         /// i.e. anything which is drawn with Command.Screen.
         /// </summary>
-        IntPtr ScreenFlags { get; }
-
-        IntPtr FrontBuffer { get; }
+        IntPtr Flags { get; }
 #endif
     }
     #endregion

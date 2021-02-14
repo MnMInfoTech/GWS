@@ -182,7 +182,7 @@ namespace MnM.GWS.Desktop
             }
             var rc = Settings.Session;
 
-            Window.Clear(rc, Command.InvalidateOnly |(Original? Command.Screen:0));
+            Window.Clear(rc, Command.InvalidateOnly |(Original? Command.WriteToScreen:0));
 
             if (GwsMethod != null)
             {
@@ -191,7 +191,7 @@ namespace MnM.GWS.Desktop
             }
             if (Original)
             {
-                Window.Update(Command.CopyPixelsOnly, new Perimeter(0, 0, Window.Width, Window.Height));
+                Window.Update(Command.SubmitToBuffer, new Perimeter(0, 0, Window.Width, Window.Height));
                 Original = false;
             }
         }
@@ -550,10 +550,10 @@ namespace MnM.GWS.Desktop
             var boundary = new Session();
             int color = Rgba.Red.Color;
             txtPts.Text += "," + e.X + "," + e.Y;
-            Window.WritePixel(e.X, e.Y, true, color, null, Command.Animate, boundary);
-            Window.WritePixel(e.X, e.Y + 1, true, color, null, Command.Animate, boundary);
-            Window.WritePixel(e.X + 1, e.Y, true, color, null, Command.Animate, boundary);
-            Window.WritePixel(e.X + 1, e.Y + 1, true, color, null, Command.Animate, boundary);
+            Window.WritePixel(e.X, e.Y, true, color, null, Command.WriteAnimation, boundary);
+            Window.WritePixel(e.X, e.Y + 1, true, color, null, Command.WriteAnimation, boundary);
+            Window.WritePixel(e.X + 1, e.Y, true, color, null, Command.WriteAnimation, boundary);
+            Window.WritePixel(e.X + 1, e.Y + 1, true, color, null, Command.WriteAnimation, boundary);
             Window.Update(Command.UpdateScreenOnly, boundary);
         }
         private void ShowCompareForm(object sender, System.EventArgs e)
@@ -577,7 +577,7 @@ namespace MnM.GWS.Desktop
                     var sz = Canvas.RotateAndScale(out IntPtr data,
                         new Rotation((float)numRotate.Value), chkCenter.Checked, (float)numScale.Value);
                     GwsMethod = () => Canvas.DrawImage(data, sz.Width, sz.Height, 0, 0, new Perimeter( 0, 0, sz.Width, sz.Height), 
-                        Command.Screen | Command.UpdateScreenOnly);
+                        Command.WriteToScreen | Command.UpdateScreenOnly);
                     Original = true;
                     return;
                 }

@@ -1561,7 +1561,7 @@ namespace MnM.GWS
         /// <param name="image">Image which is to be saved</param>
         /// <param name="file">Path of a file where data is to be saved</param>
         /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        public static bool SaveAsBitmap(IBlockable image, string file, Command command = Command.Screen)
+        public static bool SaveAsBitmap(IBlockable image, string file, Command command = Command.WriteToScreen)
         {
             return Instance.SaveAsBitmap(image, file, command);
         }

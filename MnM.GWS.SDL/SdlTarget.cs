@@ -56,11 +56,6 @@ namespace MnM.GWS
             /// this array of byte will be used by Canvas object for direct screen.
             /// </summary>
             volatile byte[] flags;
-
-            /// <summary>
-            /// Backup data for any purpose user may to have.
-            /// </summary>
-            volatile int[] frontBuffer;
 #endif
             #endregion
 
@@ -76,7 +71,6 @@ namespace MnM.GWS
                 Source = Surface.ToObj<SdlSurfaceInfo>().Pixels;
 #if Advanced
                 flags = new byte[length];
-                frontBuffer = new int[length];
 #endif
             }
             #endregion
@@ -91,19 +85,11 @@ namespace MnM.GWS
             unsafe int* Screen => (int*)Source;
             public IBoundary Boundary => boundary;
 #if Advanced
-            public unsafe IntPtr ScreenFlags
+            public unsafe IntPtr Flags
             {
                 get
                 {
                     fixed (byte* b = flags)
-                        return (IntPtr)b;
-                }
-            }
-            public unsafe IntPtr FrontBuffer
-            {
-                get
-                {
-                    fixed (int* b = frontBuffer)
                         return (IntPtr)b;
                 }
             }

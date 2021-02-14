@@ -201,31 +201,31 @@ namespace MnM.GWS
         /// Uploads data directly on screen (which of course temporary in nature) bypassing the internal buffer completely.
         /// Usage: Writable.WritePixel, Writable.WriteLine, ICopyable.CopyTo, IConsolidator.Consolidate, IClearable.Clear.
         /// </summary>
-        Screen = 0x2000000,
+        WriteToScreen = 0x2000000,
 
         /// <summary>
         /// Tells GWS to apply animation.
         /// Usage: Writable.WritePixel, Writable.WriteLine, IUpdatable.Update.
         /// </summary>
-        Animate = 0x4000000,
+        WriteAnimation = 0x4000000,
 
         /// <summary>
         /// Erases specified shape from the memory block. Use this option while drawing. Advanced version only.
         /// Usage: Writable.WritePixel, Writable.WriteLine.
         /// </summary>
-        Erase = 0x8000000,
+        EraseObject = 0x8000000,
 
         /// <summary>
         /// Restores drawing after a specified shape is removed or erased from memory block. Advanced version only.
         /// Usage: Writable.WritePixel, Writable.WriteLine.
         /// </summary>
-        Restore = 0x10000000,
+        RestoreObject = 0x10000000,
 
         /// <summary>
         /// Tells GWS that shape is being drawn first time.
         /// Usage: Writable.Render, IObjCollection.Add.
         /// </summary>
-        AddMode = 0x20000000,
+        AddObject = 0x20000000,
 
         /// <summary>
         /// Gets or sets a flag to determine that rendering of shape is done in second buffer or not. Pro version only.
@@ -272,7 +272,7 @@ namespace MnM.GWS
         /// Copies data from underlying buffer but does not update screen.
         /// Usage: IUpdatable.Update.
         /// </summary>
-        CopyPixelsOnly = 0x1000000000,
+        SubmitToBuffer = 0x1000000000,
 
         /// <summary>
         /// Wipes all temporary drawings while refreshing screen.
@@ -285,6 +285,18 @@ namespace MnM.GWS
         /// Usage: IUpdatable.Update.
         /// </summary>
         WipeAnimation = 0x4000000000,
+
+        /// <summary>
+        /// Copies directly from screen.
+        /// Usage: ICopyable.CopyTo, IConsolidator.Cosolidate
+        /// </summary>
+        CopyFromScreen = 0x8000000000,
+
+        /// <summary>
+        /// Clears screen directly ignoring underlying buffer.
+        /// Usage: IClearable.Clear
+        /// </summary>
+        ClearScreen = 0x10000000000,
     }
     #endregion
 

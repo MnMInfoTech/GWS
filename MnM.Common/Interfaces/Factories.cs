@@ -465,7 +465,7 @@ namespace MnM.GWS
         /// <param name="image">Image which is to be saved</param>
         /// <param name="file">Path of a file where data is to be saved</param>
         /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        bool SaveAsBitmap(IBlockable image, string file, Command command = Command.Screen);
+        bool SaveAsBitmap(IBlockable image, string file, Command command = Command.WriteToScreen);
 
         /// <summary>
         /// Saves specified buffer as an image file on disk on specified file path.

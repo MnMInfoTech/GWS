@@ -92,7 +92,7 @@ namespace MnM.GWS
                 Settings.Command |= Command.InvalidateOnly;
             else if (suspendUpdate == false)
                 Settings.Command &= ~Command.InvalidateOnly;
-            Settings.Command |= Command.AddMode;
+            Settings.Command |= Command.AddObject;
             Graphics.Render(Shape, Settings);
             Settings.Command = OriginalCommand;
             return Shape;

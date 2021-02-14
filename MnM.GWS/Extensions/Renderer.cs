@@ -85,7 +85,7 @@ namespace MnM.GWS
                 ++j;
             }
             if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace MnM.GWS
                 ++j;
             }
             if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace MnM.GWS
                 Settings.Command = command;
             }
             if (update && writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
             return Boundary;
         }
 
@@ -178,7 +178,7 @@ namespace MnM.GWS
                 Settings.Command = command;
             }
             if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.Animate, Boundary);
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
         }
 
         /// <summary>
@@ -1039,7 +1039,7 @@ namespace MnM.GWS
             else
                 pen = Pens.Black;
 
-            command |= Command.Screen;
+            command |= Command.WriteToScreen;
             var boundary = new Session();
 
             perimeter.GetBounds(out int x1, out int y1, out int w, out int h);
@@ -1131,7 +1131,7 @@ namespace MnM.GWS
         /// <param name = "h" > Height of area in the source to copy</param>
         /// <param name = "Command" > Draw command to control the copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.Screen)
+        public static unsafe IPerimeter CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.WriteToScreen)
         {
             #region INITIALIZE VARIABLES
             var copy = source.CompitibleRc(x, y, w, h);
@@ -1205,7 +1205,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.Screen)
+        public static unsafe IPerimeter CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.WriteToScreen)
         {
             var rc = CopyTo(block, out int[] data, x, y, w, h, command);
             if (data == null)
@@ -1296,7 +1296,7 @@ namespace MnM.GWS
         /// <param name="quality">Resolution quality of the tageted image file</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SaveAs(this IBlockable block, string file,
-            ImageFormat format = ImageFormat.BMP, Command command = Command.Screen, Rectangle? portion = null, int pitch = 4, int quality = 50)
+            ImageFormat format = ImageFormat.BMP, Command command = Command.WriteToScreen, Rectangle? portion = null, int pitch = 4, int quality = 50)
         {
             file += "." + format.ToString();
             IPerimeter size;
@@ -1337,7 +1337,7 @@ namespace MnM.GWS
         public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
         {
             #region INITIALIZE VARIABLES
-            bool AddMode = (Command & Command.AddMode) == Command.AddMode;
+            bool AddMode = (Command & Command.AddObject) == Command.AddObject;
             bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
             int* src = null;
             byte* srcAlphas = null;

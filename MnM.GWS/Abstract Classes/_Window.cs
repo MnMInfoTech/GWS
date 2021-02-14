@@ -234,7 +234,7 @@ namespace MnM.GWS
             if (!firstShow && value)
             {
                 firstShow = true;
-                Refresh(Command.AddMode);
+                Refresh(Command.AddObject);
                 OnFirstShown(e);
             }
             OnVisibleChanged(e);

@@ -237,7 +237,7 @@ namespace MnM.GWS
             if (pen == null)
                 pen = Pens.Black;
 
-            command |= Command.Screen;
+            command |= Command.WriteToScreen;
             var boundary = new Session();
             boundary.Choice = ReadChoice.InvertColor;
 

@@ -78,7 +78,7 @@ namespace MnM.GWS
             CalculatedDrawCommand = DrawCommand;
             bool IgnoreAutoCalculatedFillPatten =
                 (DrawCommand & Command.IgnoreAutoCalculatedFillPatten) == Command.IgnoreAutoCalculatedFillPatten;
-            bool EraseControl = (DrawCommand & Command.Erase) == Command.Erase;
+            bool EraseControl = (DrawCommand & Command.EraseObject) == Command.EraseObject;
             bool KeepFillRuleForStroking = (DrawCommand & Command.KeepFillRuleForStroking) == Command.KeepFillRuleForStroking;
             if (IgnoreAutoCalculatedFillPatten)
                 return;
@@ -144,9 +144,9 @@ namespace MnM.GWS
             DrawCommand &= ~Command.NoSorting;
             DrawCommand &= ~Command.CheckForCloseness;
             DrawCommand &= ~Command.FillSinglePointLine;
-            DrawCommand &= ~Command.Erase;
-            DrawCommand &= ~Command.Restore;
-            DrawCommand &= ~Command.AddMode;
+            DrawCommand &= ~Command.EraseObject;
+            DrawCommand &= ~Command.RestoreObject;
+            DrawCommand &= ~Command.AddObject;
             SyncCommand();
         }
         #endregion
