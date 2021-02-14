@@ -945,6 +945,40 @@ namespace MnM.GWS
         /// <param name="p3">the third point</param>
         public static ITriangle newTriangle(ILine l, VectorF p3) =>
             newTriangle(l.X1, l.Y1, l.X2, l.Y2, p3.X, p3.Y);
+
+        /// <summary>
+        /// Returns a triangle contained within rectangle bounds specified by X, Y, Width and Height parameters.
+        /// </summary>
+        /// <param name="X">Left corner of the bounds.</param>
+        /// <param name="Y">Top corner of the bounds.</param>
+        /// <param name="Width">Width of the bounds.</param>
+        /// <param name="Height">Height of the bounds.</param>
+        /// <param name="position">Determines side o which peek of the triagle is situated.</param>
+        /// <param name="shrink">Shrink value to shrink trianlge perimeter.</param>
+        /// <returns></returns>
+        public static ITriangle newTriangle(float X, float Y, float Width, float Height, Position position = 0, int shrink = 0)
+        {
+            float x = X + shrink;
+            float y = Y + shrink;
+            float r = X + Width - shrink;
+            float b = Y + Height - shrink;
+            var cx = x + Width / 2f;
+            var cy = y + Height / 2f;
+
+            switch (position)
+            {
+                case Position.Default:
+                case Position.Left:
+                default:
+                    return newTriangle(x, cy, r, y, r, b);
+                case Position.Top:
+                    return newTriangle(cx, y, r, b, x, b);
+                case Position.Right:
+                    return newTriangle(r, cy, x, b, x, y);
+                case Position.Bottom:
+                    return newTriangle(cx, b, r, y, x, y);
+            }
+        }
         #endregion
 
         #region BOX

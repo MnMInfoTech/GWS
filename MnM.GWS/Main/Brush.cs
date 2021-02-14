@@ -186,7 +186,7 @@ namespace MnM.GWS
                 if (destIndex + length >= dstLen)
                     break;
                 fixed (int* src = source)
-                    Blocks.Copy(src, srcIndex, dst, destIndex, length, command, null, true);
+                    Blocks.Copy(src, srcIndex, dst, destIndex, length, command, null);
                 destIndex += dstW;
                 ++i;
                 ++y;

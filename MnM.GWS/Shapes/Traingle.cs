@@ -86,6 +86,34 @@ namespace MnM.GWS
         public Triangle(ILine l, VectorF b) :
             this(l.X1, l.Y1, l.X2, l.Y2, b.X, b.Y)
         { }
+
+        public Triangle(float x1, float y1, float w, float h, Position position = 0, int shrink = 0): this()
+        {
+            float x = x1 + shrink;
+            float y = y1 + shrink;
+            float r = x1 + w - shrink;
+            float b = y1 + h - shrink;
+            var cx = x + w / 2f;
+            var cy = y + h / 2f;
+
+            switch (position)
+            {
+                case Position.Default:
+                case Position.Left:
+                default:
+                    this = new Triangle(x, cy, r, y, r, b);
+                    break;
+                case Position.Top:
+                    this = new Triangle(cx, y, r, b, x, b);
+                    break;
+                case Position.Right:
+                    this = new Triangle(r, cy, x, b, x, y);
+                    break;
+                case Position.Bottom:
+                    this = new Triangle(cx, b, r, y, x, y);
+                    break;
+            }
+        }
         #endregion
 
         #region PROPERTIES
