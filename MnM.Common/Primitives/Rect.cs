@@ -27,6 +27,21 @@ namespace MnM.GWS
             W = w;
             H = h;
         }
+        public Rect(IBoundable rc, int expand = 0)
+        {
+            rc.GetBounds(out X, out Y, out W, out H);
+            if (expand != 0)
+            {
+                X -= expand;
+                if (X < 0)
+                    X = 0;
+                Y -= expand;
+                if (Y < 0)
+                    Y = 0;
+                W += expand;
+                H += expand;
+            }
+        }
         #endregion
 
         #region PROPERTIES
@@ -47,6 +62,13 @@ namespace MnM.GWS
             w = W;
             h = H;
         }
+        #endregion
+
+        #region CONTAINS
+        public bool ContainsX(int x) =>
+            x >= X && x <= X + W;
+        public bool ContainsY(int y) =>
+            y >= Y && y <= Y + H;
         #endregion
 
         #region OPERATORS

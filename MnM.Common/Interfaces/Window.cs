@@ -20,7 +20,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public partial interface IRenderTarget : IPixels, IResizable, IUpdatable, IDisposable2, IPaintable//, IClearable, IWritableBlock, ICopyable
+    public partial interface IRenderTarget : IPixels, IResizable, IUpdatable, IDisposable2, IPaintable
     {
         /// <summary>
         /// Gets boundary object which contains bounds of invalidated area.
@@ -29,8 +29,8 @@ namespace MnM.GWS
 
 #if Advanced
         /// <summary>
-        /// Byte array pointer to be used by Canvas object for animation (Temporary drawing).
-        /// i.e. anything which is drawn with Command.Screen.
+        /// Int32 array pointer to be used by Canvas object for animation.
+        /// i.e. anything which is drawn with Command.Animation.
         /// </summary>
         IntPtr Flags { get; }
 #endif

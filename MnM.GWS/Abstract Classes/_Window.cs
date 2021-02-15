@@ -137,6 +137,17 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region CLEAR
+        public IPerimeter Clear(IBoundable clear, Command command) =>
+            Canvas.Clear(clear, command);
+        #endregion
+
+        #region CONSOLIDATE
+        public IPerimeter Consolidate(IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command, IntPtr? Pen) =>
+            Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
+        #endregion
+
         #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Update(Command command, IBoundable boudary) =>
@@ -165,17 +176,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region RAISE PAINT
-        public void InvokePaint(Command command = 0, int processID = 0)
-        {
-            drawEventArgs.Graphics = Canvas;
-            drawEventArgs.ProcessID = processID;
-            OnPaint(drawEventArgs);
-            if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
-                Update(command, new Perimeter(0, 0, Width, Height, processID));
-        }
-        #endregion
-
         #region RESIZE
         public virtual void Resize(int? width, int? height)
         {
@@ -200,15 +200,15 @@ namespace MnM.GWS
         partial void Resize2();
         #endregion
 
-        #region CLEAR
-        public IPerimeter Clear(IBoundable clear, Command command) =>
-            Canvas.Clear(clear, command);
-        #endregion
-
-        #region CONSOLIDATE
-        public IPerimeter Consolidate(IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command, IntPtr? Pen) =>
-            Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
+        #region RAISE PAINT
+        public void InvokePaint(Command command = 0, int processID = 0)
+        {
+            drawEventArgs.Graphics = Canvas;
+            drawEventArgs.ProcessID = processID;
+            OnPaint(drawEventArgs);
+            if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
+                Update(command, new Perimeter(0, 0, Width, Height, processID));
+        }
         #endregion
 
         #region ROTATE -FLIP

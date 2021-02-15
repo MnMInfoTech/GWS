@@ -25,44 +25,9 @@ namespace MnM.GWS
         /// <param name="Renderables">Array of renderable elements.</param>
         /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IEnumerable<ISettings> SettingsCollection, IBoundary Boundary)
         {
-            var Boundary = new Session();
-            writable.Render(Renderables, Boundary, SettingsList);
-        }
-
-        /// <summary>
-        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
-        /// </summary>
-        /// <param name="Renderables">Array of renderable elements.</param>
-        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IList<ISettings> SettingsList)
-        {
-            var Boundary = new Session();
-            writable.Render(Renderables, Boundary, SettingsList);
-        }
-
-        /// <summary>
-        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
-        /// </summary>
-        /// <param name="Renderables">Array of renderable elements.</param>
-        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary boundary, params ISettings[] SettingsList)
-        {
-            writable.Render(Renderables, boundary, (IList<ISettings>)SettingsList);
-        }
-
-        /// <summary>
-        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
-        /// </summary>
-        /// <param name="Renderables">Array of renderable elements.</param>
-        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IReadOnlyList<ISettings> SettingsList, IBoundary Boundary)
-        {
-            int slen = SettingsList.Count;
+            int slen = SettingsCollection.Count();
             int i = 0;
             int j = -1;
             var df = Factory.newSettings();
@@ -71,7 +36,7 @@ namespace MnM.GWS
             ISettings Settings;
             foreach (var Renderable in Renderables)
             {
-                Settings = i < slen ? SettingsList[i] : df;
+                Settings = i < slen ? SettingsCollection.ElementAt(i) : df;
                 command = Settings.Command;
                 pid = Settings.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
@@ -85,41 +50,7 @@ namespace MnM.GWS
                 ++j;
             }
             if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
-        }
-
-        /// <summary>
-        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
-        /// </summary>
-        /// <param name="Renderables">Array of renderable elements.</param>
-        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary Boundary, IList<ISettings> SettingsList)
-        {
-            int slen = SettingsList.Count;
-            int i = 0;
-            int j = -1;
-            var df = Factory.newSettings();
-            int pid;
-            Command command;
-            ISettings Settings;
-            foreach (var Renderable in Renderables)
-            {
-                Settings = i < slen ? SettingsList[i] : df;
-                command = Settings.Command;
-                pid = Settings.ProcessID;
-                Settings.Command |= Command.InvalidateOnly;
-                if (Boundary is IProcessID)
-                    Settings.ProcessID = ((IProcessID)Boundary).ProcessID;
-                writable.Render(Renderable, Settings);
-                Boundary.Merge(Settings.Session);
-                Settings.ProcessID = pid;
-                Settings.Command = command;
-                ++i;
-                ++j;
-            }
-            if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly, Boundary);
         }
 
         /// <summary>
@@ -151,7 +82,7 @@ namespace MnM.GWS
                 Settings.Command = command;
             }
             if (update && writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
+                ((IUpdatable)writable).Update(Command.UpdateScreenOnly, Boundary);
             return Boundary;
         }
 
@@ -178,7 +109,30 @@ namespace MnM.GWS
                 Settings.Command = command;
             }
             if (writable is IUpdatable)
-                ((IUpdatable)writable).Update(Command.UpdateScreenOnly | Command.WriteAnimation, Boundary);
+                ((IUpdatable)writable).Update(Settings.Command|= Command.UpdateScreenOnly, Boundary);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, params ISettings[] SettingsList)
+        {
+            var Boundary = new Session();
+            writable.Render(Renderables, Boundary, SettingsList);
+        }
+
+        /// <summary>
+        /// Renders multiple elements on this object. This renderer has a built-in support for the following kind of elements:
+        /// </summary>
+        /// <param name="Renderables">Array of renderable elements.</param>
+        /// <param name="SettingsList">Array of Settings associated with respective element in the array of renderables.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, IBoundary boundary, params ISettings[] SettingsList)
+        {
+            writable.Render(Renderables, SettingsList, boundary);
         }
 
         /// <summary>
@@ -1333,7 +1287,7 @@ namespace MnM.GWS
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyArea">Area to copy.</param>
-        /// <param name="command">Draw command to control image drawing operation.</param>
+        /// <param name="Command">Draw command to control image drawing operation.</param>
         public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IBoundable copyArea, Command Command = 0)
         {
             #region INITIALIZE VARIABLES
