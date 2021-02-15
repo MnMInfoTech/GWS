@@ -56,6 +56,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Hsv.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\LinePair.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Matrix3x2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rect.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rectangle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RectangleF.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Blocks.cs" />

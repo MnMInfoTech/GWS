@@ -726,13 +726,13 @@ namespace MnM.GWS
 
         #region TO RECTANGLE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IRectangle ToRectangle(this IBoundable boundary, int xExpand = 0, int yExpand = 0)
+        public static IRectangle ToRectangle(this IBoundable boundary)
         {
             if (boundary == null || !boundary.Valid)
                 return Rectangle.Empty;
             if (boundary is IRectangle)
                return (IRectangle)boundary;
-            boundary.GetBounds(out int x, out int y, out int w, out int h, xExpand, yExpand);
+            boundary.GetBounds(out int x, out int y, out int w, out int h);
             return new Rectangle(x, y, w, h);
         }
         #endregion

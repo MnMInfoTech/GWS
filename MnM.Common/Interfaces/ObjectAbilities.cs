@@ -122,14 +122,15 @@ namespace MnM.GWS
         /// Indicates if this object has valid perimiter or not.
         /// </summary>
         bool Valid { get; }
-        
+
         /// <summary>
         /// Gets current bounds of the perimeter.
         /// </summary>
-        /// <param name="xExpand">Inflation unit by which horizontal expansion should occur.</param>
-        /// <param name="yExpand">Inflation unit by which vertical expansion should occur.</param>
-        /// <returns></returns>
-        void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0);
+        /// <param name="x">Far left position of this object.</param>
+        /// <param name="y">Far top position of this object.</param>
+        /// <param name="w">Width of this object.</param>
+        /// <param name="h">Height of this object.</param>
+        void GetBounds(out int x, out int y, out int w, out int h);
     }
     #endregion
 

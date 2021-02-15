@@ -299,7 +299,7 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyArea">Area in source to copy.</param>
         /// <param name="command">Draw command to to control copy task</param>
-        void CopyFrom(IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command command = 0);
+        void CopyFrom(IBlockable source, int dstX, int dstY, IBoundable copyArea, Command command = 0);
     }
     public interface ITexture2 : ITexture
     {
@@ -311,7 +311,7 @@ namespace MnM.GWS
         void Unbind();
     }
 
-    public interface IStreamingTexture: IBlockable, IUpdatable
+    public interface ISdlTexture: IBlockable, IUpdatable
     {
         void Lock(IPerimeter copyRc, out IntPtr textureData, out int lockedLength);
         void Unlock();

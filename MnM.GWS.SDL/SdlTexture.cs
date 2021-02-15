@@ -16,7 +16,7 @@ namespace MnM.GWS
 #else
     public
 #endif
-    class SdlTexture : ITexture, ITexture2, IStreamingTexture
+    class SdlTexture : ITexture, ITexture2, ISdlTexture
     {
         #region VARIABLES
         protected IntPtr Renderer;
@@ -90,7 +90,7 @@ namespace MnM.GWS
 
             #region COPY FROM
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command command)
+            public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IBoundable copyArea, Command command)
             {
                 copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
 
@@ -102,7 +102,7 @@ namespace MnM.GWS
                 if (source is ICopyable)
                 {
                     ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0, 
-                        new Perimeter(copyX, copyY, dstW, dstH, copyArea.ProcessID), 0);
+                        new Rectangle(copyX, copyY, dstW, dstH), 0);
                 }
                 else if (source is IPixels)
                 {
@@ -175,9 +175,8 @@ namespace MnM.GWS
         {
                 if (perimeter == null)
                     return;
-                int unit = (perimeter is IBoundary) ? 6 : 0;
-                perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
-                Rectangle rc = new Rectangle(x, y, w, h);
+                perimeter.GetBounds(out int x, out int y, out int w, out int h);
+                Rect rc = new Rect(x, y, w, h);
 
                 NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
             NativeFactory.UpdateRenderer(Renderer);

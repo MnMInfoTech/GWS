@@ -311,7 +311,7 @@ namespace MnM.GWS
 
         #region SURFACE BINDINGS
         [DllImport(libSDL, EntryPoint = "SDL_LowerBlit", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        internal static extern int CopySurface(IntPtr src, Rectangle srcrect, IntPtr dst, Rectangle dstrect);
+        internal static extern int CopySurface(IntPtr src, Rectangle srcrect, IntPtr dst, Rect dstrect);
 
         [DllImport(libSDL, EntryPoint = "SDL_GetWindowSurface", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal unsafe static extern IntPtr GetWindowSurface(IntPtr window);
@@ -320,9 +320,9 @@ namespace MnM.GWS
         internal static extern int UpdateWindow(IntPtr window);
 
         [DllImport(libSDL, EntryPoint = "SDL_UpdateWindowSurfaceRects", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        internal static extern int UpdateWindow(IntPtr window, Rectangle[] rects, int numrects);
+        internal static extern int UpdateWindow(IntPtr window, Rect[] rects, int numrects);
 
-        internal static int UpdateWindow(IntPtr window, params Rectangle[] rectangles)
+        internal static int UpdateWindow(IntPtr window, params Rect[] rectangles)
         {
             return UpdateWindow(window, rectangles, rectangles.Length);
         }

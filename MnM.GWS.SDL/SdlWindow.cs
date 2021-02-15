@@ -86,6 +86,7 @@ namespace MnM.GWS
                     windowFlags |= WindowFlags.Hidden;
                 if (!windowFlags.HasFlag(WindowFlags.NoBorders))
                     windowFlags |= WindowFlags.Resizable;
+
                 //windowFlags |= WindowFlags.Maximized;
 
                 if (externalWindow != null)
@@ -131,6 +132,7 @@ namespace MnM.GWS
                 bounds = new Rectangle(_x, _y, w, h);
 
                 RendererFlags = renderFlags ?? RendererFlags.Accelarated;
+                NativeFactory.SetHint("DL_FRAMEBUFFER_ACCELERATION", "1");
                 return true;
             }
             catch

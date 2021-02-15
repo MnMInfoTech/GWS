@@ -134,7 +134,7 @@ namespace MnM.GWS
 
         #region GET BOUNDS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GetBounds(out int x, out int y, out int w, out int h, int xExpand = 0, int yExpand = 0)
+        public void GetBounds(out int x, out int y, out int w, out int h)
         {
             if (X2 == 0 || Y2 == 0 || X2 - X1 <= 0 || Y2 - Y1 <= 0)
             {
@@ -145,18 +145,6 @@ namespace MnM.GWS
             y = Y1;
             var x2 = X2;
             var y2 = Y2;
-            if (xExpand != 0)
-            {
-                x -= xExpand;
-                if (x < 0) x = 0;
-                x2 += xExpand;
-            }
-            if (yExpand != 0)
-            {
-                y -= yExpand;
-                if (y < 0) y = 0;
-                y2 += yExpand;
-            }
             w = x2 - x;
             h = y2 - y;
         }

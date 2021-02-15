@@ -197,8 +197,7 @@ namespace MnM.GWS
                     boundary.Merge(boundable);
                     return;
                 }
-                int unit = (perimeter is INotifiable) ? 6 : 0;
-                perimeter.GetBounds(out int x, out int y, out int w, out int h, unit, unit);
+                perimeter.GetBounds(out int x, out int y, out int w, out int h);
                 var rc = new System.Drawing.Rectangle(x, y, w, h);
                 if (InvokeRequired)
                 {

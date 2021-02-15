@@ -14,7 +14,7 @@ namespace MnM.GWS
 {
     public static partial class Renderer
     {
-        #region INSTANCE VARIABLE
+        #region VARIABLE
         internal const bool Initialize = true;
         #endregion
 
@@ -1191,11 +1191,11 @@ namespace MnM.GWS
                 return Blocks.CopyBlock(src, perimeter, srcLen, srcW, srcH, dst, 0, 0, dstW, dstLen, Command);
             }
 #if Window
-            else if(source is IStreamingTexture)
+            else if(source is ISdlTexture)
             {
                 IntPtr textureData;
                 int lockedLength;
-                var texture = (IStreamingTexture)source;
+                var texture = (ISdlTexture)source;
                 texture.Lock(perimeter, out textureData, out lockedLength);
                 Blocks.CopyBlock(src, new Perimeter(0, 0, w, h), lockedLength, source.Width, source.Height, dst, 0, 0, dstW, dstLen, Command);
                 texture.Unlock();
@@ -1334,22 +1334,30 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyArea">Area to copy.</param>
         /// <param name="command">Draw command to control image drawing operation.</param>
-        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IPerimeter copyArea, Command Command = 0)
+        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IBoundable copyArea, Command Command = 0)
         {
             #region INITIALIZE VARIABLES
             bool AddMode = (Command & Command.AddObject) == Command.AddObject;
             bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
             int* src = null;
             byte* srcAlphas = null;
-            uint ID = copyArea.ShapeID == 0 ? (source as IID)?.ID ?? IDGenerator.NewID() : 0;
+            uint ShapeID = 0;
+            if (copyArea is IShapeID)
+                ShapeID = ((IShapeID)copyArea).ShapeID;
+            else if (source is IID)
+                ShapeID = ((IID)source).ID;
+            if (ShapeID == 0)
+                ShapeID = IDGenerator.NewID();
+            int ProcessID = 0;
+            if (copyArea is IProcessID)
+                ProcessID = ((IProcessID)copyArea).ProcessID;
             int srcLen = source.Length;
             int srcW = source.Width;
             int srcH = source.Height;
             int dstW = block.Width;
             int dstH = block.Height;
             int dstLen = block.Length;
-            int unit = copyArea is IBoundary ? 6 : 0;
-            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH, unit, unit);
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             var rc = source.CompitibleRc(copyX, copyY, copyW, copyH);
             copyX = rc.X;
             copyY = rc.Y;
@@ -1398,7 +1406,7 @@ namespace MnM.GWS
                 if (src != null)
                 {
                     var dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
-                        new Perimeter(copyX, copyY, copyW, copyH, copyArea.ProcessID, ID), Command, (IntPtr)srcAlphas);
+                        new Perimeter(copyX, copyY, copyW, copyH, ProcessID, ShapeID), Command, (IntPtr)srcAlphas);
                     if (block is IUpdatable)
                         ((IUpdatable)block).Update(Command, dstRc);
                     return;
@@ -1408,8 +1416,8 @@ namespace MnM.GWS
             {
                 var writable = (IWritable)block;
                 var boundary = new Session();
-                boundary.ProcessID = copyArea.ProcessID;
-                boundary.ShapeID = ID;
+                boundary.ProcessID = ProcessID;
+                boundary.ShapeID = ShapeID;
 
                 int x, y, r, b, srcIndex, copyLen;
 
@@ -1471,7 +1479,7 @@ namespace MnM.GWS
                 int* dst = (int*)((IPixels)block).Source;
                 if (src != null)
                 {
-                    var dstRc = Blocks.CopyBlock(src, new Perimeter(copyX, copyY, copyW, copyH, copyArea.ProcessID, copyArea.ShapeID),
+                    var dstRc = Blocks.CopyBlock(src, new Perimeter(copyX, copyY, copyW, copyH, ProcessID, ShapeID),
                         srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
                     if (block is IUpdatable)
                         ((IUpdatable)block).Update(Command, dstRc);
@@ -1479,11 +1487,11 @@ namespace MnM.GWS
                 }
             }
 #if Window
-            else if(block is IStreamingTexture)
+            else if(block is ISdlTexture)
             {
                 IntPtr textureData;
                 int lockedLength;
-                var texture = (IStreamingTexture)block;
+                var texture = (ISdlTexture)block;
                 var dstRC = new Perimeter(dstX, dstY, dstW, dstH);
                 texture.Lock(dstRC, out textureData, out lockedLength);
                 int* dst = (int*)textureData;
