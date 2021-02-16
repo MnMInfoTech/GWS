@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed partial class Session: ReadSession, ISession
+    public sealed class Session: ReadSession, ISession
     {
         #region VARIABLES
         /// <summary>
@@ -114,6 +114,7 @@ namespace MnM.GWS
         int IDstPoint.Y { get => DstY; set => DstY = value; }
         uint ISession.ShapeID { get => ShapeID; set => ShapeID = value; }
         int ISession.ProcessID { get => ProcessID; set => ProcessID = value; }
+        public byte LifePriority { get; set; }
         #endregion
 
         #region NOTIFY

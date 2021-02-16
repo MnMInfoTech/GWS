@@ -150,8 +150,8 @@ namespace MnM.GWS
 
         #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update(Command command, IBoundable boudary) =>
-            Canvas.Update(command, boudary);
+        public void Update<T>(Command command, params T[] boundables) where T : IBoundable =>
+            Canvas.Update(command, boundables);
         #endregion
 
         #region COPY TO

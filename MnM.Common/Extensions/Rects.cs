@@ -565,6 +565,37 @@ namespace MnM.GWS
 
             return true;
         }
+
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Perimeter[] Intersects(this IBoundable a, IBoundable b, out bool success)
+        {
+            success = false;
+            if (a == null || !a.Valid || b == null || !b.Valid)
+                return new Perimeter[0];
+
+            a.GetBounds(out int aX, out int aY, out int aW, out int aH);
+            b.GetBounds(out int bX, out int bY, out int bW, out int bH);
+
+            bool xOverlap = aX >= bX && aX <= (bX + bW) ||
+                 bX >= aX && bX <= (aX + aW);
+
+            bool yOverlap = aY >= bY && aY <= (bY + bH) ||
+                 bY >= aY && bY <= (aY + aH);
+
+            if (!xOverlap || !yOverlap)
+                return new Perimeter[0];
+
+            success = true;
+            // left top of first is on the left of second rect.
+            if(aX<bX && aY < bY)
+            {
+
+            }
+            return new Perimeter[0];
+        }
+
         #endregion
 
         #region INTERSECT
@@ -726,6 +757,14 @@ namespace MnM.GWS
                 return;
             rc.GetBounds(out int x, out int y, out int w, out int h);
             notifiable.Notify(x, y, x + w, y + h);
+            if (rc is ILifePriority)
+            {
+                byte priority = ((ILifePriority)rc).LifePriority;
+                if (notifiable is ISession)
+                    ((ISession)notifiable).LifePriority = priority;
+                else if (notifiable is IBoundary)
+                    ((IBoundary)notifiable).LifePriority = priority;
+            }
         }
         #endregion
 

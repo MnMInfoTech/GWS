@@ -87,5 +87,23 @@ namespace MnM.GWS
         public static implicit operator bool(Rect r) =>
             r.W > 0 && r.H > 0;
         #endregion
+
+        public bool Equals(Rect rect)
+        {
+           return Rects.Equals(rect, X, Y, W, H);
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            if (obj is IBoundable)
+                return Rects.Equals((IBoundable)obj, X, Y, W, H);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return new { X, Y, W, H }.GetHashCode();
+        }
     }
 }

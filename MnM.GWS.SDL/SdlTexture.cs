@@ -167,20 +167,23 @@ namespace MnM.GWS
             NativeFactory.SetRenderTarget(Renderer, Handle);
         public void Unbind() =>
             NativeFactory.SetRenderTarget(Renderer, IntPtr.Zero);
-        #endregion
+            #endregion
 
-        #region UPDATE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Update(Command command, IBoundable perimeter)
-        {
-                if (perimeter == null)
-                    return;
-                perimeter.GetBounds(out int x, out int y, out int w, out int h);
-                Rect rc = new Rect(x, y, w, h);
+            #region UPDATE
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public unsafe void Update<T>(Command command, params T[] boudables) where T : IBoundable
+            {
+                foreach (var perimeter in boudables)
+                {
+                    if (perimeter == null)
+                        return;
+                    perimeter.GetBounds(out int x, out int y, out int w, out int h);
+                    Rect rc = new Rect(x, y, w, h);
 
-                NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
-            NativeFactory.UpdateRenderer(Renderer);
-        }
+                    NativeFactory.RenderCopyTexture(Renderer, Handle, rc, rc);
+                }
+                NativeFactory.UpdateRenderer(Renderer);
+            }
         #endregion
 
         #region CREATE - DESTROY

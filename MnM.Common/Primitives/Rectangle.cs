@@ -164,16 +164,12 @@ namespace MnM.GWS
         #region EQUALITY
         public bool Equals(Rectangle other)
         {
-            if (!other && !Valid)
-                return true;
-            if (!Valid && other  && !other && Valid)
-                return true;
-            return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
+            return Rects.Equals(other, X, Y, Width, Height);
         }
         public override bool Equals(object obj)
         {
-            if (obj is Rectangle)
-                return Equals((Rectangle)obj);
+            if (obj is IBoundable)
+                return Rects.Equals((IBoundable)obj, X, Y, Width, Height);
             return false;
         }
         public override int GetHashCode()

@@ -347,9 +347,8 @@ namespace MnM.GWS
         /// Updates invalidated area on screen.
         /// </summary>
         /// <param name="command">Command to control this Update task.</param>
-        /// <param name="boundary">Area to update.</param>
-        /// <param name="processID">ID of the process which initiated this operation.</param>
-        void Update(Command command, IBoundable boundary);
+        /// <param name="boundables">Array of Areas to update.</param>
+        void Update<T>(Command command, params T[] boundables) where T: IBoundable;
     }
     #endregion
 

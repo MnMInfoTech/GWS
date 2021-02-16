@@ -26,7 +26,7 @@ namespace MnM.GWS
             get => interval;
             set
             {
-                if (interval < 5)
+                if (interval < 1)
                     return;
                 interval = value;
             }
