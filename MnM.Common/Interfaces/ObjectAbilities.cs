@@ -383,8 +383,8 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region ICONSOLIDATOR
-    public interface IConsolidator 
+    #region ICOPYABLE-SCREEN
+    public interface ICopyableScreen 
     {
         /// <summary>
         /// Copies consolidated data to target destination. Very useful for mixing 2 images.
@@ -395,12 +395,12 @@ namespace MnM.GWS
         /// <param name="dstW"></param>
         /// <param name="dstX"></param>
         /// <param name="dstY"></param>
-        /// <param name="backBuffer"></param>
+        /// <param name="externalBuffer"></param>
         /// <param name="Command"></param>
-        /// <param name="Pen"></param>
+        /// <param name="externalPen"></param>
         /// <returns></returns>
-        IPerimeter Consolidate(IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command = Command.None, IntPtr? Pen = null);
+        IPerimeter CopyScreen(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command Command = Command.None, 
+            IMultiBuffered externalBuffer = null, IntPtr? externalPen = null);
     }
     #endregion
 
@@ -459,7 +459,7 @@ namespace MnM.GWS
     public interface IShowable2
     {
         /// <summary>
-        /// Shows this object on screen.
+        /// Shows this object on screen on given location.
         /// </summary>
         void Show(int x, int y);
     }

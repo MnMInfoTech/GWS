@@ -490,7 +490,7 @@ namespace MnM.GWS.SDL
     class MouseEventArgs : EventArgs, IMouseEventArgs
     {
         private Mouse state;
-        const string toStr = "x:{0}, y{1}";
+        const string toStr = "X:{0}, Y:{1}";
 
         /// <summary>
         /// Constructs a new instance.

@@ -143,9 +143,9 @@ namespace MnM.GWS
         #endregion
 
         #region CONSOLIDATE
-        public IPerimeter Consolidate(IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command, IntPtr? Pen) =>
-            Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
+        public IPerimeter CopyScreen(IntPtr destination,
+            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command Command, IMultiBuffered backBuffer = null, IntPtr? Pen = null) =>
+            Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, Command, backBuffer, Pen);
         #endregion
 
         #region UPDATE

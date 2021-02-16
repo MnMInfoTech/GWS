@@ -217,6 +217,11 @@ namespace MnM.GWS
         int Interval { get; set; }
 
         /// <summary>
+        /// Gets total elapsed time till now.
+        /// </summary>
+        long ElapsedTime { get; }
+
+        /// <summary>
         /// Gets a flag indicating whether this timer is running or not.
         /// </summary>
         bool IsRunning { get; }

@@ -66,10 +66,10 @@ namespace MnM.GWS
         #endregion
 
         #region CONSOLIDATE
-        public IPerimeter Consolidate(IntPtr destination, int dstLen,
-            int dstW, int dstX, int dstY, IBoundable copyArea, IMultiBuffered backBuffer, Command Command = 0, IntPtr? Pen = null)
+        public IPerimeter CopyScreen(IntPtr destination, int dstLen,
+            int dstW, int dstX, int dstY, IBoundable copyArea, Command Command = 0, IMultiBuffered backBuffer = null, IntPtr? Pen = null)
         {
-            return Canvas.Consolidate(destination, dstLen, dstW, dstX, dstY, copyArea, backBuffer, Command, Pen);
+            return Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, Command, backBuffer, Pen);
         }
         #endregion
 

@@ -106,8 +106,9 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has information about current rendering process and perimeter formation.
     /// </summary>
-    public interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession, IPerimeter
-    { }
+    public partial interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession, IPerimeter
+    {
+    }
     #endregion
 
     #region ISETTINGS

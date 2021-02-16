@@ -9,6 +9,7 @@ namespace MnM.GWS
         protected volatile bool Running = false;
         protected readonly Stopwatch Watch;
         protected long speed;
+        protected long elapsedMilliseconds;
         #endregion
 
         #region CONSTRUCTOR
@@ -32,12 +33,14 @@ namespace MnM.GWS
         }
         public bool IsRunning => Running;
         public long Speed => speed;
+        public long ElapsedTime => elapsedMilliseconds;
         #endregion
 
         #region START - STOP
         public void Start()
         {
             speed = 0;
+            elapsedMilliseconds = 0;
             Watch.Restart();
             FireEvent();
         }
@@ -45,6 +48,7 @@ namespace MnM.GWS
         {
             Watch.Stop();
             Watch.Reset();
+            elapsedMilliseconds = 0;
             Running = false;
         }
         #endregion

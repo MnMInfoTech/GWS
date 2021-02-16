@@ -132,47 +132,65 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CompitibleRc(this ISize sz, Rectangle rect) =>
-            CompitibleRc(sz, rect.X, rect.Y, rect.Width, rect.Height);
+        public static Rectangle CompitibleRc(this ISize sz, IBoundable rect)
+        {
+            int x = 0;
+            int y = 0;
+            int w = sz.Width;
+            int h = sz.Height;
+            if (rect != null && rect.Valid)
+                rect.GetBounds(out x, out y, out w, out h);
+            return CompitibleRc(sz, x, y, w, h);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CompitibleRc(this IRectangle rect, int? x0 = null, int? y0 = null, int? width = null, int? height = null)
+        public static Rectangle CompitibleRc(this IBoundable rect, int? x0 = null, int? y0 = null, int? width = null, int? height = null)
         {
-            var x = x0 ?? rect.X;
-            var y = y0 ?? rect.Y;
-            var w = width ?? rect.Width;
-            var h = height ?? rect.Height;
+            if (rect == null || !rect.Valid)
+                return Rectangle.Empty;
+            rect.GetBounds(out int x1, out int y1, out int w1, out int h1);
+
+            var x = x0 ?? x1;
+            var y = y0 ?? y1;
+            var w = width ?? w1;
+            var h = height ?? h1;
             var r = x + w;
             var b = y + h;
 
-            if (x < rect.X)
+            if (x < x1)
             {
-                var diff = rect.X - x;
+                var diff = x1 - x;
                 r -= diff;
-                x = rect.X;
+                x = x1;
             }
-            if (y < rect.Y)
+            if (y < y1)
             {
-                var diff = rect.Y - y;
+                var diff = y1 - y;
                 b -= diff;
-                y = rect.Y;
+                y = y1;
             }
 
             if (!rect.Contains(x, y))
                 return Rectangle.Empty;
 
-            if (r > rect.Width)
-                r = rect.Width;
+            if (r > w1)
+                r = w1;
 
-            if (b > rect.Height)
-                b = rect.Height;
+            if (b > h1)
+                b = h1;
 
             return Rectangle.FromLTRB(x, y, r, b);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rectangle CompitibleRc(this IRectangle sz, Rectangle rect) =>
-            sz.CompitibleRc(rect.X, rect.Y, rect.Width, rect.Height);
+        public static Rectangle CompitibleRc(this IBoundable sz, IBoundable rect)
+        {
+            if (sz == null || rect == null || !sz.Valid || !rect.Valid)
+                return Rectangle.Empty;
+
+            rect.GetBounds(out int x, out int y, out int w, out int h);
+            return sz.CompitibleRc(x, y, w, h);
+        }
         #endregion
 
         #region COMPITIBLE PERIMETER
@@ -371,12 +389,16 @@ namespace MnM.GWS
         /// <param name="y">y position of Top Left corner.</param>
         /// <param name="r">x position of bottom right corner.</param>
         /// <param name="b">y position of bottom right corner.</param>
-        public static void Get(this IRectangle rc, out int x, out int y, out int r, out int b)
+        public static void GetLTRB(this IBoundable rc, out int x, out int y, out int r, out int b)
         {
-            x = rc.X;
-            y = rc.Y;
-            r = x + rc.Width;
-            b = y + rc.Height;
+            x = y = r = b = 0;
+            if (rc == null || !rc.Valid)
+                return;
+
+            rc.GetBounds(out x, out y, out int w, out int h);
+
+            r = x + w;
+            b = y + h;
         }
 
         /// <summary>
@@ -388,7 +410,7 @@ namespace MnM.GWS
         /// <param name="y">y position of Top Left corner.</param>
         /// <param name="r">x position of bottom right corner.</param>
         /// <param name="b">y position of bottom right corner.</param>
-        public static void Get(this IRectangleF rc, out float x, out float y, out float r, out float b)
+        public static void GetLTRB(this IRectangleF rc, out float x, out float y, out float r, out float b)
         {
             x = rc.X;
             y = rc.Y;
@@ -404,9 +426,13 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the locaiton.</param>
         /// <param name="y">Y co-ordinate of the location.</param>
         /// <returns>True if the location lies within bounds of this object otherwise false.</returns>
-        public static bool Contains(this IRectangle rectangle, int x, int y)
+        public static bool Contains(this IBoundable rect, int x, int y)
         {
-            if (x < rectangle.X || y < rectangle.Y || x > rectangle.X + rectangle.Width || y > rectangle.Y + rectangle.Height)
+            if (rect == null || !rect.Valid)
+                return false;
+            rect.GetBounds(out int x1, out int y1, out int w1, out int h1);
+
+            if (x < x1 || y < y1 || x > (x1 + w1) || y > (y1 + h1))
                 return false;
             return true;
         }
@@ -429,16 +455,33 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="x">X co-ordinate of the locaiton.</param>
         /// <returns>True if the x lies within bounds of this object otherwise false.</returns>
-        public static bool ContainsX(this IRectangle rect, int x) =>
-            x >= rect.X && x <= rect.X + rect.Width;
+        public static bool ContainsX(this IBoundable rect, int x)
+        {
+            if (rect == null || !rect.Valid)
+                return false;
+            rect.GetBounds(out int x1, out _, out int w1, out _);
+
+            if (x < x1 || x > (x1 + w1))
+                return false;
+            return true;
+        }
 
         /// <summary>
         /// Tests if given y lies within the bounds of this object.
         /// </summary>
         /// <param name="y">Y co-ordinate of the locaiton.</param>
         /// <returns>True if the y lies within bounds of this object otherwise false.</returns>
-        public static bool ContainsY(this IRectangle rect, int y) =>
-             y >= rect.Y && y <= rect.Y + rect.Height;
+        public static bool ContainsY(this IBoundable rect, int y)
+        {
+            if (rect == null || !rect.Valid)
+                return false;
+            rect.GetBounds(out _, out int y1, out _, out int h1);
+
+            if (y < y1 || y > (y1 + h1))
+                return false;
+            return true;
+
+        }
 
         /// <summary>
         /// Tests if given x lies within the bounds of this object.
@@ -467,8 +510,14 @@ namespace MnM.GWS
         /// <param name="h">Height value to match.</param>
         /// <returns>True if all parameters match otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this IRectangle rc, int x, int y, int w, int h) =>
-            x == rc.X && y == rc.Y && w == rc.Width && h == rc.Height;
+        public static bool Equals(this IBoundable rect, int x, int y, int w, int h)
+        {
+            if (rect == null || !rect.Valid)
+                return false;
+            rect.GetBounds(out int x1, out int y1, out int w1, out int h1);
+
+            return x == x1 && y == y1 && w == w1 && h == h1;
+        }
 
         /// <summary>
         /// Tests if given x, y, w and h parametrs are matching in value to X,Y,Width and Height parameters of this object.
@@ -481,24 +530,6 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Equals(this IRectangleF rc, float x, float y, float w, float h) =>
             x == rc.X && y == rc.Y && w == rc.Width && h == rc.Height;
-
-        /// <summary>
-        /// Tests if given x, y, w and h parametrs are matching in value to X,Y,Width and Height parameters of this object.
-        /// </summary>
-        /// <param name="o">Other rectangle to match.</param>
-        /// <returns>True if all parameters match otherwise false.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this IRectangle rc, IRectangle o) =>
-            o.X == rc.X && o.Y == rc.Y && o.Width == rc.Width && o.Height == rc.Height;
-
-        /// <summary>
-        /// Tests if given x, y, w and h parametrs are matching in value to X,Y,Width and Height parameters of this object.
-        /// </summary>
-        /// <param name="o">Other rectangle to match.</param>
-        /// <returns>True if all parameters match otherwise false.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Equals(this IRectangleF rc, IRectangleF o) =>
-            o.X == rc.X && o.Y == rc.Y && o.Width == rc.Width && o.Height == rc.Height;
         #endregion
 
         #region INTERSECTS
@@ -591,14 +622,19 @@ namespace MnM.GWS
 
         #region CONTAINS OTHER RECT
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Contains(this IRectangle parent, IRectangle child)
+        public static bool Contains(this IBoundable parent, IBoundable child)
         {
-            var chr = child.X + child.Width;
-            var chb = child.Y + child.Height;
-            var par = parent.X + parent.Width;
-            var pab = parent.Y + parent.Height;
+            if (parent == null || child == null || !parent.Valid || !child.Valid)
+                return false;
+            parent.GetBounds(out int parentX, out int parentY, out int parentW, out int parentH);
+            parent.GetBounds(out int childX, out int childY, out int childW, out int childH);
 
-            return child.X >= parent.X && child.Y >= parent.Y && chr <= par && chb <= pab;
+            var chr = childX + childW;
+            var chb = childY + childH;
+            var par = parentX + parentW;
+            var pab = parentY + parentH;
+
+            return childX >= parentX && childY >= parentY && chr <= par && chb <= pab;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -615,7 +651,7 @@ namespace MnM.GWS
 
         #region MIN MAX 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MinMax(this IEnumerable<Rectangle> collection, ref int minX, ref int minY, ref int maxX, ref int maxY)
+        public static void MinMax<T>(this IEnumerable<T> collection, ref int minX, ref int minY, ref int maxX, ref int maxY) where T:IBoundable
         {
             ResetMinMax(out minX, out minY, out maxX, out maxY);
 
@@ -637,12 +673,14 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CorrectMinMax(this IRectangle rectangle, ref int minX, ref int minY, ref int maxX, ref int maxY)
+        public static void CorrectMinMax(this IBoundable rc, ref int minX, ref int minY, ref int maxX, ref int maxY)
         {
-            if (rectangle == null)
+            if (rc == null || !rc.Valid)
                 return;
-            CorrectMinMax(rectangle.X, rectangle.Y, ref minX, ref minY, ref maxX, ref maxY);
-            CorrectMinMax(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height, ref minX, ref minY, ref maxX, ref maxY);
+            rc.GetBounds(out int x, out int y, out int w, out int h);
+
+            CorrectMinMax(x, y, ref minX, ref minY, ref maxX, ref maxY);
+            CorrectMinMax(x + w, y + h, ref minX, ref minY, ref maxX, ref maxY);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

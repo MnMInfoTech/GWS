@@ -1110,6 +1110,11 @@ namespace MnM.GWS
             bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
             #endregion
 
+            if(source is ICopyableScreen)
+            {
+                return ((ICopyableScreen)source).CopyScreen((IntPtr)dst, dstLen, dstW, 0, 0, perimeter);
+            }
+
             if (source is ICopyable)
             {
                 srcLen = w * h;
@@ -1497,7 +1502,9 @@ namespace MnM.GWS
                 var dstRc = Blocks.CopyBlock(src, compitible, srcW * srcH, srcW, srcH, dst, dstX, dstY, block.Width, block.Length, command);
                 if (block is IUpdatable)
                     ((IUpdatable)block).Update(command, dstRc);
+                return;
             }
+            
             if (block is IWritableBlock)
             {
                 var dstRc = ((IWritableBlock)block).WriteBlock(source, srcW, srcH, dstX, dstY, compitible, command);

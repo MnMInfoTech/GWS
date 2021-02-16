@@ -62,6 +62,7 @@ namespace MnM.GWS
                                 speed = (uint)(Watch.ElapsedMilliseconds / 1000);
                                 break;
                         }
+                        elapsedMilliseconds += Watch.ElapsedMilliseconds;
                         Watch.Restart();
                         Tick(this, Factory.EmptyArgs);
                         ON = false;
@@ -70,7 +71,6 @@ namespace MnM.GWS
             });
             Running = false;
         }
-      
         #endregion
 
         #region DISPOSE

@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed class Session: ReadSession, ISession
+    public sealed partial class Session: ReadSession, ISession
     {
         #region VARIABLES
         /// <summary>
