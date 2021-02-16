@@ -52,11 +52,6 @@ namespace MnM.GWS
         /// </summary>
         volatile IntPtr source;
 
-        /// <summary>
-        /// Invalidated area remains to be updated.
-        /// </summary>
-        readonly IBoundary boundary = new Boundary();
-
 #if Advanced
         /// <summary>
         /// this array of byte will be used by Canvas object for direct screen.
@@ -89,7 +84,6 @@ namespace MnM.GWS
         public bool IsDisposed { get; private set; }
         public string ID { get; private set; }
         unsafe int* Screen => (int*)Source;
-        public IBoundary Boundary => boundary;
 #if Advanced
         public unsafe IntPtr Flags
         {
@@ -111,29 +105,8 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Update<T>(Command Command, params T[] boundables) where T: IBoundable
         {
-            int x, y, w, h;
-            Rect rc;
-
-            if(boundables.Length == 0)
-            {
-                boundary.GetBounds(out x, out y, out w, out h);
-                rc = new Rect(x, y, w, h);
-                NativeFactory.UpdateWindow(Window.Handle, rc);
-                boundary.Clear();
-                return;
-            }
-            bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
-
-            if (SuspendUpdate)
-            {
-                foreach (var perimeter in boundables)
-                {
-                    if (!perimeter.Valid)
-                        continue;
-                    boundary.Merge(perimeter);
-                }
-                return;
-            }
+                if (boundables.Length == 0)
+                    return;
             var items = boundables.Where(p => p.Valid).Select(p => new Rect(p)).ToArray();
             NativeFactory.UpdateWindow(Window.Handle, items, items.Length);
         }

@@ -22,11 +22,6 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IRenderTarget : IPixels, IResizable, IUpdatable, IDisposable2, IPaintable
     {
-        /// <summary>
-        /// Gets boundary object which contains bounds of invalidated area.
-        /// </summary>
-        IBoundary Boundary { get; }
-
 #if Advanced
         /// <summary>
         /// Int32 array pointer to be used by Canvas object for animation.

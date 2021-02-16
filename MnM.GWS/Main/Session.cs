@@ -33,22 +33,22 @@ namespace MnM.GWS
         
         /// X co-ordinate of recently drawn area of this object.
         /// </summary>
-        int X1 = int.MaxValue;
+        public int X1 = int.MaxValue;
 
         /// <summary>
         /// Y co-ordinate of recently drawn area of this object.
         /// </summary>
-        int Y1 = int.MaxValue;
+        public int Y1 = int.MaxValue;
 
         /// <summary>
         /// Far right X co-ordinate of recently drawn area of this object.
         /// </summary>
-        int X2 = 0;
+        public int X2 = 0;
 
         /// <summary>
         /// Far bottom Y co-ordinate of recently drawn area of this object.
         /// </summary>
-        int Y2 = 0;
+        public int Y2 = 0;
 
         static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
         #endregion

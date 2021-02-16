@@ -55,11 +55,6 @@ namespace MnM.GWS
             /// </summary>
             int length;
 
-            /// <summary>
-            /// Invalidated area remains to be updated.
-            /// </summary>
-            readonly IBoundary boundary = new Boundary();
-
 #if Advanced
             /// <summary>
             /// this array of byte will be used by Canvas object for animation.
@@ -130,7 +125,6 @@ namespace MnM.GWS
                         base.Text = value;
                 }
             }
-            public IBoundary Boundary => boundary;
 #if Advanced
             public unsafe IntPtr Flags
             {
@@ -188,38 +182,12 @@ namespace MnM.GWS
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Update<T>(Command Command, params T[] boundables) where T: IBoundable
             {
+                if (boundables.Length == 0)
+                    return;
+
                 int x, y, w, h;
                 System.Drawing.Rectangle rc;
 
-                if (boundables.Length == 0)
-                {
-                    boundary.GetBounds(out x, out y, out w, out h);
-                    rc = new System.Drawing.Rectangle(x, y, w, h);
-                    if (InvokeRequired)
-                    {
-                        InvalidateSafe(rc);
-                        UpdateSafe();
-                    }
-                    else
-                    {
-                        Invalidate(rc);
-                        Update();
-                    }
-                    boundary.Clear();
-                    return;
-                }
-                bool SuspendUpdate = (Command & Command.InvalidateOnly) == Command.InvalidateOnly;
-
-                if (SuspendUpdate)
-                {
-                    foreach (var perimeter in boundables)
-                    {
-                        if (!perimeter.Valid)
-                            continue;
-                        boundary.Merge(perimeter);
-                    }
-                    return;
-                }
                 foreach (var perimeter in boundables)
                 {
                     if (!perimeter.Valid)
