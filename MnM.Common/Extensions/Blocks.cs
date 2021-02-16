@@ -110,11 +110,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            int processID = 0;
-            if (copyArea is IProcessID)
-                processID = ((IProcessID)copyArea).ProcessID;
-
-            return new Perimeter(dstX, dstY, copyW, i, processID);
+            return new Perimeter(copyArea, dstX, dstY, copyW, i);
         }
 
         /// <summary>
@@ -158,11 +154,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            int processID = 0;
-            if (copyArea is IProcessID)
-                processID = ((IProcessID)copyArea).ProcessID;
-
-            return new Perimeter(dstX, dstY, copyW, i, processID);
+            return new Perimeter(copyArea, dstX, dstY, copyW, i);
         }
         #endregion
 
@@ -210,10 +202,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            int processID = 0;
-            if (copyArea is IProcessID)
-                processID = ((IProcessID)copyArea).ProcessID;
-            return new Perimeter(dstX, dstY, copyW, i, processID);
+            return new Perimeter(copyArea, dstX, dstY, copyW, i);
         }
 
         /// <summary>
@@ -258,11 +247,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            int processID = 0;
-            if (copyArea is IProcessID)
-                processID = ((IProcessID)copyArea).ProcessID;
-
-            return new Perimeter(dstX, dstY, copyW, i, processID);
+            return new Perimeter(copyArea, dstX, dstY, copyW, i);
         }
         #endregion
 
@@ -309,10 +294,7 @@ namespace MnM.GWS
                 dstIndex += dstW;
                 ++i;
             }
-            int processID = 0;
-            if (copyArea is IProcessID)
-                processID = ((IProcessID)copyArea).ProcessID;
-            return new Perimeter(dstX, dstY, copyW, i, processID);
+            return new Perimeter(copyArea, dstX, dstY, copyW, i);
         }
         #endregion
 

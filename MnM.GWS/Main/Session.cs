@@ -95,7 +95,10 @@ namespace MnM.GWS
             if(perimeter is IShapeID)
                 ShapeID = ((IShapeID)perimeter).ShapeID;
 
-            if(perimeter is IDstPoint)
+            if (perimeter is ILifePriority)
+                LifePriority = ((ILifePriority)perimeter).LifePriority;
+
+            if (perimeter is IDstPoint)
             {
                 DstX = ((IDstPoint)perimeter).X;
                 DstY = ((IDstPoint)perimeter).Y;
@@ -109,6 +112,8 @@ namespace MnM.GWS
         int IProcessID.ProcessID => ProcessID;
         int IDstPoint.X { get => DstX; set => DstX = value; }
         int IDstPoint.Y { get => DstY; set => DstY = value; }
+        uint ISession.ShapeID { get => ShapeID; set => ShapeID = value; }
+        int ISession.ProcessID { get => ProcessID; set => ProcessID = value; }
         #endregion
 
         #region NOTIFY

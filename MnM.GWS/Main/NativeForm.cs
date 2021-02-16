@@ -153,7 +153,7 @@ namespace MnM.GWS
             drawEventArgs.ProcessID = processID;
             OnPaint(drawEventArgs);
             if ((command & Command.InvalidateOnly) != Command.InvalidateOnly)
-                Update(command, new Perimeter(0, 0, Width, Height, processID));
+                Update(command, new Perimeter(0, 0, Width, Height, processID, 0, 0));
         }
         #endregion
 

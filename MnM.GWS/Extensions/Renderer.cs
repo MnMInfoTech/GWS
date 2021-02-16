@@ -38,13 +38,13 @@ namespace MnM.GWS
             {
                 Settings = i < slen ? SettingsCollection.ElementAt(i) : df;
                 command = Settings.Command;
-                pid = Settings.ProcessID;
+                pid = Settings.Session.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
                 if(Boundary is IProcessID)
-                    Settings.ProcessID = ((IProcessID)Boundary).ProcessID;
+                    Settings.Session.ProcessID = ((IProcessID)Boundary).ProcessID;
                 writable.Render(Renderable, Settings);
                 Boundary.Merge(Settings.Session);
-                Settings.ProcessID = pid;
+                Settings.Session.ProcessID = pid;
                 Settings.Command = command;
                 ++i;
                 ++j;
@@ -72,13 +72,13 @@ namespace MnM.GWS
                 renderable = Shape.Renderable;
 
                 command = Settings.Command;
-                pid = Settings.ProcessID;
+                pid = Settings.Session.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
                 if (processID != null)
-                    Settings.ProcessID = processID.Value;
+                    Settings.Session.ProcessID = processID.Value;
                 writable.Render(renderable, Settings);
                 Boundary.Merge(Settings.Session);
-                Settings.ProcessID = pid;
+                Settings.Session.ProcessID = pid;
                 Settings.Command = command;
             }
             if (update && writable is IUpdatable)
@@ -99,13 +99,13 @@ namespace MnM.GWS
             foreach (var Renderable in Renderables)
             {
                 command = Settings.Command;
-                pid = Settings.ProcessID;
+                pid = Settings.Session.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
                 if (Boundary is IProcessID)
-                    Settings.ProcessID = ((IProcessID)Boundary).ProcessID;
+                    Settings.Session.ProcessID = ((IProcessID)Boundary).ProcessID;
                 writable.Render(Renderable, Settings);
                 Boundary.Merge(Settings.Session);
-                Settings.ProcessID = pid;
+                Settings.Session.ProcessID = pid;
                 Settings.Command = command;
             }
             if (writable is IUpdatable)
@@ -1307,9 +1307,6 @@ namespace MnM.GWS
                 ShapeID = ((IID)source).ID;
             if (ShapeID == 0)
                 ShapeID = IDGenerator.NewID();
-            int ProcessID = 0;
-            if (copyArea is IProcessID)
-                ProcessID = ((IProcessID)copyArea).ProcessID;
             int srcLen = source.Length;
             int srcW = source.Width;
             int srcH = source.Height;
@@ -1365,7 +1362,7 @@ namespace MnM.GWS
                 if (src != null)
                 {
                     var dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
-                        new Perimeter(copyX, copyY, copyW, copyH, ProcessID, ShapeID), Command, (IntPtr)srcAlphas);
+                        new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID), Command, (IntPtr)srcAlphas);
                     if (block is IUpdatable)
                         ((IUpdatable)block).Update(Command, dstRc);
                     return;
@@ -1374,9 +1371,9 @@ namespace MnM.GWS
             else if (block is IWritable)
             {
                 var writable = (IWritable)block;
-                var boundary = new Session();
-                boundary.ProcessID = ProcessID;
+                var boundary = new Session(copyArea);
                 boundary.ShapeID = ShapeID;
+                boundary.Clear();
 
                 int x, y, r, b, srcIndex, copyLen;
 
@@ -1438,7 +1435,7 @@ namespace MnM.GWS
                 int* dst = (int*)((IPixels)block).Source;
                 if (src != null)
                 {
-                    var dstRc = Blocks.CopyBlock(src, new Perimeter(copyX, copyY, copyW, copyH, ProcessID, ShapeID),
+                    var dstRc = Blocks.CopyBlock(src, new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID),
                         srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
                     if (block is IUpdatable)
                         ((IUpdatable)block).Update(Command, dstRc);
@@ -1472,7 +1469,7 @@ namespace MnM.GWS
         public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, Command command = 0, int processID = 0)
         {
             uint shapeID = (source as IID)?.ID ?? IDGenerator.NewID();
-            block.DrawImage(block, dstX, dstY, new Perimeter(0, 0, source.Width, source.Height, processID, shapeID), command);
+            block.DrawImage(block, dstX, dstY, new Perimeter(0, 0, source.Width, source.Height, processID, shapeID, 0), command);
         }
 
         /// <summary>
@@ -1532,7 +1529,7 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
             Command command = 0, int processID = 0, uint ShapeID = 0) =>
-            block.DrawImage(source, srcW, srcH, dstX, dstY, new Perimeter(0, 0, srcW, srcH, processID, ShapeID), command);
+            block.DrawImage(source, srcW, srcH, dstX, dstY, new Perimeter(0, 0, srcW, srcH, processID, ShapeID, 0), command);
 
         /// <summary>
         /// Draws an image by taking an area from a 1D array representing a rectangele to the given destination.

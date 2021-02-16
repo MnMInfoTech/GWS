@@ -86,7 +86,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has an area with perimeter and information about IDs of process and shape currently being rendered.
     /// </summary>
-    public interface IPerimeter : IProcessID, IShapeID, IBoundable
+    public interface IPerimeter : IProcessID, IShapeID, ILifePriority, IBoundable
     { }
     #endregion
 
@@ -121,8 +121,13 @@ namespace MnM.GWS
     #endregion
 
     #region IBOUNDARY
-    public interface IBoundary : IBoundable, INotifiable
-    { }
+    public interface IBoundary : IBoundable, INotifiable, ILifePriority
+    {
+        /// <summary>
+        /// Gets or sets GWS assigned life priority for the object while rendering.
+        /// </summary>
+        new byte LifePriority { get; set; }
+    }
     #endregion
 
 #if (GWS || Window)
@@ -185,6 +190,6 @@ namespace MnM.GWS
         /// </summary>
         IRectangle Bounds { get; }
     }
-    #endregion
+    #endregion 
 #endif
 }

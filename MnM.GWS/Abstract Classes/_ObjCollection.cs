@@ -65,7 +65,7 @@ namespace MnM.GWS
 
         #region IS DRAWABLE
         protected virtual bool IsDrawable(ISettings item, ISettings compareWith) =>
-            item.ShapeID == compareWith.ShapeID;
+            item.Session.ShapeID == compareWith.Session.ShapeID;
         #endregion
 
         #region IS ADDABLE

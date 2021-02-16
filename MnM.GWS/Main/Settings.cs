@@ -12,7 +12,7 @@ namespace MnM.GWS
         Command DrawCommand, CalculatedDrawCommand;
         private FillMode fillMode;
         private float stroke;
-        Session session = new Session();
+        Session MySession = new Session();
         #endregion
 
         #region CONSTRUCTORS
@@ -24,7 +24,7 @@ namespace MnM.GWS
         }
         internal Settings(uint shapeID)
         {
-            ShapeID = shapeID;
+            MySession.ShapeID = shapeID;
             DrawCommand = Command.OddEven;
             Initialize();
         }
@@ -61,15 +61,13 @@ namespace MnM.GWS
                 SyncCommand();
             }
         }
-        public int ProcessID { get => session.ProcessID; set => session.ProcessID = value; }
-        public uint ShapeID { get => session.ShapeID; set => session.ShapeID = value; }
         public Rotation Rotation { get; set; }
         public StrokeMode StrokeMode { get; set; }
         public VectorF Scale { get; set; }
         public IPenContext PenContext { get; set; }
         public IRectangle Bounds { get; set; }
         public Size Clip { get; set; }
-        public ISession Session => session;
+        public ISession Session => MySession;
         #endregion
 
         #region SYNC PATTERN AND ANTIALIAS SETTINGS
@@ -100,13 +98,13 @@ namespace MnM.GWS
 
             if (settings is IPoint)
             {
-                session.DstX = ((IPoint)settings).X;
-                session.DstY = ((IPoint)settings).Y;
+                MySession.DstX = ((IPoint)settings).X;
+                MySession.DstY = ((IPoint)settings).Y;
             }
             if (settings is IDstPoint)
             {
-                session.DstX = ((IDstPoint)settings).X;
-                session.DstY = ((IDstPoint)settings).Y;
+                MySession.DstX = ((IDstPoint)settings).X;
+                MySession.DstY = ((IDstPoint)settings).Y;
             }
             if (settings is IRectangle)
             {
@@ -121,7 +119,7 @@ namespace MnM.GWS
                 Scale = info.Scale;
                 Rotation = info.Rotation;
                 DrawCommand = info.Command;
-                session.Copy(info.Session);
+                MySession.Copy(info.Session);
                 CleanCommand();
                 PenContext = info.PenContext;
             }
@@ -184,9 +182,9 @@ namespace MnM.GWS
             fillMode = FillMode.Original;
             Rotation = Rotation.Empty;
             Scale = VectorF.Empty;
-            session.DstX = session.DstY = 0;
+            MySession.DstX = MySession.DstY = 0;
             Bounds = Rectangle.Empty;
-            ShapeID = 0;
+            MySession.ShapeID = 0;
             Session.Clear();
         }
         #endregion

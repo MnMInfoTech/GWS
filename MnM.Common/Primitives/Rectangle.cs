@@ -19,7 +19,6 @@ namespace MnM.GWS
     {
         #region VARIABLES
         public int X, Y, Width, Height;
-        byte valid;
         public static Rectangle Empty = new Rectangle();
         static string description = "X: {0}, Y: {1}, W: {2}, H: {3}";
         #endregion
@@ -38,10 +37,6 @@ namespace MnM.GWS
             Y = y;
             Width = w;
             Height = h;
-            if (x == int.MinValue || y == int.MinValue || w <= 0 || h <= 0)
-                valid = 0;
-            else
-                valid = 1;
         }
 
         /// <summary>
@@ -163,23 +158,21 @@ namespace MnM.GWS
         int IPoint.Y => Y;
         int ISize.Width => Width;
         int ISize.Height => Height;
-        bool IBoundable.Valid => Width != 0 && Height != 0;
+        public bool Valid => Width != 0 && Height != 0;
         #endregion
 
         #region EQUALITY
         public bool Equals(Rectangle other)
         {
-            if (other == null)
-                return false;
-            if (valid == 0 && !other)
+            if (!other && !Valid)
+                return true;
+            if (!Valid && other  && !other && Valid)
                 return true;
             return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
         }
         public override bool Equals(object obj)
         {
             if (obj is Rectangle)
-                return Equals((Rectangle)obj);
-            else if (obj is Rectangle)
                 return Equals((Rectangle)obj);
             return false;
         }
@@ -233,7 +226,7 @@ namespace MnM.GWS
 
         #region OPERATORS
         public static implicit operator bool(Rectangle r) =>
-            r.valid != 0;
+            r.Width> 0 && r.Height > 0;
         public static bool operator ==(Rectangle a, Rectangle b)
         {
             return a.Equals(b);

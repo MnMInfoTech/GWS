@@ -92,6 +92,21 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region LIFE PRIORITY
+    /// <summary>
+    /// Represents an objet which has an information about priority index from being wiped from screen.
+    /// Very important for handling multi-threaded parallel running rendering tasks.
+    /// </summary>
+    public interface ILifePriority
+    {
+        /// <summary>
+        /// Gets GWS assigned life priority for the object while rendering.
+        /// </summary>
+        byte LifePriority { get; }
+    }
+    #endregion
+
+
     #region IREADSESSION
     public interface IReadSession: ICloneable
     {
@@ -108,6 +123,15 @@ namespace MnM.GWS
     /// </summary>
     public partial interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession, IPerimeter
     {
+        /// <summary>
+        /// Gets or sets an ID of current shape associated with current rendering process.
+        /// </summary>
+        new uint ShapeID { get; set; }
+
+        /// <summary>
+        /// Gets or sets GWS assigned ID for the current process.
+        /// </summary>
+        new int ProcessID { get; set; }
     }
     #endregion
 
@@ -117,7 +141,7 @@ namespace MnM.GWS
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
     public partial interface ISettings : IDrawParams, IBounds, IRotatable,
-        IPolySettings, ISettingsReceiver, IShapeID, IProcessID
+        IPolySettings, ISettingsReceiver
     {
         /// <summary>
         /// 
@@ -158,16 +182,6 @@ namespace MnM.GWS
         /// Gets or sets the supplied foreground context to be used for rendering.
         /// </summary>
         IPenContext PenContext { get; set; }
-
-        /// <summary>
-        /// Gets or sets an ID of current shape associated with current rendering process.
-        /// </summary>
-        new uint ShapeID { get; set; }
-
-        /// <summary>
-        /// Gets or sets GWS assigned ID for the current process.
-        /// </summary>
-        new int ProcessID { get; set; }
     }
     #endregion
 

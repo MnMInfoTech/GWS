@@ -34,36 +34,29 @@ namespace MnM.GWS
 
         #region CONSTRUCTORS
         public Boundary() { }
-        public Boundary(int x, int y, int w, int h)
+        public Boundary(int x, int y, int w, int h, byte lifePriority = 0)
         {
             X1 = x;
             Y1 = y;
             X2 = X1 + w;
             Y2 = Y1 + h;
+            LifePriority = lifePriority;
         }
-        public Boundary(IPerimeter perimeter)
+        public Boundary(IBoundable perimeter)
         {
             perimeter.GetBounds(out int x, out int y, out int w, out int h);
             X1 = x;
             Y1 = y;
             X2 = X1 + w;
             Y2 = Y1 + h;
-        }
-        public Boundary(IRectangle rc)
-        {
-            X1 = rc.X;
-            Y1 = rc.Y;
-            X2 = X1 + rc.Width;
-            Y2 = Y1 + rc.Height;
+            if (perimeter is ILifePriority)
+                LifePriority = ((ILifePriority)perimeter).LifePriority;
         }
         #endregion
 
         #region PROPERTIES
         public bool Valid => X2 > 0 && Y2 > 0;
-        public int X => X1;
-        public int Y => Y1;
-        public int Width => X2 - X1;
-        public int Height => Y2 - Y1;
+        public byte LifePriority { get; set; }
         #endregion
 
         #region NOTIFY
@@ -104,5 +97,14 @@ namespace MnM.GWS
             h = y2 - y;
         }
         #endregion
+
+        public static implicit operator bool (Boundary boundary) =>
+            boundary.X2 != 0 && boundary.Y2 != 0 && 
+            boundary.X2 - boundary.X1 > 0 && boundary.Y2 - boundary.Y1 > 0;
+
+        public override string ToString()
+        {
+            return string.Format(description, X1, Y1, X2, Y2);
+        }
     }
 }

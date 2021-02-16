@@ -217,17 +217,11 @@ namespace MnM.GWS
                 right = srcW;
             if (bottom > srcH)
                 bottom = srcH;
-            int processID = 0;
-            uint shapeID = 0;
-            if (perimeter is IProcessID)
-                processID = ((IProcessID)perimeter).ProcessID;
-            if (perimeter is IShapeID)
-                shapeID = ((IShapeID)perimeter).ShapeID;
-            return new Perimeter(x0, y0, right - x0, bottom - y0, processID, shapeID);
+            return new Perimeter(perimeter, x0, y0, right - x0, bottom - y0);
         }
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Perimeter CompitiblePerimeter(int srcW, int srcH, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0)
+        public static Perimeter CompitiblePerimeter(int srcW, int srcH, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0, byte priority = 0)
         {
             if (x0 < 0)
                 x0 = 0;
@@ -245,12 +239,13 @@ namespace MnM.GWS
                 right = srcW;
             if (bottom > srcH)
                 bottom = srcH;
-            return new Perimeter(x0, y0, right - x0, bottom - y0, processID, shapeID);
+            return new Perimeter(x0, y0, right - x0, bottom - y0, processID, shapeID, priority);
         }
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Perimeter CompitiblePerimeter(this ISize size, int x0, int y0, int copyW, int copyH, int processID = 0, uint shapeID = 0) =>
-            CompitiblePerimeter(size.Width, size.Height, x0, y0, copyW, copyH, processID, shapeID);
+        public static Perimeter CompitiblePerimeter(this ISize size, int x0, int y0, 
+            int copyW, int copyH, int processID = 0, uint shapeID = 0, byte priority = 0) =>
+            CompitiblePerimeter(size.Width, size.Height, x0, y0, copyW, copyH, processID, shapeID, priority);
        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Perimeter CompitiblePerimeter(this ISize size, IBoundable perimeter) =>
@@ -592,13 +587,7 @@ namespace MnM.GWS
 
             if (x2 >= x1 && y2 >= y1)
             {
-                int processID = 0;
-                uint shapeID = 0;
-                if (a is IProcessID)
-                    processID = ((IProcessID)a).ProcessID;
-                if (a is IShapeID)
-                    shapeID = ((IShapeID)a).ShapeID;
-                return new Perimeter(x1, y1, x2 - x1, y2 - y1, processID, shapeID);
+                return new Perimeter(a, x1, y1, x2 - x1, y2 - y1);
             }
             return Perimeter.Empty;
         }
@@ -751,6 +740,15 @@ namespace MnM.GWS
             if (w == 0 || h == 0)
                 return;
             notifiable.Notify(x, y, x + w, y + h);
+            
+            if(rc is ILifePriority)
+            {
+                byte priority = ((ILifePriority)rc).LifePriority;
+                if (notifiable is ISession)
+                    ((ISession)notifiable).LifePriority = priority;
+                else if(notifiable is IBoundary)
+                    ((IBoundary)notifiable).LifePriority = priority;
+            }
         }
         #endregion
 
@@ -781,7 +779,7 @@ namespace MnM.GWS
         {
             if (rc == null || !rc.Valid)
                 return Perimeter.Empty;
-            return new Perimeter(rc.X, rc.Y, rc.Width, rc.Height, processID);
+            return new Perimeter(rc, processID);
         }
         #endregion
     }
