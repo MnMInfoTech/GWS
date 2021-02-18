@@ -191,7 +191,7 @@ namespace MnM.GWS.Desktop
             }
             if (Original)
             {
-                Window.Update(Command.SubmitToBuffer, new Perimeter(0, 0, Window.Width, Window.Height));
+                Window.Update(Command.UpdateBufferOnly, new Perimeter(0, 0, Window.Width, Window.Height));
                 Original = false;
             }
         }

@@ -1280,6 +1280,21 @@ namespace MnM.GWS
             Factory.ImageProcessor.Write(data, w, h, file, format, pitch, quality);
         }
         #endregion
+
+        #region CHAGE MEMBLOCK
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Change(this IMemBlock block, IPixels pixels, int x, int y, int w, int h)
+        {
+            block.Change(pixels.Source, pixels.Length, pixels.Width, pixels.Height, x, y, w, h);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Change(this IMemBlock block, IPixels pixels, IBoundable copyArea)
+        {
+            copyArea.GetBounds(out int x, out int y, out int w, out int h);
+            block.Change(pixels.Source, pixels.Length, pixels.Width, pixels.Height, x, y, w, h);
+        }
+        #endregion
     }
     partial class Renderer
     {

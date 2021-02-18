@@ -96,7 +96,14 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region IDATA
+    public interface IMemBlock : IPixels, IPoint
+    { 
+        bool Valid { get; }
+
+        void Change(IntPtr source, int srcLen, int srcW, int srcH, int x, int y, int w, int h);
+    }
+
+    #region IMULTI BUFFERED
     public interface IMultiBuffered : IBlockable
     {
         /// <summary>

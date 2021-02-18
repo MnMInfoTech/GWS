@@ -6,7 +6,7 @@
 
 namespace MnM.GWS
 {
-    public sealed partial class Settings : ISettings
+    public partial class Settings : ISettings
     {
         #region VARIABLES
         Command DrawCommand, CalculatedDrawCommand;

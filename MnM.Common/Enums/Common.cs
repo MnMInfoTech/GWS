@@ -272,7 +272,7 @@ namespace MnM.GWS
         /// Copies data from underlying buffer but does not update screen.
         /// Usage: IUpdatable.Update.
         /// </summary>
-        SubmitToBuffer = 0x1000000000,
+        UpdateBufferOnly = 0x1000000000,
 
         /// <summary>
         /// Wipes all temporary drawings while refreshing screen.
@@ -297,6 +297,12 @@ namespace MnM.GWS
         /// Usage: IClearable.Clear
         /// </summary>
         ClearScreen = 0x10000000000,
+
+        /// <summary>
+        /// Skips update process entirely. 
+        /// Usage: When update is externally managed only when rendering directly on screen.
+        /// </summary>
+        SkipUpdate = 0x20000000000,
     }
     #endregion
 

@@ -6,7 +6,7 @@
 
 namespace MnM.GWS
 {
-    public struct Perimeter: IPerimeter
+    public struct Perimeter : IPerimeter
     {
         #region VARIABLES
         public readonly int X;
@@ -22,7 +22,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        public Perimeter(int x, int y, int w, int h): this()
+        public Perimeter(int x, int y, int w, int h) : this()
         {
             X = x;
             Y = y;
@@ -30,14 +30,14 @@ namespace MnM.GWS
             Height = h;
         }
 
-        public Perimeter(int x, int y, int w, int h, int processID, uint shapeID = 0, byte lifePriority = 0):
+        public Perimeter(int x, int y, int w, int h, int processID, uint shapeID = 0, byte lifePriority = 0) :
             this(x, y, w, h)
         {
             ProcessID = processID;
             ShapeID = shapeID;
             LifePriority = lifePriority;
         }
-        public Perimeter(IBoundable perimeter, int x, int y, int w, int h):
+        public Perimeter(IBoundable perimeter, int x, int y, int w, int h) :
             this(perimeter)
         {
             X = x;
@@ -71,7 +71,7 @@ namespace MnM.GWS
             perimeter.GetBounds(out X, out Y, out Width, out Height);
             ProcessID = processID;
         }
-        public Perimeter(uint shapeID, IBoundable perimeter) : 
+        public Perimeter(uint shapeID, IBoundable perimeter) :
             this(perimeter)
         {
             ShapeID = shapeID;
@@ -86,7 +86,7 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        int IProcessID.ProcessID => ProcessID; 
+        int IProcessID.ProcessID => ProcessID;
         uint IShapeID.ShapeID => ShapeID;
         byte ILifePriority.LifePriority => LifePriority;
         public bool Valid => Width > 0 && Height > 0;
@@ -112,6 +112,11 @@ namespace MnM.GWS
         {
             return string.Format(description, X, Y, X + Width, Y + Height);
         }
+        #endregion
+
+        #region OPERATORS
+        public static implicit operator bool(Perimeter p) =>
+            p.Width > 0 && p.Height > 0;
         #endregion
     }
 }

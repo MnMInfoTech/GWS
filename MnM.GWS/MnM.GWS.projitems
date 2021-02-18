@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Pens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Texts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Brush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\MemBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\NativeForm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\ObjColleciton.cs" />

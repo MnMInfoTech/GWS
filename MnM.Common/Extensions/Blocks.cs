@@ -177,7 +177,7 @@ namespace MnM.GWS
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IPerimeter CopyBlock(int* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
-            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command, byte* srcAlphas = null)
+            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command = 0, byte* srcAlphas = null)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -222,7 +222,7 @@ namespace MnM.GWS
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IPerimeter CopyBlock(byte* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
-            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command)
+            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command = 0)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -337,28 +337,49 @@ namespace MnM.GWS
                     if (Invert)
                         srcColor ^= Colors.Inversion;
 
-                    for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                    if (Back)
                     {
-                        dstColor = dst[dstIndex];
-
-                        if (Back && dst[dstIndex] != 0)
-                            continue;
-                        dst[dstIndex] = srcColor;
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        {
+                            if (dst[dstIndex] != 0)
+                                continue;
+                            dst[dstIndex] = srcColor;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        {
+                            dst[dstIndex] = srcColor;
+                        }
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    if(Invert && Back)
                     {
-                        srcColor = src[srcIndex];
-                        if (Invert)
-                            srcColor ^= Colors.Inversion;
-
-                        dstColor = dst[dstIndex];
-
-                        if (Back && dstColor != 0)
-                            continue;
-                        dst[dstIndex] = srcColor;
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            if (dst[dstIndex] != 0)
+                                continue;
+                            dst[dstIndex] = src[srcIndex] ^ Colors.Inversion;
+                        }
+                    }
+                    if (Back)
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            if (dst[dstIndex] != 0)
+                                continue;
+                            dst[dstIndex] = src[srcIndex];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = srcIndex; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            dst[dstIndex] = src[srcIndex];
+                        }
                     }
                 }
             }
@@ -371,25 +392,51 @@ namespace MnM.GWS
                     {
                         if (Invert)
                             srcColor ^= Colors.Inversion;
-                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        if (Back)
                         {
-                            dstColor = dst[dstIndex];
-                            if (Back && dstColor != 0)
-                                continue;
-                            dst[dstIndex] = srcColor;
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                            {
+                                if (dst[dstIndex] != 0)
+                                    continue;
+                                dst[dstIndex] = srcColor;
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                            {
+                                dst[dstIndex] = srcColor;
+                            }
                         }
                     }
                     else
                     {
-                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        if (Invert && Back)
                         {
-                            srcColor = src[srcIndex];
-                            dstColor = dst[dstIndex];
-                            if (srcColor == 0 || (Back && dstColor != 0))
-                                continue;
-                            if (Invert)
-                                srcColor ^= Colors.Inversion;
-                            dst[dstIndex] = srcColor;
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                            {
+                                if (src[srcIndex] == 0 || dst[dstIndex] != 0)
+                                    continue;
+                                dst[dstIndex] = src[srcIndex] ^ Colors.Inversion;
+                            }
+                        }
+                        else if (Back)
+                        {
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                            {
+                                if (src[srcIndex] == 0 || dst[dstIndex] != 0)
+                                    continue;
+                                dst[dstIndex] = src[srcIndex];
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                            {
+                                if (src[srcIndex] == 0)
+                                    continue;
+                                dst[dstIndex] = src[srcIndex];
+                            }
                         }
                     }
                 }
@@ -401,14 +448,23 @@ namespace MnM.GWS
                         if (Invert)
                             srcColor ^= Colors.Inversion;
 
-                        for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                        if (Back)
                         {
-                            dstColor = dst[dstIndex];
-
-                            if (Back && dstColor != 0)
-                                continue;
-                            dst[dstIndex] = srcColor;
-                            srcAlphas[srcIndex] = 0;
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                            {
+                                if (dst[dstIndex] != 0)
+                                    continue;
+                                dst[dstIndex] = srcColor;
+                                srcAlphas[srcIndex] = 0;
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < length; i++, dstIndex += dstCounter)
+                            {
+                                dst[dstIndex] = srcColor;
+                                srcAlphas[srcIndex] = 0;
+                            }
                         }
                     }
                     else
@@ -491,15 +547,25 @@ namespace MnM.GWS
                 }
                 else
                 {
-                    for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                    if (Opaque)
                     {
-                        srcByte = src[srcIndex];
-                        if (Invert)
-                            srcByte = (byte)(255 - srcByte);
-                        dstColor = dst[dstIndex];
-                        if (Back && dstColor != 0)
-                            continue;
-                        dst[dstIndex] = srcByte;
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            dst[dstIndex] = src[srcIndex];
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        {
+                            srcByte = src[srcIndex];
+                            if (Invert)
+                                srcByte = (byte)(255 - srcByte);
+                            dstColor = dst[dstIndex];
+                            if (Back && dstColor != 0)
+                                continue;
+                            dst[dstIndex] = srcByte;
+                        }
                     }
                 }
             }
