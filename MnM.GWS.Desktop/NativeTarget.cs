@@ -6,9 +6,7 @@
 
 #if MS && (GWS || Window)
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
@@ -24,7 +22,7 @@ namespace MnM.GWS
 #endif
         sealed partial class MSTarget : Form, INativeTarget
         {
-#region VARIABLES
+            #region VARIABLES
             /// <summary>
             /// 
             /// </summary>
@@ -62,7 +60,7 @@ namespace MnM.GWS
             volatile byte[] flags;
 #endif
 
-#region EVENT ARGS
+            #region EVENT ARGS
             readonly MsKeyEventArgs keyEventArgs = new MsKeyEventArgs();
             readonly MsMouseEventArgs mouseEventArgs = new MsMouseEventArgs();
             readonly MsKeyPressEventArgs keyPressEventArgs = new MsKeyPressEventArgs();
@@ -71,10 +69,10 @@ namespace MnM.GWS
             readonly EventInfo mouseeventInfo = new EventInfo();
             readonly EventInfo keypresseventInfo = new EventInfo();
             readonly EventInfo loadEventInfo = new EventInfo();
-#endregion
-#endregion
+            #endregion
+            #endregion
 
-#region CONSTRUCTORS
+            #region CONSTRUCTORS
             public MSTarget(int x, int y, int w, int h)
             {
                 Pointer = new Array<int>(w, h);
@@ -91,9 +89,9 @@ namespace MnM.GWS
                 flags = new byte[length];
 #endif
             }
-#endregion
+            #endregion
 
-#region PROPERTIES
+            #region PROPERTIES
             public string ID => Name;
             IntPtr IPixels.Source => Pointer.Handle;
             int ISize.Width => width;
@@ -134,18 +132,18 @@ namespace MnM.GWS
                 }
             }
 #endif
-#endregion
+            #endregion
 
-#region PAINT
+            #region PAINT
             protected override void OnPaintBackground(PaintEventArgs e)
             {
                 e.Graphics.DrawImage(Bitmap, e.ClipRectangle, e.ClipRectangle, GraphicsUnit.Pixel);
             }
             public void InvokePaint(ulong command = 0, int processID = 0) =>
                 Window.InvokePaint(command, processID);
-#endregion
+            #endregion
 
-#region RESIZE
+            #region RESIZE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             void IResizable.Resize(int? newWidth, int? newHeight)
             {
@@ -175,15 +173,14 @@ namespace MnM.GWS
             {
                 Window.Resize(Size.Width, Size.Height);
             }
-#endregion
+            #endregion
 
-#region UPDATE
+            #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Update<T>(ulong command, params T[] boundables) where T: IBoundable
+            public void Update<T>(ulong command, params T[] boundables) where T : IBoundable
             {
                 if (boundables.Length == 0)
                     return;
-
                 int x, y, w, h;
                 System.Drawing.Rectangle rc;
 
@@ -205,9 +202,9 @@ namespace MnM.GWS
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region EVENT BINDING
+            #region EVENT BINDING
             protected override void OnLoad(EventArgs e)
             {
                 base.OnLoad(e);
@@ -314,9 +311,9 @@ namespace MnM.GWS
                 base.OnClosed(e);
                 Pointer.Dispose();
             }
-#endregion
+            #endregion
 
-#region INVOKE DELGATES
+            #region INVOKE DELGATES
             void invalidateSafe(System.Drawing.Rectangle rectangle) =>
                 Invalidate(rectangle);
             void updateSafe() =>
@@ -339,9 +336,9 @@ namespace MnM.GWS
             delegate void DelInvalidate(System.Drawing.Rectangle rectangle);
             delegate void DelUpdate();
             delegate void DelTextChange(string text);
-#endregion
+            #endregion
 
-#region DISPOSE
+            #region DISPOSE
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
@@ -355,7 +352,7 @@ namespace MnM.GWS
                 flags = null;
 #endif
             }
-#endregion
+            #endregion
         }
 #if HideNativeObjects
     }

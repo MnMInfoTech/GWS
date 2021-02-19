@@ -126,7 +126,7 @@ namespace MnM.GWS
     /// <summary>
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
-    public interface IGraphics : IWritable, ICopyable, IDisposable2, IUpdatable
+    public partial interface IGraphics : IWritable, ICopyable, IDisposable2, IUpdatable
     {
         /// <summary>
         /// Indicates whether this object is curently locked for writing or not.

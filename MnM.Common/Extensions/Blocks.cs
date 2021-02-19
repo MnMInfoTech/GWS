@@ -84,7 +84,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
+        public static Perimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
             int dstX, int dstY, int dstW, int dstLen, BlockCopy action, ulong command)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -128,7 +128,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IPerimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
+        public static Perimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
             int dstX, int dstY, int dstW, int dstLen, ConditionalCopy action, int condition, NumCriteria criteria)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -176,7 +176,7 @@ namespace MnM.GWS
         /// <param name="srcAlphas">Alpha channel information of the source block.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyBlock(int* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
+        public static unsafe Perimeter CopyBlock(int* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
             int* dst, int dstX, int dstY, int dstW, int dstLen, ulong command = 0, byte* srcAlphas = null)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -221,7 +221,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control the copy operation.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyBlock(byte* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
+        public static unsafe Perimeter CopyBlock(byte* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
             byte* dst, int dstX, int dstY, int dstW, int dstLen, ulong command = 0)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -251,6 +251,84 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region COPY VALUE TO BLOCK
+        /// <summary>
+        /// Copies value to the specified memory block.
+        /// </summary>
+        /// <param name="value">Value to copy.</param>
+        /// <param name="copyArea">Area to copy.</param>
+        /// <param name="dst">Destination block to copy data to.</param>
+        /// <param name="dstW">The width of the block.</param>
+        /// <param name="dstH">The height of the block.</param>
+        /// <param name="conditionValue">Value of condition to use to qualify copy operation.</param>
+        /// <param name="criteria">Numeric criteria to control copy operation.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Perimeter CopyBlock(int value, IBoundable copyArea, IntPtr destination, int dstW, int dstH, int conditionValue, NumCriteria criteria = 0)
+        {
+            var area = Rects.CompitiblePerimeter(dstW, dstH, copyArea);
+            int copyW = area.Width;
+            int copyH = area.Height;
+
+            if (copyW <= 0)
+                return Perimeter.Empty;
+            int dstLen = dstW * dstH;
+            int i = 0;
+            int dstIndex = area.X + area.Y * dstW;
+            int* dst = (int*)destination;
+            while (i < copyH)
+            {
+                if (dstIndex + copyW >= dstLen)
+                    copyW -= (dstIndex + copyW - dstLen);
+
+                if (copyW <= 0)
+                    break;
+                CopyValue(value, dst, dstIndex, copyW, conditionValue, criteria);
+                dstIndex += dstW;
+                ++i;
+            }
+            return new Perimeter(copyArea, area.X, area.Y, copyW, i);
+        }
+
+        /// <summary>
+        /// Copies value to the specified memory block.
+        /// </summary>
+        /// <param name="value">Value to copy.</param>
+        /// <param name="copyArea">Area to copy.</param>
+        /// <param name="dst">Destination block to copy data to.</param>
+        /// <param name="dstW">The width of the block.</param>
+        /// <param name="dstH">The height of the block.</param>
+        /// <param name="conditionValue">Value of condition to use to qualify copy operation.</param>
+        /// <param name="criteria">Numeric criteria to control copy operation.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Perimeter CopyBlock(byte value, IBoundable copyArea, IntPtr destination, int dstW, int dstH, byte conditionValue, NumCriteria criteria = 0)
+        {
+            var area = Rects.CompitiblePerimeter(dstW, dstH, copyArea);
+            int copyW = area.Width;
+            int copyH = area.Height;
+
+            if (copyW <= 0)
+                return Perimeter.Empty;
+            int dstLen = dstW * dstH;
+            byte* dst = (byte*)destination;
+
+            int i = 0;
+            int dstIndex = area.X + area.Y * dstW;
+
+            while (i < copyH)
+            {
+                if (dstIndex + copyW >= dstLen)
+                    copyW -= (dstIndex + copyW - dstLen);
+
+                if (copyW <= 0)
+                    break;
+                CopyValue(value, dst, dstIndex, copyW, conditionValue, criteria);
+                dstIndex += dstW;
+                ++i;
+            }
+            return new Perimeter(copyArea, area.X, area.Y, copyW, i);
+        }
+        #endregion
+
         #region COPY BLOCK ARRAY
         /// <summary>
         /// Copies data from one block to another.
@@ -268,7 +346,7 @@ namespace MnM.GWS
         /// <param name="dstLen">Specifies the current length of the destination pointer.</param>
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyBlock<T>(T[] src, IBoundable copyArea, int srcLen, int srcW, int srcH,
+        public static unsafe Perimeter CopyBlock<T>(T[] src, IBoundable copyArea, int srcLen, int srcW, int srcH,
             T[] dst, int dstX, int dstY, int dstW, int dstLen)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
@@ -376,7 +454,7 @@ namespace MnM.GWS
                     }
                     else
                     {
-                        for (int i = srcIndex; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
+                        for (int i = 0; i < length; i++, dstIndex += dstCounter, srcIndex += srcCounter)
                         {
                             dst[dstIndex] = src[srcIndex];
                         }
