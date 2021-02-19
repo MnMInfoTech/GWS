@@ -46,7 +46,7 @@ namespace MnM.GWS
         public Curve(float x, float y, float width, float height, float startAngle = 0, float endAngle = 0,
              CurveType type = CurveType.Pie, Rotation rotation = default(Rotation), VectorF Scale = default(VectorF)) : this()
         {
-            if (!type.HasFlag(CurveType.NoSweepAngle))
+            if ((type & CurveType.NoSweepAngle) != CurveType.NoSweepAngle)
                 endAngle += startAngle;
 
             Conic = new Conic(x, y, width, height, startAngle, endAngle, rotation, Scale);
@@ -141,7 +141,8 @@ namespace MnM.GWS
         {
             Conic = conic;
 
-            if (pie == null || pie.Length < 3 || (!type.HasFlag(CurveType.Pie) && !type.HasFlag(CurveType.Arc)) || pie[1].Equals(pie[2]))
+            if (pie == null || pie.Length < 3 || pie[1].Equals(pie[2]) ||
+                ((type & CurveType.Pie) != CurveType.Pie &&  (type & CurveType.Arc) != CurveType.Arc))
             {
                 Type = CurveType.Full;
                 ArcLine = Line1 = Line2 = Line.Empty;
@@ -156,12 +157,12 @@ namespace MnM.GWS
 
             Type = type;
 
-            if (Type.HasFlag(CurveType.Pie))
+            if ((Type & CurveType.Pie) == CurveType.Pie)
                 Type = Type.Exclude(CurveType.Arc);
             else
                 Type = Type.Exclude(CurveType.Pie);
 
-            NegativeMotion = Type.HasFlag(CurveType.AntiClock);
+            NegativeMotion = (Type & CurveType.AntiClock) == CurveType.AntiClock;
             ArcLine = new Line(pieP2, pieP3);
             Line1 = new Line(pieP2, pieP1);
             Line2 = new Line(pieP3, pieP1);
@@ -212,11 +213,11 @@ namespace MnM.GWS
                         return "Circle";
                     return "Ellipse";
                 }
-                if (Type.HasFlag(CurveType.Pie))
+                if ((Type & CurveType.Pie) == CurveType.Pie)
                     return "Pie";
-                if (Type.HasFlag(CurveType.ClosedArc))
+                if ((Type & CurveType.ClosedArc) == CurveType.ClosedArc)
                     return "ClosedArc";
-                if (Type.HasFlag(CurveType.Arc))
+                if ((Type & CurveType.Arc) == CurveType.Arc)
                     return "Arc";
                 return "Ellipse";
             }
@@ -260,7 +261,8 @@ namespace MnM.GWS
                 pts = Curves.GetEllipsePoints(Cx, Cy, Rx, Ry, false, Rotation);
             else
                 pts = Curves.GetArcPoints(StartAngle, EndAngle,
-                    Type.HasFlag(CurveType.Pie), Cx, Cy, Rx, Ry, Rotation, Type.HasFlag(CurveType.AntiClock));
+                    (Type & CurveType.Pie) == CurveType.Pie, Cx, Cy, Rx, Ry, Rotation,
+                    (Type & CurveType.AntiClock) == CurveType.AntiClock);
             return (pts);
         }
         #endregion
@@ -389,14 +391,14 @@ namespace MnM.GWS
         {
             float value;
 
-            if (Type.HasFlag(CurveType.ClosedArc))
+            if ((Type & CurveType.ClosedArc) == CurveType.ClosedArc)
             {
                 if (ArcLine.Scan(axis, horizontal, out value))
                     list.Add(value);
                 return;
             }
 
-            if (Type.HasFlag(CurveType.Arc))
+            if ((Type & CurveType.Arc) == CurveType.Arc)
             {
                 if (Extra != null)
                 {
@@ -407,7 +409,7 @@ namespace MnM.GWS
                 return;
             }
 
-            if (Type.HasFlag(CurveType.Pie))
+            if ((Type & CurveType.Pie) == CurveType.Pie)
             {
                 if (Line1.Scan(axis, horizontal, out value))
                     list.Add(value);
@@ -451,10 +453,10 @@ namespace MnM.GWS
 
             if (attachedCurve == null)
             {
-                if (Type.HasFlag(CurveType.Pie))
+                if ((Type & CurveType.Pie) == CurveType.Pie)
                     Extra = new ILine[] { Line1, Line2 };
 
-                else if (Type.HasFlag(CurveType.ClosedArc))
+                else if ((Type & CurveType.ClosedArc) == CurveType.ClosedArc)
                     Extra = new ILine[] { ArcLine };
 
                 return Extra;
@@ -465,11 +467,11 @@ namespace MnM.GWS
             var arcLine = attachedCurve.ArcLine;
 
 
-            if (Type.HasFlag(CurveType.Pie))
+            if ((Type & CurveType.Pie) == CurveType.Pie)
                 lines = lines.AppendItems(closingLines).ToArray();
-            else if (Type.HasFlag(CurveType.ClosedArc))
+            else if ((Type & CurveType.ClosedArc) == CurveType.ClosedArc)
                 lines = new ILine[] { ArcLine, arcLine };
-            else if (Type.HasFlag(CurveType.Arc))
+            else if ((Type & CurveType.Arc) == CurveType.Arc)
                 lines = ArcLine.JoinEnds(arcLine);
             return lines;
         }

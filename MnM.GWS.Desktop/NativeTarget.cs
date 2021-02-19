@@ -141,7 +141,7 @@ namespace MnM.GWS
             {
                 e.Graphics.DrawImage(Bitmap, e.ClipRectangle, e.ClipRectangle, GraphicsUnit.Pixel);
             }
-            public void InvokePaint(Command command = 0, int processID = 0) =>
+            public void InvokePaint(ulong command = 0, int processID = 0) =>
                 Window.InvokePaint(command, processID);
 #endregion
 
@@ -179,7 +179,7 @@ namespace MnM.GWS
 
 #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Update<T>(Command Command, params T[] boundables) where T: IBoundable
+            public void Update<T>(ulong command, params T[] boundables) where T: IBoundable
             {
                 if (boundables.Length == 0)
                     return;

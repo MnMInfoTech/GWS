@@ -200,7 +200,7 @@ namespace MnM.GWS
 
         #region PROPERTIES
         public bool Diagonal =>
-            Skew.HasFlag(SkewType.Diagonal);
+            (Skew & SkewType.Diagonal) == SkewType.Diagonal;
         float IScale.X => ScaleX;
         float IScale.Y => ScaleY;
         public bool HasScale => (ScaleX != 0 || ScaleY != 0);

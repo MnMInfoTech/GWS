@@ -85,7 +85,7 @@ namespace MnM.GWS
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IPerimeter CopyBlock(IBoundable copyArea, int srcLen, int srcW, int srcH,
-            int dstX, int dstY, int dstW, int dstLen, BlockCopy action, Command command)
+            int dstX, int dstY, int dstW, int dstLen, BlockCopy action, ulong command)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -177,7 +177,7 @@ namespace MnM.GWS
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IPerimeter CopyBlock(int* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
-            int* dst, int dstX, int dstY, int dstW, int dstLen, Command command = 0, byte* srcAlphas = null)
+            int* dst, int dstX, int dstY, int dstW, int dstLen, ulong command = 0, byte* srcAlphas = null)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -222,7 +222,7 @@ namespace MnM.GWS
         /// <returns>Area covered by copy operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe IPerimeter CopyBlock(byte* src, IBoundable copyArea, int srcLen, int srcW, int srcH,
-            byte* dst, int dstX, int dstY, int dstW, int dstLen, Command command = 0)
+            byte* dst, int dstX, int dstY, int dstW, int dstLen, ulong command = 0)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             CorrectRegion(ref copyX, ref copyY, ref copyW, ref copyH, srcW, srcH, ref dstX, ref dstY, dstW, dstLen, out int srcIndex, out int dstIndex);
@@ -314,7 +314,7 @@ namespace MnM.GWS
         /// <param name="srcCounter">Counter by which source index moves to next position for copy.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int* dst, int dstIndex, int length,
-            Command command = Command.Opaque, byte* srcAlphas = null, int dstCounter = 1, int srcCounter = 1)
+            ulong command = Command.Opaque, byte* srcAlphas = null, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -514,7 +514,7 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(byte* src, int srcIndex, byte* dst, int dstIndex, int length,
-            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1)
+            ulong command = Command.Opaque, int dstCounter = 1, int srcCounter = 1)
         {
             if (length == 0)
                 return;
@@ -1009,7 +1009,7 @@ namespace MnM.GWS
         /// <param name="srcCounter"></param>
         /// <param name="ignoreValue"></param>
         public static unsafe void Copy(byte* src, int srcIndex, byte*[] destinations, int dstIndex, int length,
-            Command command = Command.Opaque, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
+            ulong command = Command.Opaque, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
         {
             if(destinations == null || destinations.Length == 0 || length == 0)
                 return;
@@ -1120,7 +1120,7 @@ namespace MnM.GWS
         /// <param name="ignoreValue">If provided, positions in destination block where value is as same as this value will not get overwritten.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(int* src, int srcIndex, int*[] destinations, int dstIndex, int length,
-            Command command = Command.Opaque, byte* srcAlphas = null,
+            ulong command = Command.Opaque, byte* srcAlphas = null,
             bool useDstIndexForAlphas = false, int dstCounter = 1, int srcCounter = 1, int? ignoreValue = null)
         {
             if (length == 0 || destinations == null || destinations.Length == 0)

@@ -13,7 +13,7 @@ namespace MnM.GWS
     {
     #region VARIABLES
         VectorF ActivePoint;
-        protected Command command;
+        protected ulong command;
         protected Size clip;
         protected bool Sorting, FillSinglePoint, EndsOnly;
     #endregion
@@ -23,15 +23,15 @@ namespace MnM.GWS
         public int MaxY { get; protected set; }
         public int MinX { get; set; }
         public int MaxX { get; set; }
-        public Command Command
+        public ulong Command
         {
             get => command;
             set
             {
                 command = value;
-                Sorting = (value & Command.NoSorting) != Command.NoSorting;
-                FillSinglePoint = (value & Command.FillSinglePointLine) == Command.FillSinglePointLine;
-                EndsOnly = (value & Command.DrawEndsOnly) == Command.DrawEndsOnly;
+                Sorting = (value & MnM.GWS.Command.NoSorting) != MnM.GWS.Command.NoSorting;
+                FillSinglePoint = (value & MnM.GWS.Command.FillSinglePointLine) == MnM.GWS.Command.FillSinglePointLine;
+                EndsOnly = (value & MnM.GWS.Command.DrawEndsOnly) == MnM.GWS.Command.DrawEndsOnly;
             }
         }
         public Size Clip 
@@ -89,7 +89,7 @@ namespace MnM.GWS
     #endregion
 
     #region NOTIFY SCAN
-        protected abstract void NotifyScanResult(float value, int axis, bool horizontal, Command command);
+        protected abstract void NotifyScanResult(float value, int axis, bool horizontal, ulong command);
     #endregion
 
     #region DISPOSE

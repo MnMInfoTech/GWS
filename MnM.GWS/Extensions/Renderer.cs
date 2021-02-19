@@ -32,7 +32,7 @@ namespace MnM.GWS
             int j = -1;
             var df = Factory.newSettings();
             int pid;
-            Command command;
+            ulong command;
             ISettings Settings;
             foreach (var Renderable in Renderables)
             {
@@ -63,7 +63,7 @@ namespace MnM.GWS
             var Boundary = new Session();
             Boundary.ProcessID = processID ?? 0;
             int pid;
-            Command command;
+            ulong command;
             ISettings Settings;
             IRenderable renderable;
             foreach (var Shape in Shapes)
@@ -94,7 +94,7 @@ namespace MnM.GWS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Render(this IWritable writable, IEnumerable<IRenderable> Renderables, ISettings Settings, IBoundary Boundary)
         {
-            Command command;
+            ulong command;
             int pid;
             foreach (var Renderable in Renderables)
             {
@@ -164,7 +164,7 @@ namespace MnM.GWS
         /// <param name="y">Far top position to consider for filling</param>
         /// <param name="bottom">Far bottom position to consider for filling</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Fill(this IEnumerable<ILine> lines, FillAction action, int y, int bottom, Command command)
+        public static void Fill(this IEnumerable<ILine> lines, FillAction action, int y, int bottom, ulong command)
         {
             using (var polyFill = Factory.newPolyFill())
             {
@@ -188,7 +188,7 @@ namespace MnM.GWS
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ProcessLine(int x1, int y1, int x2, int y2, PixelAction action,
-            Command command, SlopeType skip = SlopeType.None, Size clip = default(Size))
+            ulong command, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (skip == SlopeType.Both)
                 return;
@@ -201,9 +201,9 @@ namespace MnM.GWS
             var Draw = command;
             Draw &= ~Command.Breshenham;
             Draw &= ~Command.Distinct;
-            var Dot = Draw.HasFlag(Command.Dot);
-            var Dash = Draw.HasFlag(Command.Dash);
-            var DashDotDot = Draw.HasFlag(Command.DashDotDash);
+            var Dot = (Draw & Command.Dot) == Command.Dot;
+            var Dash = (Draw & Command.Dash) == Command.Dash;
+            var DashDotDot = (Draw & Command.DashDotDash) == Command.DashDotDash;
 
             int i = 0;
 
@@ -266,7 +266,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ProcessLine(float x1, float y1, float x2, float y2, PixelAction action,
-            Command command, SlopeType skip = SlopeType.None, Size clip = default(Size))
+            ulong command, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (skip == SlopeType.Both)
                 return;
@@ -289,9 +289,9 @@ namespace MnM.GWS
             Draw &= ~Command.Breshenham;
             Draw &= ~Command.Distinct;
 
-            var Dot = Draw.HasFlag(Command.Dot);
-            var Dash = Draw.HasFlag(Command.Dash);
-            var DashDotDot = Draw.HasFlag(Command.DashDotDash);
+            var Dot = (Draw & Command.Dot) == Command.Dot;
+            var Dash = (Draw & Command.Dash) == Command.Dash;
+            var DashDotDot = (Draw & Command.DashDotDash) == Command.DashDotDash;
             int i = 0;
             while (min != max)
             {
@@ -407,7 +407,7 @@ namespace MnM.GWS
             var join = Factory.ShapeParser.GetStrokeJoin(shapeType);
             var points = Points.Clean(join);
 
-            bool reset1st = afterStroke.HasFlag(AfterStroke.Reset1st);
+            bool reset1st = (afterStroke & AfterStroke.Reset1st) == AfterStroke.Reset1st;
 
             if (mode == StrokeMode.StrokeMiddle)
             {
@@ -455,7 +455,7 @@ namespace MnM.GWS
                 innerLines = null;
                 return;
             }
-            bool close = Factory.ShapeParser.GetAfterStroke(ShapeName).HasFlag(AfterStroke.JoinEnds);
+            bool close = (Factory.ShapeParser.GetAfterStroke(ShapeName) & AfterStroke.JoinEnds) == AfterStroke.JoinEnds;
 
             outerLines = Outer.ToLines(join);
             innerLines = Inner.ToLines(join);
@@ -489,7 +489,7 @@ namespace MnM.GWS
         /// <param name="Outer"></param>
         /// <param name="Inner"></param>
         /// <returns></returns>
-        public static IList<ILine>[] GetDrawParams(FillMode fillMode, Command fillCommand, float Stroke, string ShapeName,
+        public static IList<ILine>[] GetDrawParams(FillMode fillMode, ulong fillCommand, float Stroke, string ShapeName,
             IEnumerable<VectorF> Original, IList<VectorF> Outer, IList<VectorF> Inner)
         {
             var mode = fillMode;
@@ -551,7 +551,7 @@ namespace MnM.GWS
                     Data[1] = outer;
                     Data[3] = inner;
 
-                    if (fillCommand.HasFlag(Command.Outlininig))
+                    if ((fillCommand & Command.Outlininig) == Command.Outlininig)
                     {
                         switch (ShapeName)
                         {
@@ -771,7 +771,7 @@ namespace MnM.GWS
         /// <param name="Command">Command to control pixel writing.</param>
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen, Command Command, ISession session)
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen, ulong command, ISession session)
         {
             int intVal = (int)val;
 
@@ -782,21 +782,21 @@ namespace MnM.GWS
 
             int color = pen.ReadPixel(x, y, session);
 
-            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+            bool Antialiased = (command & Command.Breshenham) != (Command.Breshenham);
 
             if (alpha == 0 || !Antialiased)
             {
-                buffer.WritePixel(x, y, true, color, null, Command, session);
+                buffer.WritePixel(x, y, true, color, null, command, session);
             }
             else if (horizontal)
             {
-                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, session);
-                buffer.WritePixel(x + 1, y, true, color, alpha, Command, session);
+                buffer.WritePixel(x, y, true, color, 1 - alpha, command, session);
+                buffer.WritePixel(x + 1, y, true, color, alpha, command, session);
             }
             else
             {
-                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, session);
-                buffer.WritePixel(y + 1, x, false, color, alpha, Command, session);
+                buffer.WritePixel(y, x, false, color, 1 - alpha, command, session);
+                buffer.WritePixel(y + 1, x, false, color, alpha, command, session);
             }
         }
 
@@ -810,7 +810,7 @@ namespace MnM.GWS
         /// <param name="Command">Command to control pixel writing.</param>
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color, Command Command, ISession session)
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, int color, ulong command, ISession session)
         {
             int intVal = (int)val;
 
@@ -819,21 +819,21 @@ namespace MnM.GWS
             int x = horizontal ? intVal : axis;
             int y = horizontal ? axis : intVal;
 
-            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+            bool Antialiased = (command & Command.Breshenham) != (Command.Breshenham);
 
             if (alpha == 0 || !Antialiased)
             {
-                buffer.WritePixel(x, y, true, color, null, Command, session);
+                buffer.WritePixel(x, y, true, color, null, command, session);
             }
             else if (horizontal)
             {
-                buffer.WritePixel(x, y, true, color, 1 - alpha, Command, session);
-                buffer.WritePixel(x + 1, y, true, color, alpha, Command, session);
+                buffer.WritePixel(x, y, true, color, 1 - alpha, command, session);
+                buffer.WritePixel(x + 1, y, true, color, alpha, command, session);
             }
             else
             {
-                buffer.WritePixel(y, x, false, color, 1 - alpha, Command, session);
-                buffer.WritePixel(y + 1, x, false, color, alpha, Command, session);
+                buffer.WritePixel(y, x, false, color, 1 - alpha, command, session);
+                buffer.WritePixel(y + 1, x, false, color, alpha, command, session);
             }
         }
 
@@ -858,16 +858,16 @@ namespace MnM.GWS
         /// <param name="Command">Command to control pixel writing.</param>
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float x, float y, int color, Command Command, ISession session)
+        public static void WritePixel(this IWritable buffer, float x, float y, int color, ulong command, ISession session)
         {
             int x0 = (int)x;
             int y0 = (int)y;
 
-            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+            bool Antialiased = (command & Command.Breshenham) != (Command.Breshenham);
 
             if (!Antialiased)
             {
-                buffer.WritePixel(x0, y0, true, color, null, Command, session);
+                buffer.WritePixel(x0, y0, true, color, null, command, session);
                 return;
             }
 
@@ -878,9 +878,9 @@ namespace MnM.GWS
             {
                 bool horizontal = alpha1 != 0 ? true : false;
                 if (horizontal)
-                    buffer.WritePixel(x0, y0, true, color, alpha1, Command, session);
+                    buffer.WritePixel(x0, y0, true, color, alpha1, command, session);
                 else
-                    buffer.WritePixel(y0, x0, false, color, alpha2, Command, session);
+                    buffer.WritePixel(y0, x0, false, color, alpha2, command, session);
                 return;
             }
             else
@@ -888,10 +888,10 @@ namespace MnM.GWS
                 var invAlpha1 = 1 - alpha1;
                 var invAlpha2 = 1 - alpha2;
 
-                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, Command, session);
-                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, Command, session);
-                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, Command, session);
-                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, Command, session);
+                buffer.WritePixel(x0, y0, true, color, invAlpha1 * invAlpha2, command, session);
+                buffer.WritePixel(x0 + 1, y0, true, color, alpha1 * invAlpha2, command, session);
+                buffer.WritePixel(y0 + 1, x0, false, color, invAlpha1 * alpha2, command, session);
+                buffer.WritePixel(y0 + 1, x0 + 1, false, color, alpha1 * alpha2, command, session);
             }
         }
         #endregion
@@ -910,7 +910,7 @@ namespace MnM.GWS
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void WriteLine(this IWritable buffer, float start, int axis, bool Horizontal, float end,
-            IReadable pen, float? Alpha, Command Command, ISession session)
+            IReadable pen, float? Alpha, ulong command, ISession session)
         {
             if (float.IsNaN(start) && float.IsNaN(end))
                 return;
@@ -940,11 +940,11 @@ namespace MnM.GWS
             #region PARSE COMMAND
             bool NotSoClose = true;
             bool IsPoint = start == end;
-            var CheckForCloseness = (Command & Command.CheckForCloseness) == (Command.CheckForCloseness);
-            var LineOnly = (Command & Command.DrawLineOnly) == (Command.DrawLineOnly);
-            var EndsOnly = (Command & Command.DrawEndsOnly) == (Command.DrawEndsOnly) || IsPoint;
-            var CalculateOnly = (Command & Command.CalculateOnly) == (Command.CalculateOnly);
-            bool Antialiased = (Command & Command.Breshenham) != (Command.Breshenham);
+            var CheckForCloseness = (command & Command.CheckForCloseness) == (Command.CheckForCloseness);
+            var LineOnly = (command & Command.DrawLineOnly) == (Command.DrawLineOnly);
+            var EndsOnly = (command & Command.DrawEndsOnly) == (Command.DrawEndsOnly) || IsPoint;
+            var CalculateOnly = (command & Command.CalculateOnly) == (Command.CalculateOnly);
+            bool Antialiased = (command & Command.Breshenham) != (Command.Breshenham);
 
             int Length = End - Start;
             if (CheckForCloseness)
@@ -965,22 +965,22 @@ namespace MnM.GWS
                 int dstY = Horizontal ? axis : Start;
                 fixed (int* src = source)
                 {
-                    buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, null, Command, session);
+                    buffer.WriteLine(src, srcIndex, Length, Length, Horizontal, dstX, dstY, Alpha, null, command, session);
                 }
             }
 
             if (!LineOnly)
             {
-                buffer.WritePixel(start, axis, Horizontal, pen, Command, session);
+                buffer.WritePixel(start, axis, Horizontal, pen, command, session);
                 if (!NotSoClose)
                     return;
-                buffer.WritePixel(end, axis, Horizontal, pen, Command, session);
+                buffer.WritePixel(end, axis, Horizontal, pen, command, session);
             }
         }
         #endregion
 
         #region WRITE RECT
-        public static void WriteRect(this IWritable buffer, IPerimeter perimeter, Command command = 0, int shrink = 0)
+        public static void WriteRect(this IWritable buffer, IPerimeter perimeter, ulong command = 0, int shrink = 0)
         {
             if (perimeter == null)
                 return;
@@ -1085,7 +1085,7 @@ namespace MnM.GWS
         /// <param name = "h" > Height of area in the source to copy</param>
         /// <param name = "Command" > Draw command to control the copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, Command Command = Command.WriteToScreen)
+        public static unsafe IPerimeter CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, ulong command = Command.WriteToScreen)
         {
             #region INITIALIZE VARIABLES
             var copy = source.CompitibleRc(x, y, w, h);
@@ -1107,7 +1107,7 @@ namespace MnM.GWS
             int* dst;
             fixed (int* p = result)
                 dst = p;
-            bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
+            bool BackgroundBuffer = (command & Command.SecondBuffer) == Command.SecondBuffer;
             #endregion
 
             if(source is ICopyableScreen)
@@ -1120,7 +1120,7 @@ namespace MnM.GWS
                 srcLen = w * h;
                 srcW = w;
                 srcH = h;
-                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, perimeter, Command);
+                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, perimeter, command);
             }
 
             #region EXTRACT DATA FROM SOURCE
@@ -1147,7 +1147,7 @@ namespace MnM.GWS
 
             if (src != null)
             {
-                return Blocks.CopyBlock(src, perimeter, srcLen, srcW, srcH, dst, 0, 0, dstW, dstLen, Command);
+                return Blocks.CopyBlock(src, perimeter, srcLen, srcW, srcH, dst, 0, 0, dstW, dstLen, command);
             }
 #if Window
             else if(source is ISdlTexture)
@@ -1156,7 +1156,7 @@ namespace MnM.GWS
                 int lockedLength;
                 var texture = (ISdlTexture)source;
                 texture.Lock(perimeter, out textureData, out lockedLength);
-                Blocks.CopyBlock(src, new Perimeter(0, 0, w, h), lockedLength, source.Width, source.Height, dst, 0, 0, dstW, dstLen, Command);
+                Blocks.CopyBlock(src, new Perimeter(0, 0, w, h), lockedLength, source.Width, source.Height, dst, 0, 0, dstW, dstLen, command);
                 texture.Unlock();
             }
 #endif
@@ -1164,7 +1164,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, Command command = Command.WriteToScreen)
+        public static unsafe IPerimeter CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, ulong command = Command.WriteToScreen)
         {
             var rc = CopyTo(block, out int[] data, x, y, w, h, command);
             if (data == null)
@@ -1255,7 +1255,7 @@ namespace MnM.GWS
         /// <param name="quality">Resolution quality of the tageted image file</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SaveAs(this IBlockable block, string file,
-            ImageFormat format = ImageFormat.BMP, Command command = Command.WriteToScreen, Rectangle? portion = null, int pitch = 4, int quality = 50)
+            ImageFormat format = ImageFormat.BMP, ulong command = Command.WriteToScreen, Rectangle? portion = null, int pitch = 4, int quality = 50)
         {
             file += "." + format.ToString();
             IPerimeter size;
@@ -1308,11 +1308,11 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyArea">Area to copy.</param>
         /// <param name="Command">Draw command to control image drawing operation.</param>
-        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IBoundable copyArea, Command Command = 0)
+        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
         {
             #region INITIALIZE VARIABLES
-            bool AddMode = (Command & Command.AddObject) == Command.AddObject;
-            bool BackgroundBuffer = (Command & Command.SecondBuffer) == Command.SecondBuffer;
+            bool AddMode = (command & Command.AddObject) == Command.AddObject;
+            bool BackgroundBuffer = (command & Command.SecondBuffer) == Command.SecondBuffer;
             int* src = null;
             byte* srcAlphas = null;
             uint ShapeID = 0;
@@ -1365,7 +1365,7 @@ namespace MnM.GWS
                 fixed (int* p = temp)
                 {
                     ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0,
-                        new Perimeter(copyX, copyY, copyW, copyH), Command);
+                        new Perimeter(copyX, copyY, copyW, copyH), command);
                     src = p;
                 }
                 copyX = copyY = 0;
@@ -1377,9 +1377,9 @@ namespace MnM.GWS
                 if (src != null)
                 {
                     var dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
-                        new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID), Command, (IntPtr)srcAlphas);
+                        new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID), command, (IntPtr)srcAlphas);
                     if (block is IUpdatable)
-                        ((IUpdatable)block).Update(Command, dstRc);
+                        ((IUpdatable)block).Update(command, dstRc);
                     return;
                 }
             }
@@ -1408,11 +1408,11 @@ namespace MnM.GWS
                     }
                     while (y < b)
                     {
-                        writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, Command, boundary);
+                        writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, command, boundary);
                         srcIndex += srcW;
                     }
                     if (block is IUpdatable)
-                        ((IUpdatable)block).Update(Command, boundary);
+                        ((IUpdatable)block).Update(command, boundary);
                     return;
                 }
                 else if (source is IReadable)
@@ -1430,18 +1430,18 @@ namespace MnM.GWS
                     var dy = dstY;
                     int[] pixels;
                     ReadSession session = new ReadSession();
-                    session.Choice = (Command & Command.InvertColor) == Command.InvertColor ? ReadChoice.InvertColor : ReadChoice.Default; ;
+                    session.Choice = (command & Command.InvertColor) == Command.InvertColor ? ReadChoice.InvertColor : ReadChoice.Default; ;
 
                     while (y < b)
                     {
                         Pen.ReadLine(x, r, y, true, out pixels, out srcIndex, out copyLen, session);
                         fixed (int* p = pixels)
                             src = p;
-                        writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, Command, boundary);
+                        writable.WriteLine(src, srcIndex, copyLen, copyLen, true, dstX, dstY++, null, null, command, boundary);
                         ++y;
                     }
                     if (block is IUpdatable)
-                        ((IUpdatable)block).Update(Command, boundary);
+                        ((IUpdatable)block).Update(command, boundary);
                     return;
                 }
             }
@@ -1451,9 +1451,9 @@ namespace MnM.GWS
                 if (src != null)
                 {
                     var dstRc = Blocks.CopyBlock(src, new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID),
-                        srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, Command);
+                        srcLen, srcW, srcH, dst, dstX, dstY, dstW, dstLen, command);
                     if (block is IUpdatable)
-                        ((IUpdatable)block).Update(Command, dstRc);
+                        ((IUpdatable)block).Update(command, dstRc);
                     return;
                 }
             }
@@ -1466,9 +1466,9 @@ namespace MnM.GWS
                 var dstRC = new Perimeter(dstX, dstY, dstW, dstH);
                 texture.Lock(dstRC, out textureData, out lockedLength);
                 int* dst = (int*)textureData;
-                Blocks.CopyBlock(src, copyArea, source.Length, source.Width, source.Height, dst, 0, 0, block.Width, lockedLength, Command);
+                Blocks.CopyBlock(src, copyArea, source.Length, source.Width, source.Height, dst, 0, 0, block.Width, lockedLength, command);
                 texture.Unlock();
-                texture.Update(Command, dstRC);
+                texture.Update(command, dstRC);
             }
 #endif
         }
@@ -1481,7 +1481,7 @@ namespace MnM.GWS
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="updateImmediate">If true, Update method will immediately called and screen will get updated otherwise not.</param>
-        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, Command command = 0, int processID = 0)
+        public static unsafe void DrawImage(this IBlockable block, IBlockable source, int dstX, int dstY, ulong command = 0, int processID = 0)
         {
             uint shapeID = (source as IID)?.ID ?? IDGenerator.NewID();
             block.DrawImage(block, dstX, dstY, new Perimeter(0, 0, source.Width, source.Height, processID, shapeID, 0), command);
@@ -1499,7 +1499,7 @@ namespace MnM.GWS
         /// <param name="command">Draw command to control image drawing operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH,
-            int dstX, int dstY, IPerimeter copy, Command command = 0)
+            int dstX, int dstY, IPerimeter copy, ulong command = 0)
         {
             if (copy == null)
                 copy = new Perimeter(0, 0, srcW, srcH);
@@ -1543,7 +1543,7 @@ namespace MnM.GWS
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         public static unsafe void DrawImage(this IBlockable block, IntPtr source, int srcW, int srcH, int dstX, int dstY,
-            Command command = 0, int processID = 0, uint ShapeID = 0) =>
+            ulong command = 0, int processID = 0, uint ShapeID = 0) =>
             block.DrawImage(source, srcW, srcH, dstX, dstY, new Perimeter(0, 0, srcW, srcH, processID, ShapeID, 0), command);
 
         /// <summary>
@@ -1556,7 +1556,7 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copy">Area to copy.</param>
         public unsafe static void DrawImage(this IBlockable block, byte[] source, int srcW, int srcH, int dstX, int dstY,
-            IPerimeter copy, Command command = 0)
+            IPerimeter copy, ulong command = 0)
         {
             var srcLen = source.Length / 4;
             fixed (byte* b = source)
@@ -1575,7 +1575,7 @@ namespace MnM.GWS
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copy">Area to copy.</param>
         public unsafe static void DrawImage(this IBlockable block, int[] source, int srcW, int srcH, int dstX, int dstY,
-            IPerimeter copy, Command command = 0, int processID = 0, uint ShapeID = 0)
+            IPerimeter copy, ulong command = 0, int processID = 0, uint ShapeID = 0)
         {
             var srcLen = source.Length;
             fixed (int* src = source)
@@ -3406,7 +3406,6 @@ namespace MnM.GWS
                 return;
 
             type = type.Exclude(CurveType.Full);
-            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
             if (settings == null)
                 settings = Factory.newSettings();
 
@@ -3429,7 +3428,6 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Full);
-            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
             if (settings == null)
                 settings = Factory.newSettings();
 
@@ -3453,7 +3451,6 @@ namespace MnM.GWS
             if (buffer == null)
                 return;
             type = type.Exclude(CurveType.Full);
-            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
             if (settings == null)
                 settings = Factory.newSettings();
             var curve = Factory.newCurve(p1, p2, p3, p4, type, settings.Rotation, settings.Scale);
@@ -3477,7 +3474,6 @@ namespace MnM.GWS
         {
             if (buffer == null)
                 return;
-            string name = type.HasFlag(CurveType.Arc) ? "Arc" : "Pie";
             if (settings == null)
                 settings = Factory.newSettings();
             var curve = Factory.newCurve(first, second, third, fourth, fifth, type, settings.Rotation, settings.Scale);
@@ -3711,7 +3707,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         /// If current stroke value is other than 0, it results in a rendering of a trapezium instead of the line</param>
-        public static void Process(this ILine line, PixelAction action, Command lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
+        public static void Process(this ILine line, PixelAction action, ulong lineCommand, SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (line == null || !line.Valid)
                 return;
@@ -3727,7 +3723,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A Vector action delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(int x1, int y1, int x2, int y2, VectorAction<int> action, Command lineCommand, Size clip = default(Size))
+        public static void ProcessLine(int x1, int y1, int x2, int y2, VectorAction<int> action, ulong lineCommand, Size clip = default(Size))
         {
             ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand, 0, clip);
         }
@@ -3741,7 +3737,7 @@ namespace MnM.GWS
         /// <param name="y2">Y corordinate of end point</param>
         /// <param name="action">A Vector action delegate which has routine to do something with the information emerges by using GWS line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(float x1, float y1, float x2, float y2, VectorAction<float> action, Command lineCommand, Size clip = default(Size))
+        public static void ProcessLine(float x1, float y1, float x2, float y2, VectorAction<float> action, ulong lineCommand, Size clip = default(Size))
         {
             ProcessLine(x1, y1, x2, y2, action.ToPixelAction(), lineCommand, 0, clip);
         }
@@ -3755,7 +3751,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <param name="skip">LineSkip option used to filter the lines so that shallow and steep gradients can be processed seperately.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Process(this IEnumerable<ILine> lines, PixelAction action, Command lineCommand,
+        public static void Process(this IEnumerable<ILine> lines, PixelAction action, ulong lineCommand,
             SlopeType skip = SlopeType.None, Size clip = default(Size))
         {
             if (lines == null || skip == SlopeType.Both)
@@ -3834,7 +3830,7 @@ namespace MnM.GWS
         /// <param name="drawOutLines">>If true, border around filled area will get drawn.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ProcessTriangle(this IPolyFill polyFill, VectorF p1, VectorF p2, VectorF p3, FillAction Action,
-            FillMode fillMode, Command drawCommand, bool drawOutLines = true)
+            FillMode fillMode, ulong drawCommand, bool drawOutLines = true)
         {
             bool drawOutLinesOnly = fillMode == FillMode.DrawOutLine;
             drawOutLines = drawOutLines || drawOutLinesOnly;
@@ -3948,7 +3944,7 @@ namespace MnM.GWS
             if (conic is ICurve)
                 type = ((ICurve)conic).Type;
 
-            bool Full = !(type.HasFlag(CurveType.Arc) || type.HasFlag(CurveType.Pie));
+            bool Full = (type & CurveType.Arc) != CurveType.Arc && (type & CurveType.Pie) != CurveType.Pie;
             if (!Full && conic is ICurve)
             {
                 var lines = (conic as ICurve).GetClosingLines();
@@ -3960,7 +3956,7 @@ namespace MnM.GWS
                 }
             }
 
-            if (Stroke == 0 && type.HasFlag(CurveType.Arc))
+            if (Stroke == 0 && ((type& CurveType.Arc) == CurveType.Arc))
                 forDrawingOnly = true;
             var fillCommand = polyFill.Command;
 
@@ -4005,7 +4001,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using breshenham line algorithm</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ProcessWith(this IList<ILine> Outer, IList<ILine> Inner, FillAction action,
-            FillMode fillMode, Command fillCommand, Size clip)
+            FillMode fillMode, ulong fillCommand, Size clip)
         {
             int length = Outer.Count;
 

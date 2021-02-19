@@ -757,8 +757,8 @@ namespace MnM.GWS
             int count = data.Count();
 
             var list = new Collection<VectorF>(count);
-            bool unique = join.HasFlag(PointJoin.NoRepeat);
-            bool noTooClose = join.HasFlag(PointJoin.AvoidTooClose);
+            bool unique = (join & PointJoin.NoRepeat) == PointJoin.NoRepeat;
+            bool noTooClose = (join & PointJoin.AvoidTooClose) == PointJoin.AvoidTooClose;
 
             VectorF p0, first;
             p0 = first = default(VectorF);
@@ -1974,10 +1974,12 @@ namespace MnM.GWS
             int count = data.Count();
 
             var lines = new Collection<ILine>(count / 2 + 1);
-            bool connectEach = join.HasFlag(PointJoin.ConnectEach);
-            bool unique = join.HasFlag(PointJoin.NoRepeat);
-            bool joinEnds = join.HasFlag(PointJoin.ConnectEnds);
-            bool noTooClose = join.HasFlag(PointJoin.AvoidTooClose);
+            bool unique = (join & PointJoin.NoRepeat) == PointJoin.NoRepeat;
+            bool noTooClose = (join & PointJoin.AvoidTooClose) == PointJoin.AvoidTooClose;
+
+
+            bool connectEach = (join & PointJoin.ConnectEach) == PointJoin.ConnectEach;
+            bool joinEnds = (join & PointJoin.ConnectEnds) == PointJoin.ConnectEnds;
 
             VectorF p0, p1, first;
             p0 = p1 = first = VectorF.Empty;
@@ -2019,7 +2021,7 @@ namespace MnM.GWS
                 lines.Add(line);
             }
 
-            if (join.HasFlag(PointJoin.RemoveLast))
+            if ((join & PointJoin.RemoveLast) == PointJoin.RemoveLast)
                 lines.RemoveAt(lines.Count - 1);
 
             return lines;

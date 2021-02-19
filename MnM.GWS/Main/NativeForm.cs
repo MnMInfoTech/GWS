@@ -67,9 +67,9 @@ namespace MnM.GWS
 
             #region CONSOLIDATE
             public IPerimeter CopyScreen(IntPtr destination, int dstLen,
-                int dstW, int dstX, int dstY, IBoundable copyArea, Command Command = 0, IMultiBuffered backBuffer = null, IntPtr? Pen = null)
+                int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0, IMultiBuffered backBuffer = null, IntPtr? Pen = null)
             {
-                return Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, Command, backBuffer, Pen);
+                return Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, command, backBuffer, Pen);
             }
             #endregion
 
@@ -81,22 +81,22 @@ namespace MnM.GWS
             #endregion
 
             #region WRITE PIXEL
-            public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, ISession boundary)
+            public void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, ulong command, ISession boundary)
             {
-                Canvas.WritePixel(val, axis, horizontal, color, Alpha, Command, boundary);
+                Canvas.WritePixel(val, axis, horizontal, color, Alpha, command, boundary);
             }
             #endregion
 
             #region WRITE LINE
             public unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal, int x, int y,
-                float? Alpha, byte* imageAlphas, Command Command, ISession boundary)
+                float? Alpha, byte* imageAlphas, ulong command, ISession boundary)
             {
-                Canvas.WriteLine(colors, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, Command, boundary);
+                Canvas.WriteLine(colors, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
             }
             #endregion
 
             #region COPY TO
-            public IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command command = 0)
+            public IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
             {
                 return Canvas.CopyTo(destination, dstLen, dstW, dstX, dstY, copyArea, command);
             }
@@ -111,7 +111,7 @@ namespace MnM.GWS
             #endregion
 
             #region CLEAR
-            public IPerimeter Clear(IBoundable clear, Command command = 0)
+            public IPerimeter Clear(IBoundable clear, ulong command = 0)
             {
                 return Canvas.Clear(clear, command);
             }
@@ -119,9 +119,9 @@ namespace MnM.GWS
 
             #region WRITE BLOCK
             public IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea,
-                Command Command, IntPtr alphaBytes = default(IntPtr))
+                ulong command, IntPtr alphaBytes = default(IntPtr))
             {
-                return Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, Command, alphaBytes);
+                return Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
             }
             #endregion
 
@@ -133,21 +133,21 @@ namespace MnM.GWS
             #endregion
 
             #region UPDATE
-            public void Update<T>(Command command, params T[] boundables) where T : IBoundable
+            public void Update<T>(ulong command, params T[] boundables) where T : IBoundable
             {
                 Canvas.Update(command, boundables);
             }
             #endregion
 
             #region REFRESH
-            public void Refresh(Command command = 0)
+            public void Refresh(ulong command = 0)
             {
                 Canvas.Refresh(command);
             }
             #endregion
 
             #region RAISE PAINT
-            public void InvokePaint(Command command = 0, int processID = 0)
+            public void InvokePaint(ulong command = 0, int processID = 0)
             {
                 drawEventArgs.Graphics = Canvas;
                 drawEventArgs.ProcessID = processID;

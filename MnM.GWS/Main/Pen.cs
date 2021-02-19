@@ -89,7 +89,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command command = 0)
+        public unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
         {
             copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
             var data = color.Repeat(copyW * copyH + 1);

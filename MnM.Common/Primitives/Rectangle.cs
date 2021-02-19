@@ -196,7 +196,7 @@ namespace MnM.GWS
 
 #if GWS || Window
         #region DRAW
-        public void Draw(IWritable buffer, Command command = 0)
+        public void Draw(IWritable buffer, ulong command = 0)
         {
             PixelAction action;
             IReadable pen = null;

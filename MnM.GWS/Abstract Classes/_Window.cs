@@ -67,7 +67,7 @@ namespace MnM.GWS
             Current = Canvas;
             InitializeBufferCollection();
             GwsWindowFlags = flags ?? 0;
-            if (GwsWindowFlags.HasFlag(GwsWindowFlags.OpenGL))
+            if ((GwsWindowFlags & GwsWindowFlags.OpenGL) == GwsWindowFlags.OpenGL)
                 GLContext = Factory.newGLContext(this);
             WindowID = Factory.GetWindowID(Handle);
             Name = "Window" + WindowID;
@@ -140,25 +140,25 @@ namespace MnM.GWS
 #endregion
 
 #region CLEAR
-        public IPerimeter Clear(IBoundable clear, Command command) =>
+        public IPerimeter Clear(IBoundable clear, ulong command) =>
             Canvas.Clear(clear, command);
 #endregion
 
 #region CONSOLIDATE
         public IPerimeter CopyScreen(IntPtr destination,
-            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command Command, IMultiBuffered backBuffer = null, IntPtr? Pen = null) =>
-            Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, Command, backBuffer, Pen);
+            int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command, IMultiBuffered backBuffer = null, IntPtr? Pen = null) =>
+            Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, command, backBuffer, Pen);
 #endregion
 
 #region UPDATE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update<T>(Command command, params T[] boundables) where T : IBoundable =>
+        public void Update<T>(ulong command, params T[] boundables) where T : IBoundable =>
             Canvas.Update(command, boundables);
 #endregion
 
 #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IPerimeter CopyTo(IntPtr destination, int destLen, int destW, int destX, int destY, IBoundable copyArea, Command command = 0)
+        public IPerimeter CopyTo(IntPtr destination, int destLen, int destW, int destX, int destY, IBoundable copyArea, ulong command = 0)
         {
             return Canvas.CopyTo(destination, destLen, destW, destX, destY, copyArea, command);
         }
@@ -170,7 +170,7 @@ namespace MnM.GWS
 
 #region REFRESH
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Refresh(Command command = 0)
+        public virtual void Refresh(ulong command = 0)
         {
             if (Width == 0 || Height == 0 || !Visible)
                 return;
@@ -203,7 +203,7 @@ namespace MnM.GWS
 #endregion
 
 #region RAISE PAINT
-        public void InvokePaint(Command command = 0, int processID = 0)
+        public void InvokePaint(ulong command = 0, int processID = 0)
         {
             drawEventArgs.Graphics = Canvas;
             drawEventArgs.ProcessID = processID;
@@ -382,15 +382,15 @@ namespace MnM.GWS
         int ILength.Length =>
             Canvas.Length;
 
-        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command command, ISession boundary) =>
+        void IWritable.WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, ulong command, ISession boundary) =>
            Canvas.WritePixel(val, axis, horizontal, color, Alpha, command, boundary);
 
         unsafe void IWritable.WriteLine(int* source, int srcIndex, int srcW, int length, bool horizontal,
-         int x, int y, float? Alpha, byte* imageAlphas, Command command, ISession boundary) =>
+         int x, int y, float? Alpha, byte* imageAlphas, ulong command, ISession boundary) =>
          Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
 
         IPerimeter IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
-        IBoundable copyArea, Command command, IntPtr alphaBytes) =>
+        IBoundable copyArea, ulong command, IntPtr alphaBytes) =>
             Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 
         int IReadable.ReadPixel(int x, int y, IReadSession session) =>

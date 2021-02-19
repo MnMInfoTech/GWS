@@ -637,7 +637,7 @@ namespace MnM.GWS
         #endregion
 
         #region SAVE AS BITMAP
-        public unsafe bool SaveAsBitmap(IBlockable image, string file, Command command = Command.WriteToScreen)
+        public unsafe bool SaveAsBitmap(IBlockable image, string file, ulong command = Command.WriteToScreen)
         {
             if (image == null)
                 return false;
@@ -649,7 +649,7 @@ namespace MnM.GWS
             SaveAsBitmap(ref success, data, image.Width, image.Height, file);
             return success;
         }
-        partial void SaveAsBitmap(ref bool success, IBlockable image, string file, Command command = Command.WriteToScreen);
+        partial void SaveAsBitmap(ref bool success, IBlockable image, string file, ulong command = Command.WriteToScreen);
 
         public unsafe bool SaveAsBitmap(IntPtr Pixels, int width, int height, string file)
         {

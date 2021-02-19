@@ -9,7 +9,7 @@ namespace MnM.GWS
     public partial class Settings : ISettings
     {
         #region VARIABLES
-        Command DrawCommand, CalculatedDrawCommand;
+        ulong DrawCommand, CalculatedDrawCommand;
         private FillMode fillMode;
         private float stroke;
         Session MySession = new Session();
@@ -25,14 +25,14 @@ namespace MnM.GWS
         internal Settings(uint shapeID)
         {
             MySession.ShapeID = shapeID;
-            DrawCommand = Command.OddEven;
+            DrawCommand = MnM.GWS.Command.OddEven;
             Initialize();
         }
         partial void Initialize();
         #endregion
 
         #region PROPERTIES
-        public Command Command
+        public ulong Command
         {
             get => CalculatedDrawCommand;
             set
@@ -75,18 +75,18 @@ namespace MnM.GWS
         {
             CalculatedDrawCommand = DrawCommand;
             bool IgnoreAutoCalculatedFillPatten =
-                (DrawCommand & Command.IgnoreAutoCalculatedFillPatten) == Command.IgnoreAutoCalculatedFillPatten;
-            bool EraseControl = (DrawCommand & Command.EraseObject) == Command.EraseObject;
-            bool KeepFillRuleForStroking = (DrawCommand & Command.KeepFillRuleForStroking) == Command.KeepFillRuleForStroking;
+                (DrawCommand & MnM.GWS.Command.IgnoreAutoCalculatedFillPatten) == MnM.GWS.Command.IgnoreAutoCalculatedFillPatten;
+            bool EraseControl = (DrawCommand & MnM.GWS.Command.EraseObject) == MnM.GWS.Command.EraseObject;
+            bool KeepFillRuleForStroking = (DrawCommand & MnM.GWS.Command.KeepFillRuleForStroking) == MnM.GWS.Command.KeepFillRuleForStroking;
             if (IgnoreAutoCalculatedFillPatten)
                 return;
             if (stroke == 0 || fillMode == FillMode.Original || KeepFillRuleForStroking || EraseControl)
             {
-                CalculatedDrawCommand &= ~Command.Outlininig;
+                CalculatedDrawCommand &= ~MnM.GWS.Command.Outlininig;
                 return;
             }
             if (stroke != 0 && fillMode == FillMode.FillOutLine)
-                CalculatedDrawCommand |= Command.Outlininig;
+                CalculatedDrawCommand |= MnM.GWS.Command.Outlininig;
         }
         #endregion
 
@@ -131,44 +131,20 @@ namespace MnM.GWS
         #region CLEAN DRAW COMMAND
         public void CleanCommand()
         {
-            DrawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
-            DrawCommand &= ~Command.KeepFillRuleForStroking;
-            DrawCommand &= ~Command.CalculateOnly;
-            DrawCommand &= ~Command.KeepFillRuleForStroking;
-            DrawCommand &= ~Command.IgnoreAutoCalculatedFillPatten;
-            DrawCommand &= ~Command.Outlininig;
-            DrawCommand &= ~Command.DrawEndsOnly;
-            DrawCommand &= ~Command.DrawLineOnly;
-            DrawCommand &= ~Command.NoSorting;
-            DrawCommand &= ~Command.CheckForCloseness;
-            DrawCommand &= ~Command.FillSinglePointLine;
-            DrawCommand &= ~Command.EraseObject;
-            DrawCommand &= ~Command.RestoreObject;
-            DrawCommand &= ~Command.AddObject;
-            SyncCommand();
-        }
-        #endregion
-
-        #region ADD - REMOVE COMMAD
-        public void AddCommands(params Command[] commands)
-        {
-            if (commands.Length == 0)
-                return;
-            foreach (var item in commands)
-            {
-                if (item == 0)
-                    continue;
-                DrawCommand |= item;
-            }
-            SyncCommand();
-        }
-        public void RemoveCommands(params Command[] commands)
-        {
-            if (commands.Length == 0)
-                return;
-            foreach (var item in commands)
-                DrawCommand &= ~item;
-
+            DrawCommand &= ~ MnM.GWS.Command.IgnoreAutoCalculatedFillPatten;
+            DrawCommand &= ~MnM.GWS.Command.KeepFillRuleForStroking;
+            DrawCommand &= ~MnM.GWS.Command.CalculateOnly;
+            DrawCommand &= ~MnM.GWS.Command.KeepFillRuleForStroking;
+            DrawCommand &= ~MnM.GWS.Command.IgnoreAutoCalculatedFillPatten;
+            DrawCommand &= ~MnM.GWS.Command.Outlininig;
+            DrawCommand &= ~MnM.GWS.Command.DrawEndsOnly;
+            DrawCommand &= ~MnM.GWS.Command.DrawLineOnly;
+            DrawCommand &= ~MnM.GWS.Command.NoSorting;
+            DrawCommand &= ~MnM.GWS.Command.CheckForCloseness;
+            DrawCommand &= ~MnM.GWS.Command.FillSinglePointLine;
+            DrawCommand &= ~MnM.GWS.Command.EraseObject;
+            DrawCommand &= ~MnM.GWS.Command.RestoreObject;
+            DrawCommand &= ~MnM.GWS.Command.AddObject;
             SyncCommand();
         }
         #endregion

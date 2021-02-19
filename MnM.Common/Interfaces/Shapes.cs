@@ -50,7 +50,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="TypeName">Case sensitive name of shape as used in IRecognizable e.g. "Bezier".</param>
         /// <returns>Returns the LineDraw enum used to decide how line is drawn.</returns>
-        Command GetLineDraw(string TypeName);
+        ulong GetLineDraw(string TypeName);
 
         /// <summary>
         /// Gets lien skip information for outer and inner parameters.

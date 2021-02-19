@@ -100,7 +100,7 @@ namespace MnM.GWS
 
 #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void Update<T>(Command Command, params T[] boundables) where T : IBoundable
+            public unsafe void Update<T>(ulong command, params T[] boundables) where T : IBoundable
             {
                 if (boundables.Length == 0)
                     return;
@@ -132,7 +132,7 @@ namespace MnM.GWS
 #endregion
 
 #region RAISE PAINT
-            public void InvokePaint(Command command = 0, int processID = 0) =>
+            public void InvokePaint(ulong command = 0, int processID = 0) =>
             Window.InvokePaint(command, processID);
 #endregion
 

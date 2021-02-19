@@ -259,7 +259,7 @@ namespace MnM.GWS
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied.</param>
         /// <param name="Command">Command to control pixel writing.</param>
         /// <param name="session">Session object which records drawing area and has shape id and destination info.</param>
-        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, Command Command, ISession session);
+        void WritePixel(int val, int axis, bool horizontal, int color, float? Alpha, ulong command, ISession session);
 
         /// <summary>
         /// Writes line to the this block at given position specified by x and y parameters by reading specified source
@@ -276,7 +276,7 @@ namespace MnM.GWS
         /// <param name="Command">Command to control pixel line writing.</param>
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
-            int x, int y, float? Alpha, byte* imageAlphas, Command Command, ISession  session);
+            int x, int y, float? Alpha, byte* imageAlphas, ulong command, ISession  session);
     }
     #endregion
 
@@ -295,7 +295,7 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="Command">Draw command to to control copy task</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
-        IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea, Command Command = 0, IntPtr alphaBytes = default(IntPtr));
+        IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea, ulong command = 0, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 
@@ -316,7 +316,7 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="command">Draw command to control this operation.</param>
         /// <returns>Area covered by this operation.</returns>
-        unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command command = 0);
+        unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0);
     }
     #endregion
 
@@ -332,7 +332,7 @@ namespace MnM.GWS
         /// <param name="clearArea">Area to be cleared.</param>
         /// <param name="command">A command to control clearing operation.</param>
         /// <param name="processID">ID of the process which initiated this operation.</param>
-        IPerimeter Clear(IBoundable clearArea, Command command = 0);
+        IPerimeter Clear(IBoundable clearArea, ulong command = 0);
     }
     #endregion
 
@@ -348,7 +348,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="command">Command to control this Update task.</param>
         /// <param name="boundables">Array of Areas to update.</param>
-        void Update<T>(Command command, params T[] boundables) where T: IBoundable;
+        void Update<T>(ulong command, params T[] boundables) where T: IBoundable;
     }
     #endregion
 
@@ -363,7 +363,7 @@ namespace MnM.GWS
         /// Redraws itself using the drawsettings used when it is first added to the collection of parent window.
         /// </summary>
         /// <param name="command">Command to control refresh task.</param>
-        void Refresh(Command command = 0);
+        void Refresh(ulong command = 0);
     }
     #endregion
 
@@ -398,7 +398,7 @@ namespace MnM.GWS
         /// <param name="Command"></param>
         /// <param name="externalPen"></param>
         /// <returns></returns>
-        IPerimeter CopyScreen(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, Command Command = Command.None, 
+        IPerimeter CopyScreen(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = Command.None, 
             IMultiBuffered externalBuffer = null, IntPtr? externalPen = null);
     }
     #endregion
@@ -603,7 +603,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="command"></param>
         /// <param name="processID">ID of the process which initiated this operation.</param>
-        void InvokePaint(Command command, int processID = 0);
+        void InvokePaint(ulong command, int processID = 0);
     } 
     #endregion
 #endif

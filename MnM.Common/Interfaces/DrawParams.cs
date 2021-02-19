@@ -25,7 +25,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets or sets command to apply on buffers while writing them for rendering a shape.
         /// </summary>
-        new Command Command { get; set; }
+        new ulong Command { get; set; }
 
         /// <summary>
         /// Gets the size of current buffer on which shape is being rendered.
@@ -88,7 +88,7 @@ namespace MnM.GWS
         /// <summary>
         /// Gets command to apply on buffers while writing them for rendering a shape.
         /// </summary>
-        Command Command { get; }
+        ulong Command { get; }
     }
     #endregion
 

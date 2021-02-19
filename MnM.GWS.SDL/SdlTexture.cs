@@ -90,7 +90,7 @@ namespace MnM.GWS
 
             #region COPY FROM
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IBoundable copyArea, Command command)
+            public unsafe void CopyFrom(IBlockable source, int dstX, int dstY, IBoundable copyArea, ulong command)
             {
                 copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
 
@@ -171,7 +171,7 @@ namespace MnM.GWS
 
             #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void Update<T>(Command command, params T[] boudables) where T : IBoundable
+            public unsafe void Update<T>(ulong command, params T[] boudables) where T : IBoundable
             {
                 foreach (var perimeter in boudables)
                 {

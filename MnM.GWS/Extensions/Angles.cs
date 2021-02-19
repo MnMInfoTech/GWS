@@ -223,11 +223,11 @@ namespace MnM.GWS
 
             ScaleX = ScaleY = 1;
 
-            if (Skew.HasFlag(SkewType.Horizontal) ||
-                Skew.HasFlag(SkewType.Diagonal))
+            if ((Skew & SkewType.Horizontal) == SkewType.Horizontal ||
+                (Skew & SkewType.Diagonal) == SkewType.Diagonal)
                 ScaleX = scale;
 
-            if (Skew.HasFlag(SkewType.Vertical))
+            if ((Skew & SkewType.Vertical) == SkewType.Vertical)
                 ScaleY = scale;
 
             return Skew;

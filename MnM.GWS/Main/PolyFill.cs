@@ -201,7 +201,7 @@ namespace MnM.GWS
     #endregion
 
     #region NOTIFY SCAN RESULT
-            protected override void NotifyScanResult(float value, int axis, bool horizontal, Command command)
+            protected override void NotifyScanResult(float value, int axis, bool horizontal, ulong command)
             {
                 Numbers.Confine(MinX, MaxX, ref value);
 

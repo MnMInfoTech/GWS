@@ -795,7 +795,7 @@ namespace MnM.GWS
         /// <param name="action">A FillAction delegate which has routine to do something with the information emerges by using standard line algorithm</param>
         /// <returns>True if segment is valid and processed otherwise false.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessLine(VectorF p1, VectorF p2, PixelAction action, Command lineCommand) =>
+        public static void ProcessLine(VectorF p1, VectorF p2, PixelAction action, ulong lineCommand) =>
             Renderer.ProcessLine(p1.X, p1.Y, p2.X, p2.Y, action, lineCommand);
         #endregion
 

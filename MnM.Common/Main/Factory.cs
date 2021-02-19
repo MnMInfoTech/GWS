@@ -236,28 +236,28 @@ namespace MnM.GWS
             new Settings(shapeID, null);
         public static ISettings newSettings() =>
             new Settings(0, null);
-        public static ISettings newSettings(uint shapeID, IPenContext context, Command Command)
+        public static ISettings newSettings(uint shapeID, IPenContext context, ulong command)
         {
             var settings = new Settings(shapeID, context);
-            settings.Command = Command;
+            settings.Command = command;
             return settings;
         }
-        public static ISettings newSettings(uint shapeID, Command Command)
+        public static ISettings newSettings(uint shapeID, ulong command)
         {
             var settings = new Settings(shapeID, null);
-            settings.Command = Command;
+            settings.Command = command;
             return settings;
         }
-        public static ISettings newSettings(IPenContext context, Command Command)
+        public static ISettings newSettings(IPenContext context, ulong command)
         {
             var settings = new Settings(0, context);
-            settings.Command = Command;
+            settings.Command = command;
             return settings;
         }
-        public static ISettings newSettings(Command Command)
+        public static ISettings newSettings(ulong command)
         {
             var settings = new Settings(0, null);
-            settings.Command = Command;
+            settings.Command = command;
             return settings;
         }
         #endregion
@@ -1561,7 +1561,7 @@ namespace MnM.GWS
         /// <param name="image">Image which is to be saved</param>
         /// <param name="file">Path of a file where data is to be saved</param>
         /// <returns>Returns true, if operation is succesful otherwise false.</returns>
-        public static bool SaveAsBitmap(IBlockable image, string file, Command command = Command.WriteToScreen)
+        public static bool SaveAsBitmap(IBlockable image, string file, ulong command = Command.WriteToScreen)
         {
             return Instance.SaveAsBitmap(image, file, command);
         }

@@ -616,11 +616,11 @@ namespace MnM.GWS.Desktop
             {
                 if (chkLstLinePattern.GetItemChecked(i))
                 {
-                    Settings.Command |= (Command)chkLstLinePattern.Items[i];
+                    Settings.Command |= (ulong)chkLstLinePattern.Items[i];
                 }
                 else
                 {
-                    Settings.Command &= ~(Command)chkLstLinePattern.Items[i];
+                    Settings.Command &= ~(ulong)chkLstLinePattern.Items[i];
                 }
             }
             var strokeMode = (StrokeMode)cmbStrokeMode.SelectedIndex;
@@ -792,7 +792,7 @@ namespace MnM.GWS.Desktop
                 case "Bezier":
                     var type = cmbBezier.SelectedIndex != -1 ?
                         ((KeyValuePair<string, BezierType>)cmbBezier.SelectedItem).Value : BezierType.Cubic;
-                    if (type.HasFlag(BezierType.Multiple))
+                    if ((type & BezierType.Multiple) == BezierType.Multiple)
                     {
                         if (drawPoints == null || drawPoints.Length < 6)
                             return;
@@ -948,7 +948,7 @@ namespace MnM.GWS.Desktop
         {
             MsMethod = null;
             var stroke = (float)numStroke.Value;
-            MsDisplay.Screen.Canvas.SmoothingMode = !Settings.Command.HasFlag(Command.Breshenham) ?
+            MsDisplay.Screen.Canvas.SmoothingMode = (Settings.Command & Command.Breshenham) != Command.Breshenham ?
                 System.Drawing.Drawing2D.SmoothingMode.AntiAlias : System.Drawing.Drawing2D.SmoothingMode.Default;
 
             if (textureBrush == null)
@@ -1056,7 +1056,7 @@ namespace MnM.GWS.Desktop
                 case "Bezier":
                     var type = cmbBezier.SelectedIndex != -1 ?
                         ((KeyValuePair<string, BezierType>)cmbBezier.SelectedItem).Value : BezierType.Cubic;
-                    if (type.HasFlag(BezierType.Multiple))
+                    if ((type & BezierType.Multiple) == BezierType.Multiple)
                     {
                         if (drawPoints == null || drawPoints.Length < 6)
                             return;

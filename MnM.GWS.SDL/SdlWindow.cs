@@ -22,7 +22,7 @@ namespace MnM.GWS
 #endif
     sealed class SdlWindow : _Window, IWindow
     {
-        #region VARIABLES
+#region VARIABLES
         const int defaultWidth = 300;
         const int defaultHeight = 300;
 
@@ -47,9 +47,9 @@ namespace MnM.GWS
         bool Valid;
         bool firstShow;
         static readonly object Sync = new object();
-        #endregion
+#endregion
 
-        #region CONSTRUCTORS
+#region CONSTRUCTORS
         public SdlWindow(string title = null, int? width = null, int? height = null,
             int? x = null, int? y = null, GwsWindowFlags? flags = null, IScreen display = null,
             RendererFlags? renderFlags = null) :
@@ -75,16 +75,16 @@ namespace MnM.GWS
 
             windowFlags = GetFlags(gwsWindowFlags);
 
-            isSingleThreaded = gwsWindowFlags.HasFlag(GwsWindowFlags.MultiThread);
+                isSingleThreaded = (gwsWindowFlags & GwsWindowFlags.MultiThread) == GwsWindowFlags.MultiThread;
 
             NativeFactory.DisableScreenSaverEx();
 
             try
             {
 
-                if (!windowFlags.HasFlag(WindowFlags.Shown))
+                if ((windowFlags & WindowFlags.Shown) != WindowFlags.Shown)
                     windowFlags |= WindowFlags.Hidden;
-                if (!windowFlags.HasFlag(WindowFlags.NoBorders))
+                if ((windowFlags & WindowFlags.NoBorders) == WindowFlags.NoBorders)
                     windowFlags |= WindowFlags.Resizable;
 
                 //windowFlags |= WindowFlags.Maximized;
@@ -100,9 +100,9 @@ namespace MnM.GWS
                     int wd = width ?? defaultWidth;
                     int ht = height ?? defaultHeight;
 
-                    if (windowFlags.HasFlag(WindowFlags.FullScreen) ||
-                        windowFlags.HasFlag(WindowFlags.FullScreenDesktop) ||
-                        windowFlags.HasFlag(WindowFlags.Maximized))
+                    if ((windowFlags & WindowFlags.FullScreen) == WindowFlags.FullScreen ||
+                        (windowFlags & WindowFlags.FullScreenDesktop) == WindowFlags.FullScreenDesktop ||
+                        (windowFlags & WindowFlags.Maximized) == WindowFlags.Maximized)
                     {
                         windowFlags = windowFlags & ~WindowFlags.FullScreen;
                         windowFlags = windowFlags & ~WindowFlags.FullScreenDesktop;
@@ -125,7 +125,7 @@ namespace MnM.GWS
                 }
 
                 Valid = true;
-                visible = windowFlags.HasFlag(WindowFlags.Shown) ? true : false;
+                visible = (windowFlags & WindowFlags.Shown) == WindowFlags.Shown ? true : false;
 
                 NativeFactory.GetWindowSize(Handle, out int w, out int h);
                 NativeFactory.GetWindowPosition(Handle, out int _x, out int _y);
@@ -143,9 +143,9 @@ namespace MnM.GWS
         }
         protected override void GetTypeName(out string typeName) =>
             typeName ="Window";
-        #endregion
+#endregion
 
-        #region PROPERTIES
+#region PROPERTIES
         public sealed override IntPtr Handle => handle;
         public override bool Focused =>
             focused && !disabled && visible;
@@ -249,9 +249,9 @@ namespace MnM.GWS
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region FOCUS
+#region FOCUS
         public bool Has(Vector p)
         {
             if (Transparency >= 1f)
@@ -294,14 +294,14 @@ namespace MnM.GWS
             NativeFactory.RaiseWindow(Handle);
             return true;
         }
-        #endregion
+#endregion
 
-        #region CREATE GL CONTEXT
+#region CREATE GL CONTEXT
         //public GLContext CreateGLContext() =>
         //    GLContext.Create(this);
-        #endregion
+#endregion
 
-        #region SHOW HIDE
+#region SHOW HIDE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void ChangeVisible(bool value)
         {
@@ -327,9 +327,9 @@ namespace MnM.GWS
             }
             base.ChangeVisible(value);
         }
-        #endregion
+#endregion
 
-        #region CLOSE
+#region CLOSE
         protected override void OnClosed(IEventArgs e)
         {
             Valid = false;
@@ -344,9 +344,9 @@ namespace MnM.GWS
             handle = IntPtr.Zero;
             base.OnClosed(e);
         }
-        #endregion
+#endregion
 
-        #region RESIZE
+#region RESIZE
         public override void Resize(int? width = null, int? height = null)
         {
             var w = width ?? Width;
@@ -358,9 +358,9 @@ namespace MnM.GWS
             }
             base.Resize(Width, Height);
         }
-        #endregion
+#endregion
 
-        #region PRIVATE METHODS
+#region PRIVATE METHODS
         void grabCursor(bool grab)
         {
             NativeFactory.ShowCursor(!grab ? 0 : 1);
@@ -375,9 +375,9 @@ namespace MnM.GWS
                 NativeFactory.WarpMouseInWindow(Handle, (int)Math.Round(mouseState.X / scale), (int)Math.Round(mouseState.Y / scale));
             }
         }
-        #endregion
+#endregion
 
-        #region CURSOR
+#region CURSOR
         public override void SetCursor(int x, int y)
         {
             NativeFactory.ShowCursor(1);
@@ -389,9 +389,9 @@ namespace MnM.GWS
             NativeFactory.ShowCursor(0);
         public override void ContainMouse(bool flag) =>
             NativeFactory.SetWindowGrab(Handle, flag);
-        #endregion
+#endregion
 
-        #region CHANGE
+#region CHANGE
         public override void ChangeScreen(int screenIndex) { }
         public override void ChangeState(WindowState value)
         {
@@ -452,9 +452,9 @@ namespace MnM.GWS
             bounds = new Rectangle(_x, _y, bounds.Width, bounds.Height);
             NativeFactory.SetWindowPosition(Handle, X, Y);
         }
-        #endregion
+#endregion
 
-        #region EVENT ARGS
+#region EVENT ARGS
         readonly MouseButtonEventArgs mouseDownArgs = new MouseButtonEventArgs();
         readonly MouseButtonEventArgs mouseUpArgs = new MouseButtonEventArgs();
         readonly MouseMoveEventArgs mouseMoveArgs = new MouseMoveEventArgs();
@@ -470,9 +470,9 @@ namespace MnM.GWS
         Keyboard keyState = new Keyboard();
 
         Mouse pMouseState = new Mouse();
-        #endregion
+#endregion
 
-        #region INPUT PROCESSING
+#region INPUT PROCESSING
         public bool CanProcessEvent =>
             !IsDisposed && Visible && Enabled && Valid;
         protected override IEventArgs ParseEvent(IEvent @event)
@@ -712,9 +712,9 @@ namespace MnM.GWS
                     return null;
             }
         }
-        #endregion
+#endregion
 
-        #region MISC
+#region MISC
         /// <summary>
         /// Call this method to simulate KeyDown/KeyUp events
         /// on platforms that do not generate key events for
@@ -748,52 +748,51 @@ namespace MnM.GWS
         static WindowFlags GetFlags(GwsWindowFlags flags)
         {
             WindowFlags flag = WindowFlags.Default;
-            if (flags.HasFlag(GwsWindowFlags.Foreign))
-                flag |= WindowFlags.Foreign;
+                if ((flags & GwsWindowFlags.Foreign) == GwsWindowFlags.Foreign)
+                    flag |= WindowFlags.Foreign;
 
-            if (flags.HasFlag(GwsWindowFlags.FullScreen))
-                flag |= WindowFlags.FullScreen;
+                if ((flags & GwsWindowFlags.FullScreen) == GwsWindowFlags.FullScreen)
+                    flag |= WindowFlags.FullScreen;
 
-            if (flags.HasFlag(GwsWindowFlags.FullScreenDesktop))
-                flag |= WindowFlags.FullScreenDesktop;
+                if ((flags & GwsWindowFlags.FullScreenDesktop) == GwsWindowFlags.FullScreenDesktop)
+                    flag |= WindowFlags.FullScreenDesktop;
 
-            if (flags.HasFlag(GwsWindowFlags.GrabInput))
-                flag |= WindowFlags.GrabInput;
+                if ((flags & GwsWindowFlags.GrabInput) == GwsWindowFlags.GrabInput)
+                    flag |= WindowFlags.GrabInput;
 
-            if (flags.HasFlag(GwsWindowFlags.Hidden))
-                flag |= WindowFlags.Hidden;
+                if ((flags & GwsWindowFlags.Hidden) == GwsWindowFlags.Hidden)
+                    flag |= WindowFlags.Hidden;
 
-            if (flags.HasFlag(GwsWindowFlags.HighDPI))
-                flag |= WindowFlags.HighDPI;
+                if ((flags & GwsWindowFlags.HighDPI) == GwsWindowFlags.HighDPI)
+                    flag |= WindowFlags.HighDPI;
 
-            if (flags.HasFlag(GwsWindowFlags.InputFocus))
-                flag |= WindowFlags.InputFocus;
+                if ((flags & GwsWindowFlags.InputFocus) == GwsWindowFlags.InputFocus)
+                    flag |= WindowFlags.InputFocus;
 
-            if (flags.HasFlag(GwsWindowFlags.Maximized))
-                flag |= WindowFlags.Maximized;
+                if ((flags & GwsWindowFlags.Maximized) == GwsWindowFlags.Maximized)
+                    flag |= WindowFlags.Maximized;
 
-            if (flags.HasFlag(GwsWindowFlags.Minimized))
-                flag |= WindowFlags.Minimized;
+                if ((flags & GwsWindowFlags.Minimized) == GwsWindowFlags.Minimized)
+                    flag |= WindowFlags.Minimized;
 
-            if (flags.HasFlag(GwsWindowFlags.MouseFocus))
-                flag |= WindowFlags.MouseFocus;
+                if ((flags & GwsWindowFlags.MouseFocus) == GwsWindowFlags.MouseFocus)
+                    flag |= WindowFlags.MouseFocus;
 
-            if (flags.HasFlag(GwsWindowFlags.NoBorders))
-                flag |= WindowFlags.NoBorders;
+                if ((flags & GwsWindowFlags.NoBorders) == GwsWindowFlags.NoBorders)
+                    flag |= WindowFlags.NoBorders;
 
-            if (flags.HasFlag(GwsWindowFlags.OpenGL))
-                flag |= WindowFlags.OpenGL;
+                if ((flags & GwsWindowFlags.OpenGL) == GwsWindowFlags.OpenGL)
+                    flag |= WindowFlags.OpenGL;
 
-            if (flags.HasFlag(GwsWindowFlags.Resizable))
-                flag |= WindowFlags.Resizable;
+                if ((flags & GwsWindowFlags.Resizable) == GwsWindowFlags.Resizable)
+                    flag |= WindowFlags.Resizable;
 
-            if (flags.HasFlag(GwsWindowFlags.Shown))
-                flag |= WindowFlags.Shown;
+                if ((flags & GwsWindowFlags.Shown) == GwsWindowFlags.Shown)
+                    flag |= WindowFlags.Shown;
 
             return flag;
         }
-
-        #endregion
+#endregion
     }
 
 #if HideSdlObjects

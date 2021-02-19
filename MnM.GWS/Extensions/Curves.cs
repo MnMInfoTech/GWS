@@ -780,7 +780,7 @@ namespace MnM.GWS
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         public static void GetEllipseMakingPoints(ref VectorF p1, ref VectorF p2, ref VectorF p3, ref VectorF p4, CurveType type, out VectorF p5)
         {
-            if (type.HasFlag(CurveType.Fitting))
+            if ((type & CurveType.Fitting) == CurveType.Fitting)
             {
                 var a = (p1 + p2) / 2;
                 var b = (p2 + p3) / 2;
@@ -793,7 +793,7 @@ namespace MnM.GWS
                 Missing2PointsOfEllipse(p1, p3, p2, out _, out p5);
 
             }
-            else if (type.HasFlag(CurveType.FourthPointIsCenter))
+            else if ((type & CurveType.FourthPointIsCenter) == CurveType.FourthPointIsCenter)
             {
                 p5 = GetEllipsePoint(45, p1, p2, p4);
                 p3 = GetEllipsePoint(135, p1, p2, p4);
@@ -816,7 +816,7 @@ namespace MnM.GWS
         /// <param name="type"> Defines the type of curve for example an arc or pie etc. along with other supplimentary options on how to draw it</param>
         public static void GetEllipseMakingPoints(ref VectorF p1, ref VectorF p2, ref VectorF p3, CurveType type, out VectorF p4, out VectorF p5)
         {
-            bool fitting = type.HasFlag(CurveType.Fitting);
+            bool fitting = (type & CurveType.Fitting) == CurveType.Fitting;
 
             if (fitting)
             {
@@ -831,7 +831,7 @@ namespace MnM.GWS
                 p4 = d;
                 Missing2PointsOfEllipse(p1, p3, p2, out _, out p5);
             }
-            else if (type.HasFlag(CurveType.ThirdPointOnEllipse))
+            else if ((type & CurveType.ThirdPointOnEllipse) == CurveType.ThirdPointOnEllipse)
             {
                 Order3Points(ref p1, ref p2, ref p3);
                 Missing2PointsOfEllipse(p1, p2, p3, out p4, out p5);
@@ -898,10 +898,10 @@ namespace MnM.GWS
             int xc = x + a;
             int yc = y + b;
 
-            bool left = portion.HasFlag(Position.Left);
-            bool top = portion.HasFlag(Position.Top);
-            bool right = portion.HasFlag(Position.Right);
-            bool bottom = portion.HasFlag(Position.Bottom);
+            bool left = (portion & Position.Left) == Position.Left;
+            bool top = (portion & Position.Top) == Position.Top;
+            bool right = (portion & Position.Right) == Position.Right;
+            bool bottom = (portion & Position.Bottom) == Position.Bottom;
 
 
             for (x0 = 0, y0 = b, sigma = 2 * b2 + a2 * (1 - 2 * b); b2 * x0 <= a2 * y0; x0++)
@@ -1108,7 +1108,7 @@ namespace MnM.GWS
         /// <returns>Array of points</returns>
         public static VectorF[] GetPieTriangle(this IConic conic, CurveType type, float StartAngle, float EndAngle, VectorF? center = null)
         {
-            if (!type.HasFlag(CurveType.Arc) && !type.HasFlag(CurveType.Pie))
+            if ((type & CurveType.Arc) != CurveType.Arc && (type & CurveType.Pie) != CurveType.Pie)
                 return null;
 
             if (StartAngle == 0 && EndAngle == 0)
@@ -1221,7 +1221,7 @@ namespace MnM.GWS
         /// <summary>
         /// Very fast ellipse drawing function by Michael "h4tt3n" Nissen version 4.0 March 2010
         /// </summary>
-        public static void NissenEllipse(int x, int y, int width, int height, Rotation angle, PixelAction action, Command lineCommand = 0)
+        public static void NissenEllipse(int x, int y, int width, int height, Rotation angle, PixelAction action, ulong lineCommand = 0)
         {
             //These constants decide the graphic quality of the ellipse
             const int face_length = 6;  //approx.face length in pixels
@@ -1269,7 +1269,7 @@ namespace MnM.GWS
         #endregion
 
         #region GWS FAST ELLIPSE
-        public static void GwsEllipse(int x, int y, int width, int height, Rotation angle, PixelAction action, Command lineCommand = 0)
+        public static void GwsEllipse(int x, int y, int width, int height, Rotation angle, PixelAction action, ulong lineCommand = 0)
         {
             float x1 = 1f, y1 = 0f, x2 = 0, y2 = 0, lbx = 0, lby = 0, rbx = 0,
                 rby = 0, ltx = 0, lty = 0, rtx = 0, rty = 0, lbx1 = 0, lby1 = 0,
@@ -1409,7 +1409,7 @@ namespace MnM.GWS
             if (!curve.Full)
             {
                 var triangle = curve.PieTriangle;
-                if (curve.Type.HasFlag(CurveType.Arc) && !curve.Type.HasFlag(CurveType.ClosedArc))
+                if ((curve.Type & CurveType.Arc) == CurveType.Arc && (curve.Type & CurveType.ClosedArc) != CurveType.ClosedArc)
                 {
                     childCenter = mainCenter = triangle[0];
                     return;
@@ -1417,13 +1417,13 @@ namespace MnM.GWS
 
                 Renderer.StrokePoints(triangle, "Triangle", stroke, mode, out IList<VectorF> main, out IList<VectorF> child);
                 var clockWise = main.ClockWise();
-
-                if (clockWise != curve.Type.HasFlag(CurveType.AntiClock) ||
+                bool antiClock = (curve.Type & CurveType.AntiClock) == CurveType.AntiClock;
+                if (clockWise != antiClock ||
                     curve.EndAngle.Round() == 180 ||
                     curve.StartAngle.Round() == 180)
                     Numbers.Swap(ref main, ref child);
 
-                if (curve.Type.HasFlag(CurveType.CrossStroke))
+                if ((curve.Type & CurveType.CrossStroke) == CurveType.CrossStroke)
                     Numbers.Swap(ref main, ref child);
                 childCenter = child[0];
                 mainCenter = main[0];
