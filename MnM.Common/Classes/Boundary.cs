@@ -29,11 +29,25 @@ namespace MnM.GWS
         /// </summary>
         public int Y2 = 0;
 
+        /// <summary>
+        /// ID of shape being rendered.
+        /// </summary>
+        public uint ShapeID;
+
+        /// <summary>
+        /// ID of process being used to render the shape.
+        /// </summary>
+        public int ProcessID;
+
         static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
         #endregion
 
         #region CONSTRUCTORS
         public Boundary() { }
+        public Boundary(byte lifePriority)
+        {
+            LifePriority = lifePriority;
+        }
         public Boundary(int x, int y, int w, int h, byte lifePriority = 0)
         {
             X1 = x;
@@ -57,6 +71,8 @@ namespace MnM.GWS
         #region PROPERTIES
         public bool Valid => X2 > 0 && Y2 > 0;
         public byte LifePriority { get; set; }
+        int IProcessID.ProcessID => ProcessID;
+        uint IShapeID.ShapeID => ShapeID;
         #endregion
 
         #region NOTIFY

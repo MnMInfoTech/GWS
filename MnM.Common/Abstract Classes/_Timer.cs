@@ -42,7 +42,7 @@ namespace MnM.GWS
             speed = 0;
             elapsedMilliseconds = 0;
             Watch.Restart();
-            FireEvent();
+            Process();
         }
         public void Stop()
         {
@@ -54,7 +54,7 @@ namespace MnM.GWS
         #endregion
 
         #region FIRE EVENT
-        protected abstract void FireEvent();
+        protected abstract void Process();
         #endregion
 
         #region DISPOSE

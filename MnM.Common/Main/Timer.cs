@@ -35,7 +35,7 @@ namespace MnM.GWS
         #endregion
 
         #region FIRE EVENT
-        protected override async void FireEvent()
+        protected override async void Process()
         {
             if (Running)
                 return;

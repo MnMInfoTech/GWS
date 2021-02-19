@@ -121,7 +121,7 @@ namespace MnM.GWS
     #endregion
 
     #region IBOUNDARY
-    public interface IBoundary : IBoundable, INotifiable, ILifePriority
+    public interface IBoundary : IPerimeter, INotifiable
     {
         /// <summary>
         /// Gets or sets GWS assigned life priority for the object while rendering.
