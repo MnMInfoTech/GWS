@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Main\Session.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Shape.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\ShapeCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Bezier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\Box.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Shapes\BoxF.cs" />

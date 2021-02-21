@@ -101,8 +101,7 @@ namespace MnM.GWS
                 command = Settings.Command;
                 pid = Settings.Session.ProcessID;
                 Settings.Command |= Command.InvalidateOnly;
-                if (Boundary is IProcessID)
-                    Settings.Session.ProcessID = ((IProcessID)Boundary).ProcessID;
+                Settings.Session.ProcessID = Boundary.ProcessID;
                 writable.Render(Renderable, Settings);
                 Boundary.Merge(Settings.Session);
                 Settings.Session.ProcessID = pid;

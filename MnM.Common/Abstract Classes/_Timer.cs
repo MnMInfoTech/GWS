@@ -37,19 +37,22 @@ namespace MnM.GWS
         #endregion
 
         #region START - STOP
-        public void Start()
+        public void Switch(bool on)
         {
             speed = 0;
             elapsedMilliseconds = 0;
-            Watch.Restart();
-            Process();
-        }
-        public void Stop()
-        {
-            Watch.Stop();
             Watch.Reset();
-            elapsedMilliseconds = 0;
-            Running = false;
+
+            if (on)
+            {
+                Watch.Restart();
+                Process();
+            }
+            else
+            {
+                Watch.Stop();
+                Running = false;
+            }
         }
         #endregion
 

@@ -1168,5 +1168,18 @@ namespace MnM.GWS
     {
     }
     #endregion
+
+    #region ILIMITED-COLLECTION
+    public interface IProxyCollection<T, U>: IReadOnlyList<T>
+    {
+        void Add(U subItem);
+        bool Remove(U subItem);
+        void Remove(U subItem, out int index);
+        void AddRange(IEnumerable<U> subItem);
+        void AddRange(params U[] subItems);
+        int IndexOf(U subItem);
+        void Clear();
+    }
+    #endregion
 #endif
 }

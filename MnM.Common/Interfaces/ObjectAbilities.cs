@@ -134,6 +134,29 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IREPEATER
+    /// <summary>
+    /// Represents an object which repeats some activity
+    /// </summary>
+    public interface IRepeater
+    {
+        /// <summary>
+        /// Gets or sets interval by which the activity shold be repeated.
+        /// </summary>
+        int Interval { get; set; }
+
+        /// <summary>
+        /// Gets a flag indicating whether activity is running or not.
+        /// </summary>
+        bool IsRunning { get; }
+
+        /// <summary>
+        /// Starts or stops the activitiy - this object performs.
+        /// </summary>
+        void Switch(bool on);
+    }
+    #endregion
+
 #if (GWS || Window)
 
     #region IRENDERABLE

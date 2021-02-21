@@ -209,37 +209,17 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which allowers regualar activitiy on a specific time interval.
     /// </summary>
-    public interface ITimerBase : IDisposable
+    public interface ITimerBase : IRepeater, IDisposable
     {
-        /// <summary>
-        /// Gets or sets interval by which the tick event gets fired.
-        /// </summary>
-        int Interval { get; set; }
-
         /// <summary>
         /// Gets total elapsed time till now.
         /// </summary>
         long ElapsedTime { get; }
 
         /// <summary>
-        /// Gets a flag indicating whether this timer is running or not.
-        /// </summary>
-        bool IsRunning { get; }
-
-        /// <summary>
         /// Gets speed measurement of latest execution of task performed in tick event.
         /// </summary>
         long Speed { get; }
-
-        /// <summary>
-        /// Starts this timer.
-        /// </summary>
-        void Start();
-
-        /// <summary>
-        /// Stops this timer.
-        /// </summary>
-        void Stop();
     }
 
     /// <summary>
