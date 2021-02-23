@@ -62,7 +62,7 @@ namespace MnM.GWS
                                 speed = (uint)(Watch.ElapsedMilliseconds / 1000);
                                 break;
                         }
-                        elapsedMilliseconds += Watch.ElapsedMilliseconds;
+                        elapsedTime += Watch.ElapsedMilliseconds;
                         Watch.Restart();
                         Tick(this, Factory.EmptyArgs);
                         ON = false;

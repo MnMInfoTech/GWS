@@ -19,7 +19,7 @@ namespace MnM.GWS
         public ShapeCollection(IEnumerable<IRenderable> items) : base(items) { }
         public ShapeCollection(IEnumerable<IShape> items) : base(items) { }
 
-        protected override IShape GetItem(IRenderable subItem) => Factory.newShape(subItem);
+        protected override IShape NewItem(IRenderable subItem) => Factory.newShape(subItem);
         protected override IRenderable GetSubItem(IShape item) => item.Renderable;
         #endregion
 

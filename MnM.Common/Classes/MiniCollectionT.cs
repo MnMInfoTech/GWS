@@ -1,41 +1,41 @@
-﻿/* Licensed under the MIT/X11 license.
+﻿using System;
+/* Licensed under the MIT/X11 license.
 * Copyright (c) 2016-2018 jointly owned by eBestow Technocracy India Pvt. Ltd. & M&M Info-Tech UK Ltd.
 * This notice may not be removed from any source distribution.
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MnM.GWS
 {
-    public abstract class _ProxyCollection<TItem, TSubItem>: IProxyCollection<TItem, TSubItem>
+    public class MiniCollection<T>: IMiniCollection<T>
     {
         #region VARIABLES
-        TItem[] iData;
+        T[] iData;
         int Length;
         int position = -1;
         #endregion
 
         #region CONSTRUCTORS
-        public _ProxyCollection()
+        public MiniCollection()
         {
             Length = 0;
-            iData = new TItem[4];
+            iData = new T[4];
         }
-        public _ProxyCollection(int capacity) : this()
+        public MiniCollection(int capacity) : this()
         {
             Capacity = capacity;
         }
-        public _ProxyCollection(int capacity, bool exactCapacity) : this()
+        public MiniCollection(int capacity, bool exactCapacity) : this()
         {
             if (exactCapacity)
                 Resize(capacity);
             else
                 Capacity = capacity;
         }
-        public _ProxyCollection(IEnumerable<TItem> collection) : this()
+        public MiniCollection(IEnumerable<T> collection) : this()
         {
             AddRange(collection);
         }
@@ -54,7 +54,7 @@ namespace MnM.GWS
             }
         }
         public int Count => Length;
-        public TItem this[int index]
+        public T this[int index]
         {
             get
             {
@@ -62,41 +62,47 @@ namespace MnM.GWS
                     throw new IndexOutOfRangeException();
                 return iData[index];
             }
+            set
+            {
+                if (index < 0 || index >= Count)
+                    throw new IndexOutOfRangeException();
+                iData[index] = value;
+            }
         }
-        public TItem[] Data => iData;
-        object IReadOnlyList.this[int index] => iData[index];
+        public T[] Data => iData;
+        T IReadOnlyList<T>.this[int index] => this[index];
+        object IReadOnlyList.this[int index] => this[index];
         #endregion
 
         #region ADD
-        public virtual void Add(TSubItem subItem)
+        public virtual void Add(T item)
         {
-            var item = NewItem(subItem);
             if (iData.Length <= Count)
                 Resize(Count * 2);
             iData[Count] = item;
             Length++;
         }
-        public virtual void AddRange(IEnumerable<TSubItem> subItems)
+        public virtual void AddRange(IEnumerable<T> items)
         {
-            if (subItems == null) return;
-            int sCount = subItems.Count();
+            if (items == null) return;
+            int sCount = items.Count();
 
             if (iData.Length <= Count + sCount)
                 Resize((Count + sCount) * 2);
 
-            if (subItems is TItem[])
+            if (items is T[])
             {
-                Array.Copy((TItem[])(object)subItems, 0, iData, Count, sCount);
+                Array.Copy((T[])items, 0, iData, Count, sCount);
                 Length += sCount;
             }
             else
             {
-                foreach (var item in subItems)
-                    iData[Length++] = NewItem(item);
+                foreach (var item in items)
+                    iData[Length++] = item;
             }
         }
-        public void AddRange(params TSubItem[] subItems) =>
-            AddRange((IEnumerable<TSubItem>)subItems);
+        public void AddRange(params T[] items) =>
+            AddRange((IEnumerable<T>)items);
         #endregion
 
         #region CLEAR
@@ -108,23 +114,23 @@ namespace MnM.GWS
         #endregion
 
         #region INDEX OF
-        public int IndexOf(TSubItem subItem)
+        public int IndexOf(T item)
         {
-            return iData.FirstMatchIndex(x => subItem.Equals(GetSubItem(x)));
+            return iData.FirstMatchIndex(x => item.Equals(x));
         }
         #endregion
 
         #region CONTAINS
-        public bool Contains(TSubItem subItem)
+        public bool Contains(T item)
         {
-            return iData.Any(x => subItem.Equals(GetSubItem(x)));
+            return iData.Any(x => item.Equals(x));
         }
         #endregion
 
         #region REMOVE
-        public bool Remove(TSubItem subItem)
+        public bool Remove(T item)
         {
-            var index = iData.FirstMatchIndex(x => subItem.Equals(GetSubItem(x)));
+            var index = iData.FirstMatchIndex(x => item.Equals(x));
             if (index == -1)
                 return false;
             RemoveAt(index);
@@ -134,7 +140,7 @@ namespace MnM.GWS
         {
             if (index == Count - 1)
             {
-                iData[index] = default(TItem);
+                iData[index] = default(T);
                 --Length;
                 return;
             }
@@ -151,12 +157,12 @@ namespace MnM.GWS
             if (Length > count)
                 Length = count;
         }
-        void IArray<TItem>.Resize(int length) =>
+        void IArray<T>.Resize(int length) =>
             Resize(length);
         #endregion
 
         #region ENUMERATOR
-        public IEnumerator<TItem> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             position = -1;
             for (int i = 0; i < Length; i++)
@@ -167,11 +173,6 @@ namespace MnM.GWS
         }
         IEnumerator IEnumerable.GetEnumerator() =>
             GetEnumerator();
-        #endregion
-
-        #region CONVERT
-        protected abstract TItem NewItem(TSubItem subItem);
-        protected abstract TSubItem GetSubItem(TItem item);
         #endregion
     }
 }

@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Classes\ArrayT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Boundary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ProxyCollectionTU.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\MiniCollectionT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Consts\Consts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Perimeter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Timer.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Eval.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rgba.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Rotation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\SinCos.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Size.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SizeF.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Span.cs" />

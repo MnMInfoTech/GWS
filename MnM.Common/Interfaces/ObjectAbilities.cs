@@ -207,6 +207,13 @@ namespace MnM.GWS
     { }
     #endregion
 
+    #region IDIRECT-DRAW
+    public interface IDirectDraw
+    {
+        void Draw(IGraphics Graphics);
+    }
+    #endregion
+
     #region IRENDERABLE-BLOCK
     public interface IRenderableBlock: IDrawable
     {

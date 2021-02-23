@@ -7,16 +7,15 @@ namespace MnM.GWS
         #region VARIABLES
         protected volatile int interval = 5;
         protected volatile bool Running = false;
-        protected readonly Stopwatch Watch;
+        protected readonly Stopwatch Watch = new Stopwatch();
         protected long speed;
-        protected long elapsedMilliseconds;
+        protected long elapsedTime;
         #endregion
 
         #region CONSTRUCTOR
         protected _Timer(int interval = 50)
         {
             this.interval = interval;
-            Watch = new Stopwatch();
         }
         #endregion
 
@@ -33,14 +32,14 @@ namespace MnM.GWS
         }
         public bool IsRunning => Running;
         public long Speed => speed;
-        public long ElapsedTime => elapsedMilliseconds;
+        public long ElapsedTime => elapsedTime;
         #endregion
 
         #region START - STOP
         public void Switch(bool on)
         {
             speed = 0;
-            elapsedMilliseconds = 0;
+            elapsedTime = 0;
             Watch.Reset();
 
             if (on)

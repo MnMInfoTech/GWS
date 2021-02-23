@@ -268,7 +268,7 @@ namespace MnM.GWS
 
     #region IREADONLYLIST<K, V, T>
     public interface IReadOnlyList<K, V, T> : IReadOnlyList<T> where T : IPair<K, V>
-    { }    
+    { }
     #endregion
 
     #region IITERATOR<T>
@@ -324,7 +324,7 @@ namespace MnM.GWS
     #endregion
 
     #region ILEXICON
-    public interface ILexicon<K, V, T> : 
+    public interface ILexicon<K, V, T> :
         ICollection<T>, IIterator<T>, IReadOnlyList<K, V, T> where T : IPair<K, V>
     {
         #region PROPERTIES
@@ -388,7 +388,7 @@ namespace MnM.GWS
         /// Adds object to the specified storage unit in factory.
         /// </summary>
         /// <param name="obj">Object to store</param>
-        U Add<U>(U obj) where U: TObj;
+        U Add<U>(U obj) where U : TObj;
 
         /// <summary>
         /// Removes object specified from the specified store unit in factory.
@@ -474,7 +474,7 @@ namespace MnM.GWS
     #endregion
 
     #region IGWSCOLLECTION<T>
-    public interface IGwsCollection<T>: IList<T>, IIterator<T>
+    public interface IGwsCollection<T> : IList<T>, IIterator<T>
     {
         #region PROPERTIES
         int Capacity { get; set; }
@@ -507,6 +507,33 @@ namespace MnM.GWS
         #endregion
     }
     #endregion
+
+    #region IPROXY-COLLECTION
+    public interface IProxyCollection<T, U> : IReadOnlyList<T>, IArray<T>, IReadOnlyList
+    {
+        void Add(U subItem);
+        bool Remove(U subItem);
+        void RemoveAt(int index);
+        void AddRange(IEnumerable<U> subItems);
+        void AddRange(params U[] subItems);
+        int IndexOf(U subItem);
+        void Clear();
+    }
+    #endregion
+
+    #region ILIMITED-COLLECTION
+    public interface IMiniCollection<T> : IReadOnlyList<T>, IArray<T>, IReadOnlyList
+    {
+        void Add(T item);
+        bool Remove(T item);
+        void RemoveAt(int index);
+        void AddRange(IEnumerable<T> item);
+        void AddRange(params T[] items);
+        int IndexOf(T item);
+        void Clear();
+    }
+    #endregion
+
 
 #if Collections
     #region IITEMADDRESS
@@ -1166,19 +1193,6 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IContainer : IObjCollection, IRefreshable
     {
-    }
-    #endregion
-
-    #region ILIMITED-COLLECTION
-    public interface IProxyCollection<T, U>: IReadOnlyList<T>
-    {
-        void Add(U subItem);
-        bool Remove(U subItem);
-        void Remove(U subItem, out int index);
-        void AddRange(IEnumerable<U> subItem);
-        void AddRange(params U[] subItems);
-        int IndexOf(U subItem);
-        void Clear();
     }
     #endregion
 #endif

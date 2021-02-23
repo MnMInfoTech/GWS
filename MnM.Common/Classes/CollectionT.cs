@@ -91,13 +91,16 @@ namespace MnM.GWS
         {
             return Array.IndexOf(iData, item);
         }
-        public bool Contains(T item)
-        {
-            return Array.Exists(iData, (x => item.Equals(x)));
-        }
         public int IndexOf(Predicate<T> predicate)
         {
             return iData.FirstMatchIndex(predicate);
+        }
+        #endregion
+
+        #region CONTAINS
+        public bool Contains(T item)
+        {
+            return Array.Exists(iData, (x => item.Equals(x)));
         }
         public bool Contains(Predicate<T> predicate)
         {
