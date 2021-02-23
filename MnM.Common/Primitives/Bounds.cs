@@ -6,7 +6,7 @@
 
 namespace MnM.GWS
 {
-    public struct Bounds: IBoundable, IType
+    public struct Bounds : IBounds
     {
         #region VARIABLES
         public readonly int X;
@@ -20,7 +20,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        public Bounds(int x, int y, int w, int h, byte type = 0) 
+        public Bounds(int x, int y, int w, int h, byte type = 0)
         {
             X = x;
             Y = y;
@@ -62,9 +62,29 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region EQUALITY
+        public bool Equals(Bounds rect)
+        {
+            return Rects.Equals(rect, X, Y, W, H);
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            if (obj is IBoundable)
+                return Rects.Equals((IBoundable)obj, X, Y, W, H);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return new { X, Y, W, H }.GetHashCode();
+        }
+        #endregion
+
         #region OPERATORS
         public static implicit operator bool(Bounds r) =>
-            r.W > 0 && r.H > 0;
+                r.W > 0 && r.H > 0;
         #endregion
 
         #region TO STRING

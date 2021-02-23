@@ -118,9 +118,9 @@ namespace MnM.GWS
 
             if (flushMode)
                 goto Flush;
-            if (settings is IBounds)
+            if (settings is IBoundsHolder)
             {
-                var Settings = ((IBounds)settings).Bounds;
+                var Settings = ((IBoundsHolder)settings).Bounds;
                 w = Settings.Width;
                 h = Settings.Height;
             }

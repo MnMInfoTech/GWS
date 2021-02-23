@@ -1190,7 +1190,7 @@ namespace MnM.GWS
     /// Represents an object which holds a control collection to maintain its child controls.
     /// </summary>
     public partial interface IContainer : IObjCollection, IRefreshable
-    {
+    {       
     }
     #endregion
 #endif

@@ -140,7 +140,7 @@ namespace MnM.GWS
     /// Represents an object which exposes various settings meant for controling rendering process.
     /// It also facilitates modification of location and draw parameters.
     /// </summary>
-    public partial interface ISettings : IDrawParams, IBounds, IRotatable,
+    public partial interface ISettings : IDrawParams, IBoundsHolder, IRotatable,
         IPolySettings, ISettingsReceiver
     {
         /// <summary>

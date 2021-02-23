@@ -6,8 +6,10 @@
 #if Window
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 using MnM.GWS.SDL;
 
@@ -19,9 +21,9 @@ namespace MnM.GWS
 #else
     public
 #endif
-        sealed class SdlTarget : IRenderTarget
+        sealed partial class SdlTarget : IRenderTarget
         {
-#region VARIABLES
+            #region VARIABLES
             /// <summary>
             /// Width of this object.
             /// </summary>
@@ -57,9 +59,9 @@ namespace MnM.GWS
             /// </summary>
             volatile byte[] flags;
 #endif
-#endregion
+            #endregion
 
-#region CONSTRUCTORS
+            #region CONSTRUCTORS
             public SdlTarget(IRenderWindow window)
             {
                 Window = window;
@@ -72,9 +74,9 @@ namespace MnM.GWS
                 flags = new byte[length];
 #endif
             }
-#endregion
+            #endregion
 
-#region PROPERTIES
+            #region PROPERTIES
             public unsafe IntPtr Source => source;
             public int Width => width;
             public int Height => height;
@@ -91,14 +93,14 @@ namespace MnM.GWS
                 }
             }
 #endif
-#endregion
+            #endregion
 
-#region GET HANDLE
+            #region GET HANDLE
             IntPtr GetHandle(IntPtr handle) =>
             NativeFactory.GetWindowSurface(handle);
-#endregion
+            #endregion
 
-#region UPDATE
+            #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe void Update<T>(ulong command, params T[] boundables) where T : IBoundable
             {
@@ -107,9 +109,9 @@ namespace MnM.GWS
                 var items = boundables.Where(p => p.Valid).Select(p => new Rect(p)).ToArray();
                 NativeFactory.UpdateWindow(Window.Handle, items, items.Length);
             }
-#endregion
+            #endregion
 
-#region RESIZE
+            #region RESIZE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public unsafe void Resize(int? newWidth = null, int? newHeight = null)
             {
@@ -129,14 +131,14 @@ namespace MnM.GWS
                 flags = flags.ResizedData(width, height, oldWidth, oldHeight);
 #endif
             }
-#endregion
+            #endregion
 
-#region RAISE PAINT
+            #region RAISE PAINT
             public void InvokePaint(ulong command = 0, int processID = 0) =>
             Window.InvokePaint(command, processID);
-#endregion
+            #endregion
 
-#region DISPOSE
+            #region DISPOSE
             public void Dispose()
             {
                 if (!Window.IsDisposed)
@@ -146,7 +148,7 @@ namespace MnM.GWS
                 flags = null;
 #endif
             }
-#endregion
+            #endregion
         }
 #if HideSdlObjects
     }

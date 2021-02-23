@@ -134,6 +134,11 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region ITYPED-BOUNDS
+    public interface IBounds : IBoundable, IType
+    { }
+    #endregion
+
     #region IREPEATER
     /// <summary>
     /// Represents an object which repeats some activity
@@ -385,7 +390,31 @@ namespace MnM.GWS
     #region IINVALIDATABLE
     public interface IInvalidatable
     {
-        void Invalidate(IBoundable boundable);
+        /// <summary>
+        /// Invalidates specified area on this object - marked for update in next schedule.
+        /// </summary>
+        /// <param name="boundable"></param>
+        void Invalidate(params IBounds[] bounds);
+    }
+    #endregion
+
+    #region IUPDATABLE MANAGER
+    public interface IUpdateManager: IInvalidatable
+    {
+        /// <summary>
+        /// Gets or sets update interval to invoke update task on continious basis.
+        /// </summary>
+        int UpdateInterval { get; set; }
+
+        /// <summary>
+        /// Disables regualar screen updates.
+        /// </summary>
+        void SuspedLayout();
+
+        /// <summary>
+        /// Enables regualar updates.
+        /// </summary>
+        void ResumeLayout();
     }
     #endregion
 

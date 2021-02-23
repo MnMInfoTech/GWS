@@ -183,7 +183,7 @@ namespace MnM.GWS
     #endregion
 
     #region IBOUNDS
-    public interface IBounds: IDrawParams
+    public interface IBoundsHolder: IDrawParams
     {
         /// <summary>
         /// Gets bounds of current shape associated with current rendering process.

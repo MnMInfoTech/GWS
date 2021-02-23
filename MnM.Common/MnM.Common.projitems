@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_ProxyCollectionTU.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\MiniCollectionT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Consts\Consts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\Bounds.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\Perimeter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Main\Timer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\CollectionT.cs" />

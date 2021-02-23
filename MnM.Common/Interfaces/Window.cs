@@ -98,7 +98,7 @@ namespace MnM.GWS
     /// A minimum required interface to inherit in order to make your control work in the GWS.
     /// It must have an ID, a name Name and area to work upon.
     /// </summary>
-    public partial interface IElement : IRenderable, IPoint, ISize, IMinSizable, IBounds
+    public partial interface IElement : IRenderable, IPoint, ISize, IMinSizable, IBoundsHolder
     {
     }
     #endregion
