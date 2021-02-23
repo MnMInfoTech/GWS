@@ -35,9 +35,28 @@ namespace MnM.GWS
             else
                 Capacity = capacity;
         }
-        public _ProxyCollection(IEnumerable<TItem> collection) : this()
+        public _ProxyCollection(IEnumerable<TSubItem> collection) : this()
         {
             AddRange(collection);
+        }
+        public _ProxyCollection(IEnumerable<TItem> collection) : this()
+        {
+            if (collection == null) return;
+            int sCount = collection.Count();
+
+            if (iData.Length <= Count + sCount)
+                Resize((Count + sCount) * 2);
+
+            if (collection is TItem[])
+            {
+                Array.Copy((TItem[])(object)collection, 0, iData, Count, sCount);
+                Length += sCount;
+            }
+            else
+            {
+                foreach (var item in collection)
+                    iData[Length++] = item;
+            }
         }
         #endregion
 
