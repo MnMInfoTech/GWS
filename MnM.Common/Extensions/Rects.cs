@@ -757,13 +757,13 @@ namespace MnM.GWS
                 return;
             rc.GetBounds(out int x, out int y, out int w, out int h);
             notifiable.Notify(x, y, x + w, y + h);
-            if (rc is ILifePriority)
+            if (rc is IType)
             {
-                byte priority = ((ILifePriority)rc).LifePriority;
+                byte priority = ((IType)rc).Type;
                 if (notifiable is ISession)
-                    ((ISession)notifiable).LifePriority = priority;
+                    ((ISession)notifiable).Type = priority;
                 else if (notifiable is IBoundary)
-                    ((IBoundary)notifiable).LifePriority = priority;
+                    ((IBoundary)notifiable).Type = priority;
             }
         }
         #endregion
@@ -780,13 +780,13 @@ namespace MnM.GWS
                 return;
             notifiable.Notify(x, y, x + w, y + h);
             
-            if(rc is ILifePriority)
+            if(rc is IType)
             {
-                byte priority = ((ILifePriority)rc).LifePriority;
+                byte priority = ((IType)rc).Type;
                 if (notifiable is ISession)
-                    ((ISession)notifiable).LifePriority = priority;
+                    ((ISession)notifiable).Type = priority;
                 else if(notifiable is IBoundary)
-                    ((IBoundary)notifiable).LifePriority = priority;
+                    ((IBoundary)notifiable).Type = priority;
             }
         }
         #endregion

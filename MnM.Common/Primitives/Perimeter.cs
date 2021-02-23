@@ -15,7 +15,7 @@ namespace MnM.GWS
         public readonly int Height;
         public readonly int ProcessID;
         public readonly uint ShapeID;
-        public readonly byte LifePriority;
+        public readonly byte Type;
 
         public readonly static Perimeter Empty = new Perimeter();
         static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
@@ -35,7 +35,7 @@ namespace MnM.GWS
         {
             ProcessID = processID;
             ShapeID = shapeID;
-            LifePriority = lifePriority;
+            Type = lifePriority;
         }
         public Perimeter(IBoundable perimeter, int x, int y, int w, int h) :
             this(perimeter)
@@ -62,8 +62,8 @@ namespace MnM.GWS
                 ProcessID = ((IProcessID)perimeter).ProcessID;
             if (perimeter is IShapeID)
                 ShapeID = ((IShapeID)perimeter).ShapeID;
-            if (perimeter is ILifePriority)
-                LifePriority = ((ILifePriority)perimeter).LifePriority;
+            if (perimeter is IType)
+                Type = ((IType)perimeter).Type;
         }
         public Perimeter(IBoundable perimeter, int processID) :
             this(perimeter)
@@ -81,14 +81,14 @@ namespace MnM.GWS
             r.GetBounds(out X, out Y, out Width, out Height);
             ProcessID = processID;
             ShapeID = shapeID;
-            LifePriority = lifePriority;
+            Type = lifePriority;
         }
         #endregion
 
         #region PROPERTIES
         int IProcessID.ProcessID => ProcessID;
         uint IShapeID.ShapeID => ShapeID;
-        byte ILifePriority.LifePriority => LifePriority;
+        byte IType.Type => Type;
         public bool Valid => Width > 0 && Height > 0;
         #endregion
 

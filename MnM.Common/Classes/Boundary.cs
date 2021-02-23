@@ -39,22 +39,27 @@ namespace MnM.GWS
         /// </summary>
         public int ProcessID;
 
+        /// <summary>
+        /// Type this object represents for the purpose of rendering operation.
+        /// </summary>
+        public byte Type;
+
         static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
         #endregion
 
         #region CONSTRUCTORS
         public Boundary() { }
-        public Boundary(byte lifePriority)
+        public Boundary(byte type)
         {
-            LifePriority = lifePriority;
+            Type = type;
         }
-        public Boundary(int x, int y, int w, int h, byte lifePriority = 0)
+        public Boundary(int x, int y, int w, int h, byte type = 0)
         {
             X1 = x;
             Y1 = y;
             X2 = X1 + w;
             Y2 = Y1 + h;
-            LifePriority = lifePriority;
+            Type = type;
         }
         public Boundary(IBoundable perimeter)
         {
@@ -63,16 +68,17 @@ namespace MnM.GWS
             Y1 = y;
             X2 = X1 + w;
             Y2 = Y1 + h;
-            if (perimeter is ILifePriority)
-                LifePriority = ((ILifePriority)perimeter).LifePriority;
+            if (perimeter is IType)
+                Type = ((IType)perimeter).Type;
         }
         #endregion
 
         #region PROPERTIES
         public bool Valid => X2 > 0 && Y2 > 0;
-        public byte LifePriority { get; set; }
         int IProcessID.ProcessID => ProcessID;
         uint IShapeID.ShapeID => ShapeID;
+        byte IBoundary.Type { get => Type; set => Type = value; }
+        byte IType.Type => Type;
         #endregion
 
         #region NOTIFY

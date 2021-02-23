@@ -50,6 +50,11 @@ namespace MnM.GWS
         /// </summary>
         public int Y2 = 0;
 
+        /// <summary>
+        /// Type this object represents for the purpose of rendering operation.
+        /// </summary>
+        public byte Type;
+
         static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
         #endregion
 
@@ -95,8 +100,8 @@ namespace MnM.GWS
             if(perimeter is IShapeID)
                 ShapeID = ((IShapeID)perimeter).ShapeID;
 
-            if (perimeter is ILifePriority)
-                LifePriority = ((ILifePriority)perimeter).LifePriority;
+            if (perimeter is IType)
+                Type = ((IType)perimeter).Type;
 
             if (perimeter is IDstPoint)
             {
@@ -114,7 +119,8 @@ namespace MnM.GWS
         int IDstPoint.Y { get => DstY; set => DstY = value; }
         uint ISession.ShapeID { get => ShapeID; set => ShapeID = value; }
         int ISession.ProcessID { get => ProcessID; set => ProcessID = value; }
-        public byte LifePriority { get; set; }
+        byte IBoundary.Type { get => Type; set => Type = value; }
+        byte IType.Type => Type;
         #endregion
 
         #region NOTIFY

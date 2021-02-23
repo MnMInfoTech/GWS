@@ -97,12 +97,12 @@ namespace MnM.GWS
     /// Represents an objet which has an information about priority index from being wiped from screen.
     /// Very important for handling multi-threaded parallel running rendering tasks.
     /// </summary>
-    public interface ILifePriority
+    public interface IType
     {
         /// <summary>
-        /// Gets GWS assigned life priority for the object while rendering.
+        /// Gets GWS assigned type of the object for the purpose of handling rendering operation.
         /// </summary>
-        byte LifePriority { get; }
+        byte Type { get; }
     }
     #endregion
 

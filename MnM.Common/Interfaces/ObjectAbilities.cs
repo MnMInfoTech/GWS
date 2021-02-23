@@ -382,6 +382,13 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IINVALIDATABLE
+    public interface IInvalidatable
+    {
+        void Invalidate(IBoundable boundable);
+    }
+    #endregion
+
     #region IREFRESHABLE
     /// <summary>
     /// Represents an object which can be redrawn on any parent window of which it is sort of part of. 
