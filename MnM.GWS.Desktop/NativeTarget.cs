@@ -177,29 +177,23 @@ namespace MnM.GWS
 
             #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Update<T>(ulong command, params T[] boundables) where T : IBoundable
+            public void Update(ulong command, IBoundable area)
             {
-                if (boundables.Length == 0)
+                if (area == null || !area.Valid)
                     return;
                 int x, y, w, h;
                 System.Drawing.Rectangle rc;
-
-                foreach (var perimeter in boundables)
+                area.GetBounds(out x, out y, out w, out h);
+                rc = new System.Drawing.Rectangle(x, y, w, h);
+                if (InvokeRequired)
                 {
-                    if (!perimeter.Valid)
-                        continue;
-                    perimeter.GetBounds(out x, out y, out w, out h);
-                    rc = new System.Drawing.Rectangle(x, y, w, h);
-                    if (InvokeRequired)
-                    {
-                        InvalidateSafe(rc);
-                        UpdateSafe();
-                    }
-                    else
-                    {
-                        Invalidate(rc);
-                        Update();
-                    }
+                    InvalidateSafe(rc);
+                    UpdateSafe();
+                }
+                else
+                {
+                    Invalidate(rc);
+                    Update();
                 }
             }
             #endregion
