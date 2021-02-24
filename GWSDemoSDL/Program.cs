@@ -114,7 +114,7 @@ namespace Test
                  }), "Shape frame drawing");
                  j += 1000;
              };
-            timer.Start();
+            timer.Run(true);
         }
 
         private static void Window_MouseDown(object sender, IMouseEventArgs e)
