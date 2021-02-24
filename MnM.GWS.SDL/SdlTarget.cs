@@ -102,12 +102,11 @@ namespace MnM.GWS
 
             #region UPDATE
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public unsafe void Update<T>(ulong command, params T[] boundables) where T : IBoundable
+            public unsafe void Update(ulong command, IBoundable area) 
             {
-                if (boundables.Length == 0)
+                if (area == null || !area.Valid)
                     return;
-                var items = boundables.Where(p => p.Valid).Select(p => new Rect(p)).ToArray();
-                NativeFactory.UpdateWindow(Window.Handle, items, items.Length);
+                NativeFactory.UpdateWindow(Window.Handle, new Rect(area));
             }
             #endregion
 

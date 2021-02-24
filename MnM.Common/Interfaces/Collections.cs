@@ -507,7 +507,7 @@ namespace MnM.GWS
     #endregion
 
     #region IPROXY-COLLECTION
-    public interface IProxyCollection<T, U> : IReadOnlyList<T>, IArray<T>, IReadOnlyList
+    public interface IProxyCollection<T, U> : IReadOnlyList<T>, IArray<T>
     {
         void Add(U subItem);
         bool Remove(U subItem);
@@ -520,7 +520,7 @@ namespace MnM.GWS
     #endregion
 
     #region ILIMITED-COLLECTION
-    public interface IMiniCollection<T> : IReadOnlyList<T>, IArray<T>, IReadOnlyList
+    public interface IMiniCollection<T> : IReadOnlyList<T>, IArray<T>
     {
         void Add(T item);
         bool Remove(T item);

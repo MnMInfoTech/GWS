@@ -133,9 +133,9 @@ namespace MnM.GWS
             #endregion
 
             #region UPDATE
-            public void Update<T>(ulong command, params T[] boundables) where T : IBoundable
+            public void Update(ulong command, IBoundable area) 
             {
-                Canvas.Update(command, boundables);
+                Canvas.Update(command, area);
             }
             #endregion
 

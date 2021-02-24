@@ -171,17 +171,10 @@ namespace MnM.GWS
     {
         T Args { get; }
     }
-    #endregion
-
-    #region IEVENTARGS<T>
-    public interface IElpasedTimeEventArgs : IEventArgs
+    public interface IEventArgs<T1, T2> : IEventArgs
     {
-        /// <summary>
-        /// Gets elapsed time in miliseconds.
-        /// </summary>
-        uint ElapsedTime { get; }
-
-        Unit Unit { get; }
+        T1 Args1 { get; }
+        T2 Args2 { get; }
     }
     #endregion
 
@@ -205,27 +198,37 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region ILOOP
+    public interface ILoop
+    {
+        /// <summary>
+        /// Gets a flag indicating whether loop is running or not.
+        /// </summary>
+        bool IsRunning { get; }
+
+        /// <summary>
+        /// Starts or stops the loop this object offers.
+        /// </summary>
+        void Run(bool on);
+    }
+    #endregion
+
     #region ITIMER
     /// <summary>
     /// Represents an object which allowers regualar activitiy on a specific time interval.
     /// </summary>
-    public interface ITimerBase : IRepeater, IDisposable
+    public interface ITimerBase : IRepeater
     {
         /// <summary>
         /// Gets total elapsed time till now.
         /// </summary>
         long ElapsedTime { get; }
-
-        /// <summary>
-        /// Gets speed measurement of latest execution of task performed in tick event.
-        /// </summary>
-        long Speed { get; }
     }
 
     /// <summary>
     /// Represents an object which allowers regualar activitiy on a specific time interval.
     /// </summary>
-    public interface ITimer : ITimerBase
+    public interface ITimer : ITimerBase, IDisposable
     {
         /// <summary>
         /// Gets or sets unit of time measurement i.e milliseconds or seconds or microseconds.

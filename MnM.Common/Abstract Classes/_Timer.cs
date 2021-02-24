@@ -36,7 +36,7 @@ namespace MnM.GWS
         #endregion
 
         #region START - STOP
-        public void Switch(bool on)
+        public void Run(bool on)
         {
             speed = 0;
             elapsedTime = 0;

@@ -16,7 +16,7 @@ namespace MnM.GWS
         }
         public T Args { get; set; }
     }
-    public class EventArgs<T1, T2> : EventArgs<T1>
+    public class EventArgs<T1, T2> : EventArgs<T1>, IEventArgs<T1, T2>
     {
         protected internal EventArgs() { }
         public EventArgs(T1 args1, T2 args2):
@@ -26,6 +26,7 @@ namespace MnM.GWS
         }
 
         public T2 Args2 { get; protected internal set; }
+        T1 IEventArgs<T1, T2>.Args1 => Args;
     }
     public class EventArgs<T1, T2, T3> : EventArgs<T1, T2>
     {

@@ -143,22 +143,12 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which repeats some activity
     /// </summary>
-    public interface IRepeater
+    public interface IRepeater: ILoop
     {
         /// <summary>
         /// Gets or sets interval by which the activity shold be repeated.
         /// </summary>
         int Interval { get; set; }
-
-        /// <summary>
-        /// Gets a flag indicating whether activity is running or not.
-        /// </summary>
-        bool IsRunning { get; }
-
-        /// <summary>
-        /// Starts or stops the activitiy - this object performs.
-        /// </summary>
-        void Switch(bool on);
     }
     #endregion
 
@@ -210,13 +200,6 @@ namespace MnM.GWS
     public interface IDrawable2 : 
         IDrawable, IForeground, IBackground, IChild
     { }
-    #endregion
-
-    #region IDIRECT-DRAW
-    public interface IDirectDraw
-    {
-        void Draw(IGraphics Graphics);
-    }
     #endregion
 
     #region IRENDERABLE-BLOCK
@@ -382,39 +365,8 @@ namespace MnM.GWS
         /// Updates invalidated area on screen.
         /// </summary>
         /// <param name="command">Command to control this Update task.</param>
-        /// <param name="boundables">Array of Areas to update.</param>
-        void Update<T>(ulong command, params T[] boundables) where T: IBoundable;
-    }
-    #endregion
-
-    #region IINVALIDATABLE
-    public interface IInvalidatable
-    {
-        /// <summary>
-        /// Invalidates specified area on this object - marked for update in next schedule.
-        /// </summary>
-        /// <param name="boundable"></param>
-        void Invalidate(params IBounds[] bounds);
-    }
-    #endregion
-
-    #region IUPDATABLE MANAGER
-    public interface IUpdateManager: IInvalidatable
-    {
-        /// <summary>
-        /// Gets or sets update interval to invoke update task on continious basis.
-        /// </summary>
-        int UpdateInterval { get; set; }
-
-        /// <summary>
-        /// Disables regualar screen updates.
-        /// </summary>
-        void SuspedLayout();
-
-        /// <summary>
-        /// Enables regualar updates.
-        /// </summary>
-        void ResumeLayout();
+        /// <param name="area">Area to update.</param>
+        void Update(ulong command, IBoundable area);
     }
     #endregion
 

@@ -83,7 +83,6 @@ namespace MnM.GWS
             }
         }
         public TItem[] Data => iData;
-        object IReadOnlyList.this[int index] => iData[index];
         #endregion
 
         #region ADD

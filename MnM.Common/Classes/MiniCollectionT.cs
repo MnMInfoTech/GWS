@@ -70,8 +70,6 @@ namespace MnM.GWS
             }
         }
         public T[] Data => iData;
-        T IReadOnlyList<T>.this[int index] => this[index];
-        object IReadOnlyList.this[int index] => this[index];
         #endregion
 
         #region ADD
