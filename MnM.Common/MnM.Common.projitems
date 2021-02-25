@@ -9,6 +9,7 @@
     <Import_RootNamespace>MnM.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\KeyCollectionT.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Converter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_Evaluator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstract Classes\_IteratorT.cs" />

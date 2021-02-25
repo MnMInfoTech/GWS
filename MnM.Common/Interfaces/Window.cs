@@ -49,6 +49,13 @@ namespace MnM.GWS
     #endregion
 
 #if (GWS || Window)
+    #region IANIMATION
+    public interface IAnimation : IType, ISettingsHolder, IDstPoint, ILoop
+    {
+        IBoundary Boundary { get; }
+    }
+    #endregion
+
     #region INATIVE-FORM
     /// <summary>
     /// Represents an object which binds to native operating system specfic window such as Microsoft.Window.Forms.Form.

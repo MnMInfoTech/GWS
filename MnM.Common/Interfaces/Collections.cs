@@ -532,6 +532,12 @@ namespace MnM.GWS
     }
     #endregion
 
+    #region IKEYCOLLECITON
+    public interface IKeyCollection<TKey, TITem>: IMiniCollection<TITem>
+    {
+        TITem GetItem(TKey key);
+    }
+    #endregion
 
 #if Collections
     #region IITEMADDRESS
@@ -1191,6 +1197,18 @@ namespace MnM.GWS
     /// </summary>
     public partial interface IContainer : IObjCollection, IRefreshable
     {       
+    }
+    #endregion
+
+    #region IANIMATIONCOLLECTION
+    public interface IAnimations : IMiniCollection<IAnimation>, ITimerBase
+    {
+        IGraphics Graphics { get; }
+        float AngleStep { get; set; }
+
+        event EventHandler<IEventArgs<IAnimation>> HandleUnknown;
+        event EventHandler<IEventArgs<long>> CircularLoopComplete;
+        event EventHandler<IEventArgs<long>> AnimationLoopComplete;
     }
     #endregion
 #endif

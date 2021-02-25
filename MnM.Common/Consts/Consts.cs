@@ -290,4 +290,12 @@ namespace MnM.GWS
         /// </summary>
         public const ulong SkipUpdate = 0x20000000000;
     }
+    public static class Priority
+    {
+        public const byte None = 0;
+        public const byte Animation = 1;
+        public const byte Blinker = 2;
+        public const byte ToolTop = 3;
+        public const byte Popup = 4;
+    }
 }

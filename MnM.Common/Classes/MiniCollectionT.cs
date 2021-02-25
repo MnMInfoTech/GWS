@@ -7,13 +7,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
     public class MiniCollection<T>: IMiniCollection<T>
     {
         #region VARIABLES
-        T[] iData;
+        protected T[] iData;
         int Length;
         int position = -1;
         #endregion
@@ -54,7 +55,7 @@ namespace MnM.GWS
             }
         }
         public int Count => Length;
-        public T this[int index]
+        public virtual T this[int index]
         {
             get
             {
@@ -73,6 +74,7 @@ namespace MnM.GWS
         #endregion
 
         #region ADD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Add(T item)
         {
             if (iData.Length <= Count)
@@ -80,6 +82,8 @@ namespace MnM.GWS
             iData[Count] = item;
             Length++;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void AddRange(IEnumerable<T> items)
         {
             if (items == null) return;
@@ -99,11 +103,14 @@ namespace MnM.GWS
                     iData[Length++] = item;
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddRange(params T[] items) =>
             AddRange((IEnumerable<T>)items);
         #endregion
 
         #region CLEAR
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Clear()
         {
             Array.Clear(iData, 0, Length);
@@ -112,21 +119,24 @@ namespace MnM.GWS
         #endregion
 
         #region INDEX OF
-        public int IndexOf(T item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual int IndexOf(T item)
         {
             return iData.FirstMatchIndex(x => item.Equals(x));
         }
         #endregion
 
         #region CONTAINS
-        public bool Contains(T item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual bool Contains(T item)
         {
             return iData.Any(x => item.Equals(x));
         }
         #endregion
 
         #region REMOVE
-        public bool Remove(T item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual bool Remove(T item)
         {
             var index = iData.FirstMatchIndex(x => item.Equals(x));
             if (index == -1)
@@ -134,7 +144,8 @@ namespace MnM.GWS
             RemoveAt(index);
             return true;
         }
-        public void RemoveAt(int index)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void RemoveAt(int index)
         {
             if (index == Count - 1)
             {
