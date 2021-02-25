@@ -10,17 +10,21 @@ namespace MnM.GWS
         #region VARIABLES
         protected volatile bool Running;
         public readonly Boundary Boundary;
+        int id;
+        static int uid;
         #endregion
 
         #region CONSTRUCTOR
         public _Animation()
         {
             Running = true;
-           Boundary = new Boundary(Type);
+            Boundary = new Boundary(Type);
+            id = ++uid;
         }
         #endregion
 
         #region PROPERTIES
+        public int ID => id;
         public bool IsRunning => Running;
         public abstract byte Type { get; }
         public abstract ISettings Settings { get; }

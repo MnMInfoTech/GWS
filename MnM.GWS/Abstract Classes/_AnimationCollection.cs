@@ -8,21 +8,26 @@ using System.Diagnostics;
 
 namespace MnM.GWS
 {
-    public abstract class _AnimationCollection : MiniCollection<IAnimation>, IAnimations
+    public abstract class _AnimationCollection : KeyCollection<int, IAnimation>, IAnimations
     {
         #region VARIABLES
         protected const int BlinkerLapse = 15;
         protected readonly Stopwatch Watch = new Stopwatch();
-        volatile bool Running;
+        protected volatile bool Running;
         protected int BlinkerInterval = BlinkerLapse;
         protected volatile SinCos[] Angles;
-        readonly IBoundary[] Boundaries = new IBoundary[256];
-        int interval;
-        long elapsedTime;
+        protected readonly IBoundary[] Boundaries = new IBoundary[256];
+        protected int interval;
+        protected long elapsedTime;
+
+        protected int AngleIndex;
+        protected long AnimationSpeed;
+        protected long CircularSpeed;
+
         float angleStep = 1f;
 
-        readonly EventArgs<IAnimation> AnimationArgs = new EventArgs<IAnimation>();
-        readonly EventArgs<long> CycleCompleteArgs = new EventArgs<long>();
+        protected readonly EventArgs<IAnimation> AnimationArgs = new EventArgs<IAnimation>();
+        protected readonly EventArgs<long> CycleCompleteArgs = new EventArgs<long>();
         #endregion
 
         #region CONSTRUCTORS
@@ -62,7 +67,7 @@ namespace MnM.GWS
                 StoreAngles();
             }
         }
-        public abstract IGraphics Graphics { get; }
+        public abstract IAnimationHost Host { get; }
         #endregion
 
         #region SWITCH
@@ -77,7 +82,7 @@ namespace MnM.GWS
                 Run();
         }
         #endregion
-
+         
         #region STORE ANGLES
         unsafe void StoreAngles()
         {
@@ -121,7 +126,18 @@ namespace MnM.GWS
         protected abstract void Run();
         #endregion
 
+        #region GETKEY
+        protected sealed override int Key(IAnimation item) => item.ID;
+        #endregion
+
         #region EVENTS
+        protected virtual void OnCircularLoopCompleted(IEventArgs<long> e) =>
+            CircularLoopComplete?.Invoke(this, e);
+        protected virtual void OnAnimationLoopCompleted(IEventArgs<long> e) =>
+            AnimationLoopComplete?.Invoke(this, e);
+        protected virtual void HandleUnknowAnimation(IEventArgs<IAnimation> e) =>
+            HandleUnknown?.Invoke(this, e);
+
         public event EventHandler<IEventArgs<long>> CircularLoopComplete;
         public event EventHandler<IEventArgs<long>> AnimationLoopComplete;
         public event EventHandler<IEventArgs<IAnimation>> HandleUnknown;

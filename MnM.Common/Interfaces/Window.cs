@@ -50,9 +50,16 @@ namespace MnM.GWS
 
 #if (GWS || Window)
     #region IANIMATION
-    public interface IAnimation : IType, ISettingsHolder, IDstPoint, ILoop
+    public interface IAnimation : IType, ISettingsHolder, IDstPoint, ILoop, IID<int>
     {
         IBoundary Boundary { get; }
+    }
+    #endregion
+
+    #region IANIMATION-HOST
+    public interface IAnimationHost: IGraphics
+    {
+        IAnimations Animations { get; }
     }
     #endregion
 
@@ -62,7 +69,7 @@ namespace MnM.GWS
     /// SDL - Window should be the natural choice to represent window instead of this, 
     /// unlesss there are compelling resaons to use this object.
     /// </summary>
-    public interface INativeForm : ICopyable, IResizable, IEventPusher, ITextDisplayer, IPaintable, IDisposable2
+    public interface INativeForm : ICopyable, IDisposable2, IPaintable, IResizable, IEventPusher, ITextDisplayer
     { }
     #endregion
 
@@ -70,8 +77,8 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which represents window.
     /// </summary>
-    public partial interface IForm : INativeForm, IGraphics, ICopyableScreen,
-        IContainer, IUpdatable, IRefreshable, IClearable, IWritableBlock, IDisposable2,
+    public partial interface IForm : INativeForm, IAnimationHost, ICopyableScreen,
+        IContainer, IRefreshable, IClearable, IWritableBlock, IDisposable2,
         IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents, IReadable
     {

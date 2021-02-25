@@ -1201,9 +1201,9 @@ namespace MnM.GWS
     #endregion
 
     #region IANIMATIONCOLLECTION
-    public interface IAnimations : IMiniCollection<IAnimation>, ITimerBase
+    public interface IAnimations : IKeyCollection<int, IAnimation>, ITimerBase
     {
-        IGraphics Graphics { get; }
+        IAnimationHost Host { get; }
         float AngleStep { get; set; }
 
         event EventHandler<IEventArgs<IAnimation>> HandleUnknown;
