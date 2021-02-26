@@ -28,7 +28,7 @@ namespace MnM.GWS
         #endregion
 
         #region CONSTRUCTORS
-        internal Text() { }
+        public Text() { }
 
         /// <summary>
         /// Cretes new text object with given parameters.
@@ -108,7 +108,7 @@ namespace MnM.GWS
                 Change();
             }
         }
-            public string Name => "Text" + ID;
+        public string Name => "Text" + ID;
         float IPointF.X => X;
         float IPointF.Y => Y;
         float ISizeF.Width => Width;

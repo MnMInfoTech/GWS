@@ -836,14 +836,16 @@ namespace MnM.GWS
             Vectors.Scale(bounds.X + bounds.Width, bounds.Y + bounds.Height, sx, sy, c.X, c.Y, out r, out b);
             return RectangleF.FromLTRB(x, y, r, b);
         }
-        public static Rectangle Scale(this IRectangle bounds, IScale scale, VectorF? center = null)
+        public static Rectangle Scale(this IBoundable bounds, IScale scale, VectorF? center = null)
         {
+            bounds.GetBounds(out int X, out int Y, out int Width, out int Height);
+            var boundsCenter = new VectorF(X + Width / 2f, Y + Height / 2f);
             var sx = scale.X;
             var sy = scale.Y;
             float x, y, r, b;
-            var c = center ?? bounds.Center();
-            Vectors.Scale(bounds.X, bounds.Y, sx, sy, c.X, c.Y, out x, out y);
-            Vectors.Scale(bounds.X + bounds.Width, bounds.Y + bounds.Height, sx, sy, c.X, c.Y, out r, out b);
+            var c = center ?? boundsCenter;
+            Vectors.Scale(X, Y, sx, sy, c.X, c.Y, out x, out y);
+            Vectors.Scale(X + Width, Y + Height, sx, sy, c.X, c.Y, out r, out b);
             return Rectangle.FromLTRB(x, y, r, b);
         }
 

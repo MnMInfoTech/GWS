@@ -455,6 +455,93 @@ namespace MnM.GWS
             newY = y;
         }
         #endregion
+
+        #region GET SINCOS VALUES
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int StoreAngles(float step, out float[] sinValues, out float[] cosValues,  float sinOffset = 0, float cosOffset = 0)
+        {
+            if (step == 0)
+                step = 1;
+            float start = 0;
+            float len = (360f / step);
+
+            int length = (int)len;
+            if (len - length >= 05f)
+                ++length;
+            sinValues = new float[length];
+            cosValues = new float[length];
+            float sin, cos;
+            int i = 0;
+            fixed (float* sins = sinValues)
+            {
+                fixed (float* coss = cosValues)
+                {
+                    if (step > 0)
+                    {
+                        while (start < 360)
+                        {
+                            SinCos(i, out sin, out cos);
+                            sins[i] = sin + sinOffset;
+                            coss[i] = cos + cosOffset;
+                            start += step;
+                            ++i;
+                        }
+                    }
+                    else
+                    {
+                        start = 359;
+                        while (start >= 0)
+                        {
+                            SinCos(i, out sin, out cos);
+                            sins[i] = sin + sinOffset;
+                            coss[i] = cos + cosOffset;
+                            start += step;
+                            ++i;
+                        }
+                    }
+                }
+            }
+            return length;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int StoreAngles(float step, out SinCos[] SinCosValues, float sinOffset = 0, float cosOffset = 0)
+        {
+            if (step == 0)
+                step = 1;
+            float start = 0;
+            float len = (360f / step);
+
+            int length = (int)len;
+            if (len - length >= 05f)
+                ++length;
+            SinCosValues = new GWS.SinCos[length];
+            int i = 0;
+            fixed (SinCos* sincos = SinCosValues)
+            {
+                if (step > 0)
+                {
+                    while (start < 360)
+                    {
+                        sincos[i] = new SinCos(i, sinOffset, cosOffset);
+                        start += step;
+                        ++i;
+                    }
+                }
+                else
+                {
+                    start = 359;
+                    while (start >= 0)
+                    {
+                        sincos[i] = new SinCos(i, sinOffset, cosOffset);
+                        start += step;
+                        ++i;
+                    }
+                }
+            }
+            return length;
+        }
+        #endregion
     }
 
 #if GWS || Window

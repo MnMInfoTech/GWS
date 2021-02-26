@@ -128,6 +128,7 @@ namespace MnM.GWS
         {
             get => Canvas.Freezed;
         }
+        public IAnimations Animations => Canvas.Animations;
         #endregion
 
         #region RENDER

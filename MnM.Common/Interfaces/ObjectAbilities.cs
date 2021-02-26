@@ -202,6 +202,20 @@ namespace MnM.GWS
     { }
     #endregion
 
+    #region IANIMATION-SHOW
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IAnimationDisplay
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Graphics"></param>
+        void Show(IAnimationHost Graphics);
+    }
+    #endregion
+
     #region IRENDERABLE-BLOCK
     public interface IRenderableBlock: IDrawable
     {
@@ -366,7 +380,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="command">Command to control this Update task.</param>
         /// <param name="area">Area to update.</param>
-        void Update(ulong command, IBoundable area);
+        void Update(ulong command = 0, IBoundable area = null);
     }
     #endregion
 

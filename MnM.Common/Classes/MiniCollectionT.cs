@@ -15,7 +15,7 @@ namespace MnM.GWS
     {
         #region VARIABLES
         protected T[] iData;
-        int Length;
+        protected int Length;
         int position = -1;
         #endregion
 

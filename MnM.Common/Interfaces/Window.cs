@@ -50,7 +50,7 @@ namespace MnM.GWS
 
 #if (GWS || Window)
     #region IANIMATION
-    public interface IAnimation : IType, ISettingsHolder, IDstPoint, ILoop, IID<int>
+    public interface IAnimation : IType, ISettingsHolder, IDstPoint, ILoop, IID, IAnimationDisplay
     {
         IBoundary Boundary { get; }
     }

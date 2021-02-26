@@ -21,5 +21,11 @@ namespace MnM.GWS
             Sin += deviation;
             Cos += deviation;
         }
+        public SinCos(float angle, float sinOffset, float cosOffset)
+        {
+            Angles.SinCos(angle, out Sin, out Cos);
+            Sin += sinOffset;
+            Cos += cosOffset;
+        }
     }
 }

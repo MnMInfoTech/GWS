@@ -528,6 +528,7 @@ namespace MnM.GWS
         void AddRange(IEnumerable<T> item);
         void AddRange(params T[] items);
         int IndexOf(T item);
+        bool Contains(T item);
         void Clear();
     }
     #endregion
@@ -1201,12 +1202,11 @@ namespace MnM.GWS
     #endregion
 
     #region IANIMATIONCOLLECTION
-    public interface IAnimations : IKeyCollection<int, IAnimation>, ITimerBase
+    public interface IAnimations : IKeyCollection<uint, IAnimation>, ITimerBase
     {
         IAnimationHost Host { get; }
-        float AngleStep { get; set; }
+        int RefreshInterval { get; }
 
-        event EventHandler<IEventArgs<IAnimation>> HandleUnknown;
         event EventHandler<IEventArgs<long>> CircularLoopComplete;
         event EventHandler<IEventArgs<long>> AnimationLoopComplete;
     }

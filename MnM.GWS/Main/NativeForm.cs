@@ -42,9 +42,10 @@ namespace MnM.GWS
             public NativeForm(int formX, int formY, int formW, int formH) :
                 this(Factory.newNativeTarget(formX, formY, formW, formH))
             { }
-            #endregion
+        #endregion
 
-            #region PROPERTIES
+        #region PROPERTIES
+        public IAnimations Animations => Canvas.Animations;
             public IPenContext Background
             {
                 set => Canvas.Background = value;
