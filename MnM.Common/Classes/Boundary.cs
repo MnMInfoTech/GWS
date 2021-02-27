@@ -124,6 +124,72 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region MERGE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Merge(IBoundable rc)
+        {
+            if (rc == null)
+                return;
+            rc.GetBounds(out int x1, out int y1, out int w, out int h);
+            int x2 = x1 + w;
+            int y2 = y1 + h;
+
+            if(x2 == 0 && y2 == 0)
+            {
+                X1 = Y1 = int.MaxValue;
+                X2 = Y2 = 0;
+            }
+            else
+            {
+                if (x1 < X1)
+                    X1 = x1;
+                if (y1 < Y1)
+                    Y1 = y1;
+                if (x2 > X2)
+                    X2 = x2;
+                if (y2 > Y2)
+                    Y2 = y2;
+            }
+            if (rc is IType)
+                Type = ((IType)rc).Type;
+            if (rc is IProcessID)
+                ProcessID = ((IProcessID)rc).ProcessID;
+            if (rc is IShapeID)
+                ShapeID = ((IShapeID)rc).ShapeID;
+        }
+        #endregion
+
+        #region COPY
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Copy(IBoundable rc)
+        {
+            if (rc == null)
+                return;
+            rc.GetBounds(out int x1, out int y1, out int w, out int h);
+            int x2 = x1 + w;
+            int y2 = y1 + h;
+
+            if (x2 == 0 && y2 == 0)
+            {
+                X1 = Y1 = int.MaxValue;
+                X2 = Y2 = 0;
+            }
+            else
+            {
+                X1 = x1;
+                Y1 = y1;
+                X2 = x2;
+                Y2 = y2;
+            }
+            if (rc is IType)
+                Type = ((IType)rc).Type;
+            if (rc is IProcessID)
+                ProcessID = ((IProcessID)rc).ProcessID;
+            if (rc is IShapeID)
+                ShapeID = ((IShapeID)rc).ShapeID;
+        }
+        #endregion
+
         public static implicit operator bool (Boundary boundary) =>
             boundary.X2 != 0 && boundary.Y2 != 0 && 
             boundary.X2 - boundary.X1 > 0 && boundary.Y2 - boundary.Y1 > 0;

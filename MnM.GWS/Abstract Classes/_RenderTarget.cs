@@ -156,6 +156,7 @@ namespace MnM.GWS
                 Pen = penContext.ToPen(width, height);
             fixed (int* p = PenData)
                 Pen.CopyTo((IntPtr)p, length, Width, 0, 0, new Rect(0, 0, width, height), Command.Opaque);
+            BackgroundPen = Pen;
         }
         public unsafe IPerimeter Clear(IBoundable clearArea, ulong command = 0)
         {

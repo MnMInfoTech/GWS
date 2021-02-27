@@ -166,6 +166,72 @@ namespace MnM.GWS
         }
         #endregion
 
+        #region MERGE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Merge(IBoundable rc)
+        {
+            if (rc == null)
+                return;
+            rc.GetBounds(out int x1, out int y1, out int w, out int h);
+            int x2 = x1 + w;
+            int y2 = y1 + h;
+
+            if (x2 == 0 && y2 == 0)
+            {
+                X1 = Y1 = int.MaxValue;
+                X2 = Y2 = 0;
+            }
+            else
+            {
+                if (x1 < X1)
+                    X1 = x1;
+                if (y1 < Y1)
+                    Y1 = y1;
+                if (x2 > X2)
+                    X2 = x2;
+                if (y2 > Y2)
+                    Y2 = y2;
+            }
+            if (rc is IType)
+                Type = ((IType)rc).Type;
+            if (rc is IProcessID)
+                ProcessID = ((IProcessID)rc).ProcessID;
+            if (rc is IShapeID && ShapeID == 0)
+                ShapeID = ((IShapeID)rc).ShapeID;
+        }
+        #endregion
+
+        #region COPY
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Copy(IBoundable rc)
+        {
+            if (rc == null)
+                return;
+            rc.GetBounds(out int x1, out int y1, out int w, out int h);
+            int x2 = x1 + w;
+            int y2 = y1 + h;
+
+            if (x2 == 0 && y2 == 0)
+            {
+                X1 = Y1 = int.MaxValue;
+                X2 = Y2 = 0;
+            }
+            else
+            {
+                X1 = x1;
+                Y1 = y1;
+                X2 = x2;
+                Y2 = y2;
+            }
+            if (rc is IType)
+                Type = ((IType)rc).Type;
+            if (rc is IProcessID)
+                ProcessID = ((IProcessID)rc).ProcessID;
+            if (rc is IShapeID && ShapeID == 0)
+                ShapeID = ((IShapeID)rc).ShapeID;
+        }
+        #endregion
+
         #region CLONE
         protected override ReadSession newInstance() =>
             new Session();

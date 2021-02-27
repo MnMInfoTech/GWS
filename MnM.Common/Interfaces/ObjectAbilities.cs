@@ -112,6 +112,10 @@ namespace MnM.GWS
         /// <param name="x2"></param>
         /// <param name="y2"></param>
         void Notify(int x1, int y1, int x2, int y2);
+
+        void Merge(IBoundable rc);
+
+        void Copy(IBoundable rc);
     }
     #endregion
 
