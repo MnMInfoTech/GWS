@@ -79,6 +79,10 @@ namespace MnM.GWS
         uint IShapeID.ShapeID => ShapeID;
         byte IBoundary.Type { get => Type; set => Type = value; }
         byte IType.Type => Type;
+        int IBoundary.X1 => X1;
+        int IBoundary.Y1 => Y1;
+        int IBoundary.X2 => X2;
+        int IBoundary.Y2 => Y2;
         #endregion
 
         #region NOTIFY

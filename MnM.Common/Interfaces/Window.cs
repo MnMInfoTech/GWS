@@ -36,7 +36,7 @@ namespace MnM.GWS
     public interface INativeTarget : IRenderTarget, IHandle, IDisposable,
         IShowable, IHideable, IResizable, ITextDisplayer
     {
-        INativeForm Form { set; }
+        INativeForm Form { get; set; }
     }
     #endregion
 
@@ -99,7 +99,7 @@ namespace MnM.GWS
     /// <summary>
     /// Representsan object which represents window and offers minimum but sufficient gateway into GWS world. 
     /// </summary>
-    public partial interface IRenderWindow : IHandle, ICopyable, IDisposable2, IPaintable
+    public partial interface IRenderWindow : IHandle, IBlockable, IDisposable2, IPaintable
     {
         RendererFlags RendererFlags { get; }
     }

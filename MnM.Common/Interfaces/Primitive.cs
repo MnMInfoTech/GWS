@@ -124,6 +124,26 @@ namespace MnM.GWS
     public interface IBoundary : IPerimeter, INotifiable
     {
         /// <summary>
+        /// 
+        /// </summary>
+        int X1 { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        int Y1 { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        int X2 { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        int Y2 { get; }
+
+        /// <summary>
         /// Gets or sets GWS assigned life priority for the object while rendering.
         /// </summary>
         new byte Type { get; set; }

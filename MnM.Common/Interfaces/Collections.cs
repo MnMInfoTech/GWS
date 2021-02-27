@@ -536,7 +536,7 @@ namespace MnM.GWS
     #region IKEYCOLLECITON
     public interface IKeyCollection<TKey, TITem>: IMiniCollection<TITem>
     {
-        TITem GetItem(TKey key);
+        TITem FindItem(TKey key);
     }
     #endregion
 
@@ -1207,7 +1207,6 @@ namespace MnM.GWS
         IAnimationHost Host { get; }
         int RefreshInterval { get; }
 
-        event EventHandler<IEventArgs<long>> CircularLoopComplete;
         event EventHandler<IEventArgs<long>> AnimationLoopComplete;
     }
     #endregion

@@ -18,11 +18,7 @@ namespace MnM.GWS
         protected readonly IBoundary[] Boundaries = new IBoundary[256];
         protected int interval;
         protected long elapsedTime;
-        protected long AnimationSpeed;
-        protected long CircularSpeed;
-
-        protected readonly EventArgs<IAnimation> AnimationArgs = new EventArgs<IAnimation>();
-        protected readonly EventArgs<long> CycleCompleteArgs = new EventArgs<long>();
+        protected readonly EventArgs<long> AnimationArgs = new EventArgs<long>();
         #endregion
 
         #region CONSTRUCTORS
@@ -51,6 +47,7 @@ namespace MnM.GWS
         public int RefreshInterval => BlinkerInterval;
         public bool IsRunning => Running;
         public long ElapsedTime => elapsedTime;
+        public long CurrentWatchTime => Watch.ElapsedMilliseconds;
         public abstract IAnimationHost Host { get; }
         #endregion
 
@@ -76,11 +73,8 @@ namespace MnM.GWS
         #endregion
 
         #region EVENTS
-        protected virtual void OnCircularLoopCompleted(IEventArgs<long> e) =>
-            CircularLoopComplete?.Invoke(this, e);
         protected virtual void OnAnimationLoopCompleted(IEventArgs<long> e) =>
             AnimationLoopComplete?.Invoke(this, e);
-        public event EventHandler<IEventArgs<long>> CircularLoopComplete;
         public event EventHandler<IEventArgs<long>> AnimationLoopComplete;
         #endregion
     }

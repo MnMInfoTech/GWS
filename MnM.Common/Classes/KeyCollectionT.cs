@@ -47,8 +47,8 @@ namespace MnM.GWS
         #region ADD
         public override void Add(TItem item)
         {
-            base.Add(item);
             Keys[Key(item)] = Count;
+            base.Add(item);
         }
         public override void AddRange(IEnumerable<TItem> items)
         {
@@ -76,9 +76,9 @@ namespace MnM.GWS
         public override void RemoveAt(int index)
         {
             Keys.Remove(Key(iData[index]));
+            base.RemoveAt(index);
             for (int i = index; i < Count; i++)
                 Keys[Key(iData[i])] = i;
-            base.RemoveAt(index);
         }
         #endregion
 
@@ -107,12 +107,17 @@ namespace MnM.GWS
         #endregion
 
         #region GET KEY
-        public TItem GetItem(TKey key) => this[Keys[key]];
-        #endregion
-
-        #region GET KEY
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract TKey Key(TItem item);
+        #endregion
+
+        #region FIND ITEM
+        public TItem FindItem(TKey key)
+        {
+            if (!Keys.ContainsKey(key))
+                return default(TItem);
+           return iData[Keys[key]];
+        }
         #endregion
     }
 }
