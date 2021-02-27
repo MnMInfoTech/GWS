@@ -158,14 +158,6 @@ namespace MnM.GWS
             }
             #endregion
 
-            #region BACKGROUND CHANGED
-            public event EventHandler<IEventArgs> BackgroundChanged
-            {
-                add => Canvas.BackgroundChanged += value;
-                remove => Canvas.BackgroundChanged -= value;
-            }
-            #endregion
-
             #region SHOW - HIDE
             public void Show() =>
                 Target.Show();

@@ -20,8 +20,13 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has a capability to receive data from copyable source object.
     /// </summary>
-    public partial interface IRenderTarget : IPixels, IResizable, IUpdatable, IDisposable2, IPaintable
+    public partial interface IRenderTarget : IPixels, IResizable, IUpdatable, IDisposable2, IPaintable, IBackground, IClearable
     {
+        /// <summary>
+        /// Background pen pixels.
+        /// </summary>
+        int[] Pen { get; }
+
 #if Advanced
         /// <summary>
         /// Int32 array pointer to be used by Canvas object for animation.

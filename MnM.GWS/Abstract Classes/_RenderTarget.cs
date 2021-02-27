@@ -32,27 +32,11 @@ namespace MnM.GWS
         /// this array of byte will be used by Canvas object for direct screen.
         /// </summary>
         volatile byte[] flags;
-
-        /// <summary>
-        /// Background pen flags.
-        /// </summary>
-        volatile byte[] bkgFlags;
-
-        /// <summary>
-        /// Alpha values for Background pixels.
-        /// </summary>
-        volatile byte[] bkgAlphas;
 #endif
-
-        /// <summary>
-        /// 
-        /// </summary>
-        IPenContext penContext;
-
         /// <summary>
         /// Background pen for this target.
         /// </summary>
-        IReadable Pen;
+        IReadable BackgroundPen;
 
         /// <summary>
         /// Pixels of background pen.
@@ -78,8 +62,6 @@ namespace MnM.GWS
             PenData = new int[length];
 #if Advanced
             flags = new byte[length];
-            bkgFlags = new byte[length];
-            bkgAlphas = new byte[length];
 #endif
         }
         #endregion
@@ -93,19 +75,10 @@ namespace MnM.GWS
         {
             set
             {
-                penContext = value;
-                ChangeBackground(value, width, height);
+                ChangeBackground(value);
             }
         }
-        public IReadable BackgroundPen => Pen;
-        public unsafe IntPtr BackgroundData 
-        {
-            get
-            {
-                fixed (int* b = PenData)
-                    return (IntPtr)b;
-            }
-        }
+        public unsafe int[] Pen => PenData;
         public bool IsDisposed => isDisposed;
 
 #if Advanced
@@ -114,22 +87,6 @@ namespace MnM.GWS
             get
             {
                 fixed (byte* b = flags)
-                    return (IntPtr)b;
-            }
-        }
-        public unsafe IntPtr BackgroundFlags
-        {
-            get
-            {
-                fixed (byte* b = bkgFlags)
-                    return (IntPtr)b;
-            }
-        }
-        public unsafe IntPtr BackgroundAlphas
-        {
-            get
-            {
-                fixed (byte* b = bkgAlphas)
                     return (IntPtr)b;
             }
         }
@@ -149,12 +106,12 @@ namespace MnM.GWS
             ResizeSource(w, h);
             if (oldWidth == width && oldHeight == height)
                 return;
-            PenData = PenData.ResizedData(width, height, oldWidth, oldHeight);
+            if (BackgroundPen != null)
+                (BackgroundPen as IResizable)?.Resize(w, h);
+            ChangeBackground(BackgroundPen);
 
 #if Advanced
             flags = flags.ResizedData(width, height, oldWidth, oldHeight);
-            bkgAlphas = bkgAlphas.ResizedData(width, height, oldWidth, oldHeight);
-            bkgFlags = bkgFlags.ResizedData(width, height, oldWidth, oldHeight);
 #endif
         }
         protected abstract void ResizeSource(int w, int h);
@@ -169,10 +126,10 @@ namespace MnM.GWS
         {
             isDisposed = true;
 
-            (Pen as IDisposable)?.Dispose();
+            (BackgroundPen as IDisposable)?.Dispose();
             PenData = null;
 #if Advanced
-            bkgFlags = bkgAlphas = null;
+            flags = null;
 #endif
         }
         #endregion
@@ -183,41 +140,49 @@ namespace MnM.GWS
         #endregion
 
         #region BACKGROUND CHANGED
-        unsafe void ChangeBackground(IPenContext penContext, int w, int h)
+        unsafe void ChangeBackground(IPenContext penContext)
         {
-            int count = w * h;
-            int[] data = new int[count];
-            int* newPen;
-            fixed (int* p = data)
-                newPen = p;
-            var area = new Rect(0, 0, w, h);
-            Pen = penContext?.ToPen(w, h)?? null;
-            Pen?.CopyTo((IntPtr)newPen, count, w, 0, 0, area, Command.Opaque);
-
-#if Advanced
-            byte* flags;
-            fixed (byte* b = bkgFlags)
-                flags = b;
-            int* oldPen;
-            fixed (int* p = PenData)
-                oldPen = p;
-
-            BlockCopy action = (sidx, didx, len, x, y, cmd) =>
+            PenData = new int[length];
+            if (penContext == null)
             {
-                int j = didx;
-                for (int i = sidx; i < sidx + len; i++, j++)
-                {
-                    if (flags[j] == 0)
-                        continue;
-                    newPen[i] = oldPen[j];
-                }
-            };
-            Blocks.CopyBlock(area, length, width, height, 0, 0, w, count, action, Command.Opaque);
-#endif
-            PenData = data;
-            BackgroundChanged?.Invoke(this, Factory.EmptyArgs);
+                (BackgroundPen as IDisposable)?.Dispose();
+                BackgroundPen = null;
+                return;
+            }
+            IReadable Pen;
+            if (penContext is IReadable)
+                Pen = (IReadable)penContext;
+            else
+                Pen = penContext.ToPen(width, height);
+            fixed (int* p = PenData)
+                Pen.CopyTo((IntPtr)p, length, Width, 0, 0, new Rect(0, 0, width, height), Command.Opaque);
         }
-        public event EventHandler<IEventArgs> BackgroundChanged;
+        public unsafe IPerimeter Clear(IBoundable clearArea, ulong command = 0)
+        {
+            if (clearArea == null)
+                return Perimeter.Empty;
+            Perimeter perimeter = new Perimeter(clearArea);
+            var Screen = (command & Command.ClearScreen) == Command.ClearScreen;
+            bool RestorePen = (command & Command.WipeAnimation) == Command.WipeAnimation;
+            bool ClearBackground = (command & Command.SkipBackground) != Command.SkipBackground;
+
+            if (Screen)
+            {
+                return Blocks.CopyBlock(null, perimeter, length, width, height, (int*)Source, 0, 0, width, length, Command.Opaque);
+            }
+            if (RestorePen)
+            {
+                fixed (int* p = PenData)
+                {
+                    if (BackgroundPen != null)
+                       return BackgroundPen.CopyTo((IntPtr)p, length, width, perimeter.X, perimeter.Y, perimeter, Command.Opaque);
+                    else
+                        return Blocks.CopyBlock(null, perimeter, length, width, height, p, 0, 0, width, length, Command.Opaque);
+                }
+            }
+            return perimeter;
+        }
         #endregion
     }
 }
+

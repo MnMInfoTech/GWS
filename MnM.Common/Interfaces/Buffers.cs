@@ -147,7 +147,6 @@ namespace MnM.GWS
     #region ICANVAS
     public partial interface ICanvas : IImage, IContainer, IUpdatable, IRefreshable, IBackground, IReadable, IAnimationHost
     {
-        event EventHandler<IEventArgs> BackgroundChanged;
     }
     #endregion
 
