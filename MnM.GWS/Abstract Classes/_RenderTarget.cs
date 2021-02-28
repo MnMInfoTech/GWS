@@ -121,6 +121,34 @@ namespace MnM.GWS
         public abstract void Update(ulong command = 0, IBoundable area = null);
         #endregion
 
+        #region CLEAR
+        public unsafe IBoundable Clear(IBoundable clearArea, ulong command = 0)
+        {
+            if (clearArea == null)
+                return Perimeter.Empty;
+            Perimeter perimeter = new Perimeter(clearArea);
+            var Screen = (command & Command.ClearScreen) == Command.ClearScreen;
+            bool RestorePen = (command & Command.WipeAnimation) == Command.WipeAnimation;
+            bool ClearBackground = (command & Command.SkipBackground) != Command.SkipBackground;
+
+            if (Screen)
+            {
+                return Blocks.CopyBlock(null, perimeter, length, width, height, (int*)Source, 0, 0, width, length, Command.Opaque);
+            }
+            if (RestorePen)
+            {
+                fixed (int* p = PenData)
+                {
+                    if (BackgroundPen != null)
+                        return BackgroundPen.CopyTo((IntPtr)p, length, width, perimeter.X, perimeter.Y, perimeter, Command.Opaque);
+                    else
+                        return Blocks.CopyBlock(null, perimeter, length, width, height, p, 0, 0, width, length, Command.Opaque);
+                }
+            }
+            return perimeter;
+        }
+        #endregion
+
         #region DISPOSE
         public virtual void Dispose()
         {
@@ -157,31 +185,6 @@ namespace MnM.GWS
             fixed (int* p = PenData)
                 Pen.CopyTo((IntPtr)p, length, Width, 0, 0, new Rect(0, 0, width, height), Command.Opaque);
             BackgroundPen = Pen;
-        }
-        public unsafe IPerimeter Clear(IBoundable clearArea, ulong command = 0)
-        {
-            if (clearArea == null)
-                return Perimeter.Empty;
-            Perimeter perimeter = new Perimeter(clearArea);
-            var Screen = (command & Command.ClearScreen) == Command.ClearScreen;
-            bool RestorePen = (command & Command.WipeAnimation) == Command.WipeAnimation;
-            bool ClearBackground = (command & Command.SkipBackground) != Command.SkipBackground;
-
-            if (Screen)
-            {
-                return Blocks.CopyBlock(null, perimeter, length, width, height, (int*)Source, 0, 0, width, length, Command.Opaque);
-            }
-            if (RestorePen)
-            {
-                fixed (int* p = PenData)
-                {
-                    if (BackgroundPen != null)
-                       return BackgroundPen.CopyTo((IntPtr)p, length, width, perimeter.X, perimeter.Y, perimeter, Command.Opaque);
-                    else
-                        return Blocks.CopyBlock(null, perimeter, length, width, height, p, 0, 0, width, length, Command.Opaque);
-                }
-            }
-            return perimeter;
         }
         #endregion
     }

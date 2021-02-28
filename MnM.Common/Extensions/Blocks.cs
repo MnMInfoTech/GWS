@@ -266,8 +266,8 @@ namespace MnM.GWS
         public static unsafe Perimeter CopyBlock(int value, IBoundable copyArea, IntPtr destination, int dstW, int dstH, int conditionValue, NumCriteria criteria = 0)
         {
             var area = Rects.CompitiblePerimeter(dstW, dstH, copyArea);
-            int copyW = area.Width;
-            int copyH = area.Height;
+            int copyW = area.W;
+            int copyH = area.H;
 
             if (copyW <= 0)
                 return Perimeter.Empty;
@@ -303,8 +303,8 @@ namespace MnM.GWS
         public static unsafe Perimeter CopyBlock(byte value, IBoundable copyArea, IntPtr destination, int dstW, int dstH, byte conditionValue, NumCriteria criteria = 0)
         {
             var area = Rects.CompitiblePerimeter(dstW, dstH, copyArea);
-            int copyW = area.Width;
-            int copyH = area.Height;
+            int copyW = area.W;
+            int copyH = area.H;
 
             if (copyW <= 0)
                 return Perimeter.Empty;

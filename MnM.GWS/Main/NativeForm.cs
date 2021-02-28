@@ -67,7 +67,7 @@ namespace MnM.GWS
             #endregion
 
             #region CONSOLIDATE
-            public IPerimeter CopyScreen(IntPtr destination, int dstLen,
+            public IBoundable CopyScreen(IntPtr destination, int dstLen,
                 int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0, IMultiBuffered backBuffer = null, IntPtr? Pen = null)
             {
                 return Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, command, backBuffer, Pen);
@@ -97,7 +97,7 @@ namespace MnM.GWS
             #endregion
 
             #region COPY TO
-            public IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
+            public IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
             {
                 return Canvas.CopyTo(destination, dstLen, dstW, dstX, dstY, copyArea, command);
             }
@@ -112,14 +112,14 @@ namespace MnM.GWS
             #endregion
 
             #region CLEAR
-            public IPerimeter Clear(IBoundable clear, ulong command = 0)
+            public IBoundable Clear(IBoundable clear, ulong command = 0)
             {
                 return Canvas.Clear(clear, command);
             }
             #endregion
 
             #region WRITE BLOCK
-            public IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea,
+            public IBoundable WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea,
                 ulong command, IntPtr alphaBytes = default(IntPtr))
             {
                 return Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);

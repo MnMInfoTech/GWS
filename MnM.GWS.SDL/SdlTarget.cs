@@ -27,28 +27,26 @@ namespace MnM.GWS
             /// <summary>
             /// SDL surface object.
             /// </summary>
-            IntPtr Surface;
+            IntPtr SurfaceHandle;
 
-            /// <summary>
-            /// Pixels.
-            /// </summary>
-            volatile IntPtr source;
+            SdlSurfaceInfo Surface;
+
             #endregion
 
             #region CONSTRUCTORS
             public SdlTarget(IRenderWindow window):
                 base(window)
             {
-                Surface = NativeFactory.GetWindowSurface(window.Handle);
+                SurfaceHandle = NativeFactory.GetWindowSurface(window.Handle);
                 width = window.Width;
                 height = window.Height;
                 length = width * height;
-                source = Surface.ToObj<SdlSurfaceInfo>().Pixels;
+                Surface = SurfaceHandle.ToObj<SdlSurfaceInfo>();
             }
             #endregion
 
             #region PROPERTIES
-            public override unsafe IntPtr Source => source;
+            public override unsafe IntPtr Source => Surface.Pixels;
             #endregion
 
             #region UPDATE
@@ -65,11 +63,10 @@ namespace MnM.GWS
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected override void ResizeSource(int w, int h)
             {
-                Surface = NativeFactory.GetWindowSurface(Window.Handle);
-                SdlSurfaceInfo sdlSurface = Surface.ToObj<SdlSurfaceInfo>();
-                source = sdlSurface.Pixels;
-                width = sdlSurface.Width;
-                height = sdlSurface.Height;
+                SurfaceHandle = NativeFactory.GetWindowSurface(Window.Handle);
+                Surface = SurfaceHandle.ToObj<SdlSurfaceInfo>();
+                width = Surface.Width;
+                height = Surface.Height;
                 length = width * height;
             }
             #endregion

@@ -331,7 +331,7 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="Command">Draw command to to control copy task</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
-        IPerimeter WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea, ulong command = 0, IntPtr alphaBytes = default(IntPtr));
+        IBoundable WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea, ulong command = 0, IntPtr alphaBytes = default(IntPtr));
     }
     #endregion
 
@@ -352,7 +352,7 @@ namespace MnM.GWS
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
         /// <param name="command">Draw command to control this operation.</param>
         /// <returns>Area covered by this operation.</returns>
-        unsafe IPerimeter CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0);
+        unsafe IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0);
     }
     #endregion
 
@@ -368,7 +368,7 @@ namespace MnM.GWS
         /// <param name="clearArea">Area to be cleared.</param>
         /// <param name="command">A command to control clearing operation.</param>
         /// <param name="processID">ID of the process which initiated this operation.</param>
-        IPerimeter Clear(IBoundable clearArea, ulong command = 0);
+        IBoundable Clear(IBoundable clearArea, ulong command = 0);
     }
     #endregion
 
@@ -431,10 +431,10 @@ namespace MnM.GWS
         /// <param name="dstX"></param>
         /// <param name="dstY"></param>
         /// <param name="externalBuffer"></param>
-        /// <param name="Command"></param>
+        /// <param name="command"></param>
         /// <param name="externalPen"></param>
         /// <returns></returns>
-        IPerimeter CopyScreen(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = Command.None, 
+        IBoundable CopyScreen(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = Command.None, 
             IMultiBuffered externalBuffer = null, IntPtr? externalPen = null);
     }
     #endregion

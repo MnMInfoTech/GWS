@@ -1084,7 +1084,7 @@ namespace MnM.GWS
         /// <param name = "h" > Height of area in the source to copy</param>
         /// <param name = "Command" > Draw command to control the copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, ulong command = Command.WriteToScreen)
+        public static unsafe IBoundable CopyTo(this IBlockable source, out int[] result, int x, int y, int w, int h, ulong command = Command.WriteToScreen)
         {
             #region INITIALIZE VARIABLES
             var copy = source.CompitibleRc(x, y, w, h);
@@ -1163,7 +1163,7 @@ namespace MnM.GWS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe IPerimeter CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, ulong command = Command.WriteToScreen)
+        public static unsafe IBoundable CopyTo(this IBlockable block, out IntPtr Data, int x, int y, int w, int h, ulong command = Command.WriteToScreen)
         {
             var rc = CopyTo(block, out int[] data, x, y, w, h, command);
             if (data == null)
@@ -1257,7 +1257,7 @@ namespace MnM.GWS
             ImageFormat format = ImageFormat.BMP, ulong command = Command.WriteToScreen, Rectangle? portion = null, int pitch = 4, int quality = 50)
         {
             file += "." + format.ToString();
-            IPerimeter size;
+            IBoundable size;
             int w, h;
             Rectangle rc = Rects.CompitibleRc(block, portion?.X, portion?.Y, portion?.Width, portion?.Height);
 #if Window

@@ -139,12 +139,12 @@ namespace MnM.GWS
         #endregion
 
         #region CLEAR
-        public IPerimeter Clear(IBoundable clear, ulong command) =>
+        public IBoundable Clear(IBoundable clear, ulong command) =>
             Canvas.Clear(clear, command);
         #endregion
 
-        #region CONSOLIDATE
-        public IPerimeter CopyScreen(IntPtr destination,
+        #region COPY-SCREEN
+        public IBoundable CopyScreen(IntPtr destination,
             int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command, IMultiBuffered backBuffer = null, IntPtr? Pen = null) =>
             Canvas.CopyScreen(destination, dstLen, dstW, dstX, dstY, copyArea, command, backBuffer, Pen);
         #endregion
@@ -157,7 +157,7 @@ namespace MnM.GWS
 
         #region COPY TO
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IPerimeter CopyTo(IntPtr destination, int destLen, int destW, int destX, int destY, IBoundable copyArea, ulong command = 0)
+        public IBoundable CopyTo(IntPtr destination, int destLen, int destW, int destX, int destY, IBoundable copyArea, ulong command = 0)
         {
             return Canvas.CopyTo(destination, destLen, destW, destX, destY, copyArea, command);
         }
@@ -388,7 +388,7 @@ namespace MnM.GWS
          int x, int y, float? Alpha, byte* imageAlphas, ulong command, ISession boundary) =>
          Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
 
-        IPerimeter IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
+        IBoundable IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
         IBoundable copyArea, ulong command, IntPtr alphaBytes) =>
             Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 

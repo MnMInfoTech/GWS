@@ -11,8 +11,8 @@ namespace MnM.GWS
         #region VARIABLES
         public readonly int X;
         public readonly int Y;
-        public readonly int Width;
-        public readonly int Height;
+        public readonly int W;
+        public readonly int H;
         public readonly int ProcessID;
         public readonly uint ShapeID;
         public readonly byte Type;
@@ -26,8 +26,8 @@ namespace MnM.GWS
         {
             X = x;
             Y = y;
-            Width = w;
-            Height = h;
+            W = w;
+            H = h;
         }
 
         public Perimeter(int x, int y, int w, int h, int processID, uint shapeID = 0, byte lifePriority = 0) :
@@ -42,21 +42,21 @@ namespace MnM.GWS
         {
             X = x;
             Y = y;
-            Width = w;
-            Height = h;
+            W = w;
+            H = h;
         }
         public Perimeter(IBoundable perimeter, int x, int y, int w, int h, uint shapeID) :
            this(perimeter)
         {
             X = x;
             Y = y;
-            Width = w;
-            Height = h;
+            W = w;
+            H = h;
             ShapeID = shapeID;
         }
         public Perimeter(IBoundable perimeter) : this()
         {
-            perimeter.GetBounds(out X, out Y, out Width, out Height);
+            perimeter.GetBounds(out X, out Y, out W, out H);
 
             if (perimeter is IProcessID)
                 ProcessID = ((IProcessID)perimeter).ProcessID;
@@ -68,7 +68,7 @@ namespace MnM.GWS
         public Perimeter(IBoundable perimeter, int processID) :
             this(perimeter)
         {
-            perimeter.GetBounds(out X, out Y, out Width, out Height);
+            perimeter.GetBounds(out X, out Y, out W, out H);
             ProcessID = processID;
         }
         public Perimeter(uint shapeID, IBoundable perimeter) :
@@ -78,7 +78,7 @@ namespace MnM.GWS
         }
         public Perimeter(IBoundable r, int processID, byte lifePriority, uint shapeID)
         {
-            r.GetBounds(out X, out Y, out Width, out Height);
+            r.GetBounds(out X, out Y, out W, out H);
             ProcessID = processID;
             ShapeID = shapeID;
             Type = lifePriority;
@@ -89,34 +89,34 @@ namespace MnM.GWS
         int IProcessID.ProcessID => ProcessID;
         uint IShapeID.ShapeID => ShapeID;
         byte IType.Type => Type;
-        public bool Valid => Width > 0 && Height > 0;
+        public bool Valid => W > 0 && H > 0;
         #endregion
 
         #region GET BOUNDS
         public void GetBounds(out int x, out int y, out int w, out int h)
         {
-            if (Width <= 0 || Height <= 0)
+            if (W <= 0 || H <= 0)
             {
                 x = y = w = h = 0;
                 return;
             }
             x = X;
             y = Y;
-            w = Width;
-            h = Height;
+            w = W;
+            h = H;
         }
         #endregion
 
         #region TO STRING
         public override string ToString()
         {
-            return string.Format(description, X, Y, X + Width, Y + Height);
+            return string.Format(description, X, Y, X + W, Y + H);
         }
         #endregion
 
         #region OPERATORS
         public static implicit operator bool(Perimeter p) =>
-            p.Width > 0 && p.Height > 0;
+            p.W > 0 && p.H > 0;
         #endregion
     }
 }

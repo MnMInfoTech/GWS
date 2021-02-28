@@ -86,7 +86,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has an area with perimeter and information about IDs of process and shape currently being rendered.
     /// </summary>
-    public interface IPerimeter : IProcessID, IShapeID, IType, IBoundable
+    public interface IPerimeter : IProcessID, IShapeID, IBounds
     { }
     #endregion
 
