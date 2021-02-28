@@ -101,14 +101,9 @@ namespace MnM.GWS
                 MySession.DstX = ((IPoint)settings).X;
                 MySession.DstY = ((IPoint)settings).Y;
             }
-            if (settings is IDstPoint)
+            if (settings is IBoundable)
             {
-                MySession.DstX = ((IDstPoint)settings).X;
-                MySession.DstY = ((IDstPoint)settings).Y;
-            }
-            if (settings is IRectangle)
-            {
-                Session.Copy((IRectangle)settings);
+                Session.Copy((IBoundable)settings);
             }
             if (settings is ISettings)
             {
@@ -123,9 +118,11 @@ namespace MnM.GWS
                 CleanCommand();
                 PenContext = info.PenContext;
             }
+            CopyFurther(settings, flushMode);
         Flush:
             SyncCommand();
         }
+        partial void CopyFurther(IDrawParams settings, bool flushMode = false);
         #endregion
 
         #region CLEAN DRAW COMMAND

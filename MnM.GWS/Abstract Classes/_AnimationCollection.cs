@@ -24,8 +24,8 @@ namespace MnM.GWS
         #region CONSTRUCTORS
         protected _AnimationCollection()
         {
-            Boundaries[Priority.Blinker] = new Boundary(Priority.Blinker);
-            Boundaries[Priority.Animation] = new Boundary(Priority.Animation);
+            Boundaries[ObjType.Blinker] = new Boundary(ObjType.Blinker);
+            Boundaries[ObjType.Animation] = new Boundary(ObjType.Animation);
         }
         protected _AnimationCollection(int capacity):
             this()

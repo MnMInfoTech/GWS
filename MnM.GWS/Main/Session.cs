@@ -117,6 +117,8 @@ namespace MnM.GWS
         int IProcessID.ProcessID => ProcessID;
         int IDstPoint.X { get => DstX; set => DstX = value; }
         int IDstPoint.Y { get => DstY; set => DstY = value; }
+        int IPoint.X => DstX;
+        int IPoint.Y => DstY;
         uint ISession.ShapeID { get => ShapeID; set => ShapeID = value; }
         int ISession.ProcessID { get => ProcessID; set => ProcessID = value; }
         byte IBoundary.Type { get => Type; set => Type = value; }

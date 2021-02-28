@@ -6,7 +6,7 @@
 
 namespace MnM.GWS
 {
-    public static class Command
+    public static partial class Command
     {
         /// <summary>
         /// Discard all changes made to the command and set it to previous value
@@ -290,7 +290,7 @@ namespace MnM.GWS
         /// </summary>
         public const ulong SkipUpdate = 0x20000000000;
     }
-    public static class Priority
+    public static partial class ObjType
     {
         public const byte None = 0;
         public const byte Animation = 1;

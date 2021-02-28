@@ -65,17 +65,17 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has an information about destination.
     /// </summary>
-    public interface IDstPoint
+    public interface IDstPoint: IPoint
     {
         /// <summary>
         /// Gets or sets X co-ordinate of the draw location.
         /// </summary>
-        int X { get; set; }
+        new int X { get; set; }
 
         /// <summary>
         /// Gets or sets Y co-ordinate of the draw location.
         /// </summary>
-        int Y { get; set; }
+        new int Y { get; set; }
     }
     #endregion
 
