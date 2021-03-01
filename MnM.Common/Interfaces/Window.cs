@@ -26,14 +26,6 @@ namespace MnM.GWS
         /// Background pen pixels.
         /// </summary>
         int[] BackgroundData { get; }
-
-#if Advanced
-        /// <summary>
-        /// Int32 array pointer to be used by Canvas object for animation.
-        /// i.e. anything which is drawn with Command.Animation.
-        /// </summary>
-        IntPtr Flags { get; }
-#endif
     }
     #endregion
 

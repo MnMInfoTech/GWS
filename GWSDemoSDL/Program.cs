@@ -33,8 +33,6 @@ namespace Test
             textureBrush = Factory.newBrush(AppDomain.CurrentDomain.BaseDirectory + "\\GWS.png");
             tahoma = Factory.newFont("c:\\windows\\fonts\\tahoma.ttf", 40);
             Settings = Factory.newSettings();
-            /*If you want direct rendering for popups, add flags:GwsWindowFlags.EnableDirectRender;
-             */
             window = Factory.newWindow(width: 1000, height: 900, flags: GwsWindowFlags.Resizable);
 
             //graphics.Window = window;

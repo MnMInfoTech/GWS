@@ -2,7 +2,7 @@
 
 namespace MnM.GWS
 {
-    public abstract class _RenderTarget: IRenderTarget
+    public abstract partial class _RenderTarget: IRenderTarget
     {
         #region VARIABLES
         /// <summary>
@@ -27,12 +27,6 @@ namespace MnM.GWS
 
         protected bool isDisposed;
 
-#if Advanced
-        /// <summary>
-        /// this array of byte will be used by Canvas object for direct screen.
-        /// </summary>
-        volatile byte[] flags;
-#endif
         /// <summary>
         /// Background pen for this target.
         /// </summary>
@@ -60,10 +54,8 @@ namespace MnM.GWS
             height = h;
             length = width * height;
             PenData = new int[length];
-#if Advanced
-            flags = new byte[length];
-#endif
-        }
+            InitializeFurther();        }
+        partial void InitializeFurther();
         #endregion
 
         #region PROPERTIES
@@ -80,17 +72,6 @@ namespace MnM.GWS
         }
         public unsafe int[] BackgroundData => PenData;
         public bool IsDisposed => isDisposed;
-
-#if Advanced
-        public unsafe IntPtr Flags
-        {
-            get
-            {
-                fixed (byte* b = flags)
-                    return (IntPtr)b;
-            }
-        }
-#endif
         #endregion
 
         #region RESIZE
@@ -99,22 +80,21 @@ namespace MnM.GWS
             if ((newWidth == null && newHeight == null) ||
                 (newWidth == width && newHeight == height))
                 return;
+
             var w = newWidth ?? width;
             var h = newHeight ?? height;
             var oldWidth = width;
             var oldHeight = height;
             ResizeSource(w, h);
-            if (oldWidth == width && oldHeight == height)
-                return;
+            ResizeFurther(oldWidth, oldHeight, w, h);
+
             if (BackgroundPen != null)
                 (BackgroundPen as IResizable)?.Resize(w, h);
-            ChangeBackground(BackgroundPen);
 
-#if Advanced
-            flags = flags.ResizedData(width, height, oldWidth, oldHeight);
-#endif
+            ChangeBackground(BackgroundPen);
         }
         protected abstract void ResizeSource(int w, int h);
+        partial void ResizeFurther(int oldWidth, int oldHeight, int newWidth, int newHeight);
         #endregion
 
         #region UPDATE
