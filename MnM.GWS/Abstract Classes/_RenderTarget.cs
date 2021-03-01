@@ -102,31 +102,20 @@ namespace MnM.GWS
         #endregion
 
         #region CLEAR
-        public unsafe IBoundable Clear(IBoundable clearArea, ulong command = 0)
+        public unsafe IBoundable Clear(IBoundable clear, ulong command = 0)
         {
-            if (clearArea == null)
+            if (clear == null)
                 return Perimeter.Empty;
-            Perimeter perimeter = new Perimeter(clearArea);
             var Screen = (command & Command.ClearScreen) == Command.ClearScreen;
-            bool RestorePen = (command & Command.WipeAnimation) == Command.WipeAnimation;
-            bool ClearBackground = (command & Command.SkipBackground) != Command.SkipBackground;
 
             if (Screen)
-            {
-                return Blocks.CopyBlock(null, perimeter, length, width, height, (int*)Source, 0, 0, width, length, Command.Opaque);
-            }
-            if (RestorePen)
-            {
-                fixed (int* p = PenData)
-                {
-                    if (BackgroundPen != null)
-                        return BackgroundPen.CopyTo((IntPtr)p, length, width, perimeter.X, perimeter.Y, perimeter, Command.Opaque);
-                    else
-                        return Blocks.CopyBlock(null, perimeter, length, width, height, p, 0, 0, width, length, Command.Opaque);
-                }
-            }
-            return perimeter;
+                return Blocks.CopyBlock(null, clear, length, width, height, (int*)Source, 0, 0, width, length, Command.Opaque);
+
+            IBoundable boundable = null;
+            ClearFurther(ref boundable, clear, command);
+            return boundable;
         }
+        unsafe partial void ClearFurther(ref IBoundable result, IBoundable clear, ulong command = 0);
         #endregion
 
         #region DISPOSE
@@ -136,10 +125,9 @@ namespace MnM.GWS
 
             (BackgroundPen as IDisposable)?.Dispose();
             PenData = null;
-#if Advanced
-            flags = null;
-#endif
+            DisposeFurther();
         }
+        partial void DisposeFurther();
         #endregion
 
         #region INVOKE PAINT

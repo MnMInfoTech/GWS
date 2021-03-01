@@ -107,11 +107,6 @@ namespace MnM.GWS
     public interface IMultiBuffered : IBlockable
     {
         /// <summary>
-        /// Gets a flag to determine if background buffer support is activated or not.
-        /// </summary>
-        bool DoubleBuffered { get; }
-
-        /// <summary>
         /// Gets Internally stored pixels and alpha values for entire memory block.
         /// </summary>
         /// <param name="Pixels">Memory block representing color pixels.</param>

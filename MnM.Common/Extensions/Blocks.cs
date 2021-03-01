@@ -400,6 +400,7 @@ namespace MnM.GWS
             bool Back = (command & Command.Backdrop) == Command.Backdrop;
             bool Invert = (command & Command.InvertColor) == Command.InvertColor;
             bool Clear = src == null;
+            bool HasAlphas = srcAlphas != null;
 
             if (dstCounter <= 0)
                 dstCounter = 1;
@@ -422,6 +423,7 @@ namespace MnM.GWS
                             if (dst[dstIndex] != 0)
                                 continue;
                             dst[dstIndex] = srcColor;
+                            srcAlphas[dstIndex] = 0;
                         }
                     }
                     else
@@ -429,6 +431,7 @@ namespace MnM.GWS
                         for (int i = 0; i < length; i++, dstIndex += dstCounter)
                         {
                             dst[dstIndex] = srcColor;
+                            srcAlphas[dstIndex] = 0;
                         }
                     }
                 }
@@ -463,7 +466,6 @@ namespace MnM.GWS
             }
             else
             {
-                bool HasAlphas = srcAlphas != null;
                 if (!HasAlphas)
                 {
                     if (Clear)

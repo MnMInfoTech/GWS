@@ -26,7 +26,8 @@ namespace MnM.GWS
         readonly DrawEventArgs drawEventArgs = new DrawEventArgs();
         readonly EventInfo Event = new EventInfo();
         protected volatile bool isDisposed;
-        readonly IExternalTarget Target;
+        IRenderTarget Target;
+        IExternalTarget ExtTarget;
         readonly string typeName;
         #endregion
 
@@ -42,6 +43,7 @@ namespace MnM.GWS
             if (!Initialize(externalWindow: target))
                 throw new Exception("Window could not be initialized!");
             Target = target;
+            ExtTarget = target;
             Initialize(out Primary, null, target);
             IsEventPusher = true;
         }
@@ -61,7 +63,9 @@ namespace MnM.GWS
 
         void Initialize(out ICanvas Canvas, GwsWindowFlags? flags, IRenderTarget target = null)
         {
-            Canvas = Factory.newCanvas(target ?? Factory.newRenderTarget(this));
+            Target = target ?? Factory.newRenderTarget(this);
+
+            Canvas = Factory.newCanvas(Target);
             Current = Canvas;
             InitializeBufferCollection();
             GwsWindowFlags = flags ?? 0;
@@ -336,7 +340,7 @@ namespace MnM.GWS
                         return;
 #endif
                     if (IsEventPusher)
-                        Target.PushEvent(e);
+                        ExtTarget.PushEvent(e);
                     else
                         base.PushEvent(e);
                     break;

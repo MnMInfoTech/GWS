@@ -66,7 +66,7 @@ namespace MnM.GWS
     /// SDL - Window should be the natural choice to represent window instead of this, 
     /// unlesss there are compelling resaons to use this object.
     /// </summary>
-    public interface INativeForm : ICopyable, IDisposable2, IPaintable, IResizable, IEventPusher, ITextDisplayer
+    public partial interface INativeForm : ICopyable, IDisposable2, IPaintable, IResizable, IEventPusher, ITextDisplayer
     { }
     #endregion
 

@@ -1130,8 +1130,7 @@ namespace MnM.GWS
             if (source is IMultiBuffered)
             {
                 IMultiBuffered image = (IMultiBuffered)source;
-                image.GetData(out int[] _src, out byte[] _srcAlphas,
-                    BackgroundBuffer && image.DoubleBuffered);
+                image.GetData(out int[] _src, out byte[] _srcAlphas, BackgroundBuffer);
                 fixed (int* p = _src)
                     src = p;
                 fixed (byte* p = _srcAlphas)
@@ -1343,8 +1342,7 @@ namespace MnM.GWS
             else if (source is IMultiBuffered)
             {
                 IMultiBuffered image = (IMultiBuffered)source;
-                image.GetData(out int[] _src, out byte[] _srcAlphas,
-                    BackgroundBuffer && image.DoubleBuffered);
+                image.GetData(out int[] _src, out byte[] _srcAlphas, BackgroundBuffer);
                 fixed (int* p = _src)
                     src = p;
                 fixed (byte* p = _srcAlphas)
