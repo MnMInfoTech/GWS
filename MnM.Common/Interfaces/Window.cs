@@ -25,7 +25,7 @@ namespace MnM.GWS
         /// <summary>
         /// Background pen pixels.
         /// </summary>
-        int[] Pen { get; }
+        int[] BackgroundData { get; }
 
 #if Advanced
         /// <summary>

@@ -78,7 +78,7 @@ namespace MnM.GWS
                 ChangeBackground(value);
             }
         }
-        public unsafe int[] Pen => PenData;
+        public unsafe int[] BackgroundData => PenData;
         public bool IsDisposed => isDisposed;
 
 #if Advanced

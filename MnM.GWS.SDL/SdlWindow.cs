@@ -131,8 +131,8 @@ namespace MnM.GWS
                     NativeFactory.GetWindowPosition(Handle, out int _x, out int _y);
                     bounds = new Rectangle(_x, _y, w, h);
 
-                    RendererFlags = renderFlags ?? RendererFlags.Accelarated;
-                    NativeFactory.SetHint("DL_FRAMEBUFFER_ACCELERATION", "1");
+                    RendererFlags = renderFlags ?? RendererFlags.Default;
+                    //NativeFactory.SetHint("DL_FRAMEBUFFER_ACCELERATION", "1");
                     return true;
                 }
                 catch
