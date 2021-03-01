@@ -83,7 +83,7 @@ namespace MnM.GWS
     /// Represents an object which represents window.
     /// </summary>
     public partial interface IForm : INativeForm, IAnimationHost, ICopyableScreen,
-        IContainer, IRefreshable, IClearable, IWritableBlock, IDisposable2,
+        IContainer, IRefreshable, IClearable, IDisposable2,
         IShowable, IHideable, IBackground, IMinimalEvents, IScalable,
         IMinimalWindowEvents, IReadable
     {

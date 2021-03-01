@@ -388,7 +388,7 @@ namespace MnM.GWS
          int x, int y, float? Alpha, byte* imageAlphas, ulong command, ISession boundary) =>
          Canvas.WriteLine(source, srcIndex, srcW, length, horizontal, x, y, Alpha, imageAlphas, command, boundary);
 
-        IBoundable IWritableBlock.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
+        IBoundable IWritable.WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY,
         IBoundable copyArea, ulong command, IntPtr alphaBytes) =>
             Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 

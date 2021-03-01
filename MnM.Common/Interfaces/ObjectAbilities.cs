@@ -309,27 +309,22 @@ namespace MnM.GWS
         /// <param name="x">X co-ordinate of the location where writing begins.</param>
         /// <param name="y">Y co-ordinate of the location where writing begins.</param>
         ///<param name="Alpha">Value by which blending should happen if at all it is supplied</param>
-        /// <param name="Command">Command to control pixel line writing.</param>
+        /// <param name="command">Command to control pixel line writing.</param>
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         unsafe void WriteLine(int* colors, int srcIndex, int srcW, int length, bool horizontal,
             int x, int y, float? Alpha, byte* imageAlphas, ulong command, ISession  session);
-    }
-    #endregion
 
-    #region IWRITABLE-BLOCK
-    public interface IWritableBlock : IBlockable
-    {
         /// <summary>
         /// Writes portion of data specified by copyX, copyY, copyW, copyH parameters from a given memory block and 
         /// pastes it onto this texture at given loaction specified by dstX and dstY parameters.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="srcW"></param>
-        /// <param name="srcH"></param>
+        /// <param name="source">Source memory block to write.</param>
+        /// <param name="srcW">Width of the source memory block.</param>
+        /// <param name="srcH">Height of the source memory block.</param>
         /// <param name="dstX">Top Left x co-ordinate of destination on buffer</param>
         /// <param name="dstY">Top left y co-ordinate of destination on buffer</param>
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
-        /// <param name="Command">Draw command to to control copy task</param>
+        /// <param name="command">Command to control pixel line writing.</param>
         /// <param name="alphaBytes">Alpha channel information (optional).</param>
         IBoundable WriteBlock(IntPtr source, int srcW, int srcH, int dstX, int dstY, IBoundable copyArea, ulong command = 0, IntPtr alphaBytes = default(IntPtr));
     }

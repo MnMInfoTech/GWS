@@ -1371,28 +1371,22 @@ namespace MnM.GWS
             }
             #endregion
 
-            if (block is IWritableBlock)
-            {
-                if (src != null)
-                {
-                    var dstRc = ((IWritableBlock)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
-                        new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID), command, (IntPtr)srcAlphas);
-                    if (block is IUpdatable)
-                        ((IUpdatable)block).Update(command, dstRc);
-                    return;
-                }
-            }
-            else if (block is IWritable)
+            if (block is IWritable)
             {
                 var writable = (IWritable)block;
-                var boundary = new Session(copyArea);
-                boundary.ShapeID = ShapeID;
-                boundary.Clear();
-
-                int x, y, r, b, srcIndex, copyLen;
-
                 if (src != null)
                 {
+                    var dstRc = ((IWritable)block).WriteBlock((IntPtr)src, srcW, srcH, dstX, dstY,
+                    new Perimeter(copyArea, copyX, copyY, copyW, copyH, ShapeID), command, (IntPtr)srcAlphas);
+                    if (block is IUpdatable)
+                        ((IUpdatable)block).Update(command, dstRc);
+
+                    return;
+                }
+                
+                if (source is IReadable)
+                {
+                    int x, y, r, b, srcIndex, copyLen;
                     srcIndex = copyX + copyY * srcW;
                     copyLen = copyW;
                     y = dstY;
@@ -1405,17 +1399,10 @@ namespace MnM.GWS
                         b += y;
                         y = 0;
                     }
-                    while (y < b)
-                    {
-                        writable.WriteLine(src, srcIndex, srcW, copyLen, true, x, y++, null, srcAlphas, command, boundary);
-                        srcIndex += srcW;
-                    }
-                    if (block is IUpdatable)
-                        ((IUpdatable)block).Update(command, boundary);
-                    return;
-                }
-                else if (source is IReadable)
-                {
+                    var boundary = new Session(copyArea);
+                    boundary.ShapeID = ShapeID;
+                    boundary.Clear();
+
                     var Pen = (IReadable)source;
                     x = copyX;
                     r = x + copyW;
@@ -1504,8 +1491,14 @@ namespace MnM.GWS
                 copy = new Perimeter(0, 0, srcW, srcH);
 
             var compitible = Rects.CompitiblePerimeter(srcW, srcH, copy);
-
-            if (block is IPixels)
+            
+            if (block is IWritable)
+            {
+                var dstRc = ((IWritable)block).WriteBlock(source, srcW, srcH, dstX, dstY, compitible, command);
+                if (block is IUpdatable)
+                    ((IUpdatable)block).Update(command, dstRc);
+            }
+            else if (block is IPixels)
             {
                 IntPtr dest = ((IPixels)block).Source;
                 int* src = (int*)source;
@@ -1514,13 +1507,6 @@ namespace MnM.GWS
                 if (block is IUpdatable)
                     ((IUpdatable)block).Update(command, dstRc);
                 return;
-            }
-            
-            if (block is IWritableBlock)
-            {
-                var dstRc = ((IWritableBlock)block).WriteBlock(source, srcW, srcH, dstX, dstY, compitible, command);
-                if (block is IUpdatable)
-                    ((IUpdatable)block).Update(command, dstRc);
             }
             else
             {
