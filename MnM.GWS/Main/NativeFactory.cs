@@ -424,14 +424,14 @@ namespace MnM.GWS
         #endregion
 
         #region PEN
-        public IReadable newPen(int color)
+        public IPen newPen(int color)
         {
-            IReadable readable = null;
+            IPen readable = null;
             newPen(ref readable, color);
             return readable;
         }
-        partial void newPen(ref IReadable readable, int color);
-        partial void newPen(ref IReadable readable, int color)
+        partial void newPen(ref IPen readable, int color);
+        partial void newPen(ref IPen readable, int color)
         {
             readable = Pen.CreateInstance(color);
         }

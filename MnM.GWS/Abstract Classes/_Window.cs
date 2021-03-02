@@ -159,14 +159,6 @@ namespace MnM.GWS
             Canvas.Update(command, area);
         #endregion
 
-        #region COPY TO
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IBoundable CopyTo(IntPtr destination, int destLen, int destW, int destX, int destY, IBoundable copyArea, ulong command = 0)
-        {
-            return Canvas.CopyTo(destination, destLen, destW, destX, destY, copyArea, command);
-        }
-        #endregion
-
         #region FOCUS
         public abstract bool Focus();
         #endregion
@@ -397,9 +389,9 @@ namespace MnM.GWS
             Canvas.WriteBlock(source, srcW, srcH, dstX, dstY, copyArea, command, alphaBytes);
 
         int IReadable.ReadPixel(int x, int y, IReadSession session) =>
-            Canvas.ReadPixel(x, y, session);
+            Target.ReadPixel(x, y, session);
         void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, IReadSession session) =>
-            Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length, session);
+            Target.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length, session);
         #endregion
     }
 

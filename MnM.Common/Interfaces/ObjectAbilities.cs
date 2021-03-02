@@ -113,9 +113,12 @@ namespace MnM.GWS
         /// <param name="y2"></param>
         void Notify(int x1, int y1, int x2, int y2);
 
-        void Merge(IBoundable rc);
-
-        void Copy(IBoundable rc);
+        /// <summary>
+        /// Copies given perimeterto this object.
+        /// </summary>
+        /// <param name="rc"></param>
+        /// <param name="reset">if true then replaces current perimeter with the given perimeter otherwise merges it with the current current one.</param>
+        void Copy(IBoundable rc, bool reset = true);
     }
     #endregion
 
@@ -243,7 +246,7 @@ namespace MnM.GWS
     #endregion
 
     #region IREADABLE
-    public interface IReadable : IBlockable, IPenContext, ICopyable
+    public interface IReadable : IBlockable, IPenContext
     {
         /// <summary>
         /// Reads a pixel after applying applying offset and rotation transformation (if exists) to get the correct co-ordinate.
@@ -345,9 +348,9 @@ namespace MnM.GWS
         /// <param name="dstX">Specifies the X coordinate where the paste operation should commence</param>
         /// <param name="dstY">Specifies the Y coordinate from where the paste operation should commence</param>
         /// <param name="copyArea">Specifies the area to copy from this object.</param>
-        /// <param name="command">Draw command to control this operation.</param>
+        /// <param name="readSession">ReadSession objct to control reading operation.</param>
         /// <returns>Area covered by this operation.</returns>
-        unsafe IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0);
+        unsafe IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IReadSession readSession);
     }
     #endregion
 

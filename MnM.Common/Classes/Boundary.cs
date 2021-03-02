@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed class Boundary: IBoundary
+    public class Boundary: IBoundary
     {
         #region VARIABLES
         /// X co-ordinate of recently drawn area of this object.
@@ -68,6 +68,13 @@ namespace MnM.GWS
             Y1 = y;
             X2 = X1 + w;
             Y2 = Y1 + h;
+
+            if (perimeter is IProcessID)
+                ProcessID = ((IProcessID)perimeter).ProcessID;
+
+            if (perimeter is IShapeID)
+                ShapeID = ((IShapeID)perimeter).ShapeID;
+
             if (perimeter is IType)
                 Type = ((IType)perimeter).Type;
         }
@@ -150,18 +157,21 @@ namespace MnM.GWS
                 if (y2 > Y2)
                     Y2 = y2;
             }
+
             if (rc is IType)
                 Type = ((IType)rc).Type;
+
             if (rc is IProcessID)
                 ProcessID = ((IProcessID)rc).ProcessID;
-            if (rc is IShapeID)
+
+            if (ShapeID == 0 && rc is IShapeID)
                 ShapeID = ((IShapeID)rc).ShapeID;
         }
         #endregion
 
         #region COPY
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Copy(IBoundable rc)
+        public void Copy(IBoundable rc, bool reset)
         {
             if (rc == null)
                 return;
@@ -176,16 +186,30 @@ namespace MnM.GWS
             }
             else
             {
-                X1 = x1;
-                Y1 = y1;
-                X2 = x2;
-                Y2 = y2;
+                if (reset)
+                {
+                    X1 = x1;
+                    Y1 = y1;
+                    X2 = x2;
+                    Y2 = y2;
+                }
+                else
+                {
+                    if (x1 < X1)
+                        X1 = x1;
+                    if (y1 < Y1)
+                        Y1 = y1;
+                    if (x2 > X2)
+                        X2 = x2;
+                    if (y2 > Y2)
+                        Y2 = y2;
+                }
             }
             if (rc is IType)
                 Type = ((IType)rc).Type;
             if (rc is IProcessID)
                 ProcessID = ((IProcessID)rc).ProcessID;
-            if (rc is IShapeID)
+            if (ShapeID == 0 && rc is IShapeID)
                 ShapeID = ((IShapeID)rc).ShapeID;
         }
         #endregion

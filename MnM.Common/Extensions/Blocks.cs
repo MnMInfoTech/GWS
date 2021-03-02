@@ -976,13 +976,20 @@ namespace MnM.GWS
         /// <param name="conditionValue">Value of condition to use to qualify copy.</param>
         /// <param name="criteria">Numeric criteria to control copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void CopyValue(int value, int* dst, int dstIndex, int length, int conditionValue, NumCriteria criteria = NumCriteria.Equal)
+        public static unsafe void CopyValue(int value, int* dst, int dstIndex, int length, int conditionValue, NumCriteria criteria = 0)
         {
             if (length == 0)
                 return;
-            int srcColor = 0, dstColor;
+            int srcColor = 0;
             srcColor = value;
             int last = dstIndex + length;
+            if(criteria == 0)
+            {
+                for (int i = dstIndex; i < last; i++)
+                    dst[i] = value;
+                return;
+            }
+            int dstColor;
             for (int i = dstIndex; i < last; i++)
             {
                 dstColor = dst[i];
@@ -1015,7 +1022,6 @@ namespace MnM.GWS
                             continue;
                         break;
                 }
-
                 dst[i] = value;
             }
         }
@@ -1030,13 +1036,21 @@ namespace MnM.GWS
         /// <param name="conditionValue">Value of condition to use to qualify copy.</param>
         /// <param name="criteria">Numeric criteria to control copy operation.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void CopyValue(byte value, byte* dst, int dstIndex, int length, byte conditionValue, NumCriteria criteria = NumCriteria.Equal)
+        public static unsafe void CopyValue(byte value, byte* dst, int dstIndex, int length, byte conditionValue, NumCriteria criteria = 0)
         {
             if (length == 0)
                 return;
-            int srcColor = 0, dstColor;
+            int srcColor = 0;
             srcColor = value;
             int last = dstIndex + length;
+            if (criteria == 0)
+            {
+                for (int i = dstIndex; i < last; i++)
+                    dst[i] = value;
+                return;
+            }
+
+            byte dstColor;
             for (int i = dstIndex; i < last; i++)
             {
                 dstColor = dst[i];

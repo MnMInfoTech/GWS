@@ -54,7 +54,7 @@ namespace MnM.GWS
         #region READ PIXEL
         public int ReadPixel(int x, int y, IReadSession session)
         {
-            bool Invert = (session.Choice & ReadChoice.InvertColor) == ReadChoice.InvertColor;
+            bool Invert = (session.Choice & Command.InvertColor) == Command.InvertColor;
             if (Invert)
                 return color ^ Colors.Inversion;
             return color;
@@ -70,7 +70,7 @@ namespace MnM.GWS
 
             if (!Numbers.PositiveLength(ref start, ref end, out length))
                 goto mks;
-            bool Invert = (session.Choice & ReadChoice.InvertColor) == ReadChoice.InvertColor;
+            bool Invert = (session.Choice & Command.InvertColor) == Command.InvertColor;
             int c = color;
             if (Invert)
                 c = color ^ Colors.Inversion;
@@ -89,15 +89,12 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        public unsafe IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
+        public unsafe IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IReadSession readSession)
         {
-            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
-            var data = color.Repeat(copyW * copyH + 1);
-            var dst = (int*)destination;
-            fixed (int* src = data)
-            {
-                return Blocks.CopyBlock(src, copyArea, data.Length, copyW, copyH, dst, dstX, dstY, dstW, dstLen, command);
-            }
+            int srcColor = color;
+            if ((readSession.Choice & Command.InvertColor) == Command.InvertColor)
+                srcColor ^= Colors.Inversion;
+            return Blocks.CopyBlock(color, copyArea, destination, dstW, dstLen/dstW, 0, 0);
         }
         #endregion
 

@@ -208,10 +208,11 @@ namespace MnM.GWS
                 pen = Pens.Black;
 
             command |= Command.WriteToScreen;
-            var boundary = new Session();
-            boundary.Choice = ReadChoice.InvertColor;
+            var boundary = new ReadSession();
+            boundary.Choice = Command.InvertColor;
+            var session = new Session();
 
-            buffer.CreatePixelAction(pen, out action, boundary);
+            buffer.CreatePixelAction(pen, out action, session, boundary);
             Renderer.ProcessLine(X, Y, X, Y + Height, action, command);
             Renderer.ProcessLine(X, Y + Height, X + Width, Y + Height, action, command);
             Renderer.ProcessLine(X + Width, Y + Height, X + Width, Y, action, command);

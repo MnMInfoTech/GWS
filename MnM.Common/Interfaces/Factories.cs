@@ -146,7 +146,7 @@ namespace MnM.GWS
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        IReadable newPen(int color);
+        IPen newPen(int color);
         #endregion
 
         #region COLOR

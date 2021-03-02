@@ -687,20 +687,22 @@ namespace MnM.GWS
     #region NUMERIC-CRITERIA
     public enum NumCriteria
     {
+        None = 0,
+
         /// <summary>
         /// The equal
         /// </summary>
-        Equal = 0,
-        
+        Equal = 1,
+
         /// <summary>
         /// The greater than
         /// </summary>
-        GreaterThan = 1,
+        GreaterThan = 2,
 
         /// <summary>
         /// The less than
         /// </summary>
-        LessThan = 2,
+        LessThan = 3,
 
         /// <summary>
         /// <summary>

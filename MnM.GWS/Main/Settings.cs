@@ -6,13 +6,14 @@
 
 namespace MnM.GWS
 {
-    public partial class Settings : ISettings
+    public sealed partial class Settings : ISettings
     {
         #region VARIABLES
         ulong DrawCommand, CalculatedDrawCommand;
         private FillMode fillMode;
         private float stroke;
-        Session MySession = new Session();
+        readonly  Session MySession = new Session();
+        readonly ReadSession MyReadSession = new GWS.ReadSession();
         #endregion
 
         #region CONSTRUCTORS
@@ -68,6 +69,7 @@ namespace MnM.GWS
         public IRectangle Bounds { get; set; }
         public Size Clip { get; set; }
         public ISession Session => MySession;
+        public IReadSession ReadSession => MyReadSession;
         #endregion
 
         #region SYNC PATTERN AND ANTIALIAS SETTINGS
@@ -103,7 +105,7 @@ namespace MnM.GWS
             }
             if (settings is IBoundable)
             {
-                Session.Copy((IBoundable)settings);
+                Session.Copy((IBoundable)settings, true);
             }
             if (settings is ISettings)
             {
@@ -114,7 +116,7 @@ namespace MnM.GWS
                 Scale = info.Scale;
                 Rotation = info.Rotation;
                 DrawCommand = info.Command;
-                MySession.Copy(info.Session);
+                MySession.Copy(info.Session, true);
                 CleanCommand();
                 PenContext = info.PenContext;
             }

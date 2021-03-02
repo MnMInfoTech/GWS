@@ -158,7 +158,7 @@ namespace MnM.GWS
         #endregion
 
         #region COPY TO
-        public unsafe IBoundable CopyTo(IntPtr dest, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = Command.Opaque)
+        public unsafe IBoundable CopyTo(IntPtr dest, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IReadSession readSession)
         {
             int length;
             int* dst = (int*)dest;
@@ -177,12 +177,10 @@ namespace MnM.GWS
 
             int destIndex = dstX + dstY * dstW;
             int i = 0;
-
-            ReadSession session = new ReadSession();
-            session.Choice = (command & Command.InvertColor) == Command.InvertColor ? ReadChoice.InvertColor : ReadChoice.Default; ;
+            ulong command = readSession.Choice;
             while (y < b)
             {
-                ReadLine(x, r, y, true, out int[] source, out int srcIndex, out length, session);
+                ReadLine(x, r, y, true, out int[] source, out int srcIndex, out length, readSession);
                 if (destIndex + length >= dstLen)
                     break;
                 fixed (int* src = source)

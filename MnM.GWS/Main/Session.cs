@@ -4,23 +4,12 @@
 * See license.txt for detailed licensing details. */
 // Author: Mukesh Adhvaryu.
 #if GWS || Window
-using System.Runtime.CompilerServices;
 
 namespace MnM.GWS
 {
-    public sealed class Session: ReadSession, ISession
+    public sealed class Session: Boundary, ISession
     {
         #region VARIABLES
-        /// <summary>
-        /// ID of shape being rendered.
-        /// </summary>
-        public uint ShapeID;
-
-        /// <summary>
-        /// ID of process being used to render the shape.
-        /// </summary>
-        public int ProcessID;
-
         /// <summary>
         /// X co-ordinate of the Destination of shape rendering.
         /// </summary>
@@ -30,32 +19,6 @@ namespace MnM.GWS
         /// Y co-ordinate of the Destination of shape rendering.
         /// </summary>
         public int DstY;
-        
-        /// X co-ordinate of recently drawn area of this object.
-        /// </summary>
-        public int X1 = int.MaxValue;
-
-        /// <summary>
-        /// Y co-ordinate of recently drawn area of this object.
-        /// </summary>
-        public int Y1 = int.MaxValue;
-
-        /// <summary>
-        /// Far right X co-ordinate of recently drawn area of this object.
-        /// </summary>
-        public int X2 = 0;
-
-        /// <summary>
-        /// Far bottom Y co-ordinate of recently drawn area of this object.
-        /// </summary>
-        public int Y2 = 0;
-
-        /// <summary>
-        /// Type this object represents for the purpose of rendering operation.
-        /// </summary>
-        public byte Type;
-
-        static string description = "X: {0}, Y: {1}, R: {2}, B: {3}";
         #endregion
 
         #region CONSTRUCTORS
@@ -78,31 +41,16 @@ namespace MnM.GWS
             DstY = dstY;
         }
         public Session(int x, int y, int w, int h, uint shapeID, int processID, int dstX = 0, int dstY = 0)
+            : base(x, y, w, h)
         {
-            X1 = x;
-            Y1 = y;
-            X2 = X1 + w;
-            Y2 = Y1 + h;
             ShapeID = shapeID;
             ProcessID = processID;
             DstX = dstX;
             DstY = dstY;
         }
-        public Session(IBoundable perimeter) : this()
+        public Session(IBoundable perimeter) :
+            base(perimeter)
         {
-            perimeter.GetBounds(out X1, out Y1, out int w, out int h);
-            X2 = X1 + w;
-            Y2 = Y1 + h;
-
-            if (perimeter is IProcessID)
-                ProcessID = ((IProcessID)perimeter).ProcessID;
-           
-            if(perimeter is IShapeID)
-                ShapeID = ((IShapeID)perimeter).ShapeID;
-
-            if (perimeter is IType)
-                Type = ((IType)perimeter).Type;
-
             if (perimeter is IDstPoint)
             {
                 DstX = ((IDstPoint)perimeter).X;
@@ -112,150 +60,23 @@ namespace MnM.GWS
         #endregion
 
         #region PROPERTIES
-        public bool Valid => X2 > 0 && Y2 > 0;
-        uint IShapeID.ShapeID => ShapeID;
-        int IProcessID.ProcessID => ProcessID;
         int IDstPoint.X { get => DstX; set => DstX = value; }
         int IDstPoint.Y { get => DstY; set => DstY = value; }
         int IPoint.X => DstX;
         int IPoint.Y => DstY;
-        uint ISession.ShapeID { get => ShapeID; set => ShapeID = value; }
+        uint ISession.ShapeID 
+        { 
+            get => ShapeID; 
+            set => ShapeID = value; 
+        }
         int ISession.ProcessID { get => ProcessID; set => ProcessID = value; }
-        byte IBoundary.Type { get => Type; set => Type = value; }
-        byte IType.Type => Type;
-        int IBoundary.X1 => X1;
-        int IBoundary.Y1 => Y1;
-        int IBoundary.X2 => X2;
-        int IBoundary.Y2 => Y2;
-        #endregion
-
-        #region NOTIFY
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Notify(int x1, int y1, int x2, int y2)
-        {
-            if (x2 == 0 && y2 == 0)
-            {
-                X1 = Y1 = int.MaxValue;
-                X2 = Y2 = 0;
-                return;
-            }
-            if (x1 < X1)
-                X1 = x1;
-            if (y1 < Y1)
-                Y1 = y1;
-            if (x2 > X2)
-                X2 = x2;
-            if (y2 > Y2)
-                Y2 = y2;
-        }
-        #endregion
-
-        #region GET BOUNDS
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GetBounds(out int x, out int y, out int w, out int h)
-        {
-            if (X2 == 0 || Y2 == 0 || X2 - X1 <= 0 || Y2 - Y1 <= 0)
-            {
-                x = y = w = h = 0;
-                return;
-            }
-            x = X1;
-            y = Y1;
-            var x2 = X2;
-            var y2 = Y2;
-            w = x2 - x;
-            h = y2 - y;
-        }
-        #endregion
-
-        #region MERGE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Merge(IBoundable rc)
-        {
-            if (rc == null)
-                return;
-            rc.GetBounds(out int x1, out int y1, out int w, out int h);
-            int x2 = x1 + w;
-            int y2 = y1 + h;
-
-            if (x2 == 0 && y2 == 0)
-            {
-                X1 = Y1 = int.MaxValue;
-                X2 = Y2 = 0;
-            }
-            else
-            {
-                if (x1 < X1)
-                    X1 = x1;
-                if (y1 < Y1)
-                    Y1 = y1;
-                if (x2 > X2)
-                    X2 = x2;
-                if (y2 > Y2)
-                    Y2 = y2;
-            }
-            if (rc is IType)
-                Type = ((IType)rc).Type;
-            if (rc is IProcessID)
-                ProcessID = ((IProcessID)rc).ProcessID;
-            if (rc is IShapeID && ShapeID == 0)
-                ShapeID = ((IShapeID)rc).ShapeID;
-        }
-        #endregion
-
-        #region COPY
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Copy(IBoundable rc)
-        {
-            if (rc == null)
-                return;
-            rc.GetBounds(out int x1, out int y1, out int w, out int h);
-            int x2 = x1 + w;
-            int y2 = y1 + h;
-
-            if (x2 == 0 && y2 == 0)
-            {
-                X1 = Y1 = int.MaxValue;
-                X2 = Y2 = 0;
-            }
-            else
-            {
-                X1 = x1;
-                Y1 = y1;
-                X2 = x2;
-                Y2 = y2;
-            }
-            if (rc is IType)
-                Type = ((IType)rc).Type;
-            if (rc is IProcessID)
-                ProcessID = ((IProcessID)rc).ProcessID;
-            if (rc is IShapeID && ShapeID == 0)
-                ShapeID = ((IShapeID)rc).ShapeID;
-        }
         #endregion
 
         #region CLONE
-        protected override ReadSession newInstance() =>
-            new Session();
-        protected override void CopyTo(ReadSession session)
+        public object Clone()
         {
-            base.CopyTo(session);
-            Session session1 = (Session)session;
-            session1.ShapeID = ShapeID;
-            session1.ProcessID = ProcessID;
-            session1.DstX = DstX;
-            session1.DstY = DstY;
-            session1.X1 = X1;
-            session1.Y1 = Y1;
-            session1.X2 = X2;
-            session1.Y2 = Y2;
-        }
-        #endregion
-
-        #region TO STRING
-        public override string ToString()
-        {
-            return string.Format(description, X1, Y1, X2, Y2);
+            var session = new Session(this);
+            return session;
         }
         #endregion
     }

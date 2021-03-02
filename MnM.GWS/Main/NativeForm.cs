@@ -96,13 +96,6 @@ namespace MnM.GWS
             }
             #endregion
 
-            #region COPY TO
-            public IBoundable CopyTo(IntPtr destination, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, ulong command = 0)
-            {
-                return Canvas.CopyTo(destination, dstLen, dstW, dstX, dstY, copyArea, command);
-            }
-            #endregion
-
             #region DISPOSE
             public override void Dispose()
             {
@@ -192,9 +185,9 @@ namespace MnM.GWS
 
             #region ICANVAS
             int IReadable.ReadPixel(int x, int y, IReadSession session) =>
-                Canvas.ReadPixel(x, y, session);
+                Target.ReadPixel(x, y, session);
             void IReadable.ReadLine(int start, int end, int axis, bool horizontal, out int[] pixels, out int srcIndex, out int length, IReadSession session) =>
-                Canvas.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length, session);
+                Target.ReadLine(start, end, axis, horizontal, out pixels, out srcIndex, out length, session);
             #endregion
         }
         partial class NativeForm : IObjCollection

@@ -16,6 +16,15 @@ namespace MnM.GWS
     }
     #endregion
 #endif
+
+    #region ICONTEXT
+    /// <summary>
+    /// This is a marker interface which represents an object which can be converted to GWS Entity.
+    /// </summary>
+    public interface IContext
+    { }
+    #endregion
+
     #region ID
     /// <summary>
     /// Represents an object which has a unique ID which serves as a key to store or retrieve the object from store.

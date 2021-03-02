@@ -749,48 +749,6 @@ namespace MnM.GWS
         }
         #endregion
 
-        #region MERGE
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Merge(this INotifiable notifiable, IBoundable rc)
-        {
-            if (rc == null || !rc.Valid)
-                return;
-            rc.GetBounds(out int x, out int y, out int w, out int h);
-            notifiable.Notify(x, y, x + w, y + h);
-            if (rc is IType)
-            {
-                byte priority = ((IType)rc).Type;
-                if (notifiable is ISession)
-                    ((ISession)notifiable).Type = priority;
-                else if (notifiable is IBoundary)
-                    ((IBoundary)notifiable).Type = priority;
-            }
-        }
-        #endregion
-
-        #region COPY
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Copy(this INotifiable notifiable, IBoundable rc)
-        {
-            notifiable.Notify(0, 0, 0, 0);
-            if (rc == null || !rc.Valid)
-                return;
-            rc.GetBounds(out int x, out int y, out int w, out int h);
-            if (w == 0 || h == 0)
-                return;
-            notifiable.Notify(x, y, x + w, y + h);
-            
-            if(rc is IType)
-            {
-                byte priority = ((IType)rc).Type;
-                if (notifiable is ISession)
-                    ((ISession)notifiable).Type = priority;
-                else if(notifiable is IBoundary)
-                    ((IBoundary)notifiable).Type = priority;
-            }
-        }
-        #endregion
-
         #region CLEAR
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear(this INotifiable notifiable)

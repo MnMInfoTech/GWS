@@ -102,7 +102,7 @@ namespace MnM.GWS
                 if (source is ICopyable)
                 {
                     ((ICopyable)source).CopyTo(textureData, lockedLength, Width, 0, 0,
-                        new Rectangle(copyX, copyY, dstW, dstH), 0);
+                        new Rectangle(copyX, copyY, dstW, dstH), ReadSession.Empty);
                 }
                 else if (source is IPixels)
                 {

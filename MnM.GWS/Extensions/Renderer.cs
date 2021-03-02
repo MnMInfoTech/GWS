@@ -43,7 +43,7 @@ namespace MnM.GWS
                 if(Boundary is IProcessID)
                     Settings.Session.ProcessID = ((IProcessID)Boundary).ProcessID;
                 writable.Render(Renderable, Settings);
-                Boundary.Merge(Settings.Session);
+                Boundary.Copy(Settings.Session, false);
                 Settings.Session.ProcessID = pid;
                 Settings.Command = command;
                 ++i;
@@ -103,7 +103,7 @@ namespace MnM.GWS
                 Settings.Command |= Command.InvalidateOnly;
                 Settings.Session.ProcessID = Boundary.ProcessID;
                 writable.Render(Renderable, Settings);
-                Boundary.Merge(Settings.Session);
+                Boundary.Copy(Settings.Session, false);
                 Settings.Session.ProcessID = pid;
                 Settings.Command = command;
             }
@@ -754,7 +754,7 @@ namespace MnM.GWS
             (Pen as ISettingsReceiver)?.Receive(Settings);
             Settings.PenContext = Pen;
             if (NoPen)
-                Settings.Session.Choice = ReadChoice.InvertColor;
+                Settings.ReadSession.Choice = Command.InvertColor;
             return Pen;
         }
         #endregion
@@ -770,7 +770,8 @@ namespace MnM.GWS
         /// <param name="Command">Command to control pixel writing.</param>
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, IReadable pen, ulong command, ISession session)
+        public static void WritePixel(this IWritable buffer, float val, int axis, bool horizontal, 
+            IReadable pen, ulong command, ISession session, IReadSession readSession)
         {
             int intVal = (int)val;
 
@@ -779,7 +780,7 @@ namespace MnM.GWS
             int x = horizontal ? intVal : axis;
             int y = horizontal ? axis : intVal;
 
-            int color = pen.ReadPixel(x, y, session);
+            int color = pen.ReadPixel(x, y, readSession);
 
             bool Antialiased = (command & Command.Breshenham) != (Command.Breshenham);
 
@@ -909,7 +910,7 @@ namespace MnM.GWS
         /// <param name="session">Boundary object which records drawing area and has shape id and destination info.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void WriteLine(this IWritable buffer, float start, int axis, bool Horizontal, float end,
-            IReadable pen, float? Alpha, ulong command, ISession session)
+            IReadable pen, float? Alpha, ulong command, ISession session, IReadSession readSession)
         {
             if (float.IsNaN(start) && float.IsNaN(end))
                 return;
@@ -958,7 +959,7 @@ namespace MnM.GWS
                 int[] source;
 
                 if (!CalculateOnly)
-                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length, session);
+                    pen.ReadLine(Start, End, axis, Horizontal, out source, out srcIndex, out Length, readSession);
 
                 int dstX = Horizontal ? Start : axis;
                 int dstY = Horizontal ? axis : Start;
@@ -970,10 +971,10 @@ namespace MnM.GWS
 
             if (!LineOnly)
             {
-                buffer.WritePixel(start, axis, Horizontal, pen, command, session);
+                buffer.WritePixel(start, axis, Horizontal, pen, command, session, readSession);
                 if (!NotSoClose)
                     return;
-                buffer.WritePixel(end, axis, Horizontal, pen, command, session);
+                buffer.WritePixel(end, axis, Horizontal, pen, command, session, readSession);
             }
         }
         #endregion
@@ -993,7 +994,8 @@ namespace MnM.GWS
                 pen = Pens.Black;
 
             command |= Command.WriteToScreen;
-            var boundary = new Session();
+            var boundary = new ReadSession();
+            var session = new Session();
 
             perimeter.GetBounds(out int x1, out int y1, out int w, out int h);
             int x2 = x1 + w;
@@ -1002,13 +1004,13 @@ namespace MnM.GWS
             y1 += shrink;
             x2 -= shrink;
             y2 -= shrink;
-            buffer.CreatePixelAction(pen, out action, boundary);
+            buffer.CreatePixelAction(pen, out action, session, boundary);
             Renderer.ProcessLine(x1, y1, x1, y2, action, command);
             Renderer.ProcessLine(x1, y2, x2, y2, action, command);
             Renderer.ProcessLine(x2, y2, x2, y1, action, command);
             Renderer.ProcessLine(x2, y1, x1, y1, action, command);
 
-            (buffer as IUpdatable)?.Update(command, boundary);
+            (buffer as IUpdatable)?.Update(command, session);
         }
         #endregion
 
@@ -1022,11 +1024,11 @@ namespace MnM.GWS
         /// <param name="dstOffsetY">Y co-ordinate value of any offset to apply while writing.</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void CreateFillAction(this IWritable buffer, IReadable pen, out FillAction action, ISession session)
+        public unsafe static void CreateFillAction(this IWritable buffer, IReadable pen, out FillAction action, ISession session, IReadSession readSession)
         {
             action = (start, axis, Horizontal, end, Alpha, Command) =>
             {
-                buffer.WriteLine(start, axis, Horizontal, end, pen, Alpha, Command, session);
+                buffer.WriteLine(start, axis, Horizontal, end, pen, Alpha, Command, session, readSession);
             };
         }
         #endregion
@@ -1039,11 +1041,11 @@ namespace MnM.GWS
         /// <param name="pen">Buffer pen which to read pixeld from</param>
         /// <returns>An instance of FillAction delegate</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CreatePixelAction(this IWritable buffer, IReadable pen, out PixelAction action, ISession session)
+        public static void CreatePixelAction(this IWritable buffer, IReadable pen, out PixelAction action, ISession session, IReadSession readSession)
         {
             action = (val, axis, horizontal, Command) =>
             {
-                buffer.WritePixel(val, axis, horizontal, pen, Command, session);
+                buffer.WritePixel(val, axis, horizontal, pen, Command, session, readSession);
             };
         }
         #endregion
@@ -1111,7 +1113,7 @@ namespace MnM.GWS
 
             if(source is ICopyableScreen)
             {
-                return ((ICopyableScreen)source).CopyScreen((IntPtr)dst, dstLen, dstW, 0, 0, perimeter);
+                return ((ICopyableScreen)source).CopyScreen((IntPtr)dst, dstLen, dstW, 0, 0, perimeter, command);
             }
 
             if (source is ICopyable)
@@ -1119,15 +1121,18 @@ namespace MnM.GWS
                 srcLen = w * h;
                 srcW = w;
                 srcH = h;
-                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, perimeter, command);
+                var session = new ReadSession();
+                session.Choice = command;
+                return ((ICopyable)source).CopyTo((IntPtr)dst, srcLen, srcW, 0, 0, perimeter, session);
             }
 
             #region EXTRACT DATA FROM SOURCE
-            if (source is ITextureBrush)
+            if (source is IPixels)
             {
-                src = (int*)((ITextureBrush)source).Source;
+                src = (int*)((IPixels)source).Source;
+                srcAlphas = null;
             }
-            if (source is IMultiBuffered)
+            else if (source is IMultiBuffered)
             {
                 IMultiBuffered image = (IMultiBuffered)source;
                 image.GetData(out int[] _src, out byte[] _srcAlphas, BackgroundBuffer);
@@ -1135,11 +1140,6 @@ namespace MnM.GWS
                     src = p;
                 fixed (byte* p = _srcAlphas)
                     srcAlphas = p;
-            }
-            else if (source is IPixels)
-            {
-                src = (int*)((IPixels)source).Source;
-                srcAlphas = null;
             }
             #endregion
 
@@ -1174,6 +1174,46 @@ namespace MnM.GWS
             }
             return rc;
         }
+
+        #region COPY TO
+        public static unsafe IBoundable CopyTo(this IReadable readable, IntPtr dest, int dstLen, int dstW, int dstX, int dstY, IBoundable copyArea, IReadSession readSession = null)
+        {
+            
+            int length;
+            int* dst = (int*)dest;
+            copyArea.GetBounds(out int copyX, out int copyY, out int copyW, out int copyH);
+
+            var x = copyX;
+            var r = x + copyW;
+            var y = copyY;
+            var b = y + copyH;
+
+            if (y < 0)
+            {
+                b += y;
+                y = 0;
+            }
+
+            int destIndex = dstX + dstY * dstW;
+            int i = 0;
+
+            var session =  readSession?? ReadSession.Empty;
+            while (y < b)
+            {
+                readable.ReadLine(x, r, y, true, out int[] source, out int srcIndex, out length, session);
+                if (destIndex + length >= dstLen)
+                    break;
+                fixed (int* src = source)
+                    Blocks.Copy(src, srcIndex, dst, destIndex, length, session.Choice, null);
+                destIndex += dstW;
+                ++i;
+                ++y;
+            }
+            return new Rect(dstX, dstY, copyW, i);
+        }
+        #endregion
+
+
         #endregion
 
         #region WRITE IMAGE
@@ -1209,8 +1249,8 @@ namespace MnM.GWS
             int[] data = new int[image.Width * image.Height];
             fixed (int* p = data)
             {
-                IntPtr pixels = (IntPtr)p;
-                image.CopyTo(pixels, image.Length, image.Width, 0, 0, new Perimeter(0, 0, image.Width, image.Height), 0);
+                IntPtr pixels = (IntPtr)p;                
+                image.CopyTo(pixels, image.Length, image.Width, 0, 0, new Perimeter(0, 0, image.Width, image.Height), ReadSession.Empty);
                 writer.Write(pixels, image.Width, image.Height, image.Length, pitch, dest, format, quality);
             }
         }
@@ -1359,10 +1399,11 @@ namespace MnM.GWS
                 srcW = copyW;
                 srcH = copyH;
                 int[] temp = new int[srcLen];
+                var session = new ReadSession();
+                session.Choice = command;
                 fixed (int* p = temp)
                 {
-                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0,
-                        new Perimeter(copyX, copyY, copyW, copyH), command);
+                    ((ICopyable)source).CopyTo((IntPtr)p, srcLen, srcW, 0, 0, new Rect(copyX, copyY, copyW, copyH), session);
                     src = p;
                 }
                 copyX = copyY = 0;
@@ -1414,7 +1455,7 @@ namespace MnM.GWS
                     var dy = dstY;
                     int[] pixels;
                     ReadSession session = new ReadSession();
-                    session.Choice = (command & Command.InvertColor) == Command.InvertColor ? ReadChoice.InvertColor : ReadChoice.Default; ;
+                    session.Choice = command;
 
                     while (y < b)
                     {
@@ -3035,7 +3076,7 @@ namespace MnM.GWS
                 else if (source is ICopyable)
                 {
                     data = (IntPtr)dst;
-                    ((ICopyable)source).CopyTo(data, dstLen, dstW, 0, 0, new Perimeter(0, 0, srcW, srcH), Command.Opaque);
+                    ((ICopyable)source).CopyTo(data, dstLen, dstW, 0, 0, new Perimeter(0, 0, srcW, srcH), ReadSession.Empty);
                 }
                 return size;
             }
@@ -3049,7 +3090,7 @@ namespace MnM.GWS
             }
             else if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Perimeter(0, 0, srcW, srcH), 0);
+                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Perimeter(0, 0, srcW, srcH), ReadSession.Empty);
             }
             else
             {
@@ -3277,7 +3318,7 @@ namespace MnM.GWS
             }
             else if (source is ICopyable)
             {
-                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Perimeter(0, 0, srcW, srcH), 0);
+                ((ICopyable)source).CopyTo((IntPtr)src, srcLen, srcW, 0, 0, new Perimeter(0, 0, srcW, srcH), ReadSession.Empty);
             }
             else
             {

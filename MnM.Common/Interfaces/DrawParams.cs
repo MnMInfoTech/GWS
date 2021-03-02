@@ -106,14 +106,13 @@ namespace MnM.GWS
     }
     #endregion
 
-
     #region IREADSESSION
     public interface IReadSession: ICloneable
     {
         /// <summary>
         /// Gets or sets option to read data from pen.
         /// </summary>
-        ReadChoice Choice { get; set; }
+        ulong Choice { get; set; }
     }
     #endregion
 
@@ -121,7 +120,7 @@ namespace MnM.GWS
     /// <summary>
     /// Represents an object which has information about current rendering process and perimeter formation.
     /// </summary>
-    public partial interface ISession : IShapeID, IBoundary, IDstPoint, IReadSession, IPerimeter
+    public partial interface ISession : IBoundary, IDstPoint
     {
         /// <summary>
         /// Gets or sets an ID of current shape associated with current rendering process.
@@ -147,6 +146,11 @@ namespace MnM.GWS
         /// 
         /// </summary>
         ISession Session { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IReadSession ReadSession { get; }
 
         /// <summary>
         /// Gets or sets fill mode settings for this object.

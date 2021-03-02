@@ -416,25 +416,6 @@ namespace MnM.GWS
     }
     #endregion
 
-    #region READ CHOICE
-    [Flags]
-    public enum ReadChoice
-    {
-        /// <summary>
-        /// Reads Normal background pen data.
-        /// </summary>
-        Default = 0x0,
-        /// <summary>
-        /// Reads screen data as it appears on screen.
-        /// </summary>
-        ScreenData = 0x1,
-        /// <summary>
-        /// Reads inverted version of actual color.
-        /// </summary>
-        InvertColor = 0x2,
-    }
-    #endregion
-
     #region GAME PAD TYPE
     /// <summary>
     /// Enumerates available <see cref="GamePad"/> types.
