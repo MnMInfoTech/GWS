@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>5b8cd373-9996-493d-a2c7-1ed1c5839871</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MnM.GWS.MSDesktop</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Bridge.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Demo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MsDisplay.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MSWindow.cs" />
+  </ItemGroup>
+</Project>

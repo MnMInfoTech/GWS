@@ -1,0 +1,5 @@
+D:\source\Repos\GWS\NonGWS\obj\Debug\netstandard2.0\NonGWS.csproj.AssemblyReference.cache
+D:\source\Repos\GWS\NonGWS\obj\Debug\netstandard2.0\NonGWS.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\GWS\NonGWS\obj\Debug\netstandard2.0\NonGWS.AssemblyInfoInputs.cache
+D:\source\Repos\GWS\NonGWS\obj\Debug\netstandard2.0\NonGWS.AssemblyInfo.cs
+D:\source\Repos\GWS\NonGWS\obj\Debug\netstandard2.0\NonGWS.csproj.CoreCompileInputs.cache

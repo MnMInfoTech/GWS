@@ -1,0 +1,347 @@
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\source\Repos\GWS-Professional\GWS2\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\GWS.png
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\SDL2.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\GWSPro\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWSPro\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\source\Repos\GWSPro\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\24-10-2022 Work in progress\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\25-OCT-2022\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\04-NOV-2022\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GWS.png
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\SDL2.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\04-NOV-2022\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\19-NOV-2022\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GWS-Windows-EcoSystem.pdf
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\26-MAR-2023\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GWS-Windows-EcoSystem.pdf
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GWS-Windows-EcoSystem.pdf
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GWS-Windows-EcoSystem.pdf
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\source\Repos\GWS2\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GWS.png
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GWS-Windows-EcoSystem.pdf
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\SDL2.dll
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\VirtualOS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
+D:\source\Repos\VirtualOS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll

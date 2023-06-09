@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "q1htALxX6YC+5QqNY68ZauOzlPTF5qQVquWr5HUOB4hl9wu/+kcBSG8UfJFpTy6ZjjxxJ6cKWwEcgzwGxAA9qw==",
+  "success": true,
+  "projectFilePath": "D:\\source\\Repos\\VirtualOS\\GWSDll\\GWSDll.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Mukesh Adhvaryu\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\Mukesh Adhvaryu\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

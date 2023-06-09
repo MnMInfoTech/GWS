@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="D:\MnMFrameWorks Archieve\04-NOV-2022\Desktop\Demo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\04-NOV-2022\Desktop\MsDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\Desktop\Demo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\08-OCT-2022\GWS\Desktop\MsDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\26-MAR-2023\Desktop\Demo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\26-MAR-2023\Desktop\MsDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\Desktop\Demo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\Desktop\MsDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\source\Repos\GWS\Desktop\Demo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="D:\source\Repos\GWS\Desktop\MsDisplay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>

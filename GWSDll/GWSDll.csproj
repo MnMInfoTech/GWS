@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;GWS;Window;DLLSupport;SDL;Advance1;</DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
+
+  <Import Project="..\SDL\SDL.projitems" Label="Shared" />
+
+  <Import Project="..\GWSPro\GWSPro.projitems" Label="Shared" />
+
+  <Import Project="..\GWS\GWS.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <None Remove="Controls.cd" />
+    <None Remove="Windows.cd" />
+  </ItemGroup>
+
+</Project>

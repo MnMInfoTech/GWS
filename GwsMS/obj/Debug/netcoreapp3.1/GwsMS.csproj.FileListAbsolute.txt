@@ -1,0 +1,17 @@
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.AssemblyInfoInputs.cache
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.AssemblyInfo.cs
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.csproj.CoreCompileInputs.cache
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.csproj.AssemblyReference.cache
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.GeneratedMSBuildEditorConfig.editorconfig
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GWS.png
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\LinBiolinum_R_G.ttf
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\UbuntuMono-Regular.ttf
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GwsMS.exe
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GwsMS.deps.json
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GwsMS.runtimeconfig.json
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GwsMS.runtimeconfig.dev.json
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GwsMS.dll
+D:\source\Repos\GWS2\GwsMS\bin\Debug\netcoreapp3.1\GwsMS.pdb
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.dll
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.pdb
+D:\source\Repos\GWS2\GwsMS\obj\Debug\netcoreapp3.1\GwsMS.genruntimeconfig.cache

@@ -1,0 +1,75 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32728.150
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "COMMON", "Common\COMMON.shproj", "{39BD22D5-B13E-4DFE-93D7-44065E7EDAC9}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SDL", "SDL\SDL.shproj", "{2288F8BC-F12F-48E0-9E46-4AB66152F4EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GwsMS", "GwsMS\GwsMS.csproj", "{4693715A-49D6-4CB1-A194-C92F2681FD75}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GwsSDL", "GwsSDL\GwsSDL.csproj", "{F925AABE-6F3E-457F-A3F1-C88BADE1439B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NonGWS", "NonGWS\NonGWS.csproj", "{A8851A88-6088-4A6E-BBED-299B81884608}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GWSDll", "GWSDll\GWSDll.csproj", "{CEF12089-B91C-4487-B4D2-3E1A3C468A6F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GWS", "GWS\GWS.shproj", "{B93D405D-8433-4B10-AF66-BA6F5CB231B9}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GWSPro", "GWSPro\GWSPro.shproj", "{9FD431A2-40E5-45E8-ADA7-E31E21FBF960}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DESKTOP", "..\GWS\Desktop\DESKTOP.shproj", "{E09664A7-DFC3-4B27-BD04-2061C23B1C68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4693715A-49D6-4CB1-A194-C92F2681FD75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4693715A-49D6-4CB1-A194-C92F2681FD75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4693715A-49D6-4CB1-A194-C92F2681FD75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4693715A-49D6-4CB1-A194-C92F2681FD75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F925AABE-6F3E-457F-A3F1-C88BADE1439B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F925AABE-6F3E-457F-A3F1-C88BADE1439B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F925AABE-6F3E-457F-A3F1-C88BADE1439B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F925AABE-6F3E-457F-A3F1-C88BADE1439B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8851A88-6088-4A6E-BBED-299B81884608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8851A88-6088-4A6E-BBED-299B81884608}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8851A88-6088-4A6E-BBED-299B81884608}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8851A88-6088-4A6E-BBED-299B81884608}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEF12089-B91C-4487-B4D2-3E1A3C468A6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEF12089-B91C-4487-B4D2-3E1A3C468A6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEF12089-B91C-4487-B4D2-3E1A3C468A6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEF12089-B91C-4487-B4D2-3E1A3C468A6F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FE0D7295-ED7B-41ED-8A1C-0AA13C7F11B1}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SDL\SDL.projitems*{2288f8bc-f12f-48e0-9e46-4ab66152f4ec}*SharedItemsImports = 13
+		Common\Common.projitems*{39bd22d5-b13e-4dfe-93d7-44065e7edac9}*SharedItemsImports = 13
+		..\GWS\Desktop\Desktop.projitems*{4693715a-49d6-4cb1-a194-c92f2681fd75}*SharedItemsImports = 5
+		Common\Common.projitems*{4693715a-49d6-4cb1-a194-c92f2681fd75}*SharedItemsImports = 5
+		GWSPro\GWSPro.projitems*{4693715a-49d6-4cb1-a194-c92f2681fd75}*SharedItemsImports = 5
+		GWS\GWS.projitems*{4693715a-49d6-4cb1-a194-c92f2681fd75}*SharedItemsImports = 5
+		GWSPro\GWSPro.projitems*{9fd431a2-40e5-45e8-ada7-e31e21fbf960}*SharedItemsImports = 13
+		Common\Common.projitems*{a8851a88-6088-4a6e-bbed-299b81884608}*SharedItemsImports = 5
+		GWSPro\GWSPro.projitems*{a8851a88-6088-4a6e-bbed-299b81884608}*SharedItemsImports = 5
+		GWS\GWS.projitems*{a8851a88-6088-4a6e-bbed-299b81884608}*SharedItemsImports = 5
+		GWS\GWS.projitems*{b93d405d-8433-4b10-af66-ba6f5cb231b9}*SharedItemsImports = 13
+		Common\Common.projitems*{cef12089-b91c-4487-b4d2-3e1a3c468a6f}*SharedItemsImports = 5
+		GWSPro\GWSPro.projitems*{cef12089-b91c-4487-b4d2-3e1a3c468a6f}*SharedItemsImports = 5
+		GWS\GWS.projitems*{cef12089-b91c-4487-b4d2-3e1a3c468a6f}*SharedItemsImports = 5
+		SDL\SDL.projitems*{cef12089-b91c-4487-b4d2-3e1a3c468a6f}*SharedItemsImports = 5
+		..\GWS\Desktop\Desktop.projitems*{e09664a7-dfc3-4b27-bd04-2061c23b1c68}*SharedItemsImports = 13
+		Common\Common.projitems*{f925aabe-6f3e-457f-a3f1-c88bade1439b}*SharedItemsImports = 5
+		GWSPro\GWSPro.projitems*{f925aabe-6f3e-457f-a3f1-c88bade1439b}*SharedItemsImports = 5
+		GWS\GWS.projitems*{f925aabe-6f3e-457f-a3f1-c88bade1439b}*SharedItemsImports = 5
+		SDL\SDL.projitems*{f925aabe-6f3e-457f-a3f1-c88bade1439b}*SharedItemsImports = 5
+	EndGlobalSection
+EndGlobal

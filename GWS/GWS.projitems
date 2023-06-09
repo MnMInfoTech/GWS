@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>919b1bd8-b3e8-477b-93fe-fc314cbb8268</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>GWS</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Brushes\Brush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Brushes\GradientBrush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Brushes\TextureBrush.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Buffers\Block.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Buffers\Canvas.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Buffers\ImageList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Buffers\PolygonFiller.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Buffers\View.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\GlyphMeasurement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\ImageStyle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\ShapeParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Consts\Consts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Control.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Font.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\GWS-Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\CancelEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\DragEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\DrawEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\EventInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\KeyEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\KeyPressEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\MouseEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\PropertyChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\SizeEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Angles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Colors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Curves.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Fonts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Lines.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Rectangles.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Vectors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Windows.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Font\Font.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Font\Font2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Font\GlyphRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Font\GlyphSlot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Buffers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EventArgs\Interfaces.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ObjectAbilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Controls.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Application.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Arc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Bezier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Box.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\BoxF.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Capsule.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Conic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\CloseButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Curve.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Ellipse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\EndButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Glyph.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Line.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\MaximizeButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\MinimizeButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Pie.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Polygon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Polygons.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\RestoreButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\RoundBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Tetragon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Text.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shapes\Traingle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\Windows.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Drawing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Factory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Main\Instance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parameters\CharLimit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parameters\Stroke.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parameters\TextCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Parameters\WrapWidth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Buffers\RenderTarget.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\BrushStyle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\Cmyk.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\GlyphLineInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\Hsl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\Hsv.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\LinePair.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\PenInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Structs\Yuv.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\BaseWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\Desktop.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\Project.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Windows\Sound.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)GWS.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)LinBiolinum_R_G.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)UbuntuMono-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)UFL.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)GWS-Controls-Hierarchy.pdf" />
+    <None Include="$(MSBuildThisFileDirectory)GWS-Windows-EcoSystem.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Interfaces\" />
+  </ItemGroup>
+</Project>

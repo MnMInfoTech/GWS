@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;GWS;MS;Demo;Advance1;</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
+
+  <Import Project="..\GWS\GWS.projitems" Label="Shared" />
+
+  <Import Project="..\GWSPro\GWSPro.projitems" Label="Shared" />
+
+  <Import Project="..\..\GWS\Desktop\Desktop.projitems" Label="Shared" />
+</Project>
