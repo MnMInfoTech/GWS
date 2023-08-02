@@ -1,5 +1,0 @@
-D:\source\Repos\GWS\GwsMS\obj\Debug\net5.0-windows\GwsMS.csprojAssemblyReference.cache
-D:\source\Repos\GWS\GwsMS\obj\Debug\net5.0-windows\GwsMS.GeneratedMSBuildEditorConfig.editorconfig
-D:\source\Repos\GWS\GwsMS\obj\Debug\net5.0-windows\GwsMS.AssemblyInfoInputs.cache
-D:\source\Repos\GWS\GwsMS\obj\Debug\net5.0-windows\GwsMS.AssemblyInfo.cs
-D:\source\Repos\GWS\GwsMS\obj\Debug\net5.0-windows\GwsMS.csproj.CoreCompileInputs.cache

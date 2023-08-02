@@ -1,4 +1,0 @@
-D:\source\Repos\GWS\NonGWS\obj\Debug\net5.0\NonGWS.GeneratedMSBuildEditorConfig.editorconfig
-D:\source\Repos\GWS\NonGWS\obj\Debug\net5.0\NonGWS.AssemblyInfoInputs.cache
-D:\source\Repos\GWS\NonGWS\obj\Debug\net5.0\NonGWS.AssemblyInfo.cs
-D:\source\Repos\GWS\NonGWS\obj\Debug\net5.0\NonGWS.csproj.CoreCompileInputs.cache
