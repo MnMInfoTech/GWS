@@ -11,6 +11,4 @@
 
   <Import Project="..\Common\Common.projitems" Label="Shared" />
 
-  <Import Project="..\GWSPro\GWSPro.projitems" Label="Shared" />
-
 </Project>

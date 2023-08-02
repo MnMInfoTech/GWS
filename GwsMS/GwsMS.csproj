@@ -20,7 +20,5 @@
 
   <Import Project="..\GWS\GWS.projitems" Label="Shared" />
 
-  <Import Project="..\GWSPro\GWSPro.projitems" Label="Shared" />
-
   <Import Project="..\..\GWS\Desktop\Desktop.projitems" Label="Shared" />
 </Project>

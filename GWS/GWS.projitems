@@ -108,12 +108,6 @@
     <Content Include="$(MSBuildThisFileDirectory)UFL.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)GWS-Controls-Hierarchy.pdf" />
-    <None Include="$(MSBuildThisFileDirectory)GWS-Windows-EcoSystem.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Interfaces\" />
   </ItemGroup>
 </Project>

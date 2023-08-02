@@ -13,21 +13,6 @@ C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\NonGWS\obj\Debug\net6.
 C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\NonGWS\obj\Debug\net6.0\refint\NonGWS.dll
 C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\NonGWS\obj\Debug\net6.0\NonGWS.pdb
 C:\Users\Mukesh Adhvaryu\OneDrive\Desktop\08-OCT-2022\GWS\NonGWS\obj\Debug\net6.0\ref\NonGWS.dll
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.csproj.AssemblyReference.cache
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.GeneratedMSBuildEditorConfig.editorconfig
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.AssemblyInfoInputs.cache
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.AssemblyInfo.cs
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.csproj.CoreCompileInputs.cache
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.dll
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\refint\NonGWS.dll
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\NonGWS.pdb
-D:\source\Repos\GWS\NonGWS\bin\Debug\net6.0\GWS.png
-D:\source\Repos\GWS\NonGWS\bin\Debug\net6.0\LinBiolinum_R_G.ttf
-D:\source\Repos\GWS\NonGWS\bin\Debug\net6.0\UbuntuMono-Regular.ttf
-D:\source\Repos\GWS\NonGWS\bin\Debug\net6.0\NonGWS.deps.json
-D:\source\Repos\GWS\NonGWS\bin\Debug\net6.0\NonGWS.dll
-D:\source\Repos\GWS\NonGWS\bin\Debug\net6.0\NonGWS.pdb
-D:\source\Repos\GWS\NonGWS\obj\Debug\net6.0\ref\NonGWS.dll
 D:\source\Repos\VirtualOS\NonGWS\obj\Debug\net6.0\NonGWS.csproj.AssemblyReference.cache
 D:\source\Repos\VirtualOS\NonGWS\obj\Debug\net6.0\NonGWS.GeneratedMSBuildEditorConfig.editorconfig
 D:\source\Repos\VirtualOS\NonGWS\obj\Debug\net6.0\NonGWS.AssemblyInfoInputs.cache

@@ -25,6 +25,4 @@
   <Import Project="..\SDL\SDL.projitems" Label="Shared" />
 
   <Import Project="..\GWS\GWS.projitems" Label="Shared" />
-
-  <Import Project="..\GWSPro\GWSPro.projitems" Label="Shared" />
 </Project>

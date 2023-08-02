@@ -52,7 +52,7 @@ namespace MnM.GWS.MS
             {
                 var matrix = new Matrix();
 
-                matrix.RotateAt(rotate.Angle, new PointF(rotate.Centre?.Cx??0, rotate.Centre?.Cy??0));
+                matrix.RotateAt(rotate.Angle, new System.Drawing.PointF(rotate.Centre?.Cx??0, rotate.Centre?.Cy??0));
                 e.Graphics.Transform = matrix;
             }
             if (Demo.Instance.MsMethod != null)

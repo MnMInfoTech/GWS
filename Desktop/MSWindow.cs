@@ -110,7 +110,7 @@ namespace MnM.GWS
             void setTextSafe(string text) =>
                 base.Text = text;
 
-            IEventArgs IEventParser.ParseEvent(IEvent @event)
+            IEventArgs IEventParser.ParseEvent(IExternalEventInfo @event)
             {
                 throw new NotImplementedException();
             }

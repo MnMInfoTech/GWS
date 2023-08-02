@@ -481,7 +481,7 @@ namespace MnM.GWS.MS
             var y = e.Y;
             var boundary = Factory.newBoundary();
             Window.WritePixels(new float[] { x, y, x, y + 1 },
-                Command.ScreenNoUpdate.Add(), 2.ToThickness(), Rgba.Red, boundary);
+                (Command.Screen| Command.SkipDisplayUpdate).Add(), 2.ToThickness(), Rgba.Red, boundary);
             Window.Update(boundary, UpdateCommand.UpdateScreenOnly);
         }
         private void PlotPoints(object sender, System.EventArgs e)
@@ -495,7 +495,7 @@ namespace MnM.GWS.MS
             var boundary = (IExBoundary) Factory.newBoundary();
             var temp = (IExBoundary)Factory.newBoundary();
             var parameters = new IParameter[]
-            { Command.ScreenNoUpdate.Add(), 2.ToThickness(), Rgba.Red, temp };
+            { (Command.Screen| Command.SkipDisplayUpdate).Add(), 2.ToThickness(), Rgba.Red, temp };
             Window.WriteLines(points, parameters);
             boundary.Update(temp);
             //var pts = Vectors.ToPointsF(points);

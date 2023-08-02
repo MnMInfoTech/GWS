@@ -285,26 +285,6 @@ D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0
 D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
 D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
 D:\MnMFrameWorks Archieve\28-MAR-2023 Child Frame Faluty\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.AssemblyReference.cache
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.GeneratedMSBuildEditorConfig.editorconfig
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfoInputs.cache
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.AssemblyInfo.cs
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.csproj.CoreCompileInputs.cache
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GWS.png
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GWS-Windows-EcoSystem.pdf
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.exe
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\SDL2.dll
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.deps.json
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.runtimeconfig.json
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.dll
-D:\source\Repos\GWS\GwsSDL\bin\Debug\net6.0\GwsSDL.pdb
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.dll
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\refint\GwsSDL.dll
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.pdb
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\GwsSDL.genruntimeconfig.cache
-D:\source\Repos\GWS\GwsSDL\obj\Debug\net6.0\ref\GwsSDL.dll
 D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\GWS.png
 D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\LinBiolinum_R_G.ttf
 D:\source\Repos\GWS2\GwsSDL\bin\Debug\net6.0\UbuntuMono-Regular.ttf

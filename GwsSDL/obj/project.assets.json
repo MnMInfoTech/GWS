@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\source\\Repos\\VirtualOS\\GwsSDL\\GwsSDL.csproj",
+      "projectUniqueName": "D:\\source\\Repos\\GWS\\GwsSDL\\GwsSDL.csproj",
       "projectName": "GwsSDL",
-      "projectPath": "D:\\source\\Repos\\VirtualOS\\GwsSDL\\GwsSDL.csproj",
+      "projectPath": "D:\\source\\Repos\\GWS\\GwsSDL\\GwsSDL.csproj",
       "packagesPath": "C:\\Users\\Mukesh Adhvaryu\\.nuget\\packages\\",
-      "outputPath": "D:\\source\\Repos\\VirtualOS\\GwsSDL\\obj\\",
+      "outputPath": "D:\\source\\Repos\\GWS\\GwsSDL\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -67,7 +67,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
       }
     }
   }
